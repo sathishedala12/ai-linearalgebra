@@ -1,0 +1,1271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ML Deep Dive — Complete Theory + Interactive Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=IBM+Plex+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#07090f;--s1:#0d1220;--s2:#111926;--bdr:#1a2538;--tx:#c2d0e8;--mu:#3d5473;--str:#e4eeff;
+  --cy:#38bdf8;--or:#fb923c;--gr:#34d399;--yl:#fbbf24;--pu:#a78bfa;--rd:#f87171;--pi:#f472b6;--tl:#2dd4bf;
+  --ob:#f97316;}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--tx);font-family:'IBM Plex Sans',sans-serif;line-height:1.7}
+#prog{position:fixed;top:0;left:0;height:2px;background:linear-gradient(90deg,#38bdf8,#a78bfa,#34d399);z-index:999;transition:width .08s}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;height:50px;background:rgba(7,9,15,.93);backdrop-filter:blur(16px);border-bottom:1px solid var(--bdr);display:flex;align-items:center;padding:0 20px;gap:2px}
+.nl{font-family:'Playfair Display',serif;font-size:14px;font-weight:700;color:var(--str);margin-right:16px;white-space:nowrap}
+.na{font-size:10.5px;font-weight:600;padding:4px 9px;border-radius:4px;color:var(--mu);cursor:pointer;text-decoration:none;transition:.1s;white-space:nowrap}
+.na:hover,.na.on{color:var(--cy);background:rgba(56,189,248,.08)}
+/* HERO */
+.hero{min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:80px 24px 60px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 70% 50% at 50% 45%,rgba(56,189,248,.06),transparent)}
+.hero-eye{font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--mu);margin-bottom:18px}
+.hero-h{font-family:'Playfair Display',serif;font-size:clamp(38px,6vw,76px);font-weight:900;color:var(--str);line-height:1.05;margin-bottom:16px}
+.hero-h em{font-style:italic;background:linear-gradient(135deg,#38bdf8,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero-p{font-size:15px;color:var(--mu);max-width:560px;line-height:1.75;margin-bottom:30px}
+.hero-tags{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.htag{padding:5px 14px;border-radius:99px;border:1px solid;font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase}
+.hcw{width:min(720px,92vw);height:140px;border-radius:10px;overflow:hidden;border:1px solid var(--bdr);margin-top:30px;background:var(--s1)}
+
+/* CHAPTERS */
+.ch{max-width:1060px;margin:0 auto;padding:70px 24px 50px;border-top:1px solid var(--bdr)}
+.ch-hd{display:flex;align-items:flex-start;gap:20px;margin-bottom:36px}
+.ch-n{font-family:'Playfair Display',serif;font-size:64px;font-weight:900;line-height:1;color:var(--str);opacity:.15;flex-shrink:0;min-width:80px}
+.ch-m{flex:1}
+.ch-badge{display:inline-block;padding:2px 10px;border-radius:4px;font-size:9.5px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px}
+.ch-title{font-family:'Playfair Display',serif;font-size:clamp(26px,3.5vw,40px);font-weight:900;color:var(--str);line-height:1.1;margin-bottom:6px}
+.ch-sub{font-size:14px;color:var(--mu);line-height:1.6}
+
+/* THEORY */
+.th-grid{display:grid;grid-template-columns:1fr 340px;gap:20px;margin-bottom:24px;align-items:start}
+.th-grid.rev{direction:rtl}.th-grid.rev>*{direction:ltr}
+.th-body p{font-size:14px;line-height:1.85;color:var(--tx);margin-bottom:14px}
+.th-body p strong{color:var(--str)}
+.th-body p em{color:var(--cy);font-style:normal}
+.eq-blk{font-family:'JetBrains Mono',monospace;background:var(--s1);border:1px solid var(--bdr);border-left:3px solid;border-radius:0 8px 8px 0;padding:12px 16px;font-size:12px;line-height:2;margin:12px 0;color:var(--str)}
+.insight-stack{display:flex;flex-direction:column;gap:10px}
+.ins{background:var(--s1);border:1px solid var(--bdr);border-radius:10px;padding:14px 16px}
+.ins-ico{font-size:18px;margin-bottom:5px}
+.ins-t{font-size:12.5px;font-weight:700;color:var(--str);margin-bottom:4px}
+.ins-b{font-size:12px;color:var(--tx);line-height:1.7}
+.ins-b code{font-family:'JetBrains Mono',monospace;background:rgba(255,255,255,.05);padding:1px 5px;border-radius:3px;font-size:10.5px;color:var(--cy)}
+.ai-blk{background:linear-gradient(135deg,rgba(56,189,248,.05),rgba(167,139,250,.03));border:1px solid rgba(100,130,255,.18);border-radius:12px;padding:18px 20px;margin-top:14px}
+.ai-t{font-size:9.5px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:#7899ff;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.ai-b{font-size:13px;color:var(--tx);line-height:1.75}
+.ai-b strong{color:#7899ff}
+.ai-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.aichip{padding:2px 9px;border-radius:99px;background:rgba(100,130,255,.1);border:1px solid rgba(100,130,255,.2);font-size:9.5px;font-weight:700;color:#7899ff}
+
+/* TOOL BLOCKS */
+.tool-blk{background:var(--s1);border:1px solid var(--bdr);border-radius:14px;overflow:hidden;margin-top:20px}
+.tool-hd{padding:12px 18px;border-bottom:1px solid var(--bdr);font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--mu);display:flex;align-items:center;gap:8px}
+.tool-inner{display:grid;grid-template-columns:1fr 260px;gap:0}
+.tool-inner.full{grid-template-columns:1fr}
+.tool-inner.wide{grid-template-columns:1fr 220px}
+canvas{display:block;width:100%;height:auto;background:var(--s2)}
+.ctrl-panel{padding:16px;border-left:1px solid var(--bdr)}
+.cg{margin-bottom:14px}
+.cl{display:flex;justify-content:space-between;align-items:center;font-size:12px;font-weight:600;color:var(--tx);margin-bottom:5px}
+.cv{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--cy);background:rgba(56,189,248,.08);padding:1px 6px;border-radius:3px}
+input[type=range]{width:100%;height:4px;appearance:none;background:var(--bdr);border-radius:2px;outline:none;cursor:pointer}
+input[type=range]::-webkit-slider-thumb{appearance:none;width:13px;height:13px;border-radius:50%;background:var(--cy);cursor:pointer;box-shadow:0 0 8px var(--cy)}
+.stat{background:var(--s2);border:1px solid var(--bdr);border-radius:7px;padding:9px 12px;margin-top:8px}
+.stat-l{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--mu)}
+.stat-v{font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:700;color:var(--or);margin-top:1px}
+.btn{display:inline-flex;align-items:center;gap:5px;padding:6px 13px;border-radius:6px;font-size:11.5px;font-weight:700;cursor:pointer;border:none;font-family:'IBM Plex Sans',sans-serif;transition:.12s}
+.bp{background:var(--cy);color:#07090f}.bp:hover{filter:brightness(1.15);box-shadow:0 0 14px rgba(56,189,248,.35)}
+.bg{background:transparent;border:1px solid var(--bdr);color:var(--tx)}.bg:hover{border-color:var(--mu);color:var(--str)}
+.brow{display:flex;gap:7px;margin-top:10px;flex-wrap:wrap}
+.deg-row{display:flex;gap:5px;flex-wrap:wrap;padding:10px 16px;border-bottom:1px solid var(--bdr)}
+.db{padding:4px 10px;border-radius:5px;font-size:11px;font-weight:700;font-family:'JetBrains Mono',monospace;cursor:pointer;border:1px solid var(--bdr);background:var(--s2);color:var(--mu);transition:.12s}
+.db:hover{color:var(--tx)}.db.on{background:rgba(167,139,250,.12);color:var(--pu);border-color:var(--pu)}
+.two-cv{display:grid;grid-template-columns:1fr 1fr;gap:0}
+.two-cv .cvl{font-size:10px;font-weight:700;text-align:center;padding:8px 0;letter-spacing:.5px;text-transform:uppercase;border-bottom:1px solid var(--bdr)}
+.pred-box{background:rgba(52,211,153,.06);border:1px solid rgba(52,211,153,.25);border-radius:9px;padding:14px;text-align:center;margin-top:10px}
+.pred-l{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--mu)}
+.pred-v{font-family:'JetBrains Mono',monospace;font-size:28px;font-weight:700;color:var(--gr);margin:3px 0}
+.lr3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px}
+.lr3-c{border-radius:8px;overflow:hidden;border:1px solid var(--bdr);background:var(--s1)}
+.lr3-hd{padding:7px 10px;font-size:10px;font-weight:700;text-align:center;border-bottom:1px solid var(--bdr)}
+@media(max-width:768px){.th-grid,.th-grid.rev{grid-template-columns:1fr;direction:ltr}.tool-inner,.tool-inner.wide{grid-template-columns:1fr}.lr3{grid-template-columns:1fr}}
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--bdr);border-radius:3px}
+</style>
+</head>
+<body>
+<div id="prog"></div>
+<nav>
+  <span class="nl">ML Deep Dive</span>
+  <a class="na" href="#s1">① Linear Reg.</a>
+  <a class="na" href="#s2">② Cost Fn.</a>
+  <a class="na" href="#s3">③ Grad. Descent</a>
+  <a class="na" href="#s4">④ Learning Rate</a>
+  <a class="na" href="#s5">⑤ Multi-Feature</a>
+  <a class="na" href="#s6">⑥ Scaling</a>
+  <a class="na" href="#s7">⑦ Convergence</a>
+  <a class="na" href="#s8">⑧ Polynomial</a>
+</nav>
+
+<div class="hero">
+  <div class="hero-eye">Andrew Ng · ML Specialization · Week 1 &amp; 2</div>
+  <h1 class="hero-h">Complete Theory &amp;<br><em>Interactive Guide</em></h1>
+  <p class="hero-p">Every concept explained from first principles — with the math, the intuition, interactive tools, and exactly where each idea powers modern AI systems like GPT and DALL·E.</p>
+  <div class="hero-tags">
+    <div class="htag" style="color:#fbbf24;border-color:rgba(251,191,36,.3)">Linear Regression</div>
+    <div class="htag" style="color:#f87171;border-color:rgba(248,113,113,.3)">Cost Functions</div>
+    <div class="htag" style="color:#38bdf8;border-color:rgba(56,189,248,.3)">Gradient Descent</div>
+    <div class="htag" style="color:#34d399;border-color:rgba(52,211,153,.3)">Vectorization</div>
+    <div class="htag" style="color:#a78bfa;border-color:rgba(167,139,250,.3)">Optimization</div>
+    <div class="htag" style="color:#f472b6;border-color:rgba(244,114,182,.3)">Normalization</div>
+  </div>
+  <div class="hcw"><canvas id="c-hero" width="720" height="140"></canvas></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     SECTION 1: LINEAR REGRESSION
+═══════════════════════════════════════════════════════ -->
+<div id="s1" class="ch">
+  <div class="ch-hd">
+    <div class="ch-n">01</div>
+    <div class="ch-m">
+      <div class="ch-badge" style="background:rgba(251,191,36,.1);color:#fbbf24">Foundation · Week 1</div>
+      <div class="ch-title">Linear Regression</div>
+      <div class="ch-sub">The first supervised learning model — and the building block of every neural network ever built</div>
+    </div>
+  </div>
+
+  <div class="th-grid">
+    <div class="th-body">
+      <p><strong>What is supervised learning?</strong> You give the algorithm a dataset of input-output pairs: house sizes and their sale prices. The algorithm learns a mapping function <em>f</em> from input <em>x</em> to output <em>y</em>. Once trained, it predicts prices for new houses it has never seen.</p>
+      <p><strong>The model:</strong> Linear regression assumes this mapping is a straight line. The model is <em>f(x) = wx + b</em> where <strong>w</strong> (weight) controls the slope — how much price changes per unit of size — and <strong>b</strong> (bias or intercept) is the baseline price when size = 0. Together, w and b are the model's <em>parameters</em>, and training means finding the best values for them.</p>
+      <p><strong>Why "linear"?</strong> The model output is a <em>linear function</em> of the parameters w and b. Doubling w doubles the prediction change. This linearity makes the math tractable and the optimization guaranteed to work — but it's also a limitation. Real-world relationships are rarely perfectly linear, which is why we later extend to polynomial features and neural networks.</p>
+      <p><strong>The notation unpacked:</strong> <em>x</em> = input feature (house size). <em>y</em> = true output (actual price). <em>ŷ</em> = predicted output from the model. <em>m</em> = number of training examples. Superscripts like <em>x⁽ⁱ⁾</em> denote the i-th training example.</p>
+      <div class="eq-blk" style="border-color:#fbbf24">
+<span style="color:#fbbf24">Model:</span>  f_w,b(x) = w·x + b
+<span style="color:#fbbf24">w</span> = slope (weight)  →  how output changes per unit of input
+<span style="color:#fbbf24">b</span> = intercept (bias) →  output when x = 0
+<span style="color:#4a6080">Training:</span> find w,b that minimize prediction errors across all (x⁽ⁱ⁾, y⁽ⁱ⁾)</div>
+      <p><strong>One neuron:</strong> A single neuron in a neural network computes exactly <em>output = w·x + b</em> — and then passes the result through a non-linear activation function (like ReLU or sigmoid). Linear regression is a neuron without the activation. Stack hundreds of neurons in layers, and you get deep learning. This is not metaphorical — it is exactly the same math.</p>
+    </div>
+    <div class="insight-stack">
+      <div class="ins">
+        <div class="ins-ico">📐</div>
+        <div class="ins-t">w = slope, b = intercept</div>
+        <div class="ins-b">If w=1.5: a house 1 unit larger costs 1.5 units more. If b=0.5: the baseline price for size=0 is 0.5. Changing w rotates the line; changing b shifts it up/down.</div>
+      </div>
+      <div class="ins">
+        <div class="ins-ico">🎯</div>
+        <div class="ins-t">Prediction vs Truth</div>
+        <div class="ins-b">The <span style="color:#f87171">error (residual)</span> for each point is <code>ŷᵢ - yᵢ</code>. The red lines in the tool show these errors. Training means making all red lines as short as possible — simultaneously.</div>
+      </div>
+      <div class="ins">
+        <div class="ins-ico">🧠</div>
+        <div class="ins-t">Linear Reg = 1 Neuron</div>
+        <div class="ins-b">Neural network layer: <code>output = W·X + b</code> (matrix form). Same formula. GPT-4 runs this billions of times per forward pass — just with much larger matrices.</div>
+      </div>
+      <div class="ai-blk">
+        <div class="ai-t">🤖 In Production AI</div>
+        <div class="ai-b">Every transformer layer in <strong>GPT-4, BERT, DALL·E</strong> is: <code>output = W·input + b</code>. This is matrix linear regression. The "weights" W are what gradient descent learns during training. Linear regression is not a toy — it IS deep learning, scaled up.</div>
+        <div class="ai-chips"><span class="aichip">Transformer Layers</span><span class="aichip">Linear Probes in LLMs</span><span class="aichip">Output Head</span><span class="aichip">Embedding Projections</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tool-blk" style="border-color:rgba(251,191,36,.2)">
+    <div class="tool-hd" style="color:#fbbf24">🎮 Interactive — drag w and b to fit the line · watch cost J update live</div>
+    <div class="tool-inner">
+      <canvas id="c-lr" width="560" height="340"></canvas>
+      <div class="ctrl-panel">
+        <div class="eq-blk" style="border-color:#fbbf24;margin:0 0 12px">f(x) = <span style="color:#fb923c" id="lr-weq">1.00</span>x + <span style="color:#34d399" id="lr-beq">0.00</span></div>
+        <div class="cg"><div class="cl"><span>Slope <b>w</b></span><span class="cv" id="lr-wv">1.00</span></div><input type="range" id="lr-w" min="-1" max="4" step="0.05" value="1"></div>
+        <div class="cg"><div class="cl"><span>Intercept <b>b</b></span><span class="cv" id="lr-bv">0.00</span></div><input type="range" id="lr-b" min="-5" max="8" step="0.1" value="0"></div>
+        <div class="stat"><div class="stat-l">Current Cost J(w,b)</div><div class="stat-v" id="lr-J">—</div></div>
+        <div class="stat" style="border-color:rgba(52,211,153,.25)"><div class="stat-l">Optimal J (minimum possible)</div><div class="stat-v" style="color:var(--gr)" id="lr-Jopt">—</div></div>
+        <div class="brow"><button class="btn bp" onclick="lr_fit()">✨ Auto-Fit</button><button class="btn bg" onclick="lr_reset()">↺ Reset</button></div>
+        <div style="margin-top:12px;font-size:11px;color:var(--mu);line-height:1.7">Orange dots = training data<br>Red dashes = prediction errors<br>Cyan line = model prediction<br><br>Try: set w=0,b=4. Notice the errors (red lines) are all roughly equal — the line is flat. Now Auto-Fit — errors shrink dramatically.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     SECTION 2: COST FUNCTION
+═══════════════════════════════════════════════════════ -->
+<div id="s2" class="ch">
+  <div class="ch-hd">
+    <div class="ch-n">02</div>
+    <div class="ch-m">
+      <div class="ch-badge" style="background:rgba(248,113,113,.1);color:#f87171">Measurement · Week 1</div>
+      <div class="ch-title">Cost Function J(w,b)</div>
+      <div class="ch-sub">The single number that tells the model how wrong it is — and defines what "learning" even means</div>
+    </div>
+  </div>
+
+  <div class="th-grid rev">
+    <div class="insight-stack">
+      <div class="ins">
+        <div class="ins-ico">❓</div>
+        <div class="ins-t">Why square the errors?</div>
+        <div class="ins-b">Three reasons: (1) makes all errors positive — negative errors don't cancel positive ones. (2) penalizes large errors heavily — a mistake of 2 units costs 4×, not 2×. (3) creates a smooth, differentiable curve — essential for gradient descent to work.</div>
+      </div>
+      <div class="ins">
+        <div class="ins-ico">½</div>
+        <div class="ins-t">The 1/(2m) factor</div>
+        <div class="ins-b">Dividing by <code>m</code>: averages cost across examples so it doesn't grow with dataset size. The extra <code>½</code>: purely mathematical convenience — it cancels with the 2 that appears when you differentiate x², giving cleaner gradient formulas. It doesn't change where the minimum is.</div>
+      </div>
+      <div class="ins">
+        <div class="ins-ico">🏔️</div>
+        <div class="ins-t">Convexity — the key guarantee</div>
+        <div class="ins-b">With MSE + linear regression, J(w,b) is <em style="color:var(--cy)">always convex</em> — a perfect bowl with ONE minimum. Gradient descent is <strong>guaranteed to find the global minimum</strong>. Deep neural networks lose convexity — optimization is much harder.</div>
+      </div>
+      <div class="ins">
+        <div class="ins-ico">📊</div>
+        <div class="ins-t">2D vs 3D view</div>
+        <div class="ins-b">Toggle between views in the tool. The 1D curve (J vs w, b fixed) is a parabola. The 2D contour (J vs both w and b) shows a bowl viewed from above — the tighter/inner ellipses are lower cost. The center = minimum J.</div>
+      </div>
+      <div class="ai-blk">
+        <div class="ai-t">🤖 Loss functions in AI</div>
+        <div class="ai-b">MSE is just one of many. The loss defines the task: <strong>cross-entropy</strong> for classification (GPT predicts next token), <strong>CLIP loss</strong> for image-text matching (DALL·E), <strong>RLHF reward</strong> for ChatGPT alignment. Choosing the right loss = defining what the model should optimize for.</div>
+        <div class="ai-chips"><span class="aichip">MSE → regression</span><span class="aichip">CrossEntropy → GPT</span><span class="aichip">CLIP → DALL·E</span><span class="aichip">RLHF → ChatGPT</span></div>
+      </div>
+    </div>
+    <div class="th-body">
+      <p><strong>Why do we need a cost function?</strong> "Training" means improving the model. But improving means moving <em>toward</em> something. The cost function defines what we're trying to minimize — it's the objective. Without it, gradient descent has no direction to move.</p>
+      <p><strong>Mean Squared Error (MSE):</strong> For each training example, compute the prediction error <em>ŷᵢ - yᵢ</em>. Square it (to make it positive and penalize large errors). Average over all m examples. Divide by an extra 2 for convenience. The result is J(w,b) — a single number measuring total model error.</p>
+      <div class="eq-blk" style="border-color:#f87171">
+<span style="color:#f87171">J(w,b)</span> = 1/(2m) · Σᵢ₌₁ᵐ (f_w,b(xᵢ) - yᵢ)²
+        = 1/(2m) · Σᵢ₌₁ᵐ (w·xᵢ + b - yᵢ)²
+
+<span style="color:#4a6080">m = number of training examples
+(wᵢ·xᵢ + b) = prediction (ŷᵢ)
+yᵢ = actual value
+(ŷᵢ - yᵢ) = error (residual) for example i</span></div>
+      <p><strong>The cost surface shape:</strong> J(w,b) forms a <em>bowl-shaped surface</em> in 3D (w, b, J axes). Every combination of w and b gives a different J. The center of the bowl — the minimum — is the optimal w★ and b★ we're searching for. In 2D contour view, concentric ellipses show equal-cost contours, like elevation lines on a topographic map.</p>
+      <p><strong>J is always ≥ 0.</strong> Since it's a sum of squares divided by a positive number, J can never be negative. J = 0 only if every prediction is perfect — which happens only on noiseless data. In practice, we aim for J as small as possible, not exactly 0.</p>
+    </div>
+  </div>
+
+  <div class="tool-blk" style="border-color:rgba(248,113,113,.2)">
+    <div class="tool-hd" style="color:#f87171">📊 Cost Function Visualizer — toggle 1D/2D · move w to see cost change</div>
+    <div style="padding:10px 16px;border-bottom:1px solid var(--bdr);display:flex;gap:8px">
+      <button class="btn bg" id="c-1d-btn" onclick="setCostMode('1d')" style="border-color:var(--cy);color:var(--cy)">J(w) Parabola</button>
+      <button class="btn bg" id="c-2d-btn" onclick="setCostMode('2d')">J(w,b) Contour</button>
+      <span style="font-size:11px;color:var(--mu);align-self:center;margin-left:8px">1D: b fixed at optimum · 2D: drag both w and b</span>
+    </div>
+    <div class="tool-inner">
+      <canvas id="c-cost" width="560" height="340"></canvas>
+      <div class="ctrl-panel">
+        <div class="eq-blk" id="cost-eq-disp" style="border-color:#f87171;margin:0 0 12px;font-size:11px">...</div>
+        <div class="cg"><div class="cl"><span>Slope <b>w</b></span><span class="cv" id="cost-wv">1.50</span></div><input type="range" id="cost-w" min="-1" max="4" step="0.05" value="1.5"></div>
+        <div id="cost-b-grp" class="cg" style="display:none"><div class="cl"><span>Intercept <b>b</b></span><span class="cv" id="cost-bv">2.00</span></div><input type="range" id="cost-b" min="-3" max="8" step="0.1" value="2"></div>
+        <div class="stat"><div class="stat-l">Cost J at current w,b</div><div class="stat-v" id="cost-Jv">—</div></div>
+        <div style="margin-top:14px;font-size:11px;color:var(--mu);line-height:1.8">
+          <b style="color:var(--cy)">1D view:</b> J(w) is a perfect parabola — one global minimum at w★. The yellow tangent line shows the gradient ∂J/∂w.<br><br>
+          <b style="color:var(--cy)">2D view:</b> J(w,b) is a bowl. Inner ellipses = lower cost. Center = minimum. This is what gradient descent navigates.<br><br>
+          Notice: J is symmetric and smooth — it has no "traps". GD always reaches the minimum.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     SECTION 3: GRADIENT DESCENT
+═══════════════════════════════════════════════════════ -->
+<div id="s3" class="ch">
+  <div class="ch-hd">
+    <div class="ch-n">03</div>
+    <div class="ch-m">
+      <div class="ch-badge" style="background:rgba(56,189,248,.1);color:#38bdf8">Optimization · Week 1</div>
+      <div class="ch-title">Gradient Descent</div>
+      <div class="ch-sub">The algorithm that trains every AI model ever created — from linear regression to GPT-4</div>
+    </div>
+  </div>
+
+  <div class="th-grid">
+    <div class="th-body">
+      <p><strong>The core idea — roll downhill:</strong> Imagine you're standing on a hilly landscape (the cost surface) blindfolded. You want to reach the valley (minimum J). The only information you have is the slope of the ground beneath your feet (the gradient). So you take a small step downhill. Then repeat. Eventually you reach the valley. This is gradient descent.</p>
+      <p><strong>The update rule:</strong> At each step, compute the partial derivative of J with respect to each parameter. The partial derivative is the slope — positive means J increases in that direction, so we move the opposite way. The step size is controlled by <em>α (alpha)</em>, the learning rate. Both parameters are updated simultaneously using the old values — not sequentially.</p>
+      <div class="eq-blk" style="border-color:#38bdf8">
+<span style="color:#38bdf8">Simultaneous update (critical!):</span>
+temp_w = w - α · ∂J/∂w
+temp_b = b - α · ∂J/∂b
+w = temp_w   ← update AFTER computing both
+b = temp_b   ← using OLD values of w and b
+
+<span style="color:#38bdf8">Partial derivatives:</span>
+∂J/∂w = (1/m) · Σ(wxᵢ + b - yᵢ) · xᵢ
+∂J/∂b = (1/m) · Σ(wxᵢ + b - yᵢ)</div>
+      <p><strong>Why simultaneous?</strong> If you update w first and then use the new w to compute the gradient for b, you'd be computing ∂J/∂b at the wrong point — the math is inconsistent. Both derivatives must be computed at the same (w, b) position before any update happens. This is a subtle but important implementation detail.</p>
+      <p><strong>Convergence:</strong> Gradient descent converges when J stops decreasing meaningfully. Near the minimum, the gradient (slope) approaches zero, so the steps become tiny. The algorithm naturally slows down as it approaches the optimum — it doesn't overshoot when α is chosen correctly.</p>
+      <p><strong>Backpropagation is gradient descent:</strong> In neural networks, ∂J/∂w must be computed for every weight — possibly billions of them. Backpropagation uses the chain rule to efficiently propagate gradients backward through the network. The update rule is identical: <em>w := w − α·∂J/∂w</em>. The algorithm is the same; only the computation graph is more complex.</p>
+    </div>
+    <div class="insight-stack">
+      <div class="ins">
+        <div class="ins-ico">∂</div>
+        <div class="ins-t">What ∂J/∂w means</div>
+        <div class="ins-b">The partial derivative is the slope of J in the w direction — if you increase w by a tiny amount ε, J changes by ≈(∂J/∂w)·ε. When positive: increasing w increases J, so decrease w. When negative: decrease w increases J, so increase w. Always move opposite the gradient.</div>
+      </div>
+      <div class="ins">
+        <div class="ins-ico">⚠️</div>
+        <div class="ins-t">Why simultaneous update matters</div>
+        <div class="ins-b">Wrong: update w, then compute ∂J/∂b with new w. Right: compute both derivatives with old w and b, then update both. Sequential updates use an inconsistent gradient — different from what you'd get mathematically.</div>
+      </div>
+      <div class="ins">
+        <div class="ins-ico">🏁</div>
+        <div class="ins-t">Batch vs Mini-batch vs SGD</div>
+        <div class="ins-b"><strong>Batch GD:</strong> use all m examples to compute gradient (slow per epoch, stable). <strong>Stochastic GD (SGD):</strong> use 1 example at a time (fast, noisy). <strong>Mini-batch GD:</strong> use 32-256 examples (the standard in deep learning — fast + stable). GPT uses mini-batch GD with batch size ~1M tokens.</div>
+      </div>
+      <div class="ai-blk">
+        <div class="ai-t">🤖 Adam — gradient descent evolved</div>
+        <div class="ai-b">Modern AI uses <strong>Adam optimizer</strong> — it keeps a running estimate of the gradient mean (momentum) and squared gradient (variance) for each weight separately. This gives each parameter its own effective learning rate that adapts over time. Nearly every foundation model (GPT, BERT, LLaMA) trains with Adam.</div>
+        <div class="ai-chips"><span class="aichip">Backpropagation</span><span class="aichip">Adam / AdamW</span><span class="aichip">Mini-batch SGD</span><span class="aichip">Gradient Clipping</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tool-blk" style="border-color:rgba(56,189,248,.2)">
+    <div class="tool-hd" style="color:#38bdf8">⛷ Gradient Descent Animator — watch it roll downhill on the cost surface · try different α values</div>
+    <div class="tool-inner">
+      <canvas id="c-gd" width="560" height="380"></canvas>
+      <div class="ctrl-panel">
+        <div class="cg"><div class="cl"><span>Learning rate α</span><span class="cv" id="gd-lrv">0.10</span></div><input type="range" id="gd-lr" min="0.01" max="0.45" step="0.01" value="0.1" oninput="gd_lr_change()"></div>
+        <div class="stat"><div class="stat-l">Step count</div><div class="stat-v" id="gd-step">0</div></div>
+        <div class="stat"><div class="stat-l">Cost J</div><div class="stat-v" style="color:var(--or)" id="gd-J">—</div></div>
+        <div class="stat" style="border-color:rgba(56,189,248,.2)"><div class="stat-l">Parameters w / b</div><div class="stat-v" style="font-size:13px;color:var(--cy)" id="gd-wb">—</div></div>
+        <div class="brow">
+          <button class="btn bp" id="gd-play" onclick="gd_toggle()">▶ Play</button>
+          <button class="btn bg" onclick="gd_step1()">▶| Step</button>
+          <button class="btn bg" onclick="gd_reset()">↺ Reset</button>
+        </div>
+        <div style="margin-top:12px;font-size:11px;color:var(--mu);line-height:1.8">
+          <b style="color:var(--cy)">Contour map:</b> inner ellipses = lower cost. White dot = current (w,b).<br><br>
+          <b style="color:var(--cy)">Green trail:</b> gradient descent path — each dot is one update step.<br><br>
+          Try α=0.01 (slow zigzag) vs α=0.3 (fast but might overshoot). Notice: near the minimum, steps get smaller automatically — the gradient shrinks.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     SECTION 4: LEARNING RATE
+═══════════════════════════════════════════════════════ -->
+<div id="s4" class="ch">
+  <div class="ch-hd">
+    <div class="ch-n">04</div>
+    <div class="ch-m">
+      <div class="ch-badge" style="background:rgba(167,139,250,.1);color:#a78bfa">Hyperparameter · Week 1</div>
+      <div class="ch-title">Learning Rate α</div>
+      <div class="ch-sub">The step size that determines whether gradient descent succeeds, crawls, or explodes</div>
+    </div>
+  </div>
+
+  <div class="th-grid rev">
+    <div class="insight-stack">
+      <div class="ins">
+        <div class="ins-ico">🐌</div>
+        <div class="ins-t">α too small → glacially slow</div>
+        <div class="ins-b">Each step reduces J by a tiny amount. The algorithm is mathematically correct and will converge — but it might take 100,000 iterations instead of 1,000. In practice, training might time out before converging. With very small α, you might also get stuck near a saddle point.</div>
+      </div>
+      <div class="ins">
+        <div class="ins-ico">✅</div>
+        <div class="ins-t">α just right → smooth convergence</div>
+        <div class="ins-b">J decreases steadily every iteration. The learning curve is smooth. Convergence happens in a reasonable number of steps. The "right" α depends on the problem — typically found by grid search or by watching the learning curve and adjusting by factors of 3–10.</div>
+      </div>
+      <div class="ins">
+        <div class="ins-ico">💥</div>
+        <div class="ins-t">α too large → divergence</div>
+        <div class="ins-b">Each step overshoots the minimum. J bounces back and forth, getting larger each time. Eventually J → ∞. Debugging tip: if J ever <em>increases</em> during training, your α is too large. Reduce by 10× and try again.</div>
+      </div>
+      <div class="ins">
+        <div class="ins-ico">🔬</div>
+        <div class="ins-t">How to choose α in practice</div>
+        <div class="ins-b">Try: 0.001, 0.003, 0.01, 0.03, 0.1, 0.3, 1.0 (roughly 3× increments). Plot J vs iterations for each. Pick the largest α that still decreases J smoothly. Andrew Ng recommends this systematic approach over guessing.</div>
+      </div>
+      <div class="ai-blk">
+        <div class="ai-t">🤖 How modern AI handles learning rate</div>
+        <div class="ai-b"><strong>Adam optimizer</strong> adapts each weight's effective LR based on gradient history — you rarely tune α manually. But the initial α (base LR) still matters. GPT-4 uses <strong>linear warmup</strong> (α starts near 0, grows for first ~2000 steps) then <strong>cosine decay</strong> (α smoothly drops to 0 over training). This prevents instability early and ensures fine convergence at the end.</div>
+        <div class="ai-chips"><span class="aichip">LR Warmup</span><span class="aichip">Cosine Decay</span><span class="aichip">Cyclical LR</span><span class="aichip">Adam / AdamW</span></div>
+      </div>
+    </div>
+    <div class="th-body">
+      <p><strong>What α controls:</strong> α (alpha) is the step size in gradient descent. After computing the gradient ∂J/∂w, we move by <em>α × gradient</em> in the opposite direction. Large α = large steps. Small α = small steps. The gradient only tells us the direction; α tells us how far to go.</p>
+      <div class="eq-blk" style="border-color:#a78bfa">
+w := w - <span style="color:#a78bfa">α</span> · ∂J/∂w
+<span style="color:#4a6080">α too small: takes forever to reach minimum
+α too large: overshoots minimum, diverges
+α just right: converges in reasonable iterations</span>
+
+<span style="color:#a78bfa">Debugging rule:</span>
+If J increases at any step → α is too large. Reduce by 10×.
+If J decreases but very slowly → try increasing α by 3×.</div>
+      <p><strong>Near the minimum, steps automatically shrink.</strong> Even with a fixed α, gradient descent naturally takes smaller steps near the minimum because the gradient (slope) becomes smaller near the flat bottom of the bowl. You don't need to manually reduce α as you get close — the math handles it. This is different from gradient <em>clipping</em> or schedules.</p>
+      <p><strong>The 3× rule:</strong> When searching for a good α, try values spaced roughly 3× apart: 0.001, 0.003, 0.01, 0.03, 0.1, 0.3. This covers many orders of magnitude efficiently. Plot J vs iterations for each — pick the fastest-converging without diverging. Modern optimizers (Adam) are less sensitive to α choice.</p>
+      <p><strong>Learning rate schedules:</strong> In deep learning, using a fixed α throughout training is suboptimal. Common schedules: <em>cosine decay</em> (α smoothly drops to 0 following a cosine curve), <em>step decay</em> (reduce α by factor 0.1 every N epochs), <em>warmup + decay</em> (used for transformers). The right schedule can significantly improve final model quality.</p>
+    </div>
+  </div>
+
+  <div class="tool-blk" style="border-color:rgba(167,139,250,.2)">
+    <div class="tool-hd" style="color:#a78bfa">🎛 Learning Rate Explorer — compare three regimes, then try your own α</div>
+    <div class="lr3">
+      <div class="lr3-c"><div class="lr3-hd" style="color:var(--cy)">α = 0.005 &nbsp;TOO SLOW</div><canvas id="c-lr1" width="320" height="180"></canvas></div>
+      <div class="lr3-c"><div class="lr3-hd" style="color:var(--gr)">α = 0.15 &nbsp;JUST RIGHT</div><canvas id="c-lr2" width="320" height="180"></canvas></div>
+      <div class="lr3-c"><div class="lr3-hd" style="color:var(--rd)">α = 0.9 &nbsp;DIVERGES</div><canvas id="c-lr3" width="320" height="180"></canvas></div>
+    </div>
+    <div style="padding:14px 16px;border-top:1px solid var(--bdr)">
+      <div style="font-size:11px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">Your custom α</div>
+      <div style="display:grid;grid-template-columns:1fr 300px;gap:14px">
+        <div>
+          <div class="cg"><div class="cl"><span>Learning rate α</span><span class="cv" id="lrc-v">0.15</span></div><input type="range" id="lrc" min="0.001" max="1.0" step="0.001" value="0.15" oninput="lr_custom()"></div>
+          <canvas id="c-lrc" width="500" height="160" style="border-radius:8px;border:1px solid var(--bdr);width:100%;height:auto"></canvas>
+        </div>
+        <div>
+          <div class="stat"><div class="stat-l">Final cost J</div><div class="stat-v" id="lrc-J">—</div></div>
+          <div class="stat"><div class="stat-l">Iterations to converge</div><div class="stat-v" style="color:var(--cy)" id="lrc-iter">—</div></div>
+          <div style="margin-top:10px;font-size:11px;color:var(--mu);line-height:1.75">Move the slider slowly from 0.001 → 1.0. Notice: fast convergence between 0.05–0.2, then sudden divergence. The "edge of stability" is the largest α that still converges — often the fastest practical choice.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     SECTION 5: MULTIPLE FEATURES
+═══════════════════════════════════════════════════════ -->
+<div id="s5" class="ch">
+  <div class="ch-hd">
+    <div class="ch-n">05</div>
+    <div class="ch-m">
+      <div class="ch-badge" style="background:rgba(52,211,153,.1);color:#34d399">Vectorization · Week 2</div>
+      <div class="ch-title">Multiple Features &amp; Vectorization</div>
+      <div class="ch-sub">Extending to n inputs — and why a one-line numpy call runs 1000× faster than a Python loop</div>
+    </div>
+  </div>
+
+  <div class="th-grid">
+    <div class="th-body">
+      <p><strong>Real problems have many features.</strong> House price depends on size AND bedrooms AND floors AND age. Weather prediction uses thousands of sensor readings. Language models process sequences of thousands of tokens. We need to extend linear regression to handle n input features.</p>
+      <p><strong>The model with n features:</strong> Replace single input x with a feature vector <em>x⃗ = [x₁, x₂, ..., xₙ]</em> and a weight vector <em>w⃗ = [w₁, w₂, ..., wₙ]</em>. The prediction becomes the dot product plus bias. Each wⱼ represents how much feature j affects the output.</p>
+      <div class="eq-blk" style="border-color:#34d399">
+<span style="color:#34d399">Model (n features):</span>
+f_w,b(x⃗) = w₁x₁ + w₂x₂ + ... + wₙxₙ + b
+          = <span style="color:#34d399">w⃗ · x⃗</span> + b  (dot product notation)
+
+<span style="color:#34d399">Gradient descent (each weight wⱼ):</span>
+∂J/∂wⱼ = (1/m) · Σᵢ (ŷᵢ - yᵢ) · xⱼ⁽ⁱ⁾
+wⱼ := wⱼ - α · ∂J/∂wⱼ  (for j = 1,...,n simultaneously)
+b := b - α · ∂J/∂b</div>
+      <p><strong>Vectorization — the speed secret:</strong> A Python loop computing sum(w[j]*x[j] for j in range(n)) runs one multiplication at a time — O(n) sequential operations. NumPy's np.dot(w, x) calls optimized BLAS routines that use CPU SIMD instructions (doing 8+ operations simultaneously) or GPU CUDA (thousands of parallel cores). Same mathematical result. 1000× faster.</p>
+      <p><strong>Matrix form for all training examples:</strong> Stack all m training examples into matrix X (m×n). The prediction for all examples at once: <em>Ŷ = X·w⃗ + b</em>. This is a single matrix multiplication — one GPU operation regardless of m and n. The entire deep learning field runs on this insight.</p>
+      <div class="eq-blk" style="border-color:#34d399">
+<span style="color:#4a6080"># Python loop — sequential, slow</span>
+pred = sum(w[j]*x[j] for j in range(n)) + b
+
+<span style="color:#4a6080"># NumPy — parallel, SIMD/GPU accelerated</span>
+pred = np.dot(w, x) + b  <span style="color:#4a6080"># identical result</span>
+
+<span style="color:#4a6080"># All m examples at once (matrix form)</span>
+Ŷ = X @ w + b  <span style="color:#4a6080"># X is (m×n), w is (n,)</span></div>
+    </div>
+    <div class="insight-stack">
+      <div class="ins">
+        <div class="ins-ico">🧮</div>
+        <div class="ins-t">Dot product = weighted sum</div>
+        <div class="ins-b">w⃗·x⃗ = w₁x₁ + w₂x₂ + ... + wₙxₙ. Each weight wⱼ scales how much feature j matters. Negative weights mean "more of this feature → lower prediction." Zero weight means "this feature is ignored by the model."</div>
+      </div>
+      <div class="ins">
+        <div class="ins-ico">⚡</div>
+        <div class="ins-t">Why vectorization matters at scale</div>
+        <div class="ins-b">GPT-4 processes 1,024 tokens simultaneously, each a 768-dim vector. That's 1,024×768 ≈ 786K numbers per attention head, times 96 heads, times 96 layers = 72 billion operations per forward pass. Only possible with GPU matrix multiplication.</div>
+      </div>
+      <div class="ins">
+        <div class="ins-ico">📐</div>
+        <div class="ins-t">Gradient descent scales naturally</div>
+        <div class="ins-b">The update rule for each wⱼ is the same structure as before — just applied to n weights. In matrix form: <code>w := w - α · Xᵀ(Xw-y)/m</code>. Same algorithm, vectorized. One line updates all n weights simultaneously.</div>
+      </div>
+      <div class="ai-blk">
+        <div class="ai-t">🤖 Transformers = stacked matrix multiplications</div>
+        <div class="ai-b">Every attention head in GPT: <strong>Attention(Q,K,V) = softmax(QKᵀ/√d)·V</strong>. Q, K, V are each produced by linear transformations (matrix multiplies) of the input. 96 heads × 96 layers = 9,216 matrix multiplications per forward pass — all running in parallel on GPU.</div>
+        <div class="ai-chips"><span class="aichip">Transformer Attention</span><span class="aichip">GPU Parallelism</span><span class="aichip">BLAS/CUDA</span><span class="aichip">Batch Matrix Multiply</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tool-blk" style="border-color:rgba(52,211,153,.2)">
+    <div class="tool-hd" style="color:#34d399">🏠 Multiple Features — house price predictor with 4 features · see the dot product live</div>
+    <div class="tool-inner" style="grid-template-columns:1fr 280px">
+      <div style="padding:18px">
+        <div class="eq-blk" id="mf-eq" style="border-color:#34d399;margin-bottom:16px">...</div>
+        <div id="mf-sliders"></div>
+      </div>
+      <div class="ctrl-panel">
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--mu);margin-bottom:10px">Learned Weights (w⃗)</div>
+        <div id="mf-weights"></div>
+        <div class="pred-box">
+          <div class="pred-l">Predicted House Price</div>
+          <div class="pred-v" id="mf-pred">$0k</div>
+          <div style="font-size:11px;color:var(--mu)">thousands USD</div>
+        </div>
+        <div style="margin-top:12px;font-size:11px;color:var(--mu);line-height:1.75">Each slider is one feature xⱼ. Each weight wⱼ (shown right) determines its impact. The prediction = w⃗·x⃗ + b. Notice how age has a <em style="color:var(--rd)">negative weight</em> — older houses cost less.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     SECTION 6: FEATURE SCALING
+═══════════════════════════════════════════════════════ -->
+<div id="s6" class="ch">
+  <div class="ch-hd">
+    <div class="ch-n">06</div>
+    <div class="ch-m">
+      <div class="ch-badge" style="background:rgba(244,114,182,.1);color:#f472b6">Preprocessing · Week 2</div>
+      <div class="ch-title">Feature Scaling</div>
+      <div class="ch-sub">Why features on different scales cause gradient descent to zig-zag — and how to fix it</div>
+    </div>
+  </div>
+
+  <div class="th-grid rev">
+    <div class="insight-stack">
+      <div class="ins">
+        <div class="ins-ico">🐍</div>
+        <div class="ins-t">The zig-zag problem</div>
+        <div class="ins-b">If x₁ ∈ [0,3000] and x₂ ∈ [0,5], the cost surface is an elongated ellipse. Gradient descent must take many tiny steps in the x₁ direction and few large steps in the x₂ direction — it zig-zags back and forth, taking far more iterations than necessary.</div>
+      </div>
+      <div class="ins">
+        <div class="ins-ico">⚖️</div>
+        <div class="ins-t">Three scaling methods</div>
+        <div class="ins-b">
+          <strong>Min-max:</strong> <code>x = (x-min)/(max-min)</code> → [0,1]<br>
+          <strong>Z-score:</strong> <code>x = (x-μ)/σ</code> → mean=0, std=1<br>
+          <strong>Mean norm:</strong> <code>x = (x-μ)/(max-min)</code> → [-1,1]<br><br>
+          Z-score is most common — handles outliers better.
+        </div>
+      </div>
+      <div class="ins">
+        <div class="ins-ico">⚠️</div>
+        <div class="ins-t">Critical: fit on train, apply to test</div>
+        <div class="ins-b">Compute μ and σ using <em>only the training set</em>. Then apply the same transformation to validation and test sets. Never compute scaling statistics on test data — that's <em>data leakage</em>, a common mistake that inflates test performance.</div>
+      </div>
+      <div class="ins">
+        <div class="ins-ico">🏗️</div>
+        <div class="ins-t">Batch Norm = scaling inside the network</div>
+        <div class="ins-b">Batch Normalization (2015) applies normalization to activations inside the neural network — after every matrix multiply. It enabled training of much deeper networks (ResNets with 100+ layers). The architecture: Linear → <span style="color:#f472b6">BatchNorm</span> → ReLU → next layer.</div>
+      </div>
+      <div class="ai-blk">
+        <div class="ai-t">🤖 LayerNorm powers every transformer</div>
+        <div class="ai-b">GPT, BERT, LLaMA all use <strong>Layer Normalization</strong> — normalizes each token's activation vector independently (unlike BatchNorm which normalizes across the batch). Without LayerNorm, training large transformers is unstable. <strong>RMSNorm</strong> (used in LLaMA/Mistral) is an even simpler variant that just divides by RMS.</div>
+        <div class="ai-chips"><span class="aichip">BatchNorm → CNNs</span><span class="aichip">LayerNorm → GPT/BERT</span><span class="aichip">RMSNorm → LLaMA</span><span class="aichip">GroupNorm → Detection</span></div>
+      </div>
+    </div>
+    <div class="th-body">
+      <p><strong>The core problem:</strong> Gradient descent uses the gradient direction to navigate the cost surface. When features have very different scales, the cost surface is highly elongated — like a narrow canyon instead of a circular bowl. The gradient points across the canyon, not down it, causing the optimizer to zig-zag and converge slowly.</p>
+      <p><strong>The solution — normalize features:</strong> After scaling, all features have comparable ranges. The cost surface becomes roughly circular (for 2 features), and gradient descent can take efficient straight-line paths to the minimum. In practice, this can reduce training time from hours to minutes.</p>
+      <div class="eq-blk" style="border-color:#f472b6">
+<span style="color:#f472b6">Z-score normalization (most common):</span>
+x_norm = (x − μ) / σ
+μ = mean(x_train)
+σ = std(x_train)
+→ normalized feature has mean=0, std=1
+
+<span style="color:#f472b6">Apply same μ, σ to test/validation data:</span>
+x_test_norm = (x_test − μ_train) / σ_train  ← not μ_test!</div>
+      <p><strong>When is scaling necessary?</strong> Always recommended when: features have different units (size in sqft vs bedrooms), feature ranges differ by more than 10×, or using gradient-based optimization. Tree-based models (random forest, XGBoost) don't need feature scaling — they split on individual features independently.</p>
+      <p><strong>The impact on cost surface shape:</strong> Without scaling, J(w₁,w₂) contours are stretched ellipses. The gradient is roughly perpendicular to the long axis, pointing across the canyon rather than toward the minimum. After scaling, contours become roughly circular, and the gradient points much more directly toward the minimum — faster convergence.</p>
+    </div>
+  </div>
+
+  <div class="tool-blk" style="border-color:rgba(244,114,182,.2)">
+    <div class="tool-hd" style="color:#f472b6">⚖️ Feature Scaling — gradient descent on unscaled vs normalized features · see the difference in convergence</div>
+    <div class="two-cv">
+      <div>
+        <div class="cvl" style="color:var(--rd)">⚠ Unscaled — zig-zag path</div>
+        <canvas id="c-fs1" width="400" height="280"></canvas>
+      </div>
+      <div style="border-left:1px solid var(--bdr)">
+        <div class="cvl" style="color:var(--gr)">✓ Z-score Normalized — direct path</div>
+        <canvas id="c-fs2" width="400" height="280"></canvas>
+      </div>
+    </div>
+    <div style="padding:12px 16px;border-top:1px solid var(--bdr);display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+      <button class="btn bp" onclick="fs_run()">▶ Run Both Simultaneously</button>
+      <button class="btn bg" onclick="fs_reset()">↺ Reset</button>
+      <span style="font-size:11px;color:var(--mu)">Watch: unscaled GD zig-zags across the elongated ellipses. Scaled GD takes a nearly straight path to the minimum.</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     SECTION 7: CONVERGENCE
+═══════════════════════════════════════════════════════ -->
+<div id="s7" class="ch">
+  <div class="ch-hd">
+    <div class="ch-n">07</div>
+    <div class="ch-m">
+      <div class="ch-badge" style="background:rgba(45,212,191,.1);color:#2dd4bf">Monitoring · Week 2</div>
+      <div class="ch-title">Checking Gradient Descent Convergence</div>
+      <div class="ch-sub">How to read learning curves — detecting when training is working, stuck, or broken</div>
+    </div>
+  </div>
+
+  <div class="th-grid">
+    <div class="th-body">
+      <p><strong>The learning curve:</strong> Plot J(w,b) on the y-axis against the number of training iterations on the x-axis. This "learning curve" is the primary tool for diagnosing gradient descent. A healthy learning curve decreases monotonically and eventually flattens — never increases.</p>
+      <p><strong>Declaring convergence:</strong> Gradient descent has converged when J decreases by less than ε per iteration. Andrew Ng recommends ε = 10⁻³. Alternatively: run for a fixed number of iterations and check the final J against a baseline. The "convergence number" varies by problem — some need 1,000 iterations, others 1,000,000.</p>
+      <div class="eq-blk" style="border-color:#2dd4bf">
+<span style="color:#2dd4bf">Convergence criterion:</span>
+|J(iteration i) - J(iteration i-1)| &lt; ε
+where ε = 10⁻³ (typical)
+
+<span style="color:#2dd4bf">Diagnostic rules:</span>
+J decreasing monotonically → α is OK, keep training
+J oscillates → α too large, reduce by 3-10×
+J increases → α way too large OR bug in code
+J flat from start → α too small OR gradient vanishing</div>
+      <p><strong>Training vs Validation curves:</strong> The training loss J_train measures performance on training data. The validation loss J_val measures performance on unseen data. The gap between them diagnoses overfitting. A healthy model has J_val tracking J_train closely. If J_train ≪ J_val, the model is memorizing training data — it won't generalize.</p>
+      <p><strong>Early stopping:</strong> When J_val stops decreasing (or starts increasing), training has reached the optimal generalization point. Save the model weights from this iteration and stop training. This simple technique prevents overfitting without explicit regularization — the model never gets a chance to over-memorize training data.</p>
+      <p><strong>What different shapes mean:</strong> A flat start indicates the learning rate may be too small, or the model may be stuck on a plateau. An early peak in J_val followed by continuous decrease in J_train is the signature of overfitting beginning. Oscillations in J_train suggest α is near the divergence threshold.</p>
+    </div>
+    <div class="insight-stack">
+      <div class="ins">
+        <div class="ins-ico">✅</div>
+        <div class="ins-t">Good convergence pattern</div>
+        <div class="ins-b">J decreases smoothly and monotonically. The decrease rate slows down (logarithmic shape). Eventually J flattens — that's convergence. Both J_train and J_val are close together and decreasing.</div>
+      </div>
+      <div class="ins">
+        <div class="ins-ico">🔁</div>
+        <div class="ins-t">Overfitting signature</div>
+        <div class="ins-b">J_train keeps decreasing. J_val decreases for a while, then stops decreasing or starts increasing. The growing <em>gap</em> between them is overfitting — the model learned the training noise, not the underlying pattern.</div>
+      </div>
+      <div class="ins">
+        <div class="ins-ico">📏</div>
+        <div class="ins-t">Underfitting signature</div>
+        <div class="ins-b">Both J_train and J_val are high and plateau together (with a small gap). The model is too simple — it can't fit even the training data well. Fix: increase model complexity (more features, more neurons) or train longer.</div>
+      </div>
+      <div class="ins">
+        <div class="ins-ico">🛑</div>
+        <div class="ins-t">Early stopping</div>
+        <div class="ins-b">Monitor J_val every epoch. When J_val stops improving for k consecutive epochs (patience=k), stop training and restore weights from the best epoch. k=5–20 is typical. This is regularization for free — no extra hyperparameters except patience.</div>
+      </div>
+      <div class="ai-blk">
+        <div class="ai-t">🤖 TensorBoard monitors real AI training</div>
+        <div class="ai-b">Every production ML training run logs loss curves to <strong>TensorBoard, Weights &amp; Biases, or MLflow</strong>. Training GPT-4 costs ~$100M in compute. Engineers watch the loss curve in real-time — catching a diverging loss at hour 2 vs hour 200 could save millions of dollars and weeks of GPU time.</div>
+        <div class="ai-chips"><span class="aichip">TensorBoard</span><span class="aichip">Weights &amp; Biases</span><span class="aichip">Early Stopping</span><span class="aichip">Checkpointing</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tool-blk" style="border-color:rgba(45,212,191,.2)">
+    <div class="tool-hd" style="color:#2dd4bf">📉 Convergence Explorer — pick a scenario and see what the learning curve looks like</div>
+    <div style="padding:10px 16px;border-bottom:1px solid var(--bdr);display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn bg" id="cv-g-btn" onclick="cv_show('good')">✅ Good convergence (α=0.1)</button>
+      <button class="btn bg" id="cv-s-btn" onclick="cv_show('slow')">🐢 Too slow (α=0.001)</button>
+      <button class="btn bg" id="cv-b-btn" onclick="cv_show('bad')">💥 Diverging (α=0.9)</button>
+      <button class="btn bg" id="cv-o-btn" onclick="cv_show('over')">📈 Overfitting pattern</button>
+    </div>
+    <div class="tool-inner">
+      <canvas id="c-cv" width="560" height="320"></canvas>
+      <div class="ctrl-panel">
+        <div class="stat"><div class="stat-l">Converges at step</div><div class="stat-v" id="cv-iter">—</div></div>
+        <div class="stat"><div class="stat-l">Final J (train)</div><div class="stat-v" style="color:var(--or)" id="cv-Jf">—</div></div>
+        <div style="margin-top:12px;font-size:11px;color:var(--mu);line-height:1.8" id="cv-desc">Select a scenario to see the curve and its interpretation.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     SECTION 8: POLYNOMIAL REGRESSION
+═══════════════════════════════════════════════════════ -->
+<div id="s8" class="ch">
+  <div class="ch-hd">
+    <div class="ch-n">08</div>
+    <div class="ch-m">
+      <div class="ch-badge" style="background:rgba(249,115,22,.1);color:#f97316">Feature Engineering · Week 2</div>
+      <div class="ch-title">Polynomial Regression &amp; Feature Engineering</div>
+      <div class="ch-sub">How adding x², x³ as features fits curves — and why neural networks made this obsolete</div>
+    </div>
+  </div>
+
+  <div class="th-grid rev">
+    <div class="insight-stack">
+      <div class="ins">
+        <div class="ins-ico">🌀</div>
+        <div class="ins-t">Still linear regression!</div>
+        <div class="ins-b">Polynomial regression with features [1, x, x², x³] is still linear regression — just with engineered features. The model is <em>linear in the parameters w</em> even if non-linear in x. The same gradient descent algorithm works unchanged.</div>
+      </div>
+      <div class="ins">
+        <div class="ins-ico">📏</div>
+        <div class="ins-t">Feature scaling is critical here</div>
+        <div class="ins-b">If x ∈ [0,1000], then x² ∈ [0,10⁶] and x³ ∈ [0,10⁹]. These wildly different scales will make gradient descent fail without normalization. Always apply z-score normalization BEFORE adding polynomial features.</div>
+      </div>
+      <div class="ins">
+        <div class="ins-ico">🎯</div>
+        <div class="ins-t">Bias-variance tradeoff</div>
+        <div class="ins-b"><strong>Low degree (1-2):</strong> High bias — model too simple, underfits. Both train and test error are high. Fix: increase complexity.<br><br><strong>High degree (8+):</strong> High variance — model memorizes training noise, overfits. Train error low, test error high. Fix: regularization or reduce complexity.</div>
+      </div>
+      <div class="ins">
+        <div class="ins-ico">🔬</div>
+        <div class="ins-t">Choosing the degree</div>
+        <div class="ins-b">Use cross-validation: split data into train/validation. Train models of degree 1, 2, ..., 10. Pick the degree with lowest validation error. Never use test data to select the degree — that's data leakage.</div>
+      </div>
+      <div class="ai-blk">
+        <div class="ai-t">🤖 Neural nets = automatic feature engineering</div>
+        <div class="ai-b">Manual polynomial features (x², x³, sin(x), log(x)) require human expertise. Neural networks <strong>learn features automatically</strong> — each hidden layer creates new non-linear combinations of the previous layer's features. The <strong>Universal Approximation Theorem</strong> guarantees a sufficiently large single hidden layer can approximate any continuous function.</div>
+        <div class="ai-chips"><span class="aichip">Universal Approximation</span><span class="aichip">Representation Learning</span><span class="aichip">Automatic Features</span><span class="aichip">Transfer Learning</span></div>
+      </div>
+    </div>
+    <div class="th-body">
+      <p><strong>When linear isn't enough:</strong> Some relationships are inherently curved. House prices might scale faster than linearly with size (larger houses cost disproportionately more per sqft). A straight line can't fit this — we need a curve. Polynomial regression adds polynomial powers of x as new features to capture non-linear patterns.</p>
+      <div class="eq-blk" style="border-color:#f97316">
+<span style="color:#f97316">Polynomial features from single input x:</span>
+x₁ = x   x₂ = x²   x₃ = x³   x₄ = √x
+
+<span style="color:#f97316">Model becomes:</span>
+f(x) = w₁x + w₂x² + w₃x³ + b
+     = w⃗ · [x, x², x³] + b
+
+<span style="color:#4a6080">Still linear regression — linear in parameters w!
+Same gradient descent, same cost function, same update rules.</span></div>
+      <p><strong>The bias-variance tradeoff:</strong> This is the fundamental tension in all of machine learning. Increase model complexity (higher degree) → lower bias (fits training data better) but higher variance (sensitive to training noise, generalizes poorly). Decrease complexity → higher bias but lower variance. The optimal point is found through cross-validation, not by looking at training error alone.</p>
+      <p><strong>Regularization — the cure for overfitting:</strong> Instead of restricting the degree, we can add a penalty term to the cost function that discourages large weights. L2 regularization (ridge): <em>J = MSE + λ·Σwⱼ²</em>. L1 regularization (lasso): <em>J = MSE + λ·Σ|wⱼ|</em>. The hyperparameter λ controls the trade-off between fit and simplicity. This allows using high-degree polynomials without overfitting.</p>
+      <p><strong>Why neural nets replaced feature engineering:</strong> Polynomial feature engineering requires domain expertise — which features to create, which degree to use. Neural networks learn a hierarchy of non-linear features automatically from data. The first layer might learn edges, the second layer shapes, the third layer objects — all from raw pixels with no human-designed features. This is why deep learning outperforms classical ML on raw data (images, text, audio).</p>
+    </div>
+  </div>
+
+  <div class="tool-blk" style="border-color:rgba(249,115,22,.2)">
+    <div class="tool-hd" style="color:#f97316">🌀 Polynomial Regression — select degree · watch underfitting → good fit → overfitting</div>
+    <div class="deg-row" id="poly-btns"></div>
+    <div class="tool-inner">
+      <canvas id="c-poly" width="560" height="340"></canvas>
+      <div class="ctrl-panel">
+        <div class="stat"><div class="stat-l">Polynomial degree</div><div class="stat-v" style="color:var(--pu)" id="poly-deg">1</div></div>
+        <div class="stat"><div class="stat-l">Training MSE</div><div class="stat-v" style="color:var(--or)" id="poly-mse">—</div></div>
+        <div class="stat" style="border-color:rgba(249,115,22,.2)"><div class="stat-l">Model status</div><div class="stat-v" id="poly-status" style="font-size:13px">—</div></div>
+        <div class="eq-blk" id="poly-eq" style="border-color:#f97316;margin-top:10px;font-size:10px;line-height:1.7">...</div>
+        <div style="margin-top:10px;font-size:11px;color:var(--mu);line-height:1.8">
+          <b style="color:var(--cy)">d=1:</b> Straight line — underfits curved data<br>
+          <b style="color:var(--gr)">d=2-3:</b> Good fit for most real data<br>
+          <b style="color:var(--yl)">d=5-6:</b> Starting to overfit<br>
+          <b style="color:var(--rd)">d=8+:</b> Severe overfitting — wiggles violently to hit every point
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div style="padding:50px 24px;text-align:center;border-top:1px solid var(--bdr);max-width:800px;margin:0 auto">
+  <div style="font-family:'Playfair Display',serif;font-size:28px;font-weight:900;color:var(--str);margin-bottom:12px">You now understand the core of all AI</div>
+  <p style="font-size:14px;color:var(--mu);line-height:1.75;max-width:540px;margin:0 auto">Linear regression → cost function → gradient descent → learning rate → vectorization → feature scaling → convergence → feature engineering. These 8 ideas, stacked and scaled, produce GPT-4, DALL·E, and every modern AI system.</p>
+  <div style="margin-top:24px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+    <a href="#s1" style="text-decoration:none"><div style="padding:8px 20px;border-radius:99px;border:1px solid rgba(56,189,248,.3);color:var(--cy);font-size:12px;font-weight:700">↑ Back to top</div></a>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// SHARED CONSTANTS & DATA
+// ============================================================
+const CC={bg:'#07090f',s1:'#0d1220',s2:'#111926',bdr:'#1a2538',tx:'#c2d0e8',mu:'#3d5473',str:'#e4eeff',
+  cy:'#38bdf8',or:'#fb923c',gr:'#34d399',yl:'#fbbf24',pu:'#a78bfa',rd:'#f87171',pi:'#f472b6',tl:'#2dd4bf',ob:'#f97316'};
+const DATA=[[1.0,2.1],[1.3,2.6],[1.5,3.1],[1.8,3.4],[2.1,3.9],[2.4,4.3],[2.6,4.8],[2.9,5.0],[3.2,5.7],[3.6,6.1]];
+
+function costFn(d,w,b){let s=0;for(const[x,y]of d){const e=w*x+b-y;s+=e*e;}return s/(2*d.length);}
+function gradFn(d,w,b){let dw=0,db=0;const m=d.length;for(const[x,y]of d){const e=w*x+b-y;dw+=e*x;db+=e;}return[dw/m,db/m];}
+
+function cx2(id){
+  const c=document.getElementById(id);if(!c)return null;
+  const W=c.width,H=c.height;
+  const ctx=c.getContext('2d');ctx.setTransform(1,0,0,1,0,0);ctx.clearRect(0,0,W,H);
+  ctx.fillStyle=CC.s2;ctx.fillRect(0,0,W,H);
+  return{ctx,W,H};
+}
+function grid(ctx,W,H){
+  ctx.strokeStyle='rgba(56,189,248,0.06)';ctx.lineWidth=.7;
+  for(let x=0;x<=W;x+=40){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
+  for(let y=0;y<=H;y+=40){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+}
+function mp(v,a,b,c,d){return c+(v-a)/(b-a)*(d-c);}
+function axes(ctx,W,H,pad){
+  ctx.strokeStyle='rgba(200,220,240,0.15)';ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(pad,pad);ctx.lineTo(pad,H-pad);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(pad,H-pad);ctx.lineTo(W-pad,H-pad);ctx.stroke();
+}
+function tickLabels(ctx,W,H,pad,xr,yr){
+  ctx.fillStyle=CC.mu;ctx.font='10px JetBrains Mono';
+  for(let v=Math.ceil(xr[0]);v<=xr[1];v+=.5){
+    const px=mp(v,xr[0],xr[1],pad,W-pad);if(px<pad||px>W-pad)continue;
+    ctx.fillText(v.toFixed(1),px-8,H-pad+14);
+  }
+}
+
+// ============================================================
+// HERO ANIMATION
+// ============================================================
+(function(){
+  const R=cx2('c-hero');if(!R)return;
+  const{ctx,W,H}=R;
+  const nodes=[];
+  const layers=[3,5,4,3,2];
+  layers.forEach((n,li)=>{
+    const x=mp(li,0,layers.length-1,60,W-60);
+    for(let i=0;i<n;i++){nodes.push({x,y:mp(i,0,n-1,H*.15,H*.85),ph:Math.random()*Math.PI*2});}
+  });
+  let t=0;
+  function draw(){
+    const R=cx2('c-hero');if(!R)return;
+    const{ctx,W,H}=R;
+    ctx.fillStyle='rgba(7,9,15,.3)';ctx.fillRect(0,0,W,H);
+    for(let i=0;i<nodes.length;i++){
+      const n=nodes[i];
+      for(let j=0;j<nodes.length;j++){
+        if(nodes[j].x<=n.x)continue;
+        const a=.4+.4*Math.sin(t*.03+n.ph);
+        ctx.strokeStyle=`rgba(56,189,248,${a*.2})`;ctx.lineWidth=.8;
+        ctx.beginPath();ctx.moveTo(n.x,n.y);ctx.lineTo(nodes[j].x,nodes[j].y);ctx.stroke();
+      }
+    }
+    nodes.forEach(n=>{
+      const a=.4+.6*Math.abs(Math.sin(t*.04+n.ph));
+      const r=4+3*Math.abs(Math.sin(t*.05+n.ph));
+      ctx.fillStyle=`rgba(56,189,248,${a*.9})`;ctx.shadowColor=CC.cy;ctx.shadowBlur=8*a;
+      ctx.beginPath();ctx.arc(n.x,n.y,r,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
+    });
+    t++;requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+// ============================================================
+// S1 LINEAR REGRESSION
+// ============================================================
+let LR={w:1,b:0,optW:0,optB:0};
+function lr_draw(){
+  const R=cx2('c-lr');if(!R)return;
+  const{ctx,W,H}=R;grid(ctx,W,H);axes(ctx,W,H,36);
+  const pad=36,xr=[0.5,4],yr=[0,7.5];
+  const px=x=>mp(x,xr[0],xr[1],pad,W-pad);
+  const py=y=>mp(y,yr[0],yr[1],H-pad,pad);
+  // Error lines
+  for(const[x,y]of DATA){
+    const yh=LR.w*x+LR.b;
+    ctx.strokeStyle='rgba(248,113,113,.35)';ctx.lineWidth=1.5;ctx.setLineDash([3,4]);
+    ctx.beginPath();ctx.moveTo(px(x),py(y));ctx.lineTo(px(x),py(yh));ctx.stroke();ctx.setLineDash([]);
+  }
+  // Line
+  ctx.strokeStyle=CC.cy;ctx.lineWidth=2.5;
+  ctx.beginPath();ctx.moveTo(px(.5),py(LR.w*.5+LR.b));ctx.lineTo(px(4),py(LR.w*4+LR.b));ctx.stroke();
+  ctx.strokeStyle=CC.cy+'22';ctx.lineWidth=10;
+  ctx.beginPath();ctx.moveTo(px(.5),py(LR.w*.5+LR.b));ctx.lineTo(px(4),py(LR.w*4+LR.b));ctx.stroke();
+  // Points
+  for(const[x,y]of DATA){
+    ctx.fillStyle=CC.or;ctx.shadowColor=CC.or;ctx.shadowBlur=7;
+    ctx.beginPath();ctx.arc(px(x),py(y),5.5,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
+  }
+  const J=costFn(DATA,LR.w,LR.b);
+  ctx.fillStyle=CC.cy;ctx.font='bold 12px JetBrains Mono';
+  ctx.fillText(`f(x) = ${LR.w.toFixed(2)}x + ${LR.b.toFixed(2)}   J = ${J.toFixed(4)}`,12,22);
+  ctx.fillStyle=CC.mu;ctx.font='10px JetBrains Mono';
+  ctx.fillText('x (house size)',W-90,H-8);ctx.fillText('y (price)',8,pad);
+  // Axis ticks
+  tickLabels(ctx,W,H,pad,xr,yr);
+  document.getElementById('lr-J').textContent=J.toFixed(4);
+  document.getElementById('lr-weq').textContent=LR.w.toFixed(2);
+  document.getElementById('lr-beq').textContent=LR.b.toFixed(2);
+}
+function lr_fit(){
+  let w=0,b=0;
+  for(let i=0;i<3000;i++){const[dw,db]=gradFn(DATA,w,b);w-=.1*dw;b-=.1*db;}
+  LR.optW=w;LR.optB=b;
+  document.getElementById('lr-Jopt').textContent=costFn(DATA,w,b).toFixed(4);
+  let step=0;const from=[LR.w,LR.b];
+  const int=setInterval(()=>{
+    step++;const t=step/40;
+    LR.w=from[0]+(w-from[0])*t;LR.b=from[1]+(b-from[1])*t;
+    document.getElementById('lr-w').value=LR.w;document.getElementById('lr-b').value=LR.b;
+    document.getElementById('lr-wv').textContent=LR.w.toFixed(2);document.getElementById('lr-bv').textContent=LR.b.toFixed(2);
+    lr_draw();if(step>=40)clearInterval(int);
+  },25);
+}
+function lr_reset(){LR.w=1;LR.b=0;document.getElementById('lr-w').value=1;document.getElementById('lr-b').value=0;document.getElementById('lr-wv').textContent='1.00';document.getElementById('lr-bv').textContent='0.00';lr_draw();}
+document.getElementById('lr-w').oninput=e=>{LR.w=+e.target.value;document.getElementById('lr-wv').textContent=LR.w.toFixed(2);lr_draw();};
+document.getElementById('lr-b').oninput=e=>{LR.b=+e.target.value;document.getElementById('lr-bv').textContent=LR.b.toFixed(2);lr_draw();};
+{let ow=0,ob=0;for(let i=0;i<3000;i++){const[d,e]=gradFn(DATA,ow,ob);ow-=.1*d;ob-=.1*e;}document.getElementById('lr-Jopt').textContent=costFn(DATA,ow,ob).toFixed(4);}
+lr_draw();
+
+// ============================================================
+// S2 COST FUNCTION
+// ============================================================
+let COST={mode:'1d',w:1.5,b:2};
+function setCostMode(m){
+  COST.mode=m;
+  document.getElementById('c-1d-btn').style.cssText=m==='1d'?'border-color:var(--cy);color:var(--cy)':'';
+  document.getElementById('c-2d-btn').style.cssText=m==='2d'?'border-color:var(--cy);color:var(--cy)':'';
+  document.getElementById('cost-b-grp').style.display=m==='2d'?'block':'none';
+  cost_draw();
+}
+function cost_draw(){
+  const R=cx2('c-cost');if(!R)return;
+  const{ctx,W,H}=R;grid(ctx,W,H);
+  if(COST.mode==='1d') cost_1d(ctx,W,H); else cost_2d(ctx,W,H);
+}
+function cost_1d(ctx,W,H){
+  const pad=44,xr=[-1,4],yr=[0,8];
+  const px=x=>mp(x,xr[0],xr[1],pad,W-pad),py=y=>mp(y,yr[0],yr[1],H-pad,pad);
+  axes(ctx,W,H,pad);
+  const mx=DATA.reduce((s,[x])=>s+x,0)/DATA.length,my=DATA.reduce((s,[,y])=>s+y,0)/DATA.length;
+  const optB=w=>my-w*mx;
+  // Draw J(w) curve
+  ctx.strokeStyle=CC.cy;ctx.lineWidth=2.5;ctx.beginPath();let f=true;
+  for(let w=-1;w<=4;w+=.02){
+    const J=costFn(DATA,w,optB(w));if(J>8){f=true;continue;}
+    f?ctx.moveTo(px(w),py(J)):ctx.lineTo(px(w),py(J));f=false;
+  }ctx.stroke();
+  ctx.strokeStyle=CC.cy+'1a';ctx.lineWidth=12;ctx.beginPath();f=true;
+  for(let w=-1;w<=4;w+=.05){const J=costFn(DATA,w,optB(w));if(J>8){f=true;continue;}f?ctx.moveTo(px(w),py(J)):ctx.lineTo(px(w),py(J));f=false;}ctx.stroke();
+  // Current point
+  const cJ=costFn(DATA,COST.w,optB(COST.w));
+  if(cJ<=8){
+    const cpx=px(COST.w),cpy=py(cJ);
+    // Vertical dashed
+    ctx.strokeStyle='rgba(248,113,113,.3)';ctx.lineWidth=1;ctx.setLineDash([4,4]);
+    ctx.beginPath();ctx.moveTo(cpx,py(0));ctx.lineTo(cpx,cpy);ctx.stroke();ctx.setLineDash([]);
+    // Tangent line (gradient direction)
+    const eps=.05,J1=costFn(DATA,COST.w-eps,optB(COST.w-eps)),J2=costFn(DATA,COST.w+eps,optB(COST.w+eps));
+    const slope=(J2-J1)/(2*eps);
+    const ang=Math.atan2(slope*(py(1)-py(0))/(px(1)-px(0)),1);
+    const len=40;
+    ctx.strokeStyle=CC.yl+'bb';ctx.lineWidth=2;
+    ctx.beginPath();ctx.moveTo(cpx-len*Math.cos(ang),cpy-len*Math.sin(ang));ctx.lineTo(cpx+len*Math.cos(ang),cpy+len*Math.sin(ang));ctx.stroke();
+    ctx.fillStyle=CC.or;ctx.shadowColor=CC.or;ctx.shadowBlur=10;
+    ctx.beginPath();ctx.arc(cpx,cpy,7,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
+    document.getElementById('cost-Jv').textContent=cJ.toFixed(4);
+    document.getElementById('cost-eq-disp').innerHTML=`<span style="color:#f87171">J(w)</span> at <span style="color:#38bdf8">w=${COST.w.toFixed(2)}</span><br>= <span style="color:#34d399">${cJ.toFixed(5)}</span><br><span style="color:#3d5473">gradient ∂J/∂w ≈ ${slope.toFixed(3)}</span>`;
+  }
+  ctx.fillStyle=CC.mu;ctx.font='10px JetBrains Mono';ctx.fillText('w (slope)',W-70,H-8);ctx.fillText('J',4,pad);
+  // Tick labels
+  for(let v=-1;v<=4;v+=.5){const x=px(v);if(x<pad||x>W-pad)continue;ctx.fillText(v.toFixed(1),x-8,H-28);}
+}
+function cost_2d(ctx,W,H){
+  const pad=44,wR=[-0.5,3.5],bR=[-1,7],G=90;
+  const gw=W-2*pad,gh=H-2*pad;
+  let mn=Infinity,mx=-Infinity;const jg=[];
+  for(let r=0;r<G;r++){jg[r]=[];for(let c=0;c<G;c++){const w=wR[0]+c/G*(wR[1]-wR[0]),b=bR[0]+(G-1-r)/G*(bR[1]-bR[0]);const J=costFn(DATA,w,b);jg[r][c]=J;if(J<mn)mn=J;if(J>mx)mx=J;}}
+  mx=Math.min(mx,20);
+  const imgd=ctx.createImageData(G,G);
+  for(let r=0;r<G;r++)for(let c=0;c<G;c++){const t=Math.pow(Math.min(jg[r][c],20-mn)/(mx-mn),.35);const i=(r*G+c)*4;imgd.data[i]=Math.round(15+t*90);imgd.data[i+1]=Math.round(10+t*20);imgd.data[i+2]=Math.round(80+t*110);imgd.data[i+3]=220;}
+  const tmp=document.createElement('canvas');tmp.width=G;tmp.height=G;tmp.getContext('2d').putImageData(imgd,0,0);
+  ctx.drawImage(tmp,pad,pad,gw,gh);ctx.strokeStyle='rgba(255,255,255,.08)';ctx.strokeRect(pad,pad,gw,gh);
+  const pw=w=>mp(w,wR[0],wR[1],pad,W-pad),pb=b=>mp(b,bR[0],bR[1],H-pad,pad);
+  // Current point
+  const J=costFn(DATA,COST.w,COST.b);
+  const cpx=pw(COST.w),cpy=pb(COST.b);
+  if(cpx>pad&&cpx<W-pad&&cpy>pad&&cpy<H-pad){
+    ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(cpx,cpy,6,0,Math.PI*2);ctx.fill();
+    ctx.strokeStyle=CC.or;ctx.lineWidth=2;ctx.beginPath();ctx.arc(cpx,cpy,10,0,Math.PI*2);ctx.stroke();
+  }
+  ctx.fillStyle=CC.mu;ctx.font='10px JetBrains Mono';ctx.fillText('w →',W-30,H-8);ctx.fillText('↑ b',4,pad-4);
+  document.getElementById('cost-Jv').textContent=J.toFixed(4);
+  document.getElementById('cost-eq-disp').innerHTML=`<span style="color:#f87171">J(w,b)</span> at w=<span style="color:#38bdf8">${COST.w.toFixed(2)}</span>, b=<span style="color:#34d399">${COST.b.toFixed(2)}</span><br>= <span style="color:#fbbf24">${J.toFixed(5)}</span>`;
+}
+document.getElementById('cost-w').oninput=e=>{COST.w=+e.target.value;document.getElementById('cost-wv').textContent=COST.w.toFixed(2);cost_draw();};
+document.getElementById('cost-b').oninput=e=>{COST.b=+e.target.value;document.getElementById('cost-bv').textContent=COST.b.toFixed(2);cost_draw();};
+cost_draw();
+
+// ============================================================
+// S3 GRADIENT DESCENT
+// ============================================================
+let GD={w:-.5,b:7,path:[],running:false,hmap:null,alpha:.1};
+function gd_hmap(W,H){
+  const pad=40,wR=[-.5,3.5],bR=[-1,7],G=90;
+  const gw=W-2*pad,gh=H-2*pad;
+  let mn=Infinity,mx=-Infinity;const jg=[];
+  for(let r=0;r<G;r++){jg[r]=[];for(let c=0;c<G;c++){const w=wR[0]+c/G*(wR[1]-wR[0]),b=bR[0]+(G-1-r)/G*(bR[1]-bR[0]);const J=costFn(DATA,w,b);jg[r][c]=J;if(J<mn)mn=J;if(J>mx)mx=J;}}
+  mx=Math.min(mx,20);
+  const imgd=document.createElement('canvas');imgd.width=G;imgd.height=G;
+  const tc=imgd.getContext('2d');const id=tc.createImageData(G,G);
+  for(let r=0;r<G;r++)for(let c=0;c<G;c++){const t=Math.pow(Math.min(jg[r][c],20-mn)/(mx-mn),.3);const i=(r*G+c)*4;id.data[i]=Math.round(10+t*80);id.data[i+1]=Math.round(8+t*15);id.data[i+2]=Math.round(70+t*100);id.data[i+3]=210;}
+  tc.putImageData(id,0,0);
+  const out=document.createElement('canvas');out.width=gw;out.height=gh;out.getContext('2d').drawImage(imgd,0,0,gw,gh);
+  return{img:out,wR,bR,pad};
+}
+function gd_draw(){
+  const R=cx2('c-gd');if(!R)return;const{ctx,W,H}=R;grid(ctx,W,H);
+  if(!GD.hmap)GD.hmap=gd_hmap(W,H);
+  const{img,wR,bR,pad}=GD.hmap;
+  ctx.drawImage(img,pad,pad);ctx.strokeStyle='rgba(255,255,255,.07)';ctx.strokeRect(pad,pad,W-2*pad,H-2*pad);
+  const pw=w=>mp(w,wR[0],wR[1],pad,W-pad),pb=b=>mp(b,bR[0],bR[1],H-pad,pad);
+  // Trail
+  if(GD.path.length>1){
+    ctx.lineWidth=1.5;
+    for(let i=1;i<GD.path.length;i++){
+      const t=i/GD.path.length;ctx.strokeStyle=`rgba(52,211,153,${.25+t*.7})`;
+      ctx.beginPath();ctx.moveTo(pw(GD.path[i-1][0]),pb(GD.path[i-1][1]));ctx.lineTo(pw(GD.path[i][0]),pb(GD.path[i][1]));ctx.stroke();
+    }
+    for(let i=0;i<GD.path.length;i++){
+      const t=i/GD.path.length;ctx.fillStyle=`rgba(52,211,153,${.3+t*.7})`;
+      ctx.beginPath();ctx.arc(pw(GD.path[i][0]),pb(GD.path[i][1]),2,0,Math.PI*2);ctx.fill();
+    }
+  }
+  // Current point
+  const cpx=pw(GD.w),cpy=pb(GD.b);
+  ctx.fillStyle='#fff';ctx.shadowColor=CC.gr;ctx.shadowBlur=12;ctx.beginPath();ctx.arc(cpx,cpy,7,0,Math.PI*2);ctx.fill();
+  ctx.strokeStyle=CC.gr;ctx.shadowBlur=0;ctx.lineWidth=2;ctx.beginPath();ctx.arc(cpx,cpy,10,0,Math.PI*2);ctx.stroke();
+  ctx.fillStyle=CC.mu;ctx.font='10px JetBrains Mono';ctx.fillText('w →',W-28,H-6);ctx.fillText('↑ b',4,pad-4);
+  const J=costFn(DATA,GD.w,GD.b);
+  ctx.fillStyle=CC.cy;ctx.font='11px JetBrains Mono';
+  ctx.fillText(`α=${GD.alpha.toFixed(2)}  step=${GD.path.length}  J=${J.toFixed(5)}  w=${GD.w.toFixed(3)}  b=${GD.b.toFixed(3)}`,10,20);
+  document.getElementById('gd-step').textContent=GD.path.length;
+  document.getElementById('gd-J').textContent=J.toFixed(5);
+  document.getElementById('gd-wb').textContent=`${GD.w.toFixed(3)} / ${GD.b.toFixed(3)}`;
+}
+function gd_step1(){
+  const[dw,db]=gradFn(DATA,GD.w,GD.b);GD.path.push([GD.w,GD.b]);
+  GD.w-=GD.alpha*dw;GD.b-=GD.alpha*db;
+  if(GD.path.length>300)GD.path.shift();
+  gd_draw();
+}
+function gd_toggle(){
+  GD.running=!GD.running;
+  document.getElementById('gd-play').textContent=GD.running?'⏸ Pause':'▶ Play';
+  if(GD.running)gd_loop();
+}
+function gd_loop(){
+  if(!GD.running)return;gd_step1();
+  const J=costFn(DATA,GD.w,GD.b);
+  if(J<.0005||GD.path.length>=500){GD.running=false;document.getElementById('gd-play').textContent='▶ Play';return;}
+  requestAnimationFrame(gd_loop);
+}
+function gd_lr_change(){GD.alpha=+document.getElementById('gd-lr').value;document.getElementById('gd-lrv').textContent=GD.alpha.toFixed(2);GD.hmap=null;gd_reset();}
+function gd_reset(){GD.running=false;GD.w=-.5;GD.b=7;GD.path=[];document.getElementById('gd-play').textContent='▶ Play';gd_draw();}
+gd_draw();
+
+// ============================================================
+// S4 LEARNING RATE
+// ============================================================
+function simGD(alpha,n=120){
+  let w=0,b=0;const c=[];
+  for(let i=0;i<n;i++){
+    const J=costFn(DATA,w,b);if(!isFinite(J)||J>1e6)break;c.push(J);
+    const[dw,db]=gradFn(DATA,w,b);w-=alpha*dw;b-=alpha*db;
+  }return c;
+}
+function drawCurve(id,costs,col){
+  const R=cx2(id);if(!R)return;const{ctx,W,H}=R;grid(ctx,W,H);
+  const valid=costs.filter(c=>isFinite(c)&&c<20),mxJ=Math.min(Math.max(...valid),15);
+  const px=i=>mp(i,0,costs.length,10,W-10),py=c=>mp(Math.min(c,mxJ),0,mxJ,H-16,16);
+  ctx.strokeStyle=col;ctx.lineWidth=2;ctx.beginPath();let f=true;
+  costs.forEach((c,i)=>{if(!isFinite(c)||c>mxJ+.5){f=true;return;}f?ctx.moveTo(px(i),py(c)):ctx.lineTo(px(i),py(c));f=false;});ctx.stroke();
+  ctx.strokeStyle=col+'33';ctx.lineWidth=8;ctx.beginPath();f=true;
+  costs.forEach((c,i)=>{if(!isFinite(c)||c>mxJ+.5){f=true;return;}f?ctx.moveTo(px(i),py(c)):ctx.lineTo(px(i),py(c));f=false;});ctx.stroke();
+  const fc=costs[costs.length-1];ctx.fillStyle=col;ctx.font='bold 11px JetBrains Mono';
+  ctx.fillText(`J→${isFinite(fc)?fc.toFixed(3):'∞'}`,8,16);
+  ctx.fillStyle=CC.mu;ctx.font='9px JetBrains Mono';ctx.fillText('iter →',W-38,H-2);
+}
+drawCurve('c-lr1',simGD(.005,120),CC.cy);
+drawCurve('c-lr2',simGD(.15,120),CC.gr);
+drawCurve('c-lr3',simGD(.9,80),CC.rd);
+function lr_custom(){
+  const a=+document.getElementById('lrc').value;
+  document.getElementById('lrc-v').textContent=a.toFixed(3);
+  const costs=simGD(a,200);
+  drawCurve('c-lrc',costs,CC.cy);
+  const fJ=costs[costs.length-1];
+  document.getElementById('lrc-J').textContent=isFinite(fJ)?fJ.toFixed(4):'diverged';
+  let ci='> 200';for(let i=1;i<costs.length;i++){if(Math.abs(costs[i]-costs[i-1])<.001){ci=String(i);break;}}
+  document.getElementById('lrc-iter').textContent=ci;
+}
+lr_custom();
+
+// ============================================================
+// S5 MULTIPLE FEATURES
+// ============================================================
+const MFF=[
+  {nm:'Size (sq ft)',   w:.5,   mn:300, mx:3000,val:1500,sc:1000,col:CC.cy},
+  {nm:'Bedrooms',       w:5.0,  mn:1,   mx:6,   val:3,   sc:1,   col:CC.or},
+  {nm:'Floors',         w:3.0,  mn:1,   mx:3,   val:1,   sc:1,   col:CC.gr},
+  {nm:'Age (years)',    w:-1.5, mn:0,   mx:50,  val:15,  sc:1,   col:CC.pu},
+];const MFBIAS=50;
+(function(){
+  const sc=document.getElementById('mf-sliders'),wc=document.getElementById('mf-weights');
+  sc.innerHTML=MFF.map((f,i)=>`<div class="cg"><div class="cl"><span style="color:${f.col}">${f.nm}</span><span class="cv" id="mfv-${i}">${f.val}</span></div>
+    <div style="display:flex;align-items:center;gap:8px;margin:4px 0"><div style="flex:1;height:6px;background:var(--bdr);border-radius:3px;overflow:hidden"><div id="mfb-${i}" style="height:100%;border-radius:3px;background:${f.col};width:50%;transition:width .2s"></div></div></div>
+    <input type="range" id="mfs-${i}" min="${f.mn}" max="${f.mx}" step="${(f.mx-f.mn)/60}" value="${f.val}" oninput="mf_update()"></div>`).join('');
+  wc.innerHTML=MFF.map(f=>`<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--bdr)"><span style="font-size:12px;color:var(--mu)">${f.nm}</span><span style="font-family:'JetBrains Mono',monospace;font-size:13px;color:${f.col}">${f.w>0?'+':''}${f.w}</span></div>`).join('')
+  +`<div style="display:flex;justify-content:space-between;padding:7px 0"><span style="font-size:12px;color:var(--mu)">Bias b</span><span style="font-family:'JetBrains Mono',monospace;font-size:13px;color:${CC.yl}">+${MFBIAS}</span></div>`;
+})();
+function mf_update(){
+  let tot=MFBIAS,eq='<span style="color:#34d399">f(x⃗)</span> = ';
+  MFF.forEach((f,i)=>{
+    const x=+document.getElementById('mfs-'+i).value;const xn=x/f.sc;const con=f.w*xn;tot+=con;
+    document.getElementById('mfv-'+i).textContent=x;
+    document.getElementById('mfb-'+i).style.width=((x-f.mn)/(f.mx-f.mn)*100)+'%';
+    eq+=`<span style="color:${f.col}">${f.w>0?'+':'-'}${Math.abs(f.w).toFixed(1)}×${xn.toFixed(2)}</span> `;
+  });
+  eq+=`+ ${MFBIAS} = <span style="color:#34d399;font-size:14px;font-weight:700">$${Math.max(0,tot).toFixed(1)}k</span>`;
+  document.getElementById('mf-eq').innerHTML=eq;
+  document.getElementById('mf-pred').textContent='$'+Math.max(0,tot).toFixed(1)+'k';
+}
+mf_update();
+
+// ============================================================
+// S6 FEATURE SCALING
+// ============================================================
+let FS={path1:[],path2:[],anim:null};
+function fs_cost1(w1,w2){return 200*(w1-1.5)**2+.05*(w2-3)**2+.1;}
+function fs_cost2(w1,w2){return 2*w1**2+2*w2**2+.1;}
+function drawContour(id,cfn,path,xr,yr,col,startPt){
+  const R=cx2(id);if(!R)return;const{ctx,W,H}=R;grid(ctx,W,H);
+  const pad=30,gw=W-2*pad,gh=H-2*pad,G=80;
+  let mn=Infinity,mx=-Infinity;const jg=[];
+  for(let r=0;r<G;r++){jg[r]=[];for(let c=0;c<G;c++){const x=xr[0]+c/G*(xr[1]-xr[0]),y=yr[0]+(G-1-r)/G*(yr[1]-yr[0]);const J=cfn(x,y);jg[r][c]=J;if(J<mn)mn=J;if(J>mx)mx=J;}}
+  mx=Math.min(mx,30);
+  const imgd=document.createElement('canvas');imgd.width=G;imgd.height=G;const tc=imgd.getContext('2d');const id2=tc.createImageData(G,G);
+  for(let r=0;r<G;r++)for(let c=0;c<G;c++){const t=Math.pow((jg[r][c]-mn)/(mx-mn),.3);const i2=(r*G+c)*4;id2.data[i2]=Math.round(10+t*70);id2.data[i2+1]=Math.round(8+t*15);id2.data[i2+2]=Math.round(70+t*110);id2.data[i2+3]=210;}
+  tc.putImageData(id2,0,0);ctx.drawImage(imgd,pad,pad,gw,gh);ctx.strokeStyle='rgba(255,255,255,.07)';ctx.strokeRect(pad,pad,gw,gh);
+  const pw=x=>mp(x,xr[0],xr[1],pad,W-pad),pb=y=>mp(y,yr[0],yr[1],H-pad,pad);
+  // Path
+  if(path.length>1){
+    ctx.strokeStyle=col;ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(pw(path[0][0]),pb(path[0][1]));for(const p of path)ctx.lineTo(pw(p[0]),pb(p[1]));ctx.stroke();
+    for(const p of path){ctx.fillStyle=col;ctx.beginPath();ctx.arc(pw(p[0]),pb(p[1]),2,0,Math.PI*2);ctx.fill();}
+    const lp=path[path.length-1];ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(pw(lp[0]),pb(lp[1]),5,0,Math.PI*2);ctx.fill();
+  } else if(startPt){ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(pw(startPt[0]),pb(startPt[1]),5,0,Math.PI*2);ctx.fill();}
+  ctx.fillStyle=CC.mu;ctx.font='10px JetBrains Mono';ctx.fillText('w₁ →',W-28,H-6);ctx.fillText('↑ w₂',4,16);
+  if(path.length>0)ctx.fillText(`steps: ${path.length}`,10,20);
+}
+function fs_reset(){
+  cancelAnimationFrame(FS.anim);FS.path1=[];FS.path2=[];
+  drawContour('c-fs1',fs_cost1,[],[-0.5,3.5],[-.5,7],CC.rd,[3.2,6.5]);
+  drawContour('c-fs2',fs_cost2,[],[-3,3],[-3,3],CC.gr,[2.7,2.7]);
+}
+function fs_run(){
+  fs_reset();let w1=3.2,b1=6.5,w2=2.7,b2=2.7,done=false;
+  function step(){
+    for(let s=0;s<4;s++){
+      if(FS.path1.length<150){FS.path1.push([w1,b1]);const a1=.001;w1-=a1*2*200*(w1-1.5);b1-=a1*2*.05*(b1-3);}
+      if(FS.path2.length<35){FS.path2.push([w2,b2]);const a2=.4;w2-=a2*4*w2;b2-=a2*4*b2;}
+    }
+    drawContour('c-fs1',fs_cost1,FS.path1,[-0.5,3.5],[-.5,7],CC.rd,[3.2,6.5]);
+    drawContour('c-fs2',fs_cost2,FS.path2,[-3,3],[-3,3],CC.gr,[2.7,2.7]);
+    if(FS.path1.length<150)FS.anim=requestAnimationFrame(step);
+  }
+  step();
+}
+fs_reset();
+
+// ============================================================
+// S7 CONVERGENCE
+// ============================================================
+function cv_sim(alpha,n=200){
+  let w=0,b=0;const c=[];
+  for(let i=0;i<n;i++){const J=costFn(DATA,w,b);if(!isFinite(J)||J>1e5)break;c.push(J);const[dw,db]=gradFn(DATA,w,b);w-=alpha*dw;b-=alpha*db;}
+  return c;
+}
+const CV_DESC={
+  good:'<b style="color:var(--gr)">✅ Healthy convergence:</b> J decreases smoothly every iteration and flattens at the minimum. Both lines (train/val) are close together — the model generalizes well. This is what you want to see.',
+  slow:'<b style="color:var(--cy)">🐢 Too slow:</b> J decreases but extremely slowly — it might converge eventually, but in practice you\'d wait too long. Increase α by 3-10× and try again. Also check if your data is properly scaled.',
+  bad:'<b style="color:var(--rd)">💥 Diverging:</b> J increases rather than decreasing — classic sign of α too large. The update overshoots the minimum and bounces to a higher point each time. Fix: reduce α by 10× immediately.',
+  over:'<b style="color:var(--yl)">📈 Overfitting:</b> Training loss (solid) keeps decreasing. Validation loss (dashed) stops decreasing and starts rising — the model is memorizing training noise. Use early stopping, dropout, or regularization.',
+};
+function cv_show(s){
+  ['good','slow','bad','over'].forEach(k=>{
+    const b=document.getElementById('cv-'+k+'-btn');
+    b.style.borderColor=k===s?CC.cy:'';b.style.color=k===s?CC.cy:'';
+  });
+  const R=cx2('c-cv');if(!R)return;const{ctx,W,H}=R;grid(ctx,W,H);
+  const pad=44;
+  let costs,cfg;
+  if(s==='good'){costs=cv_sim(.1,200);cfg={col:CC.gr,vfn:(i)=>costs[i]*1.05+Math.max(0,.003*(i-80))};}
+  else if(s==='slow'){costs=cv_sim(.001,200);cfg={col:CC.cy,vfn:(i)=>costs[i]*1.04};}
+  else if(s==='bad'){costs=[];let w=0,b=0;for(let i=0;i<50;i++){const J=costFn(DATA,w,b);if(!isFinite(J)||J>1e5)break;costs.push(J);const[dw,db]=gradFn(DATA,w,b);w-=.9*dw;b-=.9*db;}cfg={col:CC.rd,vfn:null};}
+  else{costs=cv_sim(.08,200);cfg={col:CC.or,vfn:(i)=>costs[i]*1.1+Math.max(0,.008*(i-60))};}
+  const valid=costs.filter(c=>isFinite(c)&&c<20),mxJ=Math.min(Math.max(...valid,0),15);
+  const px=i=>mp(i,0,200,pad,W-pad),py=c=>mp(Math.min(c,mxJ),0,mxJ,H-pad,pad);
+  // Val curve
+  if(cfg.vfn){
+    ctx.strokeStyle=cfg.col+'66';ctx.lineWidth=1.5;ctx.setLineDash([6,4]);ctx.beginPath();let f=true;
+    costs.forEach((c,i)=>{if(!isFinite(c))return;const v=cfg.vfn(i);if(v>mxJ+.5){f=true;return;}f?ctx.moveTo(px(i),py(v)):ctx.lineTo(px(i),py(v));f=false;});ctx.stroke();ctx.setLineDash([]);
+  }
+  // Train curve
+  ctx.strokeStyle=cfg.col;ctx.lineWidth=2.5;ctx.beginPath();let f=true;
+  costs.forEach((c,i)=>{if(!isFinite(c)||c>mxJ+.5){f=true;return;}f?ctx.moveTo(px(i),py(c)):ctx.lineTo(px(i),py(c));f=false;});ctx.stroke();
+  ctx.strokeStyle=cfg.col+'22';ctx.lineWidth=10;ctx.beginPath();f=true;
+  costs.forEach((c,i)=>{if(!isFinite(c)||c>mxJ+.5){f=true;return;}f?ctx.moveTo(px(i),py(c)):ctx.lineTo(px(i),py(c));f=false;});ctx.stroke();
+  // Convergence marker
+  let ci=-1;for(let i=1;i<costs.length;i++){if(Math.abs(costs[i]-costs[i-1])<.001){ci=i;break;}}
+  if(ci>0){ctx.strokeStyle=CC.yl+'88';ctx.lineWidth=1.5;ctx.setLineDash([5,5]);ctx.beginPath();ctx.moveTo(px(ci),pad);ctx.lineTo(px(ci),H-pad);ctx.stroke();ctx.setLineDash([]);ctx.fillStyle=CC.yl;ctx.font='10px JetBrains Mono';ctx.fillText(`converged @${ci}`,px(ci)+4,pad+14);}
+  axes(ctx,W,H,pad);ctx.fillStyle=CC.mu;ctx.font='10px JetBrains Mono';ctx.fillText('iterations →',W-90,H-8);ctx.fillText('J →',4,pad);
+  // Tick
+  for(let v=0;v<=200;v+=50){const x=px(v);if(x>pad&&x<W-pad)ctx.fillText(String(v),x-8,H-28);}
+  // Legend
+  ctx.fillStyle=cfg.col;ctx.font='10px JetBrains Mono';ctx.fillText('— train',W-90,18);
+  if(cfg.vfn){ctx.setLineDash([6,4]);ctx.strokeStyle=cfg.col+'66';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(W-100,26);ctx.lineTo(W-72,26);ctx.stroke();ctx.setLineDash([]);ctx.fillStyle=cfg.col+'66';ctx.fillText('- - val',W-90,32);}
+  const fJ=costs[costs.length-1];
+  document.getElementById('cv-iter').textContent=ci>0?String(ci):'> 200';
+  document.getElementById('cv-Jf').textContent=isFinite(fJ)?fJ.toFixed(4):'diverged';
+  document.getElementById('cv-desc').innerHTML=CV_DESC[s];
+}
+cv_show('good');
+
+// ============================================================
+// S8 POLYNOMIAL REGRESSION
+// ============================================================
+const PDATA=(()=>{const p=[];for(let i=0;i<22;i++){const x=-2+i*.22;p.push([x,.3*x+.5*Math.sin(x*2.5)+(Math.random()-.5)*.28]);}return p;})();
+let POLY_DEG=2;
+function matMul(A,B){const m=A.length,n=B[0].length,k=B.length,C=Array.from({length:m},()=>new Array(n).fill(0));for(let i=0;i<m;i++)for(let j=0;j<n;j++)for(let l=0;l<k;l++)C[i][j]+=A[i][l]*B[l][j];return C;}
+function matT(A){return A[0].map((_,j)=>A.map(r=>r[j]));}
+function matInv(A){const n=A.length,aug=A.map((row,i)=>[...row,...Array(n).fill(0).map((_,j)=>i===j?1:0)]);for(let col=0;col<n;col++){let mr=col;for(let r=col+1;r<n;r++)if(Math.abs(aug[r][col])>Math.abs(aug[mr][col]))mr=r;[aug[col],aug[mr]]=[aug[mr],aug[col]];const pv=aug[col][col];if(Math.abs(pv)<1e-10)return null;for(let j=0;j<2*n;j++)aug[col][j]/=pv;for(let r=0;r<n;r++){if(r!==col){const f2=aug[r][col];for(let j=0;j<2*n;j++)aug[r][j]-=f2*aug[col][j];}}}return aug.map(r=>r.slice(n));}
+function polyFit(data,deg){
+  const xs=data.map(([x])=>x),ys=data.map(([,y])=>y);
+  const xm=xs.reduce((a,b)=>a+b,0)/xs.length,xs2=Math.sqrt(xs.reduce((s,x)=>s+(x-xm)**2,0)/xs.length)||1;
+  const xn=xs.map(x=>(x-xm)/xs2);
+  const X=xn.map(x=>Array.from({length:deg+1},(_,k)=>Math.pow(x,k)));
+  const Xt=matT(X),XtX=matMul(Xt,X),XtXi=matInv(XtX);if(!XtXi)return null;
+  const w=matMul(XtXi,matMul(Xt,ys.map(y=>[y]))).map(([v])=>v);
+  return{w,xm,xs:xs2};
+}
+function polyPred(x,fit){const xn=(x-fit.xm)/fit.xs;return fit.w.reduce((s,c,k)=>s+c*xn**k,0);}
+function poly_draw(deg){
+  const R=cx2('c-poly');if(!R)return;const{ctx,W,H}=R;grid(ctx,W,H);
+  const pad=36,xr=[-2.5,2.5],yr=[-1.6,1.6];
+  const px=x=>mp(x,xr[0],xr[1],pad,W-pad),py=y=>mp(y,yr[0],yr[1],H-pad,pad);
+  axes(ctx,W,H,pad);
+  const fit=polyFit(PDATA,deg);let mse=0;
+  if(fit){
+    const col=deg<=1?CC.cy:deg<=3?CC.gr:deg<=5?CC.yl:CC.rd;
+    ctx.strokeStyle=col;ctx.lineWidth=2.5;ctx.beginPath();let f=true;
+    for(let x=-2.5;x<=2.5;x+=.02){const y=polyPred(x,fit);if(!isFinite(y)||y<yr[0]-1||y>yr[1]+1){f=true;continue;}const cpx=px(x),cpy=py(y);if(cpx<0||cpx>W||cpy<-40||cpy>H+40){f=true;continue;}f?ctx.moveTo(cpx,cpy):ctx.lineTo(cpx,cpy);f=false;}ctx.stroke();
+    ctx.strokeStyle=col+'22';ctx.lineWidth=10;ctx.beginPath();f=true;
+    for(let x=-2.5;x<=2.5;x+=.05){const y=polyPred(x,fit);if(!isFinite(y)||y<yr[0]-1||y>yr[1]+1){f=true;continue;}const cpx=px(x),cpy=py(y);if(cpx<0||cpx>W||cpy<-40||cpy>H+40){f=true;continue;}f?ctx.moveTo(cpx,cpy):ctx.lineTo(cpx,cpy);f=false;}ctx.stroke();
+    for(const[x,y]of PDATA){const yh=polyPred(x,fit);mse+=(yh-y)**2;}mse/=PDATA.length;
+  }
+  for(const[x,y]of PDATA){ctx.fillStyle=CC.or;ctx.shadowColor=CC.or;ctx.shadowBlur=6;ctx.beginPath();ctx.arc(px(x),py(y),5,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;}
+  ctx.fillStyle=CC.cy;ctx.font='12px JetBrains Mono';ctx.fillText(`degree=${deg}  MSE=${mse.toFixed(5)}`,10,22);
+  ctx.fillStyle=CC.mu;ctx.font='10px JetBrains Mono';ctx.fillText('x →',W-24,H-8);
+  document.getElementById('poly-deg').textContent=deg;
+  document.getElementById('poly-mse').textContent=mse.toFixed(5);
+  const st=deg<=1?['Underfitting',CC.cy]:deg<=3?['Good fit ✓',CC.gr]:deg<=5?['Slight overfit',CC.yl]:['Overfitting ⚠',CC.rd];
+  document.getElementById('poly-status').textContent=st[0];document.getElementById('poly-status').style.color=st[1];
+  if(fit){document.getElementById('poly-eq').innerHTML=`<span style="color:#f97316">f(x)</span> = ${fit.w.slice(0,4).map((c,k)=>`${k>0&&c>=0?'+':''}<span style="color:#fbbf24">${c.toFixed(3)}</span>${k>0?`x${k>1?`<sup>${k}</sup>`:''}`:''}`).join(' ')}${fit.w.length>4?' + ...':''}`;}
+  document.querySelectorAll('.db').forEach(b=>b.classList.toggle('on',+b.dataset.d===deg));
+}
+(function(){const ds=[1,2,3,4,5,6,8,10];document.getElementById('poly-btns').innerHTML=ds.map(d=>`<button class="db${d===2?' on':''}" data-d="${d}" onclick="POLY_DEG=${d};poly_draw(${d})">d=${d}</button>`).join('');poly_draw(2);})();
+
+// ============================================================
+// PROGRESS BAR + NAV ACTIVE
+// ============================================================
+const sids=['s1','s2','s3','s4','s5','s6','s7','s8'];
+window.addEventListener('scroll',()=>{
+  const s=document.documentElement.scrollTop,d=document.documentElement.scrollHeight-window.innerHeight;
+  document.getElementById('prog').style.width=(d>0?s/d*100:0)+'%';
+  document.querySelectorAll('.na').forEach((a,i)=>{
+    const el=document.getElementById(sids[i]);if(!el)return;
+    const r=el.getBoundingClientRect();a.classList.toggle('on',r.top<120&&r.bottom>0);
+  });
+},{passive:true});
+</script>
+</body>
+</html>

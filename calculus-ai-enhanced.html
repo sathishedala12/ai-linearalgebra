@@ -1,0 +1,1789 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Calculus for AI — Interactive Visual Guide</title>
+<style>
+:root{--bg:#0D1117;--s:#161B22;--s2:#21262D;--bdr:#30363D;--tl:#1D9E75;--tll:#0D2318;--tld:#34D399;--bl:#378ADD;--pu:#7F77DD;--co:#D85A30;--am:#BA7517;--tx:#E6EDF3;--tx2:#8B949E;--tx3:#484F58;--r:8px}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--tx);display:flex;flex-direction:column;min-height:100vh}
+.hdr{background:#0D1117;border-bottom:1px solid var(--bdr);padding:12px 20px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:200}
+.hdr-t{font-size:16px;font-weight:900;font-style:italic;color:var(--tx)}
+.hdr-s{font-size:11px;color:var(--tx3);margin-top:1px}
+.hdr-b{margin-left:auto;font-size:10px;background:var(--tll);border:1px solid var(--tl);color:var(--tld);padding:3px 10px;border-radius:20px;font-weight:700;white-space:nowrap}
+.layout{display:flex;flex:1}
+.sidebar{width:210px;flex-shrink:0;border-right:1px solid var(--bdr);position:sticky;top:49px;height:calc(100vh - 49px);overflow-y:auto;padding:14px 0}
+.cat{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.13em;color:var(--tx3);padding:14px 16px 5px}
+.cat:first-child{padding-top:0}
+.ni{display:flex;align-items:center;gap:9px;padding:6px 16px;text-decoration:none;color:var(--tx2);font-size:12px;border-left:2px solid transparent;transition:all .15s;cursor:pointer}
+.ni:hover{color:var(--tx);background:var(--s2);border-left-color:var(--bdr)}
+.ni.active{color:var(--tld);background:var(--tll);border-left-color:var(--tl);font-weight:600}
+.nn{font-size:10px;font-family:ui-monospace,monospace;color:var(--tx3);width:18px;text-align:right;flex-shrink:0}
+.ni:hover .nn,.ni.active .nn{color:var(--tl)}
+.main{flex:1;min-width:0;padding:0 28px 80px;max-width:820px}
+.topic{padding:38px 0 0;border-top:1px solid var(--bdr);margin-top:38px}
+.topic:first-child{border-top:none;margin-top:0;padding-top:32px}
+.thd{display:flex;align-items:flex-start;gap:12px;margin-bottom:14px}
+.tnum{font-size:10px;font-family:ui-monospace,monospace;background:var(--s2);border:1px solid var(--bdr);color:var(--tx3);padding:3px 8px;border-radius:5px;white-space:nowrap;margin-top:4px}
+.topic h2{font-size:22px;font-weight:900;font-style:italic;line-height:1.2;margin-bottom:3px}
+.tsub{font-size:13px;color:var(--tx2)}
+.chd{display:flex;align-items:center;gap:10px;padding:28px 0 0;margin-bottom:4px}
+.chd h3{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.13em;color:var(--tx3);white-space:nowrap}
+.chd::after{content:'';flex:1;height:1px;background:var(--bdr)}
+.analogy{background:#1C2333;border:1px solid #2D4A6F;border-radius:var(--r);padding:12px 14px;margin-bottom:12px;display:flex;gap:10px}
+.analogy .ic{font-size:17px;flex-shrink:0;margin-top:1px}
+.analogy p{font-size:13px;color:#93C5FD;line-height:1.65;margin:0}
+.analogy p strong{color:#BFDBFE}
+.vb{background:var(--s);border:1px solid var(--bdr);border-radius:var(--r);overflow:hidden;margin:12px 0}
+.vbhd{padding:7px 13px;border-bottom:1px solid var(--bdr);background:var(--s2);display:flex;align-items:center;gap:6px}
+.vbt{font-size:11px;font-weight:600;color:var(--tx2)}
+.pulse{width:7px;height:7px;border-radius:50%;background:var(--tl);animation:pu 2s infinite;flex-shrink:0}
+@keyframes pu{0%,100%{opacity:1}50%{opacity:.3}}
+.vbd{padding:12px}
+canvas{display:block;width:100%;border-radius:5px;border:1px solid var(--bdr);background:#0D1117}
+.ctrls{display:flex;flex-wrap:wrap;gap:9px;margin-top:9px}
+.ctrl{flex:1;min-width:130px}
+.ctrl label{display:block;font-size:11px;color:var(--tx2);margin-bottom:3px;font-weight:500}
+.cr{display:flex;align-items:center;gap:6px}
+.cr input[type=range]{flex:1;accent-color:var(--tl);cursor:pointer}
+.val{font-size:11px;font-weight:700;color:var(--tld);min-width:36px;text-align:right;font-family:ui-monospace,monospace}
+select{font-size:12px;padding:5px 8px;border:1px solid var(--bdr);border-radius:6px;background:var(--s2);color:var(--tx);cursor:pointer;outline:none}
+.btn{padding:4px 11px;font-size:11px;border:1px solid var(--bdr);border-radius:6px;background:var(--s2);color:var(--tx2);cursor:pointer;transition:all .15s}
+.btn:hover,.btn.on{border-color:var(--tl);color:var(--tld);background:var(--tll)}
+.btnp{background:var(--tl);color:#fff;border:none;padding:5px 13px;font-size:11px;border-radius:6px;cursor:pointer;font-weight:700}
+.legend{display:flex;flex-wrap:wrap;gap:6px;padding:6px 10px;background:var(--s2);border-radius:6px;margin-bottom:8px}
+.li{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--tx2)}
+.ldot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.lln{width:14px;height:3px;border-radius:2px;flex-shrink:0}
+.xp{background:#0D1117;border:1px solid var(--bdr);border-left:3px solid var(--tl);border-radius:var(--r);padding:11px 13px;margin-top:8px}
+.xphd{display:flex;align-items:center;gap:5px;margin-bottom:7px}
+.xplbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--tl)}
+.xpb{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.xpc h5{font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--tx3);margin-bottom:4px;font-weight:700}
+.xpc p{font-size:12px;color:var(--tx2);line-height:1.65}
+.hi{color:var(--tld);font-weight:600}.co2{color:#F87171;font-weight:600}.am2{color:#FCD34D;font-weight:600}.bl2{color:#93C5FD;font-weight:600}
+.tryb{background:var(--tll);border:1px solid var(--tl);border-radius:var(--r);padding:9px 12px;margin-top:7px}
+.tryb h5{font-size:10px;color:var(--tld);text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px;font-weight:700}
+.tryb ul{padding-left:14px}
+.tryb li{font-size:12px;color:#7BB897;line-height:1.7}
+.tryb li strong{color:var(--tld)}
+.dive{border-radius:var(--r);overflow:hidden;margin:16px 0;border:1px solid #1D3A2A}
+.divehd{background:linear-gradient(90deg,#0A1F14,#111827);padding:9px 16px;display:flex;align-items:center;gap:8px;border-bottom:1px solid #1D3A2A}
+.divehd h4{font-size:12px;font-weight:700;color:var(--tx)}
+.divehd .mod{font-size:10px;color:var(--tx3);margin-left:auto}
+.divepp{display:grid;grid-template-columns:1fr 1fr}
+.dwhy{background:#0A1929;padding:14px 16px;border-right:1px solid #1D3A2A}
+.dwhy h5{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:#60A5FA;margin-bottom:8px;font-weight:700}
+.dwhy p{font-size:12.5px;color:#B0C4D8;line-height:1.7;margin-bottom:6px}
+.dwhy p:last-child,.dhow p:last-child{margin-bottom:0}
+.dwhy strong{color:#93C5FD}
+.dconcept{background:#0F1A14;padding:13px 16px;border-bottom:1px solid #1D3A2A}
+.dconcept h5{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:#A78BFA;margin-bottom:8px;font-weight:700}
+.dconcept p{font-size:12.5px;color:var(--tx2);line-height:1.7;margin-bottom:6px}
+.dconcept p:last-child{margin:0}
+.dconcept strong{color:var(--tx)}
+.dintu{background:#1A1830;border-left:3px solid #7F77DD;padding:8px 12px;margin-top:9px;border-radius:0 6px 6px 0;font-size:12px;color:#C4B5FD;line-height:1.65}
+.dintu strong{color:#DDD6FE}
+.dexample{background:#15110A;padding:13px 16px;border-top:1px solid #1D3A2A}
+.dexample h5{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:#FCD34D;margin-bottom:8px;font-weight:700}
+.dexample p{font-size:12.5px;color:var(--tx2);line-height:1.7;margin-bottom:6px}
+.dexample p:last-child{margin-bottom:0}
+.we{background:#0A0E13;border:1px solid #2A2F3A;border-radius:6px;margin-top:9px;overflow:hidden}
+.wehd{background:linear-gradient(90deg,#1F1605,#0A0E13);padding:6px 12px;border-bottom:1px solid #2A2F3A;font-size:10px;font-weight:700;color:#FCD34D;text-transform:uppercase;letter-spacing:.08em}
+.webd{padding:4px 0}
+.werow{display:grid;grid-template-columns:64px 1fr;gap:10px;padding:5px 12px;font-size:11.5px;line-height:1.55;font-family:ui-monospace,'Cascadia Code',monospace;border-bottom:1px solid #161B22;align-items:start}
+.werow:last-child{border-bottom:none}
+.wetag{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;padding:2px 0;color:var(--tx3)}
+.wegiven .wetag{color:#93C5FD}
+.westep .wetag{color:#FCD34D}
+.weresult .wetag{color:#34D399}
+.weresult{background:#0A1F14}
+.wecontent{color:#E2E8F0;word-break:break-word}
+.wl{list-style:none;padding:0;margin:7px 0 0}
+.wl li{font-size:12px;color:#7E9BB5;line-height:1.7;padding-left:12px;position:relative;margin-bottom:1px}
+.wl li::before{content:'›';position:absolute;left:2px;color:#60A5FA;font-weight:700}
+.dhow{background:var(--s2);padding:14px 16px}
+.dhow h5{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--tl);margin-bottom:8px;font-weight:700}
+.dhow p{font-size:12.5px;color:var(--tx2);line-height:1.7;margin-bottom:6px}
+.dhow strong{color:var(--tx)}
+.cb{background:#0D1117;border:1px solid var(--bdr);border-radius:6px;padding:9px 12px;margin:8px 0;font-family:ui-monospace,'Cascadia Code',monospace;font-size:11px;color:#E2E8F0;line-height:1.85;overflow-x:auto;white-space:pre}
+.chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+.chip{font-size:10px;padding:2px 9px;border-radius:20px}
+.chh{background:var(--tll);border:1px solid var(--tl);color:var(--tld)}
+.chn{background:var(--s2);border:1px solid var(--bdr);color:var(--tx3)}
+.fm{background:var(--s2);border-left:3px solid var(--pu);border-radius:0 var(--r) var(--r) 0;padding:9px 13px;margin:10px 0;font-family:ui-monospace,monospace;font-size:12px;line-height:2;color:var(--tx)}
+.fm .cm{color:var(--tx3);font-size:10px}
+.tbl{width:100%;border-collapse:collapse;font-size:12px;margin:10px 0}
+.tbl th{background:var(--s2);padding:7px 10px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--tx2);border-bottom:2px solid var(--bdr)}
+.tbl td{padding:6px 10px;border-bottom:1px solid var(--bdr);color:var(--tx2)}
+.tbl td:first-child{font-family:ui-monospace,monospace;color:var(--tx);font-size:11px}
+.tbl tr:last-child td{border-bottom:none}
+.twoc{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin:11px 0}
+.card{background:var(--s);border:1px solid var(--bdr);border-radius:var(--r);padding:14px 16px}
+.card h3{font-size:13px;font-weight:700;font-style:italic;margin-bottom:7px;color:var(--tx)}
+.card p{font-size:12.5px;color:var(--tx2);line-height:1.7;margin-bottom:6px}
+.card p:last-child{margin:0}
+.note{background:var(--tll);border:1px solid var(--tl);border-radius:var(--r);padding:9px 13px;margin:10px 0;font-size:13px;color:var(--tld);line-height:1.6}
+.stabs{display:flex;gap:4px;margin-bottom:8px;flex-wrap:wrap}
+.stab{padding:4px 10px;font-size:10px;border:1px solid var(--bdr);border-radius:20px;background:var(--s2);color:var(--tx3);cursor:pointer;transition:all .15s}
+.stab.on{background:var(--tll);border-color:var(--tl);color:var(--tld);font-weight:600}
+.csg{display:grid;grid-template-columns:repeat(auto-fill,minmax(175px,1fr));gap:8px;margin:10px 0}
+.csi{background:var(--s2);border:1px solid var(--bdr);border-radius:var(--r);padding:10px 12px}
+.csn{font-size:9px;color:var(--tl);text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px;font-weight:700}
+.csf{font-family:ui-monospace,monospace;font-size:11px;color:var(--tx);margin-bottom:2px;line-height:1.5}
+.csd{font-size:10px;color:var(--tx3)}
+@media(max-width:768px){.sidebar{display:none}.main{padding:0 14px 60px}.twoc{grid-template-columns:1fr}.divepp{grid-template-columns:1fr}.xpb{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header class="hdr">
+  <div><div class="hdr-t">Calculus for AI</div><div class="hdr-s">Interactive Visual Guide — Live Explanations</div></div>
+  <span class="hdr-b">21 Topics · 15 Demos</span>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sb">
+  <div class="cat">Foundations</div>
+  <a class="ni" href="#t01"><span class="nn">01</span>Functions &amp; Graphs</a>
+  <a class="ni" href="#t02"><span class="nn">02</span>Limits</a>
+  <a class="ni" href="#t03"><span class="nn">03</span>The Derivative</a>
+  <a class="ni" href="#t04"><span class="nn">04</span>Common Derivatives</a>
+  <div class="cat">Multivariable</div>
+  <a class="ni" href="#t05"><span class="nn">05</span>Higher-Order Derivatives</a>
+  <a class="ni" href="#t06"><span class="nn">06</span>Partial Derivatives</a>
+  <a class="ni" href="#t07"><span class="nn">07</span>The Gradient</a>
+  <a class="ni" href="#t08"><span class="nn">08</span>Chain Rule</a>
+  <a class="ni" href="#t09"><span class="nn">09</span>Jacobian &amp; Hessian</a>
+  <div class="cat">Integration</div>
+  <a class="ni" href="#t10"><span class="nn">10</span>Antiderivatives</a>
+  <a class="ni" href="#t11"><span class="nn">11</span>Riemann Sums</a>
+  <a class="ni" href="#t12"><span class="nn">12</span>Fund. Theorem</a>
+  <div class="cat">Optimization</div>
+  <a class="ni" href="#t13"><span class="nn">13</span>Critical Points</a>
+  <a class="ni" href="#t14"><span class="nn">14</span>Gradient Descent</a>
+  <a class="ni" href="#t15"><span class="nn">15</span>Saddle Points</a>
+  <a class="ni" href="#t16"><span class="nn">16</span>Convexity</a>
+  <div class="cat">AI Applications</div>
+  <a class="ni" href="#t17"><span class="nn">17</span>Exp &amp; Log in ML</a>
+  <a class="ni" href="#t18"><span class="nn">18</span>Taylor Series</a>
+  <a class="ni" href="#t19"><span class="nn">19</span>Backpropagation</a>
+  <a class="ni" href="#t20"><span class="nn">20</span>Loss Landscapes</a>
+  <a class="ni" href="#t21"><span class="nn">21</span>Cheat Sheet</a>
+</nav>
+<main class="main" id="main">
+<div class="chd"><h3>Foundations</h3></div>
+
+<div class="topic" id="t01">
+<div class="thd"><span class="tnum">01</span><div><h2>Functions &amp; Graphs</h2><div class="tsub">Mapping inputs to outputs — what every neural network IS</div></div></div>
+<div class="analogy"><span class="ic">🎛️</span><p><strong>Plain English:</strong> A function is a machine — one input in, one output out. f(3)=9 means input 3, output 9. The graph plots every (input, output) pair. A neural network IS a function: pixels go in, class probabilities come out. Activation functions determine what kind of function each layer can express.</p></div>
+
+<div class="vb">
+  <div class="vbhd"><span class="pulse"></span><span class="vbt">Function Explorer — pick any function, drag x to see f(x)</span></div>
+  <div class="vbd">
+    <div class="legend"><span class="li"><span class="lln" style="background:#1D9E75"></span>f(x)</span><span class="li"><span class="ldot" style="background:#D85A30"></span>Your point</span></div>
+    <select id="fn01" onchange="D01()" style="margin-bottom:8px">
+      <option value="x2">f(x) = x²</option><option value="x3">f(x) = x³</option>
+      <option value="sin">f(x) = sin(x)</option><option value="exp">f(x) = eˣ</option>
+      <option value="log">f(x) = ln(x)</option><option value="relu">f(x) = ReLU(x) ← AI activation</option>
+      <option value="sigmoid">f(x) = sigmoid(x) ← AI activation</option>
+      <option value="tanh">f(x) = tanh(x) ← LSTM/GRU</option>
+      <option value="gelu">f(x) = GELU(x) ← GPT, BERT</option>
+    </select>
+    <canvas id="cv01" style="height:210px"></canvas>
+    <div class="ctrls"><div class="ctrl"><label>x position</label><div class="cr"><input type="range" id="x01" min="-4" max="4" step="0.1" value="1.5" oninput="D01()"><span class="val" id="xv01">1.5</span></div></div></div>
+    <div class="xp"><div class="xphd"><span class="pulse"></span><span class="xplbl">Live</span></div>
+    <div class="xpb"><div class="xpc"><h5>This function</h5><p id="ei01a">—</p></div><div class="xpc"><h5>At your x</h5><p id="ei01b">—</p></div></div></div>
+    <div class="tryb"><h5>Build intuition</h5><ul>
+    <li>Switch to <strong>ReLU</strong>: flat at 0 for x&lt;0. "Dead neurons" output 0 permanently.</li>
+    <li>Switch to <strong>sigmoid</strong>: drag to x=±5 — slope≈0. That's the vanishing gradient in 1 layer.</li>
+    <li>Switch to <strong>GELU</strong>: smooth everywhere unlike ReLU's kink at x=0.</li>
+    </ul></div>
+  </div>
+</div>
+<div class="dive">
+  <div class="divehd"><span style="color:var(--tl)">★</span><h4>AI Deep Dive — Functions &amp; Graphs</h4><span class="mod">Topic 01</span></div>
+  <div class="dconcept"><h5>📚 The Concept</h5>
+    <p>A function is a deterministic rule: every input produces exactly one output. Mathematically <strong>f: X → Y</strong> assigns each x ∈ X a single value f(x) ∈ Y. The graph is the set of all (x, f(x)) pairs visualised as a curve. Some functions are <strong>linear</strong> (straight lines, the only ones that obey f(a+b) = f(a)+f(b)); most useful ones are <strong>non-linear</strong> (curves, kinks, jumps). What separates ML's preferred non-linearities — ReLU, GELU, sigmoid, tanh — from arbitrary curves is that each was chosen because of what its <em>derivative</em> looks like, not its output.</p>
+    <div class="dintu">💡 <strong>Intuition:</strong> A neural network is a giant nested function f(x) = fₙ(...f₂(f₁(x))). Training picks the weights inside each layer's function. The output curve is just the visible shadow of millions of tiny linear+nonlinear pieces composed together.</div>
+  </div>
+  <div class="divepp">
+    <div class="dwhy"><h5>❓ Why AI needs this</h5><p>Neural networks are functions. f(x;W) maps inputs to predictions. Training = finding W so f(x;W)≈y for all training data.</p><ul class="wl"><li>Activation functions chosen for derivative properties, not just output shape</li><li>ReLU derivative ∈{0,1} — enabled deep learning by preventing vanishing gradients</li><li>Sigmoid max derivative 0.25 — caused 1990s deep learning failure in 10+ layer nets</li><li>GELU smooth everywhere → stable gradient flow in 100-layer transformers</li></ul></div>
+    <div class="dhow"><h5>⚙️ How AI uses it</h5><p>Every layer applies: <strong>output = activation(Wx+b)</strong></p><div class="cb">layer = nn.Sequential(
+  nn.Linear(784, 256),
+  nn.GELU(),        # GPT-2/3, BERT, T5
+  nn.Linear(256, 10),
+  nn.Softmax(dim=-1)
+)</div><div class="chips"><span class="chip chh">GELU → GPT-2/3, BERT</span><span class="chip chh">ReLU → ResNet, AlexNet</span><span class="chip chh">Sigmoid → binary output</span><span class="chip chn">Tanh → LSTM gates</span></div></div>
+  </div>
+  <div class="dexample"><h5>🧮 Worked Example</h5>
+    <p>Compare what three popular activations actually output at x = 1. They all "fire" but the shape of their curves is what matters for training.</p>
+    <div class="we">
+      <div class="wehd">Evaluating activations at x = 1</div>
+      <div class="webd">
+        <div class="werow wegiven"><span class="wetag">Given</span><span class="wecontent">x = 1, sigmoid σ(z) = 1/(1+e⁻ᶻ), GELU(x) ≈ x · σ(1.702x)</span></div>
+        <div class="werow westep"><span class="wetag">ReLU</span><span class="wecontent">ReLU(1) = max(0, 1) = 1.000 — passthrough, slope 1</span></div>
+        <div class="werow westep"><span class="wetag">Sigmoid</span><span class="wecontent">σ(1) = 1/(1 + e⁻¹) = 1/(1 + 0.368) = 1/1.368 = 0.731</span></div>
+        <div class="werow westep"><span class="wetag">GELU</span><span class="wecontent">GELU(1) = 1 · σ(1.702) = 1 · 1/(1 + e⁻¹·⁷⁰²) = 1 · 0.846 = 0.846</span></div>
+        <div class="werow weresult"><span class="wetag">Result</span><span class="wecontent">[ReLU, GELU, Sigmoid] → [1.000, 0.846, 0.731]. GELU is the smooth ReLU GPT/BERT prefer.</span></div>
+      </div>
+    </div>
+  </div>
+</div></div>
+<div class="topic" id="t02">
+<div class="thd"><span class="tnum">02</span><div><h2>Limits</h2><div class="tsub">The foundation of every derivative — and therefore all of training</div></div></div>
+<div class="analogy"><span class="ic">🔭</span><p><strong>Plain English:</strong> "The limit as x→2" asks: what does f(x) approach as x gets infinitely close to 2 from both sides? We care about the destination, not whether we arrive. Every derivative is defined as a limit. Without limits → no derivatives → no gradients → no training.</p></div>
+
+<div class="vb">
+  <div class="vbhd"><span class="pulse"></span><span class="vbt">Limit Visualizer — approach from both sides simultaneously</span></div>
+  <div class="vbd">
+    <div class="legend"><span class="li"><span class="lln" style="background:#1D9E75"></span>f(x)=x²−x+1</span><span class="li"><span class="ldot" style="background:#1D9E75"></span>Left approach</span><span class="li"><span class="ldot" style="background:#D85A30"></span>Right approach</span><span class="li"><span class="lln" style="background:#7F77DD"></span>Point a</span></div>
+    <canvas id="cv02" style="height:200px"></canvas>
+    <div class="ctrls">
+      <div class="ctrl"><label>Approach point a</label><div class="cr"><input type="range" id="la02" min="-2" max="3" step="0.1" value="1" oninput="D02()"><span class="val" id="lav02">1.0</span></div></div>
+      <div class="ctrl"><label>Closeness Δ (drag left = zoom in)</label><div class="cr"><input type="range" id="ld02" min="0.05" max="2" step="0.05" value="1.5" oninput="D02()"><span class="val" id="ldv02">1.50</span></div></div>
+    </div>
+    <div class="xp"><div class="xphd"><span class="pulse"></span><span class="xplbl">Live</span></div>
+    <div class="xpb"><div class="xpc"><h5>Approaching a</h5><p id="ei02a">—</p></div><div class="xpc"><h5>Limit exists?</h5><p id="ei02b">—</p></div></div></div>
+  </div>
+</div>
+<div class="fm">f′(x) = lim[h→0] (f(x+h)−f(x))/h <span class="cm">// derivative IS a limit</span></div>
+<div class="dive">
+  <div class="divehd"><span style="color:var(--tl)">★</span><h4>AI Deep Dive — Limits</h4><span class="mod">Topic 02</span></div>
+  <div class="dconcept"><h5>📚 The Concept</h5>
+    <p>A limit asks: as x gets arbitrarily close to some value a (without ever reaching it), what value does f(x) approach? The notation is <strong>lim<sub>x→a</sub> f(x) = L</strong>. Crucially the limit cares only about the <em>destination</em>, not whether f is even defined at a. This is what lets us divide by "zero" safely: (f(x+h) − f(x)) / h is undefined at h=0, but its limit as h→0 is well-defined and gives us the derivative. Limits also formalise <strong>continuity</strong> (limit equals the value), <strong>convergence</strong> (training loss approaches its minimum), and <strong>asymptotic behaviour</strong> (what happens as x → ∞).</p>
+    <div class="dintu">💡 <strong>Intuition:</strong> A limit is a "what would happen if we got infinitely close" thought experiment. Calculus is built on the trick of taking ratios that look like 0/0, then computing what they approach instead of what they equal.</div>
+  </div>
+  <div class="divepp">
+    <div class="dwhy"><h5>❓ Why AI needs this</h5><p>The derivative is defined as a limit. Without limits there is no gradient, no backprop, no training signal.</p><ul class="wl"><li>lim[h→0](f(x+h)−f(x))/h — this limit IS the gradient</li><li>Continuity (limit=value) required for gradient descent to work</li><li>Convergence of training loss is formally a limit statement</li><li>torch.autograd.gradcheck() uses the limit definition with small h</li></ul></div>
+    <div class="dhow"><h5>⚙️ How AI uses it</h5><p>Gradient checking verifies autograd using the limit definition directly:</p><div class="cb">h = 1e-5
+# Numerical gradient = limit definition
+grad_num = (loss(w+h) - loss(w-h)) / (2*h)
+# Should match autograd:
+loss.backward()
+assert abs(grad_num - w.grad) < 1e-4
+# torch.autograd.gradcheck() does this</div><div class="chips"><span class="chip chh">gradient checking (debug)</span><span class="chip chh">torch.autograd.gradcheck</span><span class="chip chh">convergence analysis</span></div></div>
+  </div>
+  <div class="dexample"><h5>🧮 Worked Example</h5>
+    <p>The famous limit lim<sub>h→0</sub> sin(h)/h. The function is undefined at h=0 (you'd be dividing 0/0), but the limit is exactly 1. Watch the values converge.</p>
+    <div class="we">
+      <div class="wehd">Numerically computing lim<sub>h→0</sub> sin(h)/h</div>
+      <div class="webd">
+        <div class="werow wegiven"><span class="wegiven wetag">Given</span><span class="wecontent">f(h) = sin(h) / h, undefined at h = 0</span></div>
+        <div class="werow westep"><span class="wetag">h = 0.5</span><span class="wecontent">sin(0.5)/0.5 = 0.4794/0.5 = 0.9589</span></div>
+        <div class="werow westep"><span class="wetag">h = 0.1</span><span class="wecontent">sin(0.1)/0.1 = 0.0998/0.1 = 0.9983</span></div>
+        <div class="werow westep"><span class="wetag">h = 0.01</span><span class="wecontent">sin(0.01)/0.01 = 0.00999983/0.01 = 0.999983</span></div>
+        <div class="werow westep"><span class="wetag">h = 0.001</span><span class="wecontent">sin(0.001)/0.001 = 0.99999983</span></div>
+        <div class="werow weresult"><span class="wetag">Limit</span><span class="wecontent">lim<sub>h→0</sub> sin(h)/h = 1, even though f(0) doesn't exist. This is exactly how gradient checking samples a derivative.</span></div>
+      </div>
+    </div>
+  </div>
+</div></div>
+<div class="topic" id="t03">
+<div class="thd"><span class="tnum">03</span><div><h2>The Derivative</h2><div class="tsub">Instantaneous slope — the only learning signal in every neural network</div></div></div>
+<div class="analogy"><span class="ic">📐</span><p><strong>Plain English:</strong> The derivative f′(x) asks: "if x increases by a tiny ε, how much does f change?" That ratio Δf/Δx as ε→0 is the slope of the tangent line at x. In AI: ∂L/∂w tells training whether increasing weight w raises or lowers the loss. Positive → decrease w. Negative → increase w. This IS the learning signal.</p></div>
+
+<div class="vb">
+  <div class="vbhd"><span class="pulse"></span><span class="vbt">Derivative Explorer — tangent line + f′(x) curve simultaneously</span></div>
+  <div class="vbd">
+    <div class="legend"><span class="li"><span class="lln" style="background:#378ADD"></span>f(x)</span><span class="li"><span class="lln" style="background:#1D9E75"></span>f′(x)</span><span class="li"><span class="lln" style="background:#BA7517"></span>tangent at x</span><span class="li"><span class="ldot" style="background:#D85A30"></span>your point</span></div>
+    <div style="display:flex;gap:7px;align-items:center;margin-bottom:8px;flex-wrap:wrap">
+      <select id="fn03" onchange="D03()"><option value="x2">f=x²</option><option value="x3">f=x³</option><option value="sin">f=sin(x)</option><option value="relu">f=ReLU(x)</option><option value="sigmoid">f=sigmoid(x)</option><option value="loss">f=(x−1)² loss</option></select>
+      <button class="btn on" id="bt03t" onclick="t03=!t03;this.classList.toggle('on',t03);D03()">Tangent</button>
+      <button class="btn on" id="bt03d" onclick="d03=!d03;this.classList.toggle('on',d03);D03()">f′(x)</button>
+    </div>
+    <canvas id="cv03" style="height:230px"></canvas>
+    <div class="ctrls"><div class="ctrl"><label>x position</label><div class="cr"><input type="range" id="x03" min="-4" max="4" step="0.05" value="1" oninput="D03()"><span class="val" id="xv03">1.00</span></div></div></div>
+    <div class="xp"><div class="xphd"><span class="pulse"></span><span class="xplbl">Live</span></div>
+    <div class="xpb"><div class="xpc"><h5>Slope at your x</h5><p id="ei03a">—</p></div><div class="xpc"><h5>Weight update</h5><p id="ei03b">—</p></div></div></div>
+    <div class="tryb"><h5>Key experiments</h5><ul>
+    <li><strong>(x−1)² loss</strong> at x=1: slope=0 — converged! Update=0.</li>
+    <li><strong>sigmoid</strong> at x=5: slope≈0.007. After 10 layers: 0.007¹⁰≈0. Vanishing gradient!</li>
+    <li><strong>ReLU</strong> through x=0: slope jumps 0→1. Non-differentiable but subgradient=0 works.</li>
+    </ul></div>
+  </div>
+</div>
+<div class="fm">f′(x) = lim[h→0] (f(x+h)−f(x))/h<br>Weight update: w ← w − α × ∂L/∂w</div>
+<div class="dive">
+  <div class="divehd"><span style="color:var(--tl)">★</span><h4>AI Deep Dive — The Derivative</h4><span class="mod">Topic 03</span></div>
+  <div class="dconcept"><h5>📚 The Concept</h5>
+    <p>The derivative <strong>f′(x)</strong> measures the instantaneous rate of change of f at the point x. Geometrically it's the slope of the tangent line at x. Algebraically it's defined by the limit <strong>f′(x) = lim<sub>h→0</sub> (f(x+h) − f(x)) / h</strong> — average slope over an interval, taken as the interval shrinks to a point. The sign of f′ tells direction (rising vs falling); the magnitude tells speed of change. A function is <em>differentiable</em> at x if this limit exists and is the same approaching from both sides — ReLU famously fails this at x=0 (left slope 0, right slope 1).</p>
+    <div class="dintu">💡 <strong>Intuition:</strong> If your loss is a hill and your weight is your position, the derivative is the steepness right under your feet. Walk downhill — that's gradient descent in one sentence.</div>
+  </div>
+  <div class="divepp">
+    <div class="dwhy"><h5>❓ Why AI needs this</h5><p><strong>The derivative is the only learning signal.</strong> ∂L/∂w tells every optimizer exactly how to change each weight.</p><ul class="wl"><li>Positive ∂L/∂w → increasing w raises loss → decrease w</li><li>Negative ∂L/∂w → increasing w lowers loss → increase w</li><li>Zero ∂L/∂w → at an extremum → stop updating (converged)</li><li>|∂L/∂w| controls step size — large gradient = aggressive update</li></ul></div>
+    <div class="dhow"><h5>⚙️ How AI uses it</h5><p><strong>param.grad stores ∂L/∂param</strong> after loss.backward():</p><div class="cb">loss.backward()  # compute ∂L/∂w for every w
+for p in model.parameters():
+    p.data -= lr * p.grad   # w ← w − α(∂L/∂w)
+# Clip to prevent exploding gradients:
+torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)</div><div class="chips"><span class="chip chh">SGD / Adam / RMSprop (all read ∂L/∂w)</span><span class="chip chh">Gradient clipping</span><span class="chip chh">All neural networks</span></div></div>
+  </div>
+  <div class="dexample"><h5>🧮 Worked Example</h5>
+    <p>Quadratic loss L(w) = (w − 3)² with current weight w = 5. Compute the derivative two ways — numerical (limit definition) and analytical — then take one gradient descent step.</p>
+    <div class="we">
+      <div class="wehd">Derivative of L(w) = (w − 3)² at w = 5</div>
+      <div class="webd">
+        <div class="werow wegiven"><span class="wetag">Given</span><span class="wecontent">L(w) = (w − 3)², w = 5, learning rate α = 0.1</span></div>
+        <div class="werow westep"><span class="wetag">Step 1</span><span class="wecontent">Numerical (h = 0.001): L(5.001) = (2.001)² = 4.004001, L(4.999) = (1.999)² = 3.996001</span></div>
+        <div class="werow westep"><span class="wetag">Step 2</span><span class="wecontent">(L(5.001) − L(4.999)) / (2 · 0.001) = 0.008 / 0.002 = 4.000</span></div>
+        <div class="werow westep"><span class="wetag">Step 3</span><span class="wecontent">Analytical: L′(w) = 2(w − 3), so L′(5) = 2 · 2 = 4 ✓ (matches numerical)</span></div>
+        <div class="werow westep"><span class="wetag">Step 4</span><span class="wecontent">Update: w ← w − α · L′(w) = 5 − 0.1 · 4 = 4.6</span></div>
+        <div class="werow weresult"><span class="wetag">Result</span><span class="wecontent">New loss L(4.6) = 1.6² = 2.56 (down from 4.0). One step moved closer to the optimum at w = 3.</span></div>
+      </div>
+    </div>
+  </div>
+</div></div>
+<div class="topic" id="t04">
+<div class="thd"><span class="tnum">04</span><div><h2>Common Derivatives</h2><div class="tsub">The 8 rules you use every single day in machine learning</div></div></div>
+<div class="analogy"><span class="ic">📋</span><p><strong>Plain English:</strong> Memorize these like multiplication tables. Most critical: eˣ is its own derivative — unique in all of mathematics. d/dx[ln x]=1/x appears in every cross-entropy backprop. ReLU's binary derivative {0,1} is why it enabled deep learning in 2012.</p></div>
+<table class="tbl"><tr><th>f(x)</th><th>f′(x)</th><th>AI use</th><th>Key fact</th></tr>
+<tr><td>xⁿ</td><td>n·xⁿ⁻¹</td><td>All polynomial layers</td><td>Power rule — most used</td></tr>
+<tr><td>eˣ</td><td>eˣ (itself!)</td><td>Softmax numerator</td><td>Self-derivative — mathematically unique</td></tr>
+<tr><td>ln(x)</td><td>1/x</td><td>Cross-entropy backprop</td><td>∂/∂ŷ[−log ŷ] = −1/ŷ</td></tr>
+<tr><td>sin(x)</td><td>cos(x)</td><td>Positional encodings</td><td>Smooth oscillation</td></tr>
+<tr><td>sigmoid(x)</td><td>σ(1−σ) ≤ 0.25</td><td>Binary classification</td><td>MAX 0.25 → vanishing gradient!</td></tr>
+<tr><td>tanh(x)</td><td>1−tanh²(x)</td><td>LSTM/GRU gates</td><td>Zero-centered, max derivative = 1</td></tr>
+<tr><td>ReLU(x)</td><td>0 (x&lt;0) or 1 (x&gt;0)</td><td>All deep networks</td><td>Never shrinks gradient — enabled deep learning</td></tr>
+<tr><td>GELU(x)</td><td>σ(1.702x) + x·σ′(…)</td><td>GPT, BERT hidden layers</td><td>Smooth everywhere unlike ReLU</td></tr>
+</table>
+<div class="note">⚠️ <strong>Vanishing gradient in numbers:</strong> sigmoid max derivative = 0.25. In a 10-layer network: 0.25 × 0.25 × … (10 times) = 0.25¹⁰ ≈ 0.0000001. First layers receive gradient ≈ 0 and cannot learn. ReLU's derivative=1 when active — no shrinkage — solved this in AlexNet (2012).</div>
+<div class="dive">
+  <div class="divehd"><span style="color:var(--tl)">★</span><h4>AI Deep Dive — Common Derivatives</h4><span class="mod">Topic 04</span></div>
+  <div class="dconcept"><h5>📚 The Concept</h5>
+    <p>You almost never compute derivatives from the limit definition. Instead you memorise a small library of "atomic" derivatives plus four combination rules (sum, product, quotient, chain) and assemble the rest. The most important atomic ones for ML are the <strong>power rule</strong> (xⁿ → nxⁿ⁻¹), <strong>exponential</strong> (eˣ → eˣ, the only function that is its own derivative), <strong>logarithm</strong> (ln x → 1/x, which appears in every cross-entropy backprop), and the activation derivatives — sigmoid, tanh, ReLU, GELU. The derivative of an activation at a point is what determines whether gradient flows through that neuron or gets killed.</p>
+    <div class="dintu">💡 <strong>Intuition:</strong> Activations are picked for the shape of their <em>derivative</em>, not their output. Sigmoid's max derivative 0.25 means 10 stacked layers shrink gradients by 4 million times. ReLU's derivative is 0 or 1 — never shrinks. That single property birthed deep learning.</div>
+  </div>
+  <div class="divepp">
+    <div class="dwhy"><h5>❓ Why AI needs this</h5><p>Every backward pass multiplies derivatives via the chain rule. Whether each derivative vanishes, stays constant, or explodes determines whether deep networks can be trained at all.</p><ul class="wl"><li>d/dx[eˣ]=eˣ → softmax backprop trivial — gradient of exp(z) is just exp(z)</li><li>d/dx[ln x]=1/x → cross-entropy gradient −y/ŷ grows large when model is very wrong</li><li>ReLU′∈{0,1} → gradient never shrinks — 10 layers of ReLU still gets same gradient magnitude</li><li>Sigmoid max 0.25 → 0.25¹⁰≈10⁻⁶ at layer 1 → 1990s deep net failure</li></ul></div>
+    <div class="dhow"><h5>⚙️ How AI uses it</h5><p>Derivatives of activations appear in every backward pass:</p><div class="cb"># Sigmoid: d/dz = s*(1-s) ≤ 0.25
+s = torch.sigmoid(x); ds = s * (1 - s)
+# ReLU: d/dz = 0 or 1 (never shrinks)
+dr = (x > 0).float()
+# Cross-entropy gradient: d/dŷ[-log ŷ] = -1/ŷ
+dL_dy = -target / prediction  # 1/x rule</div><div class="chips"><span class="chip chh">ReLU → AlexNet, ResNet, GPT</span><span class="chip chh">GELU → GPT-2/3, BERT, T5</span><span class="chip chh">exp → softmax gradient</span><span class="chip chn">log → cross-entropy</span></div></div>
+  </div>
+  <div class="dexample"><h5>🧮 Worked Example</h5>
+    <p>Trace what happens to a gradient flowing through a 10-layer sigmoid network vs a 10-layer ReLU network. This is the calculation that explains why every modern deep network uses ReLU-family activations.</p>
+    <div class="we">
+      <div class="wehd">Vanishing gradient — sigmoid vs ReLU after 10 layers</div>
+      <div class="webd">
+        <div class="werow wegiven"><span class="wetag">Given</span><span class="wecontent">Same incoming gradient = 1.0 entering a stack of 10 layers</span></div>
+        <div class="werow westep"><span class="wetag">Sigmoid</span><span class="wecontent">σ′(z) = σ(z)(1 − σ(z)). Maximum at z=0: 0.5 · 0.5 = 0.25</span></div>
+        <div class="werow westep"><span class="wetag">10 layers</span><span class="wecontent">Best case: 0.25¹⁰ = 9.54 × 10⁻⁷ ≈ 0.00000095</span></div>
+        <div class="werow westep"><span class="wetag">ReLU</span><span class="wecontent">ReLU′(z) = 1 if z &gt; 0, else 0. Active neurons multiply by 1 — no shrinkage.</span></div>
+        <div class="werow westep"><span class="wetag">10 layers</span><span class="wecontent">If all active: 1¹⁰ = 1.0 — gradient passes through unchanged</span></div>
+        <div class="werow weresult"><span class="wetag">Ratio</span><span class="wecontent">ReLU delivers ~1 million × more gradient to layer 1 than sigmoid. This is why deep CNNs / transformers became possible.</span></div>
+      </div>
+    </div>
+  </div>
+</div></div>
+<div class="chd"><h3>Multivariable</h3></div>
+
+<div class="topic" id="t05">
+<div class="thd"><span class="tnum">05</span><div><h2>Higher-Order Derivatives</h2><div class="tsub">f″ measures curvature — whether you're in a bowl or on a hill</div></div></div>
+<div class="analogy"><span class="ic">🎢</span><p><strong>Plain English:</strong> f′ is speed; f″ is acceleration. f″&gt;0 everywhere means the function is bowl-shaped — concave up. f″&lt;0 means hill-shaped — concave down. Curvature tells gradient descent whether it's converging toward a minimum or diverging away from a maximum. It also determines the maximum safe learning rate.</p></div>
+
+<div class="vb">
+  <div class="vbhd"><span class="pulse"></span><span class="vbt">See f, f′, and f″ simultaneously — drag x to classify any point</span></div>
+  <div class="vbd">
+    <div class="legend"><span class="li"><span class="lln" style="background:#378ADD"></span>f(x)</span><span class="li"><span class="lln" style="background:#1D9E75"></span>f′(x) slope</span><span class="li"><span class="lln" style="background:#D85A30"></span>f″(x) curvature</span><span class="li"><span class="ldot" style="background:#7F77DD"></span>your x</span></div>
+    <select id="fn05" onchange="D05()" style="margin-bottom:8px">
+      <option value="x3">f=x³−3x (min, max, inflection)</option><option value="sin">f=sin(x)</option>
+      <option value="x4">f=x⁴−4x² (double well)</option><option value="bumpy">f=x²/2−cos(x) (bumpy loss)</option>
+    </select>
+    <canvas id="cv05" style="height:230px"></canvas>
+    <div class="ctrls"><div class="ctrl"><label>x position</label><div class="cr"><input type="range" id="x05" min="-3.5" max="3.5" step="0.05" value="0.5" oninput="D05()"><span class="val" id="xv05">0.50</span></div></div></div>
+    <div class="xp"><div class="xphd"><span class="pulse"></span><span class="xplbl">Live</span></div>
+    <div class="xpb"><div class="xpc"><h5>f, f′, f″ right now</h5><p id="ei05a">—</p></div><div class="xpc"><h5>What curvature means</h5><p id="ei05b">—</p></div></div></div>
+    <div class="tryb"><h5>Find critical points using f″</h5><ul>
+    <li>Where <strong>teal f′=0</strong>: candidate critical point</li>
+    <li><strong>Red f″&gt;0</strong> there → bowl → <span class="hi">local MIN ✓</span></li>
+    <li><strong>Red f″&lt;0</strong> there → hill → <span class="co2">local MAX ✗</span></li>
+    <li><strong>Red f″=0</strong>: inconclusive — check higher derivatives</li>
+    </ul></div>
+  </div>
+</div>
+<div class="fm">f″&gt;0 → concave up (bowl) → minimum candidate<br>f″&lt;0 → concave down (hill) → maximum<br>Safe learning rate: α &lt; 2/max|f″(x)|</div>
+<div class="dive">
+  <div class="divehd"><span style="color:var(--tl)">★</span><h4>AI Deep Dive — Higher-Order Derivatives</h4><span class="mod">Topic 05</span></div>
+  <div class="dconcept"><h5>📚 The Concept</h5>
+    <p>The first derivative f′ tells you how fast f is changing. The second derivative <strong>f″</strong> = (f′)′ tells you how fast f′ is changing — the rate of change of the rate of change. Geometrically: f′ is slope, f″ is curvature. f″ &gt; 0 means the slope is increasing (function curves upward, like a bowl ⌣); f″ &lt; 0 means slope decreasing (curves downward, like a hill ⌢); f″ = 0 is an inflection point. You can keep going — f‴, f⁽⁴⁾, etc. — but second derivatives are the workhorse in optimisation because they decide whether a critical point is a minimum, a maximum, or a saddle.</p>
+    <div class="dintu">💡 <strong>Intuition:</strong> If f′ is velocity, f″ is acceleration. Gradient descent uses only velocity ("which way is downhill"). Newton's method and Adam use acceleration too ("how fast is the slope changing") and converge in far fewer steps near a minimum.</div>
+  </div>
+  <div class="divepp">
+    <div class="dwhy"><h5>❓ Why AI needs this</h5><p>The second derivative measures curvature — how the slope itself is changing. It determines safe learning rates and whether a critical point is a minimum.</p><ul class="wl"><li>f″>0 everywhere = convex loss = gradient descent always converges (logistic regression)</li><li>Max eigenvalue of Hessian = max safe learning rate: α_max = 2/λ_max</li><li>Adam uses diagonal Hessian approximation to set per-parameter step sizes</li><li>Newton's method: x←x−f′/f″ — curvature-corrected, fewer iterations</li></ul></div>
+    <div class="dhow"><h5>⚙️ How AI uses it</h5><p>Adam approximates the diagonal of the Hessian via squared gradients:</p><div class="cb"># Adam: v ≈ diagonal of Hessian (f″ per parameter)
+v = beta2*v + (1-beta2)*(grad**2)
+# Divide by sqrt(curvature) → normalized step
+param -= lr * m_hat / (torch.sqrt(v_hat) + eps)
+# Safe lr from curvature: α < 2/max_eigenvalue</div><div class="chips"><span class="chip chh">Adam (diagonal Hessian)</span><span class="chip chh">L-BFGS (rank-k Hessian)</span><span class="chip chh">Newton's method</span><span class="chip chn">curvature-based lr bounds</span></div></div>
+  </div>
+  <div class="dexample"><h5>🧮 Worked Example</h5>
+    <p>Use the second derivative to classify the two critical points of <strong>f(x) = x³ − 6x² + 9x</strong>. The "second derivative test": f′(x*)=0 and f″(x*) &gt; 0 → local min, f″(x*) &lt; 0 → local max.</p>
+    <div class="we">
+      <div class="wehd">Classifying critical points via f″</div>
+      <div class="webd">
+        <div class="werow wegiven"><span class="wetag">Given</span><span class="wecontent">f(x) = x³ − 6x² + 9x</span></div>
+        <div class="werow westep"><span class="wetag">Step 1</span><span class="wecontent">f′(x) = 3x² − 12x + 9 = 3(x − 1)(x − 3) → critical points at x = 1, x = 3</span></div>
+        <div class="werow westep"><span class="wetag">Step 2</span><span class="wecontent">f″(x) = 6x − 12</span></div>
+        <div class="werow westep"><span class="wetag">At x=1</span><span class="wecontent">f″(1) = 6 − 12 = −6 &lt; 0 → curves downward → <strong>local maximum</strong></span></div>
+        <div class="werow westep"><span class="wetag">At x=3</span><span class="wecontent">f″(3) = 18 − 12 = +6 &gt; 0 → curves upward → <strong>local minimum</strong></span></div>
+        <div class="werow weresult"><span class="wetag">Result</span><span class="wecontent">f(1) = 4 (local max), f(3) = 0 (local min). f″ alone classifies which is which without plotting.</span></div>
+      </div>
+    </div>
+  </div>
+</div></div>
+<div class="topic" id="t06">
+<div class="thd"><span class="tnum">06</span><div><h2>Partial Derivatives</h2><div class="tsub">Differentiate one variable at a time — all others frozen</div></div></div>
+<div class="analogy"><span class="ic">🏔️</span><p><strong>Plain English:</strong> Imagine a mountain h(x,y). ∂h/∂x asks: "if I walk east (x increases, y frozen), how steep?" ∂h/∂y asks the same going north. Neural networks have millions of weights — training computes ∂L/∂w for every single one simultaneously in one backward pass.</p></div>
+
+<div class="vb">
+  <div class="vbhd"><span class="pulse"></span><span class="vbt">Partial Derivative Map — color=f(x,y), arrow=gradient direction</span></div>
+  <div class="vbd">
+    <div class="legend"><span class="li"><span class="ldot" style="background:#E85C3A"></span>High f</span><span class="li"><span class="ldot" style="background:#1D9E75"></span>Low f</span><span class="li"><span class="lln" style="background:#1D9E75"></span>Gradient arrow</span><span class="li"><span class="ldot" style="background:#fff;border:2px solid #D85A30"></span>Your (x,y)</span></div>
+    <select id="fn06" onchange="D06()" style="margin-bottom:8px">
+      <option value="bowl">f=x²+y² (bowl)</option><option value="saddle">f=x²−y² (saddle)</option>
+      <option value="narrow">f=0.1x²+5y² (narrow canyon)</option><option value="sin2">f=sin(x)·cos(y)</option>
+    </select>
+    <canvas id="cv06" style="height:240px"></canvas>
+    <div class="ctrls">
+      <div class="ctrl"><label>x</label><div class="cr"><input type="range" id="x06" min="-2.8" max="2.8" step="0.1" value="1.5" oninput="D06()"><span class="val" id="xv06">1.5</span></div></div>
+      <div class="ctrl"><label>y</label><div class="cr"><input type="range" id="y06" min="-2.8" max="2.8" step="0.1" value="1.0" oninput="D06()"><span class="val" id="yv06">1.0</span></div></div>
+    </div>
+    <div class="xp"><div class="xphd"><span class="pulse"></span><span class="xplbl">Live</span></div>
+    <div class="xpb"><div class="xpc"><h5>∂f/∂x and ∂f/∂y</h5><p id="ei06a">—</p></div><div class="xpc"><h5>Meaning</h5><p id="ei06b">—</p></div></div></div>
+    <div class="tryb"><h5>Key experiments</h5><ul>
+    <li><strong>Bowl at (0,0)</strong>: ∂f/∂x=0 AND ∂f/∂y=0 — gradient=[0,0] → minimum ✓</li>
+    <li><strong>Narrow canyon</strong>: ∂f/∂y is ~50× larger than ∂f/∂x → severe zigzagging. Adam fixes this.</li>
+    <li><strong>Saddle at (0,0)</strong>: both partials=0 but it's NOT a minimum!</li>
+    </ul></div>
+  </div>
+</div>
+<div class="fm">∂f/∂x: differentiate w.r.t. x, treating y as a constant<br>Example: f(x,y)=x²+2xy → ∂f/∂x=2x+2y, ∂f/∂y=2x</div>
+<div class="dive">
+  <div class="divehd"><span style="color:var(--tl)">★</span><h4>AI Deep Dive — Partial Derivatives</h4><span class="mod">Topic 06</span></div>
+  <div class="dconcept"><h5>📚 The Concept</h5>
+    <p>Most real functions take many inputs: f(x, y, z, …). A partial derivative <strong>∂f/∂x</strong> asks the same question as a normal derivative — "how does the output change when this one input wiggles?" — but holds all other inputs frozen. You compute it by treating every other variable as a constant and applying the usual rules. There are as many partial derivatives as there are inputs. Stacking them produces the gradient (next topic). The mixed second partials ∂²f/∂x∂y measure how the slope along x changes when y moves — and Clairaut's theorem says these are equal to ∂²f/∂y∂x for nice functions, the symmetry that gives the Hessian its symmetric structure.</p>
+    <div class="dintu">💡 <strong>Intuition:</strong> Standing on a curved mountain, the partial derivatives are like asking "what's the slope if I walk strictly east?" and "strictly north?" One per direction. The full picture comes from combining them as a vector — that's the gradient.</div>
+  </div>
+  <div class="divepp">
+    <div class="dwhy"><h5>❓ Why AI needs this</h5><p>Networks have millions of weights. We need ∂L/∂w for every single one simultaneously — partial derivatives make this possible.</p><ul class="wl"><li>param.grad = ∂loss/∂param for every parameter in the model</li><li>GPT-3: 175B partial derivatives computed per backward pass in O(n) time</li><li>Partial derivatives assign blame — how much did THIS weight contribute to the error?</li><li>Mixed partials ∂²L/∂wᵢ∂wⱼ = Hessian off-diagonal (weight interactions)</li></ul></div>
+    <div class="dhow"><h5>⚙️ How AI uses it</h5><p>loss.backward() computes all partial derivatives at once:</p><div class="cb">loss.backward()
+for name, p in model.named_parameters():
+    # p.grad = ∂loss/∂p (partial derivative)
+    print(f"{name}: grad shape {p.grad.shape}")</div><div class="chips"><span class="chip chh">loss.backward() (all NNs)</span><span class="chip chh">param.grad</span><span class="chip chh">torch.autograd.grad()</span><span class="chip chn">gradient accumulation</span></div></div>
+  </div>
+  <div class="dexample"><h5>🧮 Worked Example</h5>
+    <p>Compute both partial derivatives of <strong>f(x, y) = x²y + 3xy²</strong> at the point (2, 1). Walk through the "treat other variables as constants" rule explicitly.</p>
+    <div class="we">
+      <div class="wehd">Partials of f(x, y) = x²y + 3xy² at (2, 1)</div>
+      <div class="webd">
+        <div class="werow wegiven"><span class="wetag">Given</span><span class="wecontent">f(x, y) = x²y + 3xy², evaluate at (x, y) = (2, 1)</span></div>
+        <div class="werow westep"><span class="wetag">Step 1</span><span class="wecontent">∂f/∂x: treat y as constant. d/dx[x²y] = 2xy. d/dx[3xy²] = 3y². So ∂f/∂x = 2xy + 3y²</span></div>
+        <div class="werow westep"><span class="wetag">Step 2</span><span class="wecontent">∂f/∂y: treat x as constant. d/dy[x²y] = x². d/dy[3xy²] = 6xy. So ∂f/∂y = x² + 6xy</span></div>
+        <div class="werow westep"><span class="wetag">Step 3</span><span class="wecontent">At (2, 1): ∂f/∂x = 2·2·1 + 3·1² = 4 + 3 = 7</span></div>
+        <div class="werow westep"><span class="wetag">Step 4</span><span class="wecontent">At (2, 1): ∂f/∂y = 2² + 6·2·1 = 4 + 12 = 16</span></div>
+        <div class="werow weresult"><span class="wetag">Result</span><span class="wecontent">∇f(2, 1) = [7, 16] — the function rises faster in the y-direction here. Gradient descent would step proportionally further in y to reduce f.</span></div>
+      </div>
+    </div>
+  </div>
+</div></div>
+<div class="topic" id="t07">
+<div class="thd"><span class="tnum">07</span><div><h2>The Gradient</h2><div class="tsub">All partial derivatives as one vector — always pointing uphill</div></div></div>
+<div class="analogy"><span class="ic">🧭</span><p><strong>Plain English:</strong> The gradient ∇f packs ALL partial derivatives into one vector that ALWAYS points toward steepest ascent. Like a compass pointing uphill. To minimize loss, gradient descent steps in the NEGATIVE gradient direction: w ← w − α∇L. That minus sign is the most important symbol in AI.</p></div>
+
+<div class="vb">
+  <div class="vbhd"><span class="pulse"></span><span class="vbt">Gradient Field — amber=uphill arrows, green=descent step direction</span></div>
+  <div class="vbd">
+    <div class="legend"><span class="li"><span class="lln" style="background:#BA7517"></span>∇L field (uphill)</span><span class="li"><span class="ldot" style="background:#378ADD"></span>Your position</span><span class="li"><span class="lln" style="background:#D85A30"></span>+∇L (uphill)</span><span class="li"><span class="lln" style="background:#1D9E75"></span>−∇L (descent step)</span></div>
+    <select id="fn07" onchange="D07()" style="margin-bottom:8px">
+      <option value="bowl">L=x²+2y² (elliptical bowl)</option>
+      <option value="narrow">L=0.1x²+5y² (narrow canyon)</option>
+      <option value="banana">L=(1−x)²+10(y−x²)² (Rosenbrock)</option>
+    </select>
+    <canvas id="cv07" style="height:240px"></canvas>
+    <div class="ctrls">
+      <div class="ctrl"><label>x</label><div class="cr"><input type="range" id="x07" min="-2.8" max="2.8" step="0.1" value="2" oninput="D07()"><span class="val" id="xv07">2.0</span></div></div>
+      <div class="ctrl"><label>y</label><div class="cr"><input type="range" id="y07" min="-2.8" max="2.8" step="0.1" value="1.5" oninput="D07()"><span class="val" id="yv07">1.5</span></div></div>
+    </div>
+    <div class="xp"><div class="xphd"><span class="pulse"></span><span class="xplbl">Live</span></div>
+    <div class="xpb"><div class="xpc"><h5>∇L at your position</h5><p id="ei07a">—</p></div><div class="xpc"><h5>One step (α=0.1)</h5><p id="ei07b">—</p></div></div></div>
+  </div>
+</div>
+<div class="fm">∇f = [∂f/∂x₁, ..., ∂f/∂xₙ] — always points uphill<br>Gradient descent: w ← w − α∇L</div>
+<div class="dive">
+  <div class="divehd"><span style="color:var(--tl)">★</span><h4>AI Deep Dive — The Gradient</h4><span class="mod">Topic 07</span></div>
+  <div class="dconcept"><h5>📚 The Concept</h5>
+    <p>The gradient <strong>∇f</strong> is the vector of all partial derivatives: ∇f = [∂f/∂x₁, ∂f/∂x₂, …, ∂f/∂xₙ]. Two key properties make it the backbone of optimisation. <strong>(1) Direction:</strong> ∇f at a point always points in the direction of <em>steepest ascent</em> — the single direction in which f increases fastest. <strong>(2) Magnitude:</strong> ‖∇f‖ tells you how steep that ascent is. The negative gradient −∇f therefore points in the direction of steepest descent, which is exactly where you want to go to minimise a loss. The gradient is also <em>perpendicular to level curves</em> — it points across contour lines, not along them.</p>
+    <div class="dintu">💡 <strong>Intuition:</strong> Drop a marble on a curved surface. The gradient ∇f tells you the exact direction water would flow uphill. Water flows downhill (−∇f). That's gradient descent. The minus sign is the most consequential negative sign in machine learning.</div>
+  </div>
+  <div class="divepp">
+    <div class="dwhy"><h5>❓ Why AI needs this</h5><p>∇L is the output of backpropagation. The update w←w−α∇L is the equation that trains every AI model.</p><ul class="wl"><li>loss.backward() computes ∇L — gradient of loss w.r.t. every parameter</li><li>GPT-3: 175B-dimensional gradient vector per backward pass</li><li>|∇L| = gradient norm — indicates how far from convergence</li><li>Gradient direction determines which weights to increase and which to decrease</li></ul></div>
+    <div class="dhow"><h5>⚙️ How AI uses it</h5><p>All optimizers start from the gradient ∇L:</p><div class="cb">loss.backward()  # computes ∇L
+# Monitor gradient norm (convergence):
+norm = sum(p.grad.norm()**2
+           for p in model.parameters())**0.5
+# norm ≈ 0 → converged
+optimizer.step()  # applies w ← w − α∇L</div><div class="chips"><span class="chip chh">optimizer.step() (applies −α∇L)</span><span class="chip chh">gradient norm monitoring</span><span class="chip chh">gradient clipping</span><span class="chip chn">all optimizers</span></div></div>
+  </div>
+  <div class="dexample"><h5>🧮 Worked Example</h5>
+    <p>Compute the gradient of an elliptical bowl loss <strong>L(x, y) = x² + 2y²</strong> at the point (3, 1), then take one descent step.</p>
+    <div class="we">
+      <div class="wehd">Gradient and one descent step on L = x² + 2y²</div>
+      <div class="webd">
+        <div class="werow wegiven"><span class="wetag">Given</span><span class="wecontent">L(x, y) = x² + 2y², point (3, 1), learning rate α = 0.1</span></div>
+        <div class="werow westep"><span class="wetag">Step 1</span><span class="wecontent">∂L/∂x = 2x, &nbsp; ∂L/∂y = 4y</span></div>
+        <div class="werow westep"><span class="wetag">Step 2</span><span class="wecontent">∇L(3, 1) = [2·3, 4·1] = [6, 4]</span></div>
+        <div class="werow westep"><span class="wetag">Step 3</span><span class="wecontent">‖∇L‖ = √(36 + 16) = √52 ≈ 7.21 — steepness at this point</span></div>
+        <div class="werow westep"><span class="wetag">Step 4</span><span class="wecontent">Descent step: (x, y) ← (3, 1) − 0.1 · [6, 4] = (3 − 0.6, 1 − 0.4) = (2.4, 0.6)</span></div>
+        <div class="werow weresult"><span class="wetag">Result</span><span class="wecontent">L dropped from 11 to 5.76 + 0.72 = 6.48 in one step. Note y moved more aggressively because of the 2y² coefficient — that anisotropy is why Adam exists.</span></div>
+      </div>
+    </div>
+  </div>
+</div></div>
+<div class="topic" id="t08">
+<div class="thd"><span class="tnum">08</span><div><h2>Chain Rule</h2><div class="tsub">The mathematical engine of backpropagation — layer by layer</div></div></div>
+<div class="analogy"><span class="ic">⛓️</span><p><strong>Plain English:</strong> Gear A turns gear B which turns gear C. C's speed per A = (C/B) × (B/A). Neural networks are chains of functions. The chain rule computes the derivative of the entire chain by multiplying local derivatives at each layer. One backward pass, all gradients. This IS backpropagation.</p></div>
+
+<div class="vb">
+  <div class="vbhd"><span class="pulse"></span><span class="vbt">Chain Rule Step-by-Step — f(x)=sin(x²)</span></div>
+  <div class="vbd">
+    <div class="stabs" id="cr08t">
+      <div class="stab on" onclick="setCR(0)">① Function</div>
+      <div class="stab" onclick="setCR(1)">② Identify layers</div>
+      <div class="stab" onclick="setCR(2)">③ Outer deriv.</div>
+      <div class="stab" onclick="setCR(3)">④ Inner deriv.</div>
+      <div class="stab" onclick="setCR(4)">⑤ Multiply</div>
+      <div class="stab" onclick="setCR(5)">⑥ In a neural net</div>
+      <div class="stab" onclick="setCR(6)">⑦ Vanishing grad.</div>
+    </div>
+    <div id="cr08c" style="padding:11px;background:var(--s2);border-radius:7px;font-size:13px;color:var(--tx2);line-height:1.8;min-height:80px"></div>
+    <canvas id="cv08" style="height:145px;margin-top:9px"></canvas>
+  </div>
+</div>
+<div class="fm">d/dx[f(g(x))] = f′(g(x)) · g′(x)<br>Neural net: ∂L/∂W = ∂L/∂a × ∂a/∂z × ∂z/∂W <span class="cm">// chain at every layer</span></div>
+<div class="dive">
+  <div class="divehd"><span style="color:var(--tl)">★</span><h4>AI Deep Dive — Chain Rule</h4><span class="mod">Topic 08</span></div>
+  <div class="dconcept"><h5>📚 The Concept</h5>
+    <p>The chain rule is the rule for differentiating composed functions. If <strong>y = f(g(x))</strong>, then <strong>dy/dx = f′(g(x)) · g′(x)</strong> — the derivative of the outer function evaluated at the inner, times the derivative of the inner. With more layers it just keeps multiplying: y = f(g(h(x))) → dy/dx = f′(g(h)) · g′(h) · h′(x). That telescoping product is exactly what backpropagation is computing — one local derivative per layer, multiplied together right-to-left from the loss back to the input. The genius is that this cost is linear in the number of operations: one forward pass to record values, one backward pass to multiply.</p>
+    <div class="dintu">💡 <strong>Intuition:</strong> Three gears in a row. If gear A turns 2× faster than B, and B turns 3× faster than C, then A turns 6× faster than C. You multiplied two ratios. Backprop is doing this for billions of "gears" (operations) at once.</div>
+  </div>
+  <div class="divepp">
+    <div class="dwhy"><h5>❓ Why AI needs this</h5><p>Backpropagation IS the chain rule on a computation graph. It computes all n gradients in O(n) cost — without it, you'd need n separate forward passes.</p><ul class="wl"><li>One backward pass = one gradient for all n parameters (O(n))</li><li>PyTorch/TensorFlow record every op and apply chain rule automatically</li><li>Vanishing gradient = chain rule multiplying many values <1 (sigmoid: 0.25¹⁰≈10⁻⁶)</li><li>Exploding gradient = multiplying many values >1 (deep RNNs without clipping)</li></ul></div>
+    <div class="dhow"><h5>⚙️ How AI uses it</h5><p>PyTorch autograd applies the chain rule at every node automatically:</p><div class="cb">z = W @ x + b       # dz/dW = xᵀ
+a = torch.relu(z)   # da/dz = 1(z>0)
+loss = mse(a, y)    # dL/da = 2(a-y)/n
+loss.backward()     # chain: dL/dW = dL/da·da/dz·dz/dW</div><div class="chips"><span class="chip chh">Backprop (all NNs)</span><span class="chip chh">PyTorch autograd</span><span class="chip chh">JAX grad()</span><span class="chip chn">TF GradientTape</span></div></div>
+  </div>
+  <div class="dexample"><h5>🧮 Worked Example</h5>
+    <p>One neuron: <strong>y = σ(wx + b)</strong>. Apply the chain rule to get dy/dw — the gradient that decides whether the weight grows or shrinks.</p>
+    <div class="we">
+      <div class="wehd">Chain rule on y = σ(wx + b)</div>
+      <div class="webd">
+        <div class="werow wegiven"><span class="wetag">Given</span><span class="wecontent">w = 0.5, x = 2, b = 0, σ(z) = 1/(1+e⁻ᶻ)</span></div>
+        <div class="werow westep"><span class="wetag">Step 1</span><span class="wecontent">Inner: z = wx + b = 0.5·2 + 0 = 1. Outer: y = σ(1) = 0.731</span></div>
+        <div class="werow westep"><span class="wetag">Step 2</span><span class="wecontent">∂z/∂w = x = 2 (treat b, x as constants)</span></div>
+        <div class="werow westep"><span class="wetag">Step 3</span><span class="wecontent">σ′(z) = σ(z)(1 − σ(z)) = 0.731 · 0.269 = 0.197</span></div>
+        <div class="werow westep"><span class="wetag">Step 4</span><span class="wecontent">Chain: ∂y/∂w = σ′(z) · ∂z/∂w = 0.197 · 2 = 0.393</span></div>
+        <div class="werow weresult"><span class="wetag">Result</span><span class="wecontent">∂y/∂w = 0.393. A 1-unit increase in w would raise y by ~0.39. Now imagine z = 5 instead: σ′(5) = 0.0066, gradient drops to 0.013 — vanishing gradient in action.</span></div>
+      </div>
+    </div>
+  </div>
+</div></div>
+<div class="topic" id="t09">
+<div class="thd"><span class="tnum">09</span><div><h2>Jacobian &amp; Hessian</h2><div class="tsub">Gradient for vector functions and the full curvature matrix</div></div></div>
+<div class="analogy"><span class="ic">📊</span><p><strong>Plain English:</strong> The Jacobian is a matrix of all first-order partial derivatives for vector-valued functions (multiple outputs). The Hessian is a matrix of all second-order partial derivatives — it describes curvature in every direction simultaneously. Together they give optimizers the complete geometric picture of the loss surface.</p></div>
+<div class="twoc">
+<div class="card"><h3>Jacobian J</h3><p>For f: ℝⁿ→ℝᵐ, J is m×n where J[i,j]=∂fᵢ/∂xⱼ.</p><div class="fm" style="font-size:11px">Linear layer f(x)=Wx:<br>J = W (Jacobian = the weight matrix itself!)<br>Backward pass: ∂L/∂x = Wᵀ × ∂L/∂(Wx)</div></div>
+<div class="card"><h3>Hessian H</h3><p>H[i,j]=∂²f/∂xᵢ∂xⱼ. Symmetric. Eigenvalues classify every critical point.</p>
+<table class="tbl"><tr><th>Eigenvalues</th><th>Point type</th><th>Training</th></tr>
+<tr><td>All &gt;0</td><td>Local minimum</td><td>Converged ✓</td></tr>
+<tr><td>Mixed signs</td><td>Saddle point</td><td>May get stuck</td></tr>
+<tr><td>All &lt;0</td><td>Local maximum</td><td>Wrong direction</td></tr>
+</table></div>
+</div>
+<div class="dive">
+  <div class="divehd"><span style="color:var(--tl)">★</span><h4>AI Deep Dive — Jacobian &amp; Hessian</h4><span class="mod">Topic 09</span></div>
+  <div class="dconcept"><h5>📚 The Concept</h5>
+    <p>The <strong>Jacobian</strong> generalises the gradient to vector-valued functions f: ℝⁿ → ℝᵐ. It's an m×n matrix whose (i,j) entry is ∂fᵢ/∂xⱼ — every output's sensitivity to every input. For a scalar function f: ℝⁿ → ℝ, the Jacobian collapses to a single row, which is exactly the gradient. The <strong>Hessian</strong> is what you get when you take the Jacobian of the gradient: an n×n matrix of second partial derivatives Hᵢⱼ = ∂²f/∂xᵢ∂xⱼ. It's symmetric (for nice functions), and its eigenvalues classify critical points: <em>all positive</em> = local minimum (positive definite), <em>all negative</em> = local maximum, <em>mixed signs</em> = saddle. The largest eigenvalue dictates the maximum stable learning rate: α<sub>max</sub> = 2/λ<sub>max</sub>.</p>
+    <div class="dintu">💡 <strong>Intuition:</strong> Jacobian = first-order story (slopes in every direction). Hessian = second-order story (how those slopes themselves bend). Knowing the Hessian is like knowing the shape of the bowl, not just which way is downhill.</div>
+  </div>
+  <div class="divepp">
+    <div class="dwhy"><h5>❓ Why AI needs this</h5><p>The Jacobian of a linear layer equals W — so the backward pass is just multiplying by Wᵀ. The Hessian determines the safe learning rate and is approximated by Adam.</p><ul class="wl"><li>Jacobian of linear layer=W → backward = Wᵀ multiplication (that's why backward is transpose)</li><li>Max eigenvalue of Hessian → max safe learning rate: α < 2/λ_max</li><li>Adam approximates diagonal of Hessian using squared gradients: v≈diag(H)</li><li>K-FAC uses Kronecker-factored Hessian for more accurate second-order optimization</li></ul></div>
+    <div class="dhow"><h5>⚙️ How AI uses it</h5><p>Adam's v term is a diagonal Hessian approximation:</p><div class="cb"># Adam: v ≈ diagonal of Hessian
+v = beta2*v + (1-beta2)*(grad**2)
+# Optimal step ≈ -H⁻¹∇f ≈ -grad/sqrt(v)
+param -= lr * m_hat / (sqrt(v_hat) + eps)</div><div class="chips"><span class="chip chh">Adam (diag Hessian)</span><span class="chip chh">L-BFGS (rank-k approx)</span><span class="chip chh">K-FAC (Kronecker)</span><span class="chip chn">Newton's method</span></div></div>
+  </div>
+  <div class="dexample"><h5>🧮 Worked Example</h5>
+    <p>Use the Hessian eigenvalue test to classify the critical point at the origin for two different functions — one a bowl (convex), one a saddle.</p>
+    <div class="we">
+      <div class="wehd">Hessian eigenvalue test at the origin</div>
+      <div class="webd">
+        <div class="werow wegiven"><span class="wetag">Bowl</span><span class="wecontent">f(x, y) = x² + y² &nbsp;→&nbsp; ∇f = (2x, 2y) = 0 at origin</span></div>
+        <div class="werow westep"><span class="wetag">Step 1</span><span class="wecontent">∂²f/∂x² = 2, ∂²f/∂y² = 2, ∂²f/∂x∂y = 0 → H = [[2, 0], [0, 2]]</span></div>
+        <div class="werow westep"><span class="wetag">Step 2</span><span class="wecontent">Eigenvalues of H: λ₁ = 2, λ₂ = 2 — both positive → <strong>local minimum</strong> ✓</span></div>
+        <div class="werow westep"><span class="wetag">Saddle</span><span class="wecontent">g(x, y) = x² − y² &nbsp;→&nbsp; ∇g = (2x, −2y) = 0 at origin</span></div>
+        <div class="werow westep"><span class="wetag">Step 1</span><span class="wecontent">∂²g/∂x² = 2, ∂²g/∂y² = −2, ∂²g/∂x∂y = 0 → H = [[2, 0], [0, −2]]</span></div>
+        <div class="werow westep"><span class="wetag">Step 2</span><span class="wecontent">Eigenvalues: λ₁ = 2, λ₂ = −2 — mixed signs → <strong>saddle point</strong></span></div>
+        <div class="werow weresult"><span class="wetag">Result</span><span class="wecontent">Same gradient (zero), opposite geometry. The Hessian's eigenvalue signs are the verdict — and λ_max=2 also bounds the safe learning rate at α &lt; 2/2 = 1.</span></div>
+      </div>
+    </div>
+  </div>
+</div></div>
+<div class="chd"><h3>Integration</h3></div>
+
+<div class="topic" id="t10">
+<div class="thd"><span class="tnum">10</span><div><h2>Antiderivatives</h2><div class="tsub">Accumulating infinitely small contributions over an interval</div></div></div>
+<div class="analogy"><span class="ic">🏦</span><p><strong>Plain English:</strong> If derivative=speed at each instant, the antiderivative=total distance. You're accumulating all the tiny contributions f(x)·dx. In ML: the true training objective is E[L] = ∫L(x)p(x)dx — the expected loss averaged over ALL possible inputs, weighted by their probability. This integral is the real goal; mini-batches approximate it.</p></div>
+<div class="twoc">
+<div class="card"><h3>Key antiderivatives</h3><div class="fm" style="font-size:11px">∫xⁿ dx = xⁿ⁺¹/(n+1)+C<br>∫eˣ dx = eˣ+C<br>∫1/x dx = ln|x|+C<br>∫sin(x) dx = −cos(x)+C</div></div>
+<div class="card"><h3>Expected loss in AI</h3><div class="fm" style="font-size:11px">True objective: E[L] = ∫L(f(x))p(x)dx</div><p style="font-size:12px;color:var(--tx2)">Computing this analytically is impossible for complex distributions. Mini-batch training approximates it by sampling: (1/n)Σ L(xᵢ) ≈ integral.</p></div>
+</div>
+<div class="dive">
+  <div class="divehd"><span style="color:var(--tl)">★</span><h4>AI Deep Dive — Antiderivatives</h4><span class="mod">Topic 10</span></div>
+  <div class="dconcept"><h5>📚 The Concept</h5>
+    <p>An antiderivative of f is any function F whose derivative is f: F′(x) = f(x). The notation <strong>∫ f(x) dx = F(x) + C</strong> emphasises that there are infinitely many antiderivatives, all differing by a constant (since (F+C)′ = F′). Where the derivative breaks change into instantaneous rates, the antiderivative reverses that — accumulating tiny contributions f(x)·dx back into a total. The <em>definite integral</em> ∫ₐᵇ f(x) dx evaluates the antiderivative at the endpoints: F(b) − F(a). Geometrically that's the signed area between the curve and the x-axis from a to b.</p>
+    <div class="dintu">💡 <strong>Intuition:</strong> Differentiation slices a quantity into instant-by-instant rates. Integration glues those rates back together to recover totals — speed integrated over time gives distance, density integrated over volume gives mass, log-likelihood integrated over data gives the training objective.</div>
+  </div>
+  <div class="divepp">
+    <div class="dwhy"><h5>❓ Why AI needs this</h5><p>The true training objective is an integral: E[L]=∫L(x)p(x)dx. Every mini-batch gradient is a Monte Carlo approximation to this integral.</p><ul class="wl"><li>True gradient = ∫(∂L/∂w)p(x)dx — integral over entire data distribution</li><li>Mini-batch gradient = (1/n)Σ∂L/∂w ≈ Riemann sum approximation</li><li>VAE ELBO = ∫q(z|x)log(p(x,z)/q(z|x))dz — integral over latent space</li><li>Policy gradient RL: gradient = integral over trajectory distribution</li></ul></div>
+    <div class="dhow"><h5>⚙️ How AI uses it</h5><p>Mini-batch training is Monte Carlo integration of the true gradient:</p><div class="cb"># True gradient: ∫(∂L/∂w)p(x)dx  (integral)
+# Approximated by random sampling:
+for x, y in dataloader:  # sample from p(x)
+    loss = model(x, y)
+    loss.backward()   # gradient of batch avg</div><div class="chips"><span class="chip chh">Mini-batch SGD (Monte Carlo ∫)</span><span class="chip chh">VAE ELBO</span><span class="chip chh">Policy gradient RL</span><span class="chip chn">expected calibration error</span></div></div>
+  </div>
+  <div class="dexample"><h5>🧮 Worked Example</h5>
+    <p>Compute the definite integral <strong>∫₀⁴ (2x + 3) dx</strong> using the antiderivative — a calculation directly analogous to summing instantaneous contributions across a mini-batch.</p>
+    <div class="we">
+      <div class="wehd">Definite integral of 2x + 3 from 0 to 4</div>
+      <div class="webd">
+        <div class="werow wegiven"><span class="wetag">Given</span><span class="wecontent">∫₀⁴ (2x + 3) dx</span></div>
+        <div class="werow westep"><span class="wetag">Step 1</span><span class="wecontent">Find antiderivative term-by-term: ∫2x dx = x², ∫3 dx = 3x → F(x) = x² + 3x</span></div>
+        <div class="werow westep"><span class="wetag">Check</span><span class="wecontent">F′(x) = 2x + 3 ✓ matches integrand</span></div>
+        <div class="werow westep"><span class="wetag">Step 2</span><span class="wecontent">Evaluate at endpoints: F(4) = 16 + 12 = 28, F(0) = 0</span></div>
+        <div class="werow westep"><span class="wetag">Step 3</span><span class="wecontent">Definite integral = F(4) − F(0) = 28 − 0 = 28</span></div>
+        <div class="werow weresult"><span class="wetag">Result</span><span class="wecontent">∫₀⁴ (2x + 3) dx = 28 — exact area under the line. Approximating by sampling at points x=0,1,2,3,4 and averaging would give a Riemann-sum estimate ≈ 28; that's mini-batch training.</span></div>
+      </div>
+    </div>
+  </div>
+</div></div>
+<div class="topic" id="t11">
+<div class="thd"><span class="tnum">11</span><div><h2>Riemann Sums</h2><div class="tsub">Rectangles converging to exact area — and the batch size analogy</div></div></div>
+<div class="analogy"><span class="ic">📦</span><p><strong>Plain English:</strong> Approximate area under a curve with n rectangles, each of width Δx=range/n. Sum=Σf(xᵢ)Δx. As n→∞, this converges to the exact integral. Mini-batch gradient descent IS this: each sample is one rectangle, batch_size=n controls approximation accuracy vs. computational cost.</p></div>
+
+<div class="vb">
+  <div class="vbhd"><span class="pulse"></span><span class="vbt">Riemann Sums — watch rectangles converge to exact area</span></div>
+  <div class="vbd">
+    <div class="legend"><span class="li"><span class="ldot" style="background:rgba(29,158,117,.5)"></span>Rectangles (approx)</span><span class="li"><span class="lln" style="background:#D85A30"></span>Exact f(x)</span></div>
+    <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:8px;align-items:center">
+      <select id="fn11" onchange="D11()"><option value="x2">f=x²</option><option value="sin">f=sin(x)</option><option value="exp">f=eˣ/3</option></select>
+      <button class="btn on" id="rs11l" onclick="setRS11('l')">Left</button>
+      <button class="btn" id="rs11r" onclick="setRS11('r')">Right</button>
+      <button class="btn" id="rs11m" onclick="setRS11('m')">Midpoint</button>
+    </div>
+    <canvas id="cv11" style="height:215px"></canvas>
+    <div class="ctrls">
+      <div class="ctrl"><label>Rectangles n (≈ batch_size)</label><div class="cr"><input type="range" id="n11" min="1" max="100" step="1" value="6" oninput="D11()"><span class="val" id="nv11">6</span></div></div>
+      <div class="ctrl"><label>Range [0, b]</label><div class="cr"><input type="range" id="b11" min="0.5" max="4" step="0.1" value="3" oninput="D11()"><span class="val" id="bv11">3.0</span></div></div>
+    </div>
+    <div class="xp"><div class="xphd"><span class="pulse"></span><span class="xplbl">Live</span></div>
+    <div class="xpb"><div class="xpc"><h5>Approximation</h5><p id="ei11a">—</p></div><div class="xpc"><h5>Batch size analogy</h5><p id="ei11b">—</p></div></div></div>
+    <div class="tryb"><h5>Key insight</h5><ul>
+    <li><strong>n=1</strong>: terrible approximation = batch_size=1, very noisy gradient</li>
+    <li><strong>n=32</strong>: typical mini-batch gradient quality</li>
+    <li><strong>n=512</strong>: accurate but each step costs 512× more compute</li>
+    </ul></div>
+  </div>
+</div>
+<div class="dive">
+  <div class="divehd"><span style="color:var(--tl)">★</span><h4>AI Deep Dive — Riemann Sums</h4><span class="mod">Topic 11</span></div>
+  <div class="dconcept"><h5>📚 The Concept</h5>
+    <p>A Riemann sum approximates the area under a curve by chopping the interval [a, b] into n equal slabs of width Δx = (b−a)/n, drawing a rectangle on each, and summing their areas. The choice of rectangle height — left endpoint, right endpoint, or midpoint of each slab — gives a slightly different sum, but as n → ∞ they all converge to the same number: the definite integral. Formally <strong>∫ₐᵇ f(x) dx = lim<sub>n→∞</sub> Σᵢ f(xᵢ) Δx</strong>. The convergence is a quantitative statement: the midpoint rule has error that shrinks like 1/n², so doubling rectangles cuts error by 4×.</p>
+    <div class="dintu">💡 <strong>Intuition:</strong> A Riemann sum is averaging f at sample points and multiplying by interval length. A mini-batch gradient is averaging the per-example gradient at sampled examples and multiplying by 1. These are the same operation; batch size is just "how many rectangles."</div>
+  </div>
+  <div class="divepp">
+    <div class="dwhy"><h5>❓ Why AI needs this</h5><p>Mini-batch training IS a Riemann sum approximation to the true gradient integral. Batch size = number of rectangles.</p><ul class="wl"><li>True gradient = ∫(∂L/∂w)p(x)dx = integral over data distribution</li><li>Mini-batch gradient = (1/n)Σ∂L/∂w = Riemann sum with n sample points</li><li>Larger n → more rectangles → more accurate → less noise → stabler training</li><li>Small-batch noise can help escape saddle points — 'beneficial noise' of SGD</li></ul></div>
+    <div class="dhow"><h5>⚙️ How AI uses it</h5><p>Gradient accumulation simulates large batch with more 'rectangles' per update:</p><div class="cb">optimizer.zero_grad()
+for i, (x, y) in enumerate(loader):
+    loss = model(x, y) / accum_steps
+    loss.backward()       # accumulate
+    if (i+1) % accum_steps == 0:
+        optimizer.step()  # update once</div><div class="chips"><span class="chip chh">Mini-batch SGD (Riemann sum)</span><span class="chip chh">gradient accumulation</span><span class="chip chh">large-batch training</span><span class="chip chn">DataLoader</span></div></div>
+  </div>
+  <div class="dexample"><h5>🧮 Worked Example</h5>
+    <p>Approximate <strong>∫₀² x² dx</strong> (true value 8/3 ≈ 2.667) using the midpoint rule with n = 4 rectangles. Watch how the approximation tightens as n grows — exactly like enlarging the batch size.</p>
+    <div class="we">
+      <div class="wehd">Midpoint Riemann sum for ∫₀² x² dx, n = 4</div>
+      <div class="webd">
+        <div class="werow wegiven"><span class="wetag">Given</span><span class="wecontent">f(x) = x², a = 0, b = 2, n = 4 → Δx = 0.5</span></div>
+        <div class="werow westep"><span class="wetag">Step 1</span><span class="wecontent">Midpoints: x = 0.25, 0.75, 1.25, 1.75</span></div>
+        <div class="werow westep"><span class="wetag">Step 2</span><span class="wecontent">Heights: f = 0.0625, 0.5625, 1.5625, 3.0625</span></div>
+        <div class="werow westep"><span class="wetag">Step 3</span><span class="wecontent">Sum × Δx = (0.0625 + 0.5625 + 1.5625 + 3.0625) · 0.5 = 5.25 · 0.5 = 2.625</span></div>
+        <div class="werow westep"><span class="wetag">Compare</span><span class="wecontent">True value 8/3 ≈ 2.6667. Error ≈ 0.042 (1.6%)</span></div>
+        <div class="werow weresult"><span class="wetag">Result</span><span class="wecontent">n=4 already within 2%; with n=32 (typical mini-batch) error ≈ 0.025%. This is exactly why batch_size=32 gives "good enough" gradients but n=1 (pure SGD) is wildly noisy.</span></div>
+      </div>
+    </div>
+  </div>
+</div></div>
+<div class="topic" id="t12">
+<div class="thd"><span class="tnum">12</span><div><h2>Fundamental Theorem of Calculus</h2><div class="tsub">Differentiation and integration are inverses of each other</div></div></div>
+<div class="analogy"><span class="ic">⚖️</span><p><strong>Plain English:</strong> FTC: ∫[a,b]f(x)dx = F(b)−F(a) where F′=f. You don't need millions of rectangles — just evaluate the antiderivative at the two endpoints. Also: differentiating an integral recovers the original function. In AI, Neural ODEs define continuous-depth networks using this theorem.</p></div>
+<div class="fm">Part 1: d/dx[∫[a,x] f(t)dt] = f(x) — differentiating an integral recovers f<br>Part 2: ∫[a,b] f(x)dx = F(b)−F(a) — evaluate antiderivative at endpoints</div>
+<div class="dive">
+  <div class="divehd"><span style="color:var(--tl)">★</span><h4>AI Deep Dive — Fundamental Theorem</h4><span class="mod">Topic 12</span></div>
+  <div class="dconcept"><h5>📚 The Concept</h5>
+    <p>The Fundamental Theorem of Calculus (FTC) is the bridge between the two pillars of calculus. <strong>Part 1:</strong> d/dx [∫ₐˣ f(t) dt] = f(x). Differentiating an integral with a variable upper limit just gives back the integrand. <strong>Part 2:</strong> ∫ₐᵇ f(x) dx = F(b) − F(a), where F is any antiderivative of f. The two parts together say: differentiation and integration are inverse operations. The reason this is so powerful is computational — without it, every integral would require taking a limit of Riemann sums; with it, you find any antiderivative and evaluate at two points. It's the same trick that lets compounding-then-discounting return the original quantity.</p>
+    <div class="dintu">💡 <strong>Intuition:</strong> If F is the "total" function (e.g., total distance travelled), then F′ is the "rate" function (e.g., speed). FTC says: integrating speed back over time recovers distance. You've spent your life using FTC informally — odometer = ∫ speed dt.</div>
+  </div>
+  <div class="divepp">
+    <div class="dwhy"><h5>❓ Why AI needs this</h5><p>FTC underlies Neural ODEs — continuous-depth networks where depth is a continuous variable, not discrete layers.</p><ul class="wl"><li>Neural ODEs: forward pass = integrate dh/dt=f(h,t,θ) from t=0 to t=1</li><li>Adjoint method = FTC backward = O(1) memory gradient (vs O(depth) storing all activations)</li><li>Continuous normalizing flows use FTC to compute log-determinant of Jacobian</li><li>Diffusion model sampling integrates a reverse stochastic differential equation</li></ul></div>
+    <div class="dhow"><h5>⚙️ How AI uses it</h5><p>Neural ODEs use FTC to define infinite-depth continuous networks:</p><div class="cb">from torchdiffeq import odeint
+def f(t, h): return net(h)  # the "layer"
+# FTC: integrate from t=0 to t=1
+h_out = odeint(f, h_init, torch.tensor([0., 1.]))
+# Adjoint method: O(1) memory backprop via FTC</div><div class="chips"><span class="chip chh">Neural ODEs (torchdiffeq)</span><span class="chip chh">adjoint gradient method</span><span class="chip chh">normalizing flows</span><span class="chip chn">diffusion models</span></div></div>
+  </div>
+  <div class="dexample"><h5>🧮 Worked Example</h5>
+    <p>Verify both parts of FTC on a concrete pair: f(x) = 3x² and its antiderivative F(x) = x³.</p>
+    <div class="we">
+      <div class="wehd">FTC verification on f(x) = 3x²</div>
+      <div class="webd">
+        <div class="werow wegiven"><span class="wetag">Given</span><span class="wecontent">f(x) = 3x², F(x) = x³ (you can check F′ = 3x²)</span></div>
+        <div class="werow westep"><span class="wetag">Part 2</span><span class="wecontent">∫₀² 3x² dx = F(2) − F(0) = 8 − 0 = 8</span></div>
+        <div class="werow westep"><span class="wetag">Check</span><span class="wecontent">Riemann sum with n = 1000 midpoint rectangles also gives ≈ 8.000 ✓</span></div>
+        <div class="werow westep"><span class="wetag">Part 1</span><span class="wecontent">G(x) = ∫₀ˣ 3t² dt = x³. Differentiate: G′(x) = 3x² — recovers the integrand exactly ✓</span></div>
+        <div class="werow weresult"><span class="wetag">Result</span><span class="wecontent">Two operations, perfect inverses. This same identity is what lets a Neural ODE's adjoint method recover gradients of the input by integrating <em>backward</em> from t = 1 to t = 0 — saving O(depth) memory.</span></div>
+      </div>
+    </div>
+  </div>
+</div></div>
+<div class="chd"><h3>Optimization</h3></div>
+
+<div class="topic" id="t13">
+<div class="thd"><span class="tnum">13</span><div><h2>Critical Points</h2><div class="tsub">Where f′=0 — minimum, maximum, or saddle?</div></div></div>
+<div class="analogy"><span class="ic">🏳️</span><p><strong>Plain English:</strong> At the top of a hill or bottom of a valley, the slope is exactly zero. That's a critical point. Gradient descent stops at any critical point — but zero gradient could mean minimum (good!), maximum (wrong direction!), or saddle point (gradient=0 but not a minimum). In deep networks with millions of parameters, most "flat spots" are saddle points.</p></div>
+
+<div class="vb">
+  <div class="vbhd"><span class="pulse"></span><span class="vbt">Critical Point Classifier — min, max, or saddle?</span></div>
+  <div class="vbd">
+    <div class="legend"><span class="li"><span class="lln" style="background:#378ADD"></span>f(x)</span><span class="li"><span class="lln" style="background:#1D9E75;opacity:.7"></span>f′(x)</span><span class="li"><span class="ldot" style="background:#1D9E75"></span>Min (f″>0)</span><span class="li"><span class="ldot" style="background:#D85A30"></span>Max (f″&lt;0)</span><span class="li"><span class="ldot" style="background:#BA7517"></span>Inflection</span></div>
+    <select id="fn13" onchange="D13()" style="margin-bottom:8px">
+      <option value="cubic">f=x³−3x</option><option value="quartic">f=x⁴−4x²</option>
+      <option value="double">f=(x²−1)²</option><option value="tricky">f=x·sin(x)</option>
+    </select>
+    <canvas id="cv13" style="height:220px"></canvas>
+    <div class="ctrls"><div class="ctrl"><label>x to inspect</label><div class="cr"><input type="range" id="x13" min="-3.5" max="3.5" step="0.05" value="0.5" oninput="D13()"><span class="val" id="xv13">0.50</span></div></div></div>
+    <div class="xp"><div class="xphd"><span class="pulse"></span><span class="xplbl">Live</span></div>
+    <div class="xpb"><div class="xpc"><h5>f′ and f″</h5><p id="ei13a">—</p></div><div class="xpc"><h5>Classification</h5><p id="ei13b">—</p></div></div></div>
+  </div>
+</div>
+<div class="fm">f′(a)=0 AND f″(a)&gt;0 → local minimum ✓<br>f′(a)=0 AND f″(a)&lt;0 → local maximum ✗<br>f′(a)=0 AND f″(a)=0 → inconclusive</div>
+<div class="dive">
+  <div class="divehd"><span style="color:var(--tl)">★</span><h4>AI Deep Dive — Critical Points</h4><span class="mod">Topic 13</span></div>
+  <div class="dconcept"><h5>📚 The Concept</h5>
+    <p>A critical point of f is any x* where <strong>f′(x*) = 0</strong> (or, in many variables, <strong>∇f(x*) = 0</strong>). At such a point f is locally flat — small steps in any direction barely change the value. Critical points come in three flavours: <strong>local minimum</strong> (curvature positive in every direction, f″ &gt; 0 in 1D), <strong>local maximum</strong> (curvature negative everywhere), and <strong>saddle</strong> (positive in some directions, negative in others — only possible with ≥ 2 variables). The <em>second derivative test</em> uses curvature to classify the point. In high-dimensional ML loss surfaces, the proportions tilt heavily: actual local minima are rare, saddles are everywhere, and the global minimum is usually one of many near-equivalent low points.</p>
+    <div class="dintu">💡 <strong>Intuition:</strong> Imagine a Pringle chip. The centre is a saddle: walking along one curve goes down, walking along the perpendicular curve goes up. Gradient is zero at the centre, but you're not at a minimum. That's why deep networks can have ∇L ≈ 0 yet still need to keep training.</div>
+  </div>
+  <div class="divepp">
+    <div class="dwhy"><h5>❓ Why AI needs this</h5><p>Gradient descent converges to a critical point. In high-dimensional networks, most critical points are saddle points — not true minima.</p><ul class="wl"><li>Gradient descent stops at any critical point — min, max, or saddle</li><li>In n dimensions: true min requires f″>0 in ALL n directions simultaneously</li><li>Most critical points in deep networks are saddles (mixed curvature eigenvalues)</li><li>Good news: in high dimensions, most local minima ≈ global minimum in loss value</li></ul></div>
+    <div class="dhow"><h5>⚙️ How AI uses it</h5><p>Monitor gradient norm to detect convergence to a critical point:</p><div class="cb">norm = sum(p.grad.norm()**2
+           for p in model.parameters())**0.5
+if norm < 1e-6: print("At critical point!")
+# SAM explicitly finds flat critical points:
+# flat minima → better generalization</div><div class="chips"><span class="chip chh">gradient norm check (convergence)</span><span class="chip chh">SAM (Sharpness-Aware Min.)</span><span class="chip chh">Hessian eigenvalues</span><span class="chip chn">early stopping</span></div></div>
+  </div>
+  <div class="dexample"><h5>🧮 Worked Example</h5>
+    <p>Find and classify all critical points of <strong>f(x) = x³ − 3x</strong>. This function has both a local max and a local min — a one-shot test of the procedure.</p>
+    <div class="we">
+      <div class="wehd">Critical points of f(x) = x³ − 3x</div>
+      <div class="webd">
+        <div class="werow wegiven"><span class="wetag">Given</span><span class="wecontent">f(x) = x³ − 3x</span></div>
+        <div class="werow westep"><span class="wetag">Step 1</span><span class="wecontent">f′(x) = 3x² − 3 = 3(x − 1)(x + 1)</span></div>
+        <div class="werow westep"><span class="wetag">Step 2</span><span class="wecontent">Solve f′ = 0: x = 1 or x = −1 → two critical points</span></div>
+        <div class="werow westep"><span class="wetag">Step 3</span><span class="wecontent">f″(x) = 6x</span></div>
+        <div class="werow westep"><span class="wetag">At x=−1</span><span class="wecontent">f″(−1) = −6 &lt; 0 → local maximum, value f(−1) = −1 + 3 = 2</span></div>
+        <div class="werow westep"><span class="wetag">At x=1</span><span class="wecontent">f″(1) = 6 &gt; 0 → local minimum, value f(1) = 1 − 3 = −2</span></div>
+        <div class="werow weresult"><span class="wetag">Result</span><span class="wecontent">Two critical points: max at (−1, 2), min at (1, −2). A gradient descent run from x = 0.5 lands on the min; from x = −0.5 it climbs to the max — opposite of what we want. The starting point matters.</span></div>
+      </div>
+    </div>
+  </div>
+</div></div>
+<div class="topic" id="t14">
+<div class="thd"><span class="tnum">14</span><div><h2>Gradient Descent</h2><div class="tsub">The algorithm that trains every neural network ever built</div></div></div>
+<div class="analogy"><span class="ic">⛷️</span><p><strong>Plain English:</strong> Blindfolded on a mountain, trying to reach the lowest valley. You feel the slope (gradient), take one step downhill (subtract α×gradient), repeat. Learning rate α is the step size. Too large: overshoot the valley and diverge. Too small: take forever. This is the entire learning algorithm for every neural network.</p></div>
+
+<div class="vb">
+  <div class="vbhd"><span class="pulse"></span><span class="vbt">Gradient Descent — animated, watch the ball roll to the minimum</span><span id="gd14st" style="font-size:10px;color:var(--tx3);margin-left:auto">Ready</span></div>
+  <div class="vbd">
+    <div class="legend"><span class="li"><span class="lln" style="background:#1D9E75"></span>L(x)</span><span class="li"><span class="lln" style="background:#7F77DD"></span>Trajectory</span><span class="li"><span class="ldot" style="background:#D85A30"></span>Current</span><span class="li"><span class="ldot" style="background:#BA7517"></span>Start</span></div>
+    <select id="fn14" onchange="gdReset14()" style="margin-bottom:8px">
+      <option value="bowl">L=x² (bowl)</option><option value="bumpy">L=x²/4+sin(2x) (bumpy)</option>
+      <option value="asym">L=0.5x²−2x+3 (off-center)</option><option value="double">L=(x²−4)² (two minima)</option>
+    </select>
+    <canvas id="cv14" style="height:210px"></canvas>
+    <div class="ctrls">
+      <div class="ctrl"><label>Learning rate α</label><div class="cr"><input type="range" id="lr14" min="0.01" max="1.8" step="0.01" value="0.2" oninput="gdUpd14()"><span class="val" id="lrv14">0.20</span></div></div>
+      <div class="ctrl"><label>Start x₀</label><div class="cr"><input type="range" id="x014" min="-4" max="4" step="0.1" value="3.5" oninput="gdReset14()"><span class="val" id="x0v14">3.5</span></div></div>
+    </div>
+    <div style="display:flex;gap:7px;margin-top:8px;flex-wrap:wrap;align-items:center">
+      <button class="btnp" id="gd14play" onclick="gdToggle14()">▶ Play</button>
+      <button class="btn" onclick="gdReset14()">↺ Reset</button>
+      <button class="btn" onclick="gdStep14()">→ Step</button>
+      <span style="font-size:11px;color:var(--tx2)">Step <span id="gd14sn" style="font-family:ui-monospace;font-weight:700;color:var(--tld)">0</span> · L=<span id="gd14lv" style="font-family:ui-monospace;font-weight:700;color:#F87171">—</span></span>
+    </div>
+    <div class="xp"><div class="xphd"><span class="pulse"></span><span class="xplbl">Live</span></div>
+    <div class="xpb"><div class="xpc"><h5>This step</h5><p id="ei14a">Press Play.</p></div><div class="xpc"><h5>Learning rate diagnosis</h5><p id="ei14b">Adjust α and observe.</p></div></div></div>
+    <div class="tryb"><h5>Must-try experiments</h5><ul>
+    <li><strong>α=0.01</strong>: converges in 500+ steps — painfully slow</li>
+    <li><strong>α=0.5</strong>: converges in ~15 steps — good range</li>
+    <li><strong>α=1.8</strong>: DIVERGES — this is why learning rate warmup exists!</li>
+    <li><strong>Two minima</strong>: try different start positions — lands in different minima</li>
+    </ul></div>
+  </div>
+</div>
+<div class="fm">w ← w − α × L′(w) <span class="cm">// the entire update rule</span><br>Safe convergence: α &lt; 2/max|L″(x)|</div>
+<div class="dive">
+  <div class="divehd"><span style="color:var(--tl)">★</span><h4>AI Deep Dive — Gradient Descent</h4><span class="mod">Topic 14</span></div>
+  <div class="dconcept"><h5>📚 The Concept</h5>
+    <p>Gradient descent is the simplest optimisation algorithm that works at scale. Starting from any initial point, it repeats <strong>w ← w − α ∇L(w)</strong>: compute the gradient, take a small step in the opposite direction, repeat until the gradient is tiny. The learning rate α controls step size. Convergence behaviour depends entirely on α and on the curvature: for a quadratic L(w) = w² with α &lt; 1, every step shrinks w by factor (1 − 2α) — geometric convergence. With α &gt; 1, every step <em>grows</em> w by factor (2α − 1) — divergence. The boundary α<sub>max</sub> = 1/L<sub>smooth</sub> (where L<sub>smooth</sub> is the largest eigenvalue of the Hessian) is why curvature dictates safe learning rates.</p>
+    <div class="dintu">💡 <strong>Intuition:</strong> Gradient descent is a feedback loop: "where am I, which way is downhill, take a small step, repeat." The art of training neural networks is mostly about not screwing up that loop — picking α, scheduling it, smoothing it with momentum, escaping saddles, regularising the trajectory.</div>
+  </div>
+  <div class="divepp">
+    <div class="dwhy"><h5>❓ Why AI needs this</h5><p>w←w−α∇L trains everything from AlexNet to GPT-4. All optimizers (Adam, RMSprop, etc.) are gradient descent with modifications.</p><ul class="wl"><li>Learning rate α is the most important hyperparameter — wrong value = no training</li><li>Momentum: accumulate gradient direction → escapes shallow local minima faster</li><li>Adam: per-parameter adaptive learning rates based on running gradient history</li><li>Warmup: start with tiny α, prevents divergence at initialization</li></ul></div>
+    <div class="dhow"><h5>⚙️ How AI uses it</h5><p>All PyTorch optimizers are gradient descent variants:</p><div class="cb">optimizer = torch.optim.Adam(params, lr=1e-3)
+# Warmup: prevents divergence (α too large initially)
+scheduler = lr_scheduler.LinearLR(
+    optimizer, start_factor=0.1, total_iters=1000)
+# Cosine decay: shrink α as training progresses
+scheduler = lr_scheduler.CosineAnnealingLR(
+    optimizer, T_max=100)</div><div class="chips"><span class="chip chh">Adam (adaptive lr)</span><span class="chip chh">LR warmup (all large models)</span><span class="chip chh">cosine annealing (GPT/BERT)</span><span class="chip chn">SGD+momentum</span></div></div>
+  </div>
+  <div class="dexample"><h5>🧮 Worked Example</h5>
+    <p>Run three steps of gradient descent on <strong>L(w) = w²</strong> from w₀ = 4 with α = 0.1, then show what happens if α is set too aggressively.</p>
+    <div class="we">
+      <div class="wehd">Three GD steps on L(w) = w², α = 0.1 vs α = 1.1</div>
+      <div class="webd">
+        <div class="werow wegiven"><span class="wetag">Given</span><span class="wecontent">L(w) = w², L′(w) = 2w, w₀ = 4 → L₀ = 16</span></div>
+        <div class="werow westep"><span class="wetag">Step 1</span><span class="wecontent">w₁ = 4 − 0.1·(2·4) = 4 − 0.8 = 3.2 → L = 10.24 (down 36%)</span></div>
+        <div class="werow westep"><span class="wetag">Step 2</span><span class="wecontent">w₂ = 3.2 − 0.1·(2·3.2) = 3.2 − 0.64 = 2.56 → L = 6.55</span></div>
+        <div class="werow westep"><span class="wetag">Step 3</span><span class="wecontent">w₃ = 2.56 − 0.1·(2·2.56) = 2.56 − 0.512 = 2.048 → L = 4.19</span></div>
+        <div class="werow westep"><span class="wetag">Pattern</span><span class="wecontent">Each step: w<sub>t+1</sub> = (1 − 2α) · w<sub>t</sub> = 0.8 · w<sub>t</sub> → geometric convergence to 0</span></div>
+        <div class="werow westep"><span class="wetag">α = 1.1</span><span class="wecontent">w₁ = 4 − 1.1·8 = 4 − 8.8 = −4.8, w₂ = −4.8 · (1 − 2.2) = +5.76, |w| <em>grows</em></span></div>
+        <div class="werow weresult"><span class="wetag">Result</span><span class="wecontent">α = 0.1 converges; α = 1.1 diverges with oscillation. Safe range here is α &lt; 1, with optimal α* = 0.5 (one-shot convergence). Picking α is the difference between training and exploding.</span></div>
+      </div>
+    </div>
+  </div>
+</div></div>
+<div class="topic" id="t15">
+<div class="thd"><span class="tnum">15</span><div><h2>Saddle Points</h2><div class="tsub">Gradient=0 but not a minimum — and why SGD's noise is a feature</div></div></div>
+<div class="analogy"><span class="ic">🏇</span><p><strong>Plain English:</strong> A horse saddle is lowest going left-right but highest going front-back. At a saddle point, gradient=0 but it's a minimum in some directions and maximum in others. In deep networks with millions of weights, most "critical points" are saddle points. Full-batch gradient descent gets stuck; SGD's mini-batch noise naturally perturbs past them.</p></div>
+
+<div class="vb">
+  <div class="vbhd"><span class="pulse"></span><span class="vbt">Saddle Point Visualizer — f(x,y)=x²−y² (classic saddle)</span></div>
+  <div class="vbd">
+    <div class="legend"><span class="li"><span class="ldot" style="background:#E85C3A"></span>High loss</span><span class="li"><span class="ldot" style="background:#1D9E75"></span>Low loss</span><span class="li"><span class="ldot" style="background:#fff;border:2px solid #7F77DD"></span>Saddle at (0,0)</span></div>
+    <canvas id="cv15" style="height:225px"></canvas>
+    <div class="xp" style="margin-top:10px"><div class="xphd"><span class="pulse"></span><span class="xplbl">Understanding the saddle</span></div>
+    <div class="xpb">
+      <div class="xpc"><h5>At (0,0)</h5><p>∇f=[2x,−2y]=[0,0] at origin — gradient=0, descent stops. But ∂²f/∂x²=<span class="hi">+2 (bowl in x)</span> and ∂²f/∂y²=<span class="co2">−2 (hill in y)</span>. Mixed curvature = saddle point.</p></div>
+      <div class="xpc"><h5>Why SGD escapes</h5><p>Full-batch gradient = exactly [0,0] → stuck forever. Mini-batch gradient = [0.02,−0.05] (noisy) → small gradient → escape possible. <span class="hi">Mini-batch noise is a feature!</span></p></div>
+    </div></div>
+  </div>
+</div>
+<div class="dive">
+  <div class="divehd"><span style="color:var(--tl)">★</span><h4>AI Deep Dive — Saddle Points</h4><span class="mod">Topic 15</span></div>
+  <div class="dconcept"><h5>📚 The Concept</h5>
+    <p>A saddle point is a critical point (∇f = 0) that is neither a maximum nor a minimum. Geometrically: the surface curves up in some directions and down in others — like a horse saddle, or a Pringle. Saddle points only exist in two or more dimensions; in 1D, every critical point with f″ ≠ 0 is a clean min or max. The Hessian's eigenvalues are the diagnostic: if the eigenvalues have <em>mixed signs</em>, the point is a saddle. The bigger surprise from modern ML theory: in very high dimensions, the probability that all n eigenvalues randomly happen to share the same sign is exponentially small. So in deep networks, almost every place where ∇L = 0 is a saddle, not a true minimum. Vanishing gradient ≠ converged.</p>
+    <div class="dintu">💡 <strong>Intuition:</strong> A saddle is a "flat trap." Pure gradient descent reads ∇L = 0 and stops. But the loss is still decreasing if you'd just look in the right direction. SGD's mini-batch noise is what actually nudges the optimiser off the saddle and back into productive descent.</div>
+  </div>
+  <div class="divepp">
+    <div class="dwhy"><h5>❓ Why AI needs this</h5><p>Most critical points in deep networks are saddle points. SGD's mini-batch noise naturally helps escape them.</p><ul class="wl"><li>In n dimensions: true minimum requires f″>0 in ALL n directions — very rare for large n</li><li>Full-batch gradient descent gets stuck at saddles (gradient exactly 0)</li><li>SGD noise from mini-batches breaks symmetry → natural saddle escape</li><li>Flat minima generalize better than sharp minima (SAM, 2021)</li></ul></div>
+    <div class="dhow"><h5>⚙️ How AI uses it</h5><p>SAM explicitly seeks flat minima; SGD escapes saddles naturally via noise:</p><div class="cb"># SGD noise = mini-batch gradient ≠ exact 0
+# This breaks the perfect saddle symmetry
+
+# SAM: explicitly find flat minima
+for x, y in loader:
+    loss = model(x, y)
+    loss.backward()
+    optimizer.first_step(zero_grad=True)
+    model(x, y).backward()
+    optimizer.second_step(zero_grad=True)</div><div class="chips"><span class="chip chh">SAM (flat minima)</span><span class="chip chh">SGD noise (natural escape)</span><span class="chip chh">SWA (flat basin average)</span><span class="chip chn">random initialization</span></div></div>
+  </div>
+  <div class="dexample"><h5>🧮 Worked Example</h5>
+    <p>The classic saddle <strong>f(x, y) = x² − y²</strong>. Verify the gradient is zero at the origin, the Hessian has mixed-sign eigenvalues, and trace what full-batch GD vs SGD do from a starting point right on the saddle.</p>
+    <div class="we">
+      <div class="wehd">f(x, y) = x² − y² at the origin</div>
+      <div class="webd">
+        <div class="werow wegiven"><span class="wetag">Given</span><span class="wecontent">f(x, y) = x² − y², start at (0, 0.0001)</span></div>
+        <div class="werow westep"><span class="wetag">Step 1</span><span class="wecontent">∇f = (2x, −2y), at origin = (0, 0) → critical point</span></div>
+        <div class="werow westep"><span class="wetag">Step 2</span><span class="wecontent">Hessian H = [[2, 0], [0, −2]] → eigenvalues +2, −2 → mixed signs → saddle</span></div>
+        <div class="werow westep"><span class="wetag">Full-batch GD</span><span class="wecontent">∇f(0, 0.0001) = (0, −0.0002), step away from saddle along y. After 100 steps with α=0.1: y goes from 0.0001 to ~12 (exponential blow-up <em>away</em> from origin) — escapes, but very slowly at first.</span></div>
+        <div class="werow westep"><span class="wetag">SGD</span><span class="wecontent">Mini-batch noise injects ±0.05 randomness in both x and y → gradient becomes (~0.05, ~−0.05), escape direction set in 1 step rather than 100.</span></div>
+        <div class="werow weresult"><span class="wetag">Result</span><span class="wecontent">Saddle = ∇=0 + mixed-sign Hessian. SGD's noise is precisely what makes it a feature, not a bug, for deep training.</span></div>
+      </div>
+    </div>
+  </div>
+</div></div>
+<div class="topic" id="t16">
+<div class="thd"><span class="tnum">16</span><div><h2>Convexity</h2><div class="tsub">Bowl-shaped = guaranteed convergence. Neural networks are NOT convex.</div></div></div>
+<div class="analogy"><span class="ic">🥣</span><p><strong>Plain English:</strong> A convex function looks like a bowl — f″≥0 everywhere, one minimum, always reachable. Logistic regression has a convex loss — it always converges to the global minimum. Neural networks are non-convex — many local minima — but in high dimensions, most local minima are just as good as the global one.</p></div>
+<table class="tbl"><tr><th>Model</th><th>Loss convex?</th><th>Consequence</th></tr>
+<tr><td>Linear regression</td><td>✓ Yes (MSE)</td><td>Always converges to global minimum</td></tr>
+<tr><td>Logistic regression</td><td>✓ Yes (log-loss)</td><td>Unique global optimum guaranteed</td></tr>
+<tr><td>SVM</td><td>✓ Yes (hinge)</td><td>Unique global solution</td></tr>
+<tr><td>Neural network</td><td>✗ No</td><td>Many local minima &amp; saddles</td></tr>
+<tr><td>Deep learning</td><td>✗ No</td><td>Works anyway — local ≈ global in practice</td></tr>
+</table>
+<div class="note">✅ <strong>Why non-convex NNs still train:</strong> In very high-dimensional parameter spaces, most local minima have similar loss values. You don't need the global minimum — any good local minimum generalizes well. (Choromanska et al., 2015)</div>
+<div class="dive">
+  <div class="divehd"><span style="color:var(--tl)">★</span><h4>AI Deep Dive — Convexity</h4><span class="mod">Topic 16</span></div>
+  <div class="dconcept"><h5>📚 The Concept</h5>
+    <p>A function f is <strong>convex</strong> if the line segment between any two points on its graph lies on or above the graph. Equivalently: f(λa + (1−λ)b) ≤ λf(a) + (1−λ)f(b) for all λ ∈ [0,1] (Jensen's inequality). For twice-differentiable f, convexity is equivalent to f″ ≥ 0 everywhere (1D), or the Hessian being positive semi-definite (multivariable). The defining magic property: any local minimum of a convex function is automatically the global minimum, and gradient descent is guaranteed to find it. Most classical ML losses (MSE for linear regression, log-loss for logistic regression, hinge loss for SVMs) are convex by design. Neural networks are emphatically <em>not</em> convex — but in practice they train anyway, because in very high dimensions the bad local minima are vanishingly rare.</p>
+    <div class="dintu">💡 <strong>Intuition:</strong> Convex = bowl-shaped, anywhere you stand, "downhill" leads to the unique bottom. Non-convex = mountainous landscape with many valleys, but in 100-million dimensions almost every valley is at the same elevation.</div>
+  </div>
+  <div class="divepp">
+    <div class="dwhy"><h5>❓ Why AI needs this</h5><p>Convex loss + gradient descent = guaranteed global convergence. Non-convex (neural nets) = depends on initialization, but works in practice.</p><ul class="wl"><li>Convex loss → gradient descent always finds global minimum (logistic regression, SVMs)</li><li>Jensen's inequality (f(E[X])≤E[f(X)] for convex f) underlies VAE's ELBO derivation</li><li>Batch normalization smooths the loss landscape — reduces effective non-convexity</li><li>He/Xavier init: start in a region of the loss landscape with good convergence properties</li></ul></div>
+    <div class="dhow"><h5>⚙️ How AI uses it</h5><p>Convex models always converge; deep nets use good initialization instead:</p><div class="cb"># Logistic regression: convex → always global min
+model = nn.Linear(n_features, 1)
+criterion = nn.BCEWithLogitsLoss()  # convex!
+# Deep net: non-convex → init matters critically
+# He init for ReLU (prevents gradient vanishing at init):
+nn.init.kaiming_normal_(layer.weight)
+# Xavier for sigmoid/tanh:
+nn.init.xavier_uniform_(layer.weight)</div><div class="chips"><span class="chip chh">logistic regression (convex)</span><span class="chip chh">Xavier/He init</span><span class="chip chh">VAE ELBO (Jensen's)</span><span class="chip chn">BatchNorm (smoothing)</span></div></div>
+  </div>
+  <div class="dexample"><h5>🧮 Worked Example</h5>
+    <p>Verify Jensen's inequality for f(x) = x² (convex) using two points x = 1 and x = 3 with mixing weight λ = 0.5.</p>
+    <div class="we">
+      <div class="wehd">Jensen's inequality on f(x) = x²</div>
+      <div class="webd">
+        <div class="werow wegiven"><span class="wetag">Given</span><span class="wecontent">f(x) = x², a = 1, b = 3, λ = 0.5</span></div>
+        <div class="werow westep"><span class="wetag">Step 1</span><span class="wecontent">f″(x) = 2 ≥ 0 everywhere → f is convex</span></div>
+        <div class="werow westep"><span class="wetag">LHS</span><span class="wecontent">f(λa + (1−λ)b) = f(0.5·1 + 0.5·3) = f(2) = 4</span></div>
+        <div class="werow westep"><span class="wetag">RHS</span><span class="wecontent">λf(a) + (1−λ)f(b) = 0.5·1 + 0.5·9 = 0.5 + 4.5 = 5</span></div>
+        <div class="werow westep"><span class="wetag">Check</span><span class="wecontent">4 ≤ 5 ✓ Jensen holds — the chord lies above the curve at x = 2.</span></div>
+        <div class="werow weresult"><span class="wetag">Result</span><span class="wecontent">For convex f, average-of-outputs ≥ output-of-average. This single inequality is what makes the VAE's evidence lower bound (ELBO) a valid lower bound on log-likelihood.</span></div>
+      </div>
+    </div>
+  </div>
+</div></div>
+<div class="chd"><h3>AI Applications</h3></div>
+
+<div class="topic" id="t17">
+<div class="thd"><span class="tnum">17</span><div><h2>Exp &amp; Log in ML</h2><div class="tsub">The two functions in every loss function and output layer</div></div></div>
+<div class="analogy"><span class="ic">📈</span><p><strong>Plain English:</strong> eˣ is always positive (ideal for probabilities) and is its own derivative (makes gradients free). ln(x) converts products to sums — essential for multiplying millions of tiny probabilities without numerical underflow. Together they form the backbone of every classifier, language model, and generative AI system.</p></div>
+
+<div class="vb">
+  <div class="vbhd"><span class="pulse"></span><span class="vbt">Exp &amp; Log Explorer — observe the self-derivative property live</span></div>
+  <div class="vbd">
+    <div class="legend"><span class="li"><span class="lln" style="background:#1D9E75"></span>eˣ (slope=value!)</span><span class="li"><span class="lln" style="background:#D85A30"></span>ln(x)</span><span class="li"><span class="lln" style="background:#BA7517"></span>Tangent of eˣ at x</span></div>
+    <canvas id="cv17" style="height:210px"></canvas>
+    <div class="ctrls"><div class="ctrl"><label>x position</label><div class="cr"><input type="range" id="x17" min="-2.5" max="2.5" step="0.1" value="1" oninput="D17()"><span class="val" id="xv17">1.0</span></div></div></div>
+    <div class="xp"><div class="xphd"><span class="pulse"></span><span class="xplbl">Live</span></div>
+    <div class="xpb"><div class="xpc"><h5>eˣ self-derivative</h5><p id="ei17a">—</p></div><div class="xpc"><h5>ln(x) in cross-entropy</h5><p id="ei17b">—</p></div></div></div>
+    <div class="tryb"><h5>Key observations</h5><ul>
+    <li>At any x: <strong>slope of eˣ = value of eˣ</strong>. At x=2: both value and slope = 7.389</li>
+    <li>eˣ and ln(x) are <strong>perfect mirror images</strong> of the line y=x — inverse functions</li>
+    <li><strong>ln(x)→−∞ as x→0</strong>: cross-entropy severely penalizes confident wrong predictions</li>
+    </ul></div>
+  </div>
+</div>
+<div class="fm">d/dx[eˣ] = eˣ — self-derivative, unique in mathematics<br>Softmax: σᵢ = exp(xᵢ)/Σexp(xⱼ) <span class="cm">// exp ensures positive outputs</span><br>Cross-entropy: L = −Σy·log(ŷ) <span class="cm">// log: product→sum, avoids underflow</span></div>
+<div class="dive">
+  <div class="divehd"><span style="color:var(--tl)">★</span><h4>AI Deep Dive — Exp &amp; Log in ML</h4><span class="mod">Topic 17</span></div>
+  <div class="dconcept"><h5>📚 The Concept</h5>
+    <p>The exponential <strong>eˣ</strong> and natural log <strong>ln(x)</strong> are inverses: ln(eˣ) = x and e^(ln x) = x for x &gt; 0. Three properties make them omnipresent in ML. <strong>(1) eˣ &gt; 0 always</strong> — perfect for parameterising probabilities and variances that must stay positive. <strong>(2) eˣ is its own derivative</strong>, the only nonzero function with that property — softmax gradients become trivially clean. <strong>(3) ln turns products into sums:</strong> ln(ab) = ln a + ln b. Probabilities of independent events multiply, often producing numbers like 10⁻³⁰⁰ that no float can hold. Taking the log converts that catastrophe into a manageable sum. This is why every loss function involving probabilities (cross-entropy, log-likelihood, KL divergence, ELBO) lives in log-space.</p>
+    <div class="dintu">💡 <strong>Intuition:</strong> exp lifts numbers into the "positive multiplicative" world; log brings them down to the "additive" world. ML needs both: probabilities live in the multiplicative world, but optimizers do additive arithmetic.</div>
+  </div>
+  <div class="divepp">
+    <div class="dwhy"><h5>❓ Why AI needs this</h5><p>exp and log appear in every loss function and output layer. exp ensures probabilities are positive; log prevents numerical underflow when multiplying many tiny probabilities.</p><ul class="wl"><li>Softmax: exp(xᵢ)/Σexp(xⱼ) — exp ensures all outputs positive and sum to 1</li><li>Cross-entropy: −Σy·log(ŷ) — log makes penalty huge when ŷ≈0 (very wrong prediction)</li><li>Log-likelihood: log P = Σlog P(xᵢ|θ) — product of probs → sum (no underflow)</li><li>KL divergence: ∫p·log(p/q)dx — used in VAEs, RLHF reward modeling</li></ul></div>
+    <div class="dhow"><h5>⚙️ How AI uses it</h5><p>Use log-softmax for numerical stability (avoids exp overflow):</p><div class="cb"># UNSTABLE: exp can overflow for large logits
+probs = torch.exp(logits) / torch.exp(logits).sum()
+# STABLE: log-softmax (subtracts max internally)
+log_p = torch.log_softmax(logits, dim=-1)
+# Most common (internally uses log-softmax):
+loss = F.cross_entropy(logits, targets)</div><div class="chips"><span class="chip chh">F.cross_entropy() (all classifiers)</span><span class="chip chh">softmax output layer</span><span class="chip chh">KL divergence (VAE, RLHF)</span><span class="chip chn">log-perplexity (LLMs)</span></div></div>
+  </div>
+  <div class="dexample"><h5>🧮 Worked Example</h5>
+    <p>Take logits [2, 1, 0], turn them into a softmax probability distribution, then compute cross-entropy loss against the true class y = 0. This is the calculation every classifier ends with.</p>
+    <div class="we">
+      <div class="wehd">Softmax + cross-entropy on logits [2, 1, 0]</div>
+      <div class="webd">
+        <div class="werow wegiven"><span class="wetag">Given</span><span class="wecontent">logits = [2, 1, 0], true class y = 0 (one-hot [1, 0, 0])</span></div>
+        <div class="werow westep"><span class="wetag">Step 1</span><span class="wecontent">exp(logits) = [e², e¹, e⁰] = [7.389, 2.718, 1.000]</span></div>
+        <div class="werow westep"><span class="wetag">Step 2</span><span class="wecontent">Sum = 11.107 → softmax = [0.665, 0.245, 0.090] (sums to 1)</span></div>
+        <div class="werow westep"><span class="wetag">Step 3</span><span class="wecontent">Cross-entropy: L = −Σ yᵢ · log(ŷᵢ) = −1 · log(0.665) = 0.408</span></div>
+        <div class="werow westep"><span class="wetag">Compare</span><span class="wecontent">If predicted 0.99 for true class: L = −log(0.99) = 0.010 (low loss). If predicted 0.01: L = −log(0.01) = 4.605 (huge loss).</span></div>
+        <div class="werow weresult"><span class="wetag">Result</span><span class="wecontent">Loss = 0.408 — model is confident-ish but not perfect. The −log curve punishes confident wrong predictions exponentially harder than diffuse wrong ones — the gradient signal that drives a classifier toward the correct answer.</span></div>
+      </div>
+    </div>
+  </div>
+</div></div>
+<div class="topic" id="t18">
+<div class="thd"><span class="tnum">18</span><div><h2>Taylor Series</h2><div class="tsub">Any smooth function approximated by polynomials — Adam is 2nd order</div></div></div>
+<div class="analogy"><span class="ic">🔬</span><p><strong>Plain English:</strong> Any smooth function can be approximated near a point using only its derivatives there: f(a)+f′(a)(x−a)+f″(a)(x−a)²/2+... More terms = better approximation, wider range. SGD uses 1st-order Taylor (linear). Adam uses 2nd-order (quadratic) — correcting for curvature to take better steps.</p></div>
+
+<div class="vb">
+  <div class="vbhd"><span class="pulse"></span><span class="vbt">Taylor Series — add terms, watch approximation expand outward from a=0</span></div>
+  <div class="vbd">
+    <div class="legend"><span class="li"><span class="lln" style="background:#1D9E75"></span>Exact f(x)</span><span class="li"><span class="lln" style="background:#D85A30"></span>Taylor (n terms)</span><span class="li"><span class="lln" style="background:#BA7517"></span>Expansion point</span></div>
+    <select id="fn18" onchange="D18()" style="margin-bottom:8px">
+      <option value="sin">sin(x)</option><option value="cos">cos(x)</option>
+      <option value="exp">eˣ</option><option value="log">ln(1+x)</option>
+    </select>
+    <canvas id="cv18" style="height:220px"></canvas>
+    <div class="ctrls"><div class="ctrl"><label>Number of terms n</label><div class="cr"><input type="range" id="n18" min="1" max="10" step="1" value="2" oninput="D18()"><span class="val" id="nv18">2</span></div></div></div>
+    <div class="xp"><div class="xphd"><span class="pulse"></span><span class="xplbl">Live</span></div>
+    <div class="xpb"><div class="xpc"><h5>Polynomial right now</h5><p id="ei18a">—</p></div><div class="xpc"><h5>n=2 and Adam</h5><p id="ei18b">—</p></div></div></div>
+  </div>
+</div>
+<div class="fm">f(x) = Σ f⁽ⁿ⁾(a)/n! × (x−a)ⁿ<br>eˣ = 1+x+x²/2!+x³/3!+...<br>2nd-order: f(w+Δ) ≈ f(w)+∇f·Δ+½ΔᵀHΔ <span class="cm">// Adam minimizes this</span></div>
+<div class="dive">
+  <div class="divehd"><span style="color:var(--tl)">★</span><h4>AI Deep Dive — Taylor Series</h4><span class="mod">Topic 18</span></div>
+  <div class="dconcept"><h5>📚 The Concept</h5>
+    <p>The Taylor series of a function f around a point a is its representation as an infinite polynomial built entirely from f's derivatives at a: <strong>f(x) = f(a) + f′(a)(x−a) + f″(a)(x−a)²/2! + f‴(a)(x−a)³/3! + …</strong>. Truncating after k+1 terms gives a degree-k polynomial that matches f and its first k derivatives exactly at x = a, and approximates f well for x near a. This is how calculators evaluate sin, exp, and log internally. In optimisation it gives a clean way to ask "what's the best step from where I am?": expand the loss to second order around the current weights, minimise that quadratic approximation, take the result as the update. SGD uses only the first-order term; Newton's method uses the second-order; Adam uses an efficient diagonal approximation to second-order.</p>
+    <div class="dintu">💡 <strong>Intuition:</strong> Taylor series says: if I know everything about f's slope, curvature, and higher bends at one point, I can rebuild f near that point without ever looking at it again. Optimisers exploit this to plan their next step using only local information.</div>
+  </div>
+  <div class="divepp">
+    <div class="dwhy"><h5>❓ Why AI needs this</h5><p>Adam is a 2nd-order Taylor approximation of the optimal weight update. SGD assumes 1st-order (linear). The difference is curvature correction.</p><ul class="wl"><li>SGD: f(w+Δ)≈f(w)+∇f·Δ (linear, 1st order) — ignores curvature</li><li>Adam: f(w+Δ)≈f(w)+∇f·Δ+½ΔᵀHΔ (quadratic, 2nd order) — uses curvature</li><li>Optimal Δ for 2nd order: Δ*=−H⁻¹∇f (Newton step) — Adam approximates this</li><li>Neural Tangent Kernel: infinite-width networks are linear in 1st-order Taylor sense</li></ul></div>
+    <div class="dhow"><h5>⚙️ How AI uses it</h5><p>Adam's update rule IS the 2nd-order Taylor optimal step with diagonal H approx:</p><div class="cb">m = beta1*m + (1-beta1)*grad    # ≈ ∇f (1st order)
+v = beta2*v + (1-beta2)*grad**2  # ≈ diag(H) (2nd order)
+# Optimal step = -H⁻¹∇f ≈ -m/sqrt(v):
+param -= lr * m_hat / (torch.sqrt(v_hat) + eps)</div><div class="chips"><span class="chip chh">Adam (2nd order Taylor)</span><span class="chip chh">Newton's method (exact)</span><span class="chip chh">L-BFGS (rank-k)</span><span class="chip chn">Neural Tangent Kernel</span></div></div>
+  </div>
+  <div class="dexample"><h5>🧮 Worked Example</h5>
+    <p>Approximate <strong>e^0.1</strong> using the Taylor series of eˣ around 0, term by term, and watch the error shrink — the same convergence ML uses when truncating optimiser approximations.</p>
+    <div class="we">
+      <div class="wehd">Taylor series of eˣ at x = 0.1</div>
+      <div class="webd">
+        <div class="werow wegiven"><span class="wetag">Given</span><span class="wecontent">eˣ = 1 + x + x²/2! + x³/3! + … (every derivative of eˣ at 0 is 1)</span></div>
+        <div class="werow westep"><span class="wetag">1 term</span><span class="wecontent">1 = 1.0000 (error 0.105 — 9.5%)</span></div>
+        <div class="werow westep"><span class="wetag">2 terms</span><span class="wecontent">1 + 0.1 = 1.1000 (error 0.0052 — 0.47%)</span></div>
+        <div class="werow westep"><span class="wetag">3 terms</span><span class="wecontent">1 + 0.1 + 0.01/2 = 1.1050 (error 0.00017 — 0.016%)</span></div>
+        <div class="werow westep"><span class="wetag">4 terms</span><span class="wecontent">+ 0.001/6 = 1.10516̄ (error 4.2 × 10⁻⁶ — 0.00038%)</span></div>
+        <div class="werow westep"><span class="wetag">True value</span><span class="wecontent">e^0.1 = 1.10517091…</span></div>
+        <div class="werow weresult"><span class="wetag">Result</span><span class="wecontent">Each term cuts error roughly by another order of magnitude. SGD uses 2 terms (linear); Adam uses 3 (quadratic). Each "extra term" is exactly what the second-moment v in Adam is approximating.</span></div>
+      </div>
+    </div>
+  </div>
+</div></div>
+<div class="topic" id="t19">
+<div class="thd"><span class="tnum">19</span><div><h2>Backpropagation</h2><div class="tsub">Chain rule on computation graphs — all gradients in one backward pass</div></div></div>
+<div class="analogy"><span class="ic">🔄</span><p><strong>Plain English:</strong> After a wrong prediction, backprop asks every weight: "how responsible were YOU for this error?" It walks backward from the loss, applies the chain rule at each layer, and accumulates each weight's gradient. One backward pass simultaneously computes the gradient for ALL parameters — same cost as the forward pass. This O(n) efficiency is what makes training feasible.</p></div>
+
+<div class="vb">
+  <div class="vbhd"><span class="pulse"></span><span class="vbt">Backpropagation Step-by-Step — ŷ=σ(wx+b), with real numbers</span></div>
+  <div class="vbd">
+    <div class="stabs" id="bp19t">
+      <div class="stab on" onclick="setBP(0)">① Setup</div><div class="stab" onclick="setBP(1)">② Forward</div>
+      <div class="stab" onclick="setBP(2)">③ Loss</div><div class="stab" onclick="setBP(3)">④ ∂L/∂ŷ</div>
+      <div class="stab" onclick="setBP(4)">⑤ Through σ</div><div class="stab" onclick="setBP(5)">⑥ ∂L/∂w, ∂L/∂b</div>
+      <div class="stab" onclick="setBP(6)">⑦ Update</div>
+    </div>
+    <div id="bp19v" style="min-height:185px"></div>
+  </div>
+</div>
+<div class="fm">∂L/∂ŷ = 2(ŷ−y)  ∂L/∂z = ∂L/∂ŷ × σ(z)(1−σ(z))  ∂L/∂w = ∂L/∂z × x</div>
+<div class="dive">
+  <div class="divehd"><span style="color:var(--tl)">★</span><h4>AI Deep Dive — Backpropagation</h4><span class="mod">Topic 19</span></div>
+  <div class="dconcept"><h5>📚 The Concept</h5>
+    <p>Backpropagation is the chain rule applied systematically to a computation graph. Forward pass: compute and cache the output of every node from inputs to loss. Backward pass: starting from ∂L/∂L = 1 at the output, walk the graph in reverse and at each node multiply the upstream gradient by the local Jacobian (the node's own derivative w.r.t. its inputs). Because gradients flowing into a node are <em>summed</em> across all downstream paths, this single backward sweep produces ∂L/∂θ for every parameter θ in the graph at the same total cost as one forward pass — O(n). Without this trick, computing one gradient per parameter would be O(n²) and training a billion-parameter model would be impossible. Reverse-mode automatic differentiation is the formal generalisation of backprop to arbitrary computation graphs and is what powers PyTorch's <code>autograd</code>, JAX's <code>grad</code>, and TensorFlow's <code>GradientTape</code>.</p>
+    <div class="dintu">💡 <strong>Intuition:</strong> Forward pass: light flows from inputs to loss. Backward pass: blame flows from loss back to every parameter. Each node passes the blame upstream after multiplying it by how much that node's output depends on its input. Backprop is just disciplined blame assignment.</div>
+  </div>
+  <div class="divepp">
+    <div class="dwhy"><h5>❓ Why AI needs this</h5><p>One backward pass computes ALL n gradients at O(n) cost. Without the chain rule, you'd need n separate forward passes — O(n²) — completely infeasible for modern networks.</p><ul class="wl"><li>Forward pass stores intermediate values; backward uses them for chain rule</li><li>PyTorch autograd records every operation and differentiates automatically</li><li>Gradient checkpointing: recompute activations instead of storing — O(1) memory</li><li>Reverse-mode autodiff = backprop generalized to arbitrary computation graphs</li></ul></div>
+    <div class="dhow"><h5>⚙️ How AI uses it</h5><p>PyTorch applies the chain rule automatically at every node:</p><div class="cb">z = W @ x + b; a = torch.relu(z)
+loss = F.mse_loss(a, y)
+loss.backward()   # chain rule at every node
+# W.grad = ∂loss/∂W computed automatically!
+# Memory-efficient (gradient checkpointing):
+from torch.utils.checkpoint import checkpoint
+a = checkpoint(layer, x)  # recompute, don't store</div><div class="chips"><span class="chip chh">loss.backward() (all NNs)</span><span class="chip chh">gradient checkpointing</span><span class="chip chh">JAX grad()</span><span class="chip chn">TF GradientTape</span></div></div>
+  </div>
+  <div class="dexample"><h5>🧮 Worked Example</h5>
+    <p>Backprop end-to-end on the smallest possible network: <strong>ŷ = w · x</strong> with loss L = (ŷ − y)². Walk through forward, backward, and update — every step a number you can verify on paper.</p>
+    <div class="we">
+      <div class="wehd">Backprop on ŷ = wx, MSE loss</div>
+      <div class="webd">
+        <div class="werow wegiven"><span class="wetag">Given</span><span class="wecontent">x = 2, y = 5 (target), w = 3 (current weight), α = 0.1</span></div>
+        <div class="werow westep"><span class="wetag">Forward</span><span class="wecontent">ŷ = w · x = 3 · 2 = 6 → L = (ŷ − y)² = (6 − 5)² = 1</span></div>
+        <div class="werow westep"><span class="wetag">Backward 1</span><span class="wecontent">∂L/∂ŷ = 2(ŷ − y) = 2 · 1 = 2</span></div>
+        <div class="werow westep"><span class="wetag">Backward 2</span><span class="wecontent">∂ŷ/∂w = x = 2 (since ŷ = w·x, holding x fixed)</span></div>
+        <div class="werow westep"><span class="wetag">Chain</span><span class="wecontent">∂L/∂w = ∂L/∂ŷ · ∂ŷ/∂w = 2 · 2 = 4</span></div>
+        <div class="werow westep"><span class="wetag">Update</span><span class="wecontent">w ← w − α · ∂L/∂w = 3 − 0.1 · 4 = 2.6</span></div>
+        <div class="werow weresult"><span class="wetag">Result</span><span class="wecontent">New ŷ = 2.6 · 2 = 5.2, new L = (5.2 − 5)² = 0.04. Loss dropped 25× in one step. Scale this exact procedure to billions of parameters and you have GPT.</span></div>
+      </div>
+    </div>
+  </div>
+</div></div>
+<div class="topic" id="t20">
+<div class="thd"><span class="tnum">20</span><div><h2>Loss Landscapes</h2><div class="tsub">The terrain gradient descent must navigate — shape determines everything</div></div></div>
+<div class="analogy"><span class="ic">🌄</span><p><strong>Plain English:</strong> Imagine height=loss value and the 2D plane represents two of the model's weights. Training is a ball rolling downhill. Convex landscape=easy, one valley. Narrow valley=zigzagging. Multiple valleys=different runs land at different minima. The shape of this landscape determines convergence speed, generalization, and what techniques you need.</p></div>
+
+<div class="vb">
+  <div class="vbhd"><span class="pulse"></span><span class="vbt">2D Loss Landscape — animated gradient descent, explore different terrains</span><span id="ls20st" style="font-size:10px;color:var(--tx3);margin-left:auto">Ready</span></div>
+  <div class="vbd">
+    <div class="legend"><span class="li"><span class="ldot" style="background:#E85C3A"></span>High loss</span><span class="li"><span class="ldot" style="background:#1D9E75"></span>Low loss (target)</span><span class="li"><span class="lln" style="background:rgba(255,255,255,.9)"></span>Path</span><span class="li"><span class="ldot" style="background:#fff;border:2px solid #D85A30"></span>Current</span></div>
+    <select id="fn20" onchange="lsReset20()" style="margin-bottom:8px">
+      <option value="bowl">Quadratic bowl (convex — easy)</option>
+      <option value="narrow">Narrow valley (causes zigzagging)</option>
+      <option value="banana">Rosenbrock banana (hard non-convex)</option>
+      <option value="multi">Multi-modal (multiple local minima)</option>
+    </select>
+    <canvas id="cv20" style="height:245px"></canvas>
+    <div class="ctrls"><div class="ctrl"><label>Learning rate α</label><div class="cr"><input type="range" id="lr20" min="0.01" max="0.4" step="0.005" value="0.08" oninput="lsUpd20()"><span class="val" id="lrv20">0.080</span></div></div></div>
+    <div style="display:flex;gap:7px;margin-top:8px;flex-wrap:wrap;align-items:center">
+      <button class="btnp" id="ls20play" onclick="lsToggle20()">▶ Play</button>
+      <button class="btn" onclick="lsReset20()">↺ Reset</button>
+      <span style="font-size:11px;color:var(--tx2)">Step <span id="ls20sn" style="font-family:ui-monospace;color:var(--tld);font-weight:700">0</span> · Loss <span id="ls20lv" style="font-family:ui-monospace;color:var(--tld);font-weight:700">—</span></span>
+    </div>
+    <div class="xp"><div class="xphd"><span class="pulse"></span><span class="xplbl">Live</span></div>
+    <div class="xpb"><div class="xpc"><h5>This landscape</h5><p id="ei20a">Select and Play.</p></div><div class="xpc"><h5>Path analysis</h5><p id="ei20b">White trail = gradient steps.</p></div></div></div>
+    <div class="tryb"><h5>Essential experiments</h5><ul>
+    <li><strong>Bowl</strong>: smooth convergence, any start → same minimum</li>
+    <li><strong>Narrow valley + α=0.3</strong>: zigzagging! Adam fixes with per-dimension step sizes</li>
+    <li><strong>Multi-modal</strong>: reset 5 times — different local minima each run!</li>
+    </ul></div>
+  </div>
+</div>
+<div class="dive">
+  <div class="divehd"><span style="color:var(--tl)">★</span><h4>AI Deep Dive — Loss Landscapes</h4><span class="mod">Topic 20</span></div>
+  <div class="dconcept"><h5>📚 The Concept</h5>
+    <p>The loss landscape is the high-dimensional graph of L plotted against every parameter of the model. For a network with <em>n</em> parameters it lives in n+1 dimensions, so we always view 2D or 3D <em>slices</em> through it. The <strong>shape</strong> of this surface — how curved, how anisotropic, how many basins — controls everything that matters in training: convergence speed, the safe learning rate, generalisation behaviour, and which optimiser to use. A <em>convex</em> landscape (single basin) is trivial; a <em>narrow valley</em> causes zigzagging because gradient descent steps perpendicular to the long axis; <em>saddles</em> cause stalling; <em>multi-modal</em> landscapes mean different initialisations find different minima. The Hessian's eigenvalues at any point characterise the local shape — and the <em>condition number</em> (λ<sub>max</sub>/λ<sub>min</sub>) predicts how aggressively the trajectory will zigzag.</p>
+    <div class="dintu">💡 <strong>Intuition:</strong> You're navigating a Himalayan-scale terrain by feel, one footstep at a time. The optimiser's job is to read local steepness and curvature and infer where to go next. The landscape's geometry, not the algorithm's cleverness, sets the speed limit.</div>
+  </div>
+  <div class="divepp">
+    <div class="dwhy"><h5>❓ Why AI needs this</h5><p>The landscape shape determines convergence speed, learning rate safety, and generalization. Flat minima generalize better than sharp minima.</p><ul class="wl"><li>Batch normalization smooths landscape — reduces max curvature → allows larger learning rates</li><li>Residual connections prevent loss of smoothness in very deep networks</li><li>Sharp minima overfit; flat minima generalize well (SAM, 2021)</li><li>Loss landscape of transformers has many flat directions = attention head permutations</li></ul></div>
+    <div class="dhow"><h5>⚙️ How AI uses it</h5><p>Visualize and seek flat minima for better generalization:</p><div class="cb"># SAM: find flat minima (better generalization)
+# SWA: average weights along trajectory → flat basin
+swa_model = torch.optim.swa_utils.AveragedModel(model)
+# Filter normalization visualization (Li et al. 2018):
+dir1 = random_unit_perturbation(model)
+# Plot loss over 2D slice of weight space</div><div class="chips"><span class="chip chh">SAM (flat minima)</span><span class="chip chh">BatchNorm (landscape smoothing)</span><span class="chip chh">SWA (flat basin)</span><span class="chip chn">loss landscape viz</span></div></div>
+  </div>
+  <div class="dexample"><h5>🧮 Worked Example</h5>
+    <p>Quantify how landscape <strong>anisotropy</strong> (different curvature in different directions) destroys plain gradient descent. Compare a round bowl to a narrow valley — the same algorithm, the same α, wildly different convergence.</p>
+    <div class="we">
+      <div class="wehd">Round bowl vs narrow valley — same α, very different speed</div>
+      <div class="webd">
+        <div class="werow wegiven"><span class="wetag">Round</span><span class="wecontent">L₁(x, y) = x² + y², gradient descent with α = 0.1, start (4, 4)</span></div>
+        <div class="werow westep"><span class="wetag">Step rule</span><span class="wecontent">Each axis: w ← (1 − 2α) w = 0.8 w → identical decay in x and y</span></div>
+        <div class="werow westep"><span class="wetag">Trajectory</span><span class="wecontent">L: 32 → 20.48 → 13.11 → 8.39 → … halves every ~3.1 steps. Path is straight to origin.</span></div>
+        <div class="werow westep"><span class="wetag">Narrow</span><span class="wecontent">L₂(x, y) = 0.1x² + 5y², same start (4, 4), same α = 0.1</span></div>
+        <div class="werow westep"><span class="wetag">y-axis</span><span class="wecontent">y ← (1 − 2·0.1·5) y = 0 · y → y collapses to 0 in <strong>one step</strong> (instantly converged on y)</span></div>
+        <div class="werow westep"><span class="wetag">x-axis</span><span class="wecontent">x ← (1 − 2·0.1·0.1) x = 0.98 x → x decays only 2% per step. ~35 steps to halve. ~230 steps to reach 0.01.</span></div>
+        <div class="werow weresult"><span class="wetag">Result</span><span class="wecontent">Same α, same start: round bowl converges in ~10 steps; narrow valley needs ~230. The condition number κ = 50 is the slowdown factor. This is exactly why Adam's per-parameter learning rates exist — they normalise away anisotropy.</span></div>
+      </div>
+    </div>
+  </div>
+</div></div>
+<div class="chd" style="padding-top:38px"><h3>Reference</h3></div>
+
+<div class="topic" id="t21">
+<div class="thd"><span class="tnum">21</span><div><h2>Cheat Sheet</h2><div class="tsub">Every formula from all 21 topics — one bookmark, complete reference</div></div></div>
+
+<div style="margin-bottom:16px"><div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--tl);margin-bottom:8px">📐 Differentiation Rules</div>
+<div class="csg">
+<div class="csi"><div class="csn">Derivative (definition)</div><div class="csf">f′(x) = lim[h→0] (f(x+h)−f(x))/h</div><div class="csd">Slope at a single point</div></div>
+<div class="csi"><div class="csn">Power rule</div><div class="csf">d/dx[xⁿ] = n·xⁿ⁻¹</div><div class="csd">Most used rule in ML</div></div>
+<div class="csi"><div class="csn">Chain rule</div><div class="csf">d/dx[f(g(x))] = f′(g(x))·g′(x)</div><div class="csd">Core of backpropagation</div></div>
+<div class="csi"><div class="csn">eˣ derivative</div><div class="csf">d/dx[eˣ] = eˣ (self-derivative!)</div><div class="csd">Softmax gradient free</div></div>
+<div class="csi"><div class="csn">ln(x) derivative</div><div class="csf">d/dx[ln x] = 1/x</div><div class="csd">Cross-entropy backprop</div></div>
+<div class="csi"><div class="csn">Sigmoid derivative</div><div class="csf">σ′(x) = σ(x)(1−σ(x)) ≤ 0.25</div><div class="csd">Max 0.25 → vanishing gradient</div></div>
+<div class="csi"><div class="csn">ReLU derivative</div><div class="csf">0 if x&lt;0,  1 if x&gt;0</div><div class="csd">Never shrinks → enabled deep learning</div></div>
+<div class="csi"><div class="csn">Product rule</div><div class="csf">(fg)′ = f′g + fg′</div><div class="csd">Attention backprop</div></div>
+</div></div>
+
+<div style="margin-bottom:16px"><div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--tl);margin-bottom:8px">🏔️ Multivariable &amp; Optimization</div>
+<div class="csg">
+<div class="csi"><div class="csn">Gradient</div><div class="csf">∇f = [∂f/∂x₁, ..., ∂f/∂xₙ]</div><div class="csd">Steepest ascent vector</div></div>
+<div class="csi"><div class="csn">Gradient descent</div><div class="csf">w ← w − α·∇L</div><div class="csd">The training update rule</div></div>
+<div class="csi"><div class="csn">Safe learning rate</div><div class="csf">α &lt; 2 / max|L″(x)|</div><div class="csd">Guarantees convergence</div></div>
+<div class="csi"><div class="csn">Critical point test</div><div class="csf">f′=0 AND f″&gt;0 → min ✓</div><div class="csd">f″&lt;0 → max ✗</div></div>
+<div class="csi"><div class="csn">Hessian</div><div class="csf">H[i,j] = ∂²f/∂xᵢ∂xⱼ</div><div class="csd">Curvature — Adam approx.</div></div>
+<div class="csi"><div class="csn">Taylor 2nd order</div><div class="csf">f(w+Δ)≈f(w)+∇f·Δ+½ΔᵀHΔ</div><div class="csd">Basis of Adam optimizer</div></div>
+<div class="csi"><div class="csn">Newton's method</div><div class="csf">x ← x − f′(x)/f″(x)</div><div class="csd">2nd-order, fewer steps</div></div>
+<div class="csi"><div class="csn">Jacobian</div><div class="csf">J[i,j] = ∂fᵢ/∂xⱼ</div><div class="csd">Linear layer backward = Wᵀ</div></div>
+</div></div>
+
+<div><div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--tl);margin-bottom:8px">🤖 AI Applications</div>
+<div class="csg">
+<div class="csi"><div class="csn">Cross-entropy loss</div><div class="csf">L = −Σ yᵢ log(ŷᵢ)</div><div class="csd">All classification tasks</div></div>
+<div class="csi"><div class="csn">Softmax</div><div class="csf">σᵢ = exp(xᵢ)/Σexp(xⱼ)</div><div class="csd">exp → positive probabilities</div></div>
+<div class="csi"><div class="csn">Log-likelihood</div><div class="csf">log P = Σ log P(xᵢ|θ)</div><div class="csd">Product → sum, no underflow</div></div>
+<div class="csi"><div class="csn">Adam update</div><div class="csf">w ← w − α·m̂/(√v̂+ε)</div><div class="csd">Per-parameter adaptive lr</div></div>
+<div class="csi"><div class="csn">Backprop rule</div><div class="csf">∂L/∂W = (∂L/∂z) · xᵀ</div><div class="csd">Chain rule at linear layer</div></div>
+<div class="csi"><div class="csn">Vanishing gradient</div><div class="csf">0.25¹⁰ ≈ 10⁻⁶ (sigmoid×10)</div><div class="csd">Fixed by ReLU (deriv=1)</div></div>
+<div class="csi"><div class="csn">Expected loss</div><div class="csf">E[L] = ∫L(x)p(x)dx</div><div class="csd">Approximated by mini-batch</div></div>
+<div class="csi"><div class="csn">MSE loss</div><div class="csf">L = (1/n)Σ(yᵢ−ŷᵢ)²</div><div class="csd">MLE under Gaussian noise</div></div>
+</div></div>
+</div>
+</main>
+</div>
+<script>
+// ══════════════════════════════════════════════════════════════════
+// CANVAS FIX: Get width from PARENT CONTAINER, not the canvas.
+// canvas.clientWidth = 0 at init time. Parent already has layout.
+// MUST set both c.style.height AND c.height (HiDPI).
+// ══════════════════════════════════════════════════════════════════
+const DPR = Math.min(window.devicePixelRatio || 1, 2);
+
+function C(id, fh) {
+  const c = document.getElementById(id);
+  if (!c) return null;
+  // Walk up until we get a real width
+  let w = 0, el = c.parentElement;
+  while (el && w < 20) { w = el.getBoundingClientRect().width; el = el.parentElement; }
+  if (w < 20) w = 600;
+  w = Math.floor(w - 4);
+  const h = fh || 210;
+  c.width  = Math.round(w * DPR);
+  c.height = Math.round(h * DPR);
+  c.style.width  = w + 'px';
+  c.style.height = h + 'px';   // ← critical: must set style.height too
+  const ctx = c.getContext('2d');
+  ctx.scale(DPR, DPR);
+  return { ctx, W: w, H: h };
+}
+
+function axes(ctx, W, H, p, xr, yr) {
+  const cw = W-p.l-p.r, ch = H-p.t-p.b;
+  const ox = p.l+(-xr[0])/(xr[1]-xr[0])*cw, oy = p.t+(yr[1]-0)/(yr[1]-yr[0])*ch;
+  ctx.strokeStyle='rgba(255,255,255,0.06)'; ctx.lineWidth=0.5;
+  for(let v=Math.ceil(xr[0]);v<=xr[1];v++){
+    const px=p.l+(v-xr[0])/(xr[1]-xr[0])*cw;
+    ctx.beginPath();ctx.moveTo(px,p.t);ctx.lineTo(px,p.t+ch);ctx.stroke();
+  }
+  for(let v=Math.ceil(yr[0]);v<=yr[1];v+=2){
+    const py=p.t+(yr[1]-v)/(yr[1]-yr[0])*ch;
+    ctx.beginPath();ctx.moveTo(p.l,py);ctx.lineTo(p.l+cw,py);ctx.stroke();
+  }
+  ctx.strokeStyle='rgba(255,255,255,0.22)'; ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(p.l,oy);ctx.lineTo(p.l+cw,oy);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(ox,p.t);ctx.lineTo(ox,p.t+ch);ctx.stroke();
+  ctx.fillStyle='rgba(255,255,255,0.3)'; ctx.font='9px ui-monospace,monospace';
+  ctx.textAlign='center';
+  for(let v=Math.ceil(xr[0]);v<=xr[1];v++){
+    if(!v)continue;
+    const px=p.l+(v-xr[0])/(xr[1]-xr[0])*cw;
+    if(px>p.l+5&&px<p.l+cw-5)ctx.fillText(v,px,Math.min(oy+11,p.t+ch-2));
+  }
+  ctx.textAlign='right';
+  for(let v=Math.ceil(yr[0]);v<=yr[1];v+=2){
+    if(!v)continue;
+    const py=p.t+(yr[1]-v)/(yr[1]-yr[0])*ch;
+    if(py>p.t+5&&py<p.t+ch-4)ctx.fillText(v,ox-3,py+3);
+  }
+  return {cw,ch,ox,oy};
+}
+
+function crv(ctx,fn,p,cw,ch,xr,yr,col,lw,al){
+  ctx.save();ctx.strokeStyle=col||'#1D9E75';ctx.lineWidth=lw||2;ctx.globalAlpha=al||1;
+  ctx.beginPath();let s=true;
+  for(let i=0;i<=600;i++){
+    const x=xr[0]+(xr[1]-xr[0])*i/600;
+    let y;try{y=fn(x);}catch(e){s=true;continue;}
+    if(!isFinite(y)||Math.abs(y)>400){s=true;continue;}
+    const px=p.l+(x-xr[0])/(xr[1]-xr[0])*cw,py=p.t+(yr[1]-y)/(yr[1]-yr[0])*ch;
+    if(py<p.t-10||py>p.t+ch+10){s=true;continue;}
+    s?(ctx.moveTo(px,py),s=false):ctx.lineTo(px,py);
+  }
+  ctx.stroke();ctx.restore();
+}
+
+function dot(ctx,px,py,r,fill,stroke,sw){
+  ctx.beginPath();ctx.arc(px,py,r,0,Math.PI*2);ctx.fillStyle=fill;ctx.fill();
+  if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=sw||2;ctx.stroke();}
+}
+
+function arw(ctx,x1,y1,x2,y2,col,lw,hs){
+  lw=lw||2;hs=hs||8;ctx.strokeStyle=col;ctx.fillStyle=col;ctx.lineWidth=lw;
+  ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();
+  const a=Math.atan2(y2-y1,x2-x1);
+  ctx.beginPath();ctx.moveTo(x2,y2);
+  ctx.lineTo(x2-hs*Math.cos(a-.4),y2-hs*Math.sin(a-.4));
+  ctx.lineTo(x2-hs*Math.cos(a+.4),y2-hs*Math.sin(a+.4));
+  ctx.closePath();ctx.fill();
+}
+
+function hmap(ctx,fn,p,sz,n){
+  for(let i=0;i<n;i++)for(let j=0;j<n;j++){
+    const x=-3+i*6/n,y=3-j*6/n,v=fn(x,y),nm=Math.max(-1,Math.min(1,v*0.35));
+    const r=nm>0?Math.round(30+nm*200):30,g=Math.round(158*(1-Math.abs(nm)*0.65));
+    const b=nm<0?Math.round(117+Math.abs(nm)*100):Math.round(117*(1-nm*.5));
+    ctx.fillStyle='rgb('+r+','+g+','+b+')';
+    ctx.fillRect(p.l+i*sz/n,p.t+j*sz/n,sz/n+1,sz/n+1);
+  }
+}
+
+function set(id,html){const e=document.getElementById(id);if(e)e.innerHTML=html;}
+const hi=v=>'<span class="hi">'+v+'</span>';
+const co=v=>'<span class="co2">'+v+'</span>';
+const TL='#1D9E75',CO='#D85A30',PU='#7F77DD',BL='#378ADD',AM='#BA7517';
+
+// ── 01 Functions ─────────────────────────────────────────────────────
+const FD01={
+  x2:{f:x=>x*x,yr:[-2,6],info:'Parabola. d/dx[x²]=2x. Min at x=0.',ai:'MSE loss L=(ŷ−y)² has this shape. Convex → one global minimum.'},
+  x3:{f:x=>x**3,yr:[-5,5],info:'Cubic through origin. d/dx[x³]=3x².',ai:'Polynomial regression. Non-convex.'},
+  sin:{f:x=>Math.sin(x),yr:[-2,2],info:'Wave between −1 and +1. d/dx[sin]=cos.',ai:'Positional encodings in Transformers: PE(pos,2i)=sin(pos/10000^(2i/d)).'},
+  exp:{f:x=>Math.exp(x),yr:[-0.5,8],info:'Always positive. d/dx[eˣ]=eˣ — self-derivative!',ai:'Softmax: exp ensures all outputs positive before normalizing.'},
+  log:{f:x=>Math.log(Math.max(x,0.001)),yr:[-4,3],info:'Only for x>0. d/dx[ln x]=1/x.',ai:'Cross-entropy: −Σy·log(ŷ). Huge penalty when ŷ≈0 (very wrong).'},
+  relu:{f:x=>Math.max(0,x),yr:[-0.5,4],info:'Zero for x<0, linear for x>0. Derivative: 0 or 1.',ai:'Enabled deep learning 2012 — gradient never shrinks (AlexNet).'},
+  sigmoid:{f:x=>1/(1+Math.exp(-x)),yr:[-0.2,1.2],info:'S-curve to (0,1). Max derivative 0.25 at x=0.',ai:'Binary output. Max slope 0.25 → 0.25¹⁰≈10⁻⁶ in 10 layers. Vanishing!'},
+  tanh:{f:x=>Math.tanh(x),yr:[-1.5,1.5],info:'S-curve −1 to +1. Max derivative 1 at x=0.',ai:'LSTM/GRU gates. Zero-centered → less gradient bias than sigmoid.'},
+  gelu:{f:x=>0.5*x*(1+Math.tanh(Math.sqrt(2/Math.PI)*(x+0.044715*x**3))),yr:[-0.5,3],info:'Smooth everywhere. Differentiable at x=0 unlike ReLU.',ai:'GPT-2/3, BERT, T5. Smooth gradients → stable large-model training.'}
+};
+function D01(){
+  const key=document.getElementById('fn01').value,fd=FD01[key];
+  const xv=parseFloat(document.getElementById('x01').value);
+  document.getElementById('xv01').textContent=xv.toFixed(1);
+  const r=C('cv01',210);if(!r)return;
+  const{ctx,W,H}=r,p={l:38,r:12,t:14,b:22};
+  const{cw,ch}=axes(ctx,W,H,p,[-5,5],fd.yr);
+  crv(ctx,fd.f,p,cw,ch,[-5,5],fd.yr,TL,2.5);
+  const fv=fd.f(xv);
+  if(isFinite(fv)&&Math.abs(fv)<300){
+    const px=p.l+(xv+5)/10*cw,py=p.t+(fd.yr[1]-fv)/(fd.yr[1]-fd.yr[0])*ch;
+    dot(ctx,px,py,6,CO,'#fff',2);
+    ctx.fillStyle=CO;ctx.font='10px ui-monospace';ctx.textAlign='left';
+    ctx.fillText('('+xv.toFixed(1)+', '+fv.toFixed(2)+')',Math.min(px+8,W-80),py-6);
+  }
+  set('ei01a',fd.info);
+  set('ei01b','x='+hi(xv.toFixed(1))+' → f(x)='+hi(isFinite(fv)?fv.toFixed(3):'∞')+'. '+fd.ai);
+}
+
+// ── 02 Limits ────────────────────────────────────────────────────────
+function D02(){
+  const a=parseFloat(document.getElementById('la02').value);
+  const d=parseFloat(document.getElementById('ld02').value);
+  document.getElementById('lav02').textContent=a.toFixed(1);
+  document.getElementById('ldv02').textContent=d.toFixed(2);
+  const f=x=>x*x-x+1,fa=f(a);
+  const r=C('cv02',200);if(!r)return;
+  const{ctx,W,H}=r,p={l:38,r:12,t:12,b:22};
+  const xr=[a-3.5,a+3.5],yr=[fa-2.5,fa+4];
+  const{cw,ch}=axes(ctx,W,H,p,xr,yr);
+  crv(ctx,f,p,cw,ch,xr,yr,TL,2.5);
+  [0.5,0.25,0.08,0.02].forEach((dd,i)=>{
+    const sz=5-i;
+    const xl=a-d*dd,xr2=a+d*dd;
+    dot(ctx,p.l+(xl-xr[0])/(xr[1]-xr[0])*cw,p.t+(yr[1]-f(xl))/(yr[1]-yr[0])*ch,sz,'rgba(29,158,117,'+(0.25+i*.18)+')');
+    dot(ctx,p.l+(xr2-xr[0])/(xr[1]-xr[0])*cw,p.t+(yr[1]-f(xr2))/(yr[1]-yr[0])*ch,sz,'rgba(216,90,48,'+(0.25+i*.18)+')');
+  });
+  const apx=p.l+(a-xr[0])/(xr[1]-xr[0])*cw,apy=p.t+(yr[1]-fa)/(yr[1]-yr[0])*ch;
+  ctx.strokeStyle=PU;ctx.lineWidth=1;ctx.setLineDash([4,3]);
+  ctx.beginPath();ctx.moveTo(apx,p.t);ctx.lineTo(apx,p.t+ch);ctx.stroke();ctx.setLineDash([]);
+  dot(ctx,apx,apy,7,'#fff',PU,2);
+  ctx.fillStyle=PU;ctx.font='10px ui-monospace';ctx.textAlign='center';ctx.fillText('a='+a.toFixed(1),apx,Math.max(p.t+12,apy-12));
+  const fl=f(a-0.001),fr=f(a+0.001),ex=Math.abs(fl-fr)<0.01;
+  set('ei02a','Approaching a='+hi(a.toFixed(1))+'. Teal from left, orange from right. f(a)='+hi(fa.toFixed(4))+'. Drag Δ left to zoom in.');
+  set('ei02b',ex?hi('Limit EXISTS ✓')+' — left ('+fl.toFixed(4)+') = right ('+fr.toFixed(4)+'). Continuous here.':co('Sides disagree')+'— limit may not exist. Discontinuity = undefined derivative = training breaks here.');
+}
+
+// ── 03 Derivative ────────────────────────────────────────────────────
+let t03=true,d03=true;
+const DF03={
+  x2:{f:x=>x*x,df:x=>2*x},x3:{f:x=>x**3,df:x=>3*x**2},sin:{f:x=>Math.sin(x),df:x=>Math.cos(x)},
+  relu:{f:x=>Math.max(0,x),df:x=>x>0?1:x<0?0:NaN},
+  sigmoid:{f:x=>1/(1+Math.exp(-x)),df:x=>{const s=1/(1+Math.exp(-x));return s*(1-s);}},
+  loss:{f:x=>(x-1)**2,df:x=>2*(x-1)}
+};
+function D03(){
+  const key=document.getElementById('fn03').value,fn=DF03[key];
+  const xv=parseFloat(document.getElementById('x03').value);
+  document.getElementById('xv03').textContent=xv.toFixed(2);
+  const r=C('cv03',230);if(!r)return;
+  const{ctx,W,H}=r,p={l:38,r:12,t:16,b:22};
+  const xr=[-5,5],yr=[-3.5,4.5];const{cw,ch}=axes(ctx,W,H,p,xr,yr);
+  crv(ctx,fn.f,p,cw,ch,xr,yr,BL,2.5);
+  if(d03)crv(ctx,fn.df,p,cw,ch,xr,yr,TL,2,0.8);
+  const fv=fn.f(xv),dfv=fn.df(xv);
+  if(t03&&isFinite(dfv)){
+    const tlen=1.8,tx=x=>p.l+(x-xr[0])/(xr[1]-xr[0])*cw,ty=y=>p.t+(yr[1]-y)/(yr[1]-yr[0])*ch;
+    ctx.save();ctx.setLineDash([5,3]);ctx.strokeStyle=AM;ctx.lineWidth=2;
+    ctx.beginPath();ctx.moveTo(tx(xv-tlen),ty(fv-dfv*tlen));ctx.lineTo(tx(xv+tlen),ty(fv+dfv*tlen));
+    ctx.stroke();ctx.restore();
+  }
+  if(isFinite(fv))dot(ctx,p.l+(xv-xr[0])/(xr[1]-xr[0])*cw,p.t+(yr[1]-fv)/(yr[1]-yr[0])*ch,5,CO);
+  ctx.fillStyle=BL;ctx.font='10px ui-monospace';ctx.textAlign='left';ctx.fillText('f(x)',p.l+4,18);
+  if(d03){ctx.fillStyle=TL;ctx.fillText("f′(x)",p.l+32,18);}
+  const s=isFinite(dfv)?dfv:NaN;
+  const sd=!isFinite(s)?co('undefined (subgradient=0 used)'):Math.abs(s)<0.05?hi(s.toFixed(3)+' ≈ 0 — CRITICAL POINT! Converged.'):hi(s.toFixed(3))+' — '+(Math.abs(s)<0.5?'gentle':Math.abs(s)<2?'moderate':'steep')+' '+(s>0?'rise':'fall');
+  set('ei03a','f('+xv.toFixed(2)+')='+hi(isFinite(fv)?fv.toFixed(3):'?')+'. Slope='+sd);
+  set('ei03b',!isFinite(s)?'Subgradient=0 used in PyTorch.':Math.abs(s)<0.05?hi('w − α×0 = w. Converged — no update.'):
+    'w ← w − 0.01×('+s.toFixed(3)+') = w '+(s>0?'−':'+')+Math.abs(0.01*s).toFixed(5)+'. Weight '+(s>0?'decreases':'increases')+'.');
+}
+
+// ── 05 Higher-order ──────────────────────────────────────────────────
+const HF05={
+  x3:{f:x=>x**3-3*x,df:x=>3*x**2-3,ddf:x=>6*x},sin:{f:x=>Math.sin(x),df:x=>Math.cos(x),ddf:x=>-Math.sin(x)},
+  x4:{f:x=>x**4-4*x**2,df:x=>4*x**3-8*x,ddf:x=>12*x**2-8},bumpy:{f:x=>x**2/2-Math.cos(x),df:x=>x+Math.sin(x),ddf:x=>1+Math.cos(x)}
+};
+function D05(){
+  const key=document.getElementById('fn05').value,fn=HF05[key];
+  const xv=parseFloat(document.getElementById('x05').value);
+  document.getElementById('xv05').textContent=xv.toFixed(2);
+  const r=C('cv05',230);if(!r)return;
+  const{ctx,W,H}=r,p={l:38,r:12,t:16,b:22};
+  const xr=[-4,4],yr=[-4.5,5.5];const{cw,ch}=axes(ctx,W,H,p,xr,yr);
+  crv(ctx,fn.f,p,cw,ch,xr,yr,BL,2.5);crv(ctx,fn.df,p,cw,ch,xr,yr,TL,2);crv(ctx,fn.ddf,p,cw,ch,xr,yr,CO,1.5);
+  dot(ctx,p.l+(xv-xr[0])/(xr[1]-xr[0])*cw,p.t+(yr[1]-fn.f(xv))/(yr[1]-yr[0])*ch,5,PU);
+  ctx.fillStyle=BL;ctx.font='10px ui-monospace';ctx.textAlign='left';ctx.fillText('f',p.l+4,18);
+  ctx.fillStyle=TL;ctx.fillText("f′",p.l+18,18);ctx.fillStyle=CO;ctx.fillText("f″",p.l+36,18);
+  const fv=fn.f(xv),dfv=fn.df(xv),ddfv=fn.ddf(xv),isCrit=Math.abs(dfv)<0.15;
+  set('ei05a','f='+hi(fv.toFixed(3))+', f′='+hi(dfv.toFixed(3))+', f″='+hi(ddfv.toFixed(3))+'.'+(isCrit?' '+hi('f′≈0 — CRITICAL POINT!')+' f″='+ddfv.toFixed(2)+' →'+(ddfv>0?hi(' MIN ✓'):ddfv<0?co(' MAX ✗'):' inconclusive'):''));
+  set('ei05b',(ddfv>0.1?hi('Concave UP ∪ (bowl)'):ddfv<-0.1?co('Concave DOWN ∩ (hill)'):'Inflection point (curvature changing sign)')+'. '+(ddfv>0?'Gradient descent converges here.':'Gradient descent diverges away.'));
+}
+
+// ── 06 Partial derivatives ───────────────────────────────────────────
+const PDF06={
+  bowl:{f:(x,y)=>x*x+y*y,gx:(x,y)=>2*x,gy:(x,y)=>2*y},
+  saddle:{f:(x,y)=>x*x-y*y,gx:(x,y)=>2*x,gy:(x,y)=>-2*y},
+  narrow:{f:(x,y)=>0.1*x*x+5*y*y,gx:(x,y)=>0.2*x,gy:(x,y)=>10*y},
+  sin2:{f:(x,y)=>Math.sin(x)*Math.cos(y),gx:(x,y)=>Math.cos(x)*Math.cos(y),gy:(x,y)=>-Math.sin(x)*Math.sin(y)}
+};
+function D06(){
+  const key=document.getElementById('fn06').value,fn=PDF06[key];
+  const gx=parseFloat(document.getElementById('x06').value),gy=parseFloat(document.getElementById('y06').value);
+  document.getElementById('xv06').textContent=gx.toFixed(1);document.getElementById('yv06').textContent=gy.toFixed(1);
+  const r=C('cv06',240);if(!r)return;
+  const{ctx,W,H}=r,p={l:14,r:14,t:14,b:22};
+  const sz=Math.min(W-p.l-p.r,H-p.t-p.b);
+  hmap(ctx,fn.f,p,sz,44);ctx.strokeStyle='rgba(255,255,255,0.08)';ctx.lineWidth=0.5;ctx.strokeRect(p.l,p.t,sz,sz);
+  const cpx=p.l+(gx+3)/6*sz,cpy=p.t+(3-gy)/6*sz;
+  const gxv=fn.gx(gx,gy),gyv=fn.gy(gx,gy),glen=Math.hypot(gxv,gyv)||0.001,sc=sz/6*0.45;
+  arw(ctx,cpx,cpy,cpx+gxv/glen*sc,cpy-gyv/glen*sc,TL,2.5,8);
+  dot(ctx,cpx,cpy,7,'#fff',CO,2);
+  const fv=fn.f(gx,gy),isMin=Math.hypot(gxv,gyv)<0.1;
+  set('ei06a',isMin?hi('AT MINIMUM: ∂f/∂x=0 AND ∂f/∂y=0'):'f='+hi(fv.toFixed(3))+'. ∂f/∂x='+hi(gxv.toFixed(3))+', ∂f/∂y='+hi(gyv.toFixed(3)));
+  set('ei06b',isMin?'Gradient=[0,0]. Training converges here.':key==='narrow'&&Math.abs(gyv)>Math.abs(gxv)*3?co('y-gradient >>x → severe zigzag! Adam adapts per-dimension step sizes to fix.'):key==='saddle'&&Math.abs(gx)<0.2&&Math.abs(gy)<0.2?co('Near saddle: gradient=0 but NOT a minimum! Curvature is mixed.'):'Green arrow = gradient direction. Step in −∇f to descend.');
+}
+
+// ── 07 Gradient ──────────────────────────────────────────────────────
+const GFF07={
+  bowl:{f:(x,y)=>x*x+2*y*y,gx:(x,y)=>2*x,gy:(x,y)=>4*y},
+  narrow:{f:(x,y)=>0.1*x*x+5*y*y,gx:(x,y)=>0.2*x,gy:(x,y)=>10*y},
+  banana:{f:(x,y)=>(1-x)**2+10*(y-x*x)**2,gx:(x,y)=>-2*(1-x)-40*x*(y-x*x),gy:(x,y)=>20*(y-x*x)}
+};
+function D07(){
+  const key=document.getElementById('fn07').value,fn=GFF07[key];
+  const gx=parseFloat(document.getElementById('x07').value),gy=parseFloat(document.getElementById('y07').value);
+  document.getElementById('xv07').textContent=gx.toFixed(1);document.getElementById('yv07').textContent=gy.toFixed(1);
+  const r=C('cv07',240);if(!r)return;
+  const{ctx,W,H}=r,p={l:38,r:12,t:14,b:22};
+  const xr=[-3,3],yr=[-3,3];const{cw,ch}=axes(ctx,W,H,p,xr,yr);
+  for(let ix=-2.8;ix<=2.8;ix+=0.65)for(let iy=-2.8;iy<=2.8;iy+=0.65){
+    const gxv=fn.gx(ix,iy),gyv=fn.gy(ix,iy),glen=Math.hypot(gxv,gyv)||0.001;
+    const a=Math.min(0.5,Math.sqrt(gxv*gxv+gyv*gyv)/8+0.07),sc=0.28;
+    const sx=p.l+(ix-xr[0])/(xr[1]-xr[0])*cw,sy=p.t+(yr[1]-iy)/(yr[1]-yr[0])*ch;
+    ctx.strokeStyle='rgba(186,117,23,'+a+')';ctx.lineWidth=0.8;
+    ctx.beginPath();ctx.moveTo(sx,sy);ctx.lineTo(p.l+(ix+gxv/glen*sc-xr[0])/(xr[1]-xr[0])*cw,p.t+(yr[1]-iy-gyv/glen*sc)/(yr[1]-yr[0])*ch);ctx.stroke();
+  }
+  const cpx=p.l+(gx-xr[0])/(xr[1]-xr[0])*cw,cpy=p.t+(yr[1]-gy)/(yr[1]-yr[0])*ch;
+  const gxv=fn.gx(gx,gy),gyv=fn.gy(gx,gy),glen=Math.hypot(gxv,gyv)||0.001,sc=0.5;
+  arw(ctx,cpx,cpy,cpx+gxv/glen*sc*cw/6,cpy-gyv/glen*sc*ch/6,CO,2.5,8);
+  arw(ctx,cpx,cpy,cpx-gxv/glen*sc*cw/6,cpy+gyv/glen*sc*ch/6,TL,2.5,8);
+  dot(ctx,cpx,cpy,8,BL,'#fff',2);
+  const lv=fn.f(gx,gy),isMin=glen<0.1;
+  set('ei07a',isMin?hi('AT MINIMUM: ∇L=[0,0]. Training converged!'):'Loss='+hi(lv.toFixed(3))+'. ∇L=['+hi(gxv.toFixed(2))+','+hi(gyv.toFixed(2))+'] (red=uphill). −∇L=['+hi((-gxv).toFixed(2))+','+hi((-gyv).toFixed(2))+'] (green=step).');
+  const nx=gx-0.1*gxv,ny=gy-0.1*gyv,nl=fn.f(nx,ny);
+  set('ei07b','New pos: ('+hi(nx.toFixed(3))+','+hi(ny.toFixed(3))+'). Loss='+hi(nl.toFixed(4))+' (was '+lv.toFixed(4)+'). '+(nl<lv?hi('Loss decreased ✓'):co('Loss increased — α too large!')));
+}
+
+// ── 08 Chain Rule stepper ────────────────────────────────────────────
+const CRS08=[
+  'We want to differentiate <strong>f(x)=sin(x²)</strong>. It\'s a composition: sin applied to x². Cannot just write "cos(x²)" — the inner function x² requires the chain rule.',
+  'Identify layers: <span class="hi">outer g(u)=sin(u)</span> and <span class="bl2">inner u=h(x)=x²</span>.<br>Chain rule: df/dx = dg/du × du/dx.',
+  'Differentiate <span class="hi">outer g(u)=sin(u)</span> w.r.t. u: dg/du = <span class="hi">cos(u) = cos(x²)</span>.',
+  'Differentiate <span class="bl2">inner h(x)=x²</span> w.r.t. x: dh/dx = <span class="bl2">2x</span>. Correction factor from inner function.',
+  '<strong>Multiply: f′(x) = <span class="hi">cos(x²)</span> × <span class="bl2">2x</span> = 2x·cos(x²)</strong><br>Verify at x=1: 2(1)cos(1)=1.080 ✓',
+  '<strong>In a neural net:</strong> ∂L/∂W = ∂L/∂ŷ × ∂ŷ/∂z × ∂z/∂W = dL × σ′(z) × x<br><span class="hi">Each layer multiplies by one more chain term. This IS backpropagation.</span>',
+  '<strong>Vanishing gradient via chain rule:</strong><br>Sigmoid: σ′≤0.25. 10 layers: 0.25¹⁰≈10⁻⁶<br>'+co('Layer 1 gets gradient ≈ 0 — cannot learn!')+' ReLU: derivative=1 → no vanishing.'
+];
+let crSt=0;
+function setCR(i){
+  crSt=i;document.querySelectorAll('#cr08t .stab').forEach((t,j)=>t.classList.toggle('on',j===i));
+  document.getElementById('cr08c').innerHTML=CRS08[i];drawCR08();
+}
+function drawCR08(){
+  const r=C('cv08',145);if(!r)return;
+  const{ctx,W,H}=r,p={l:36,r:12,t:12,b:18};
+  const xr=[-3,3],yr=[-2,2];const{cw,ch}=axes(ctx,W,H,p,xr,yr);
+  crv(ctx,x=>Math.sin(x*x),p,cw,ch,xr,yr,TL,2.5);
+  if(crSt>=4)crv(ctx,x=>2*x*Math.cos(x*x),p,cw,ch,xr,yr,CO,2);
+  ctx.fillStyle=TL;ctx.font='10px ui-monospace';ctx.textAlign='left';ctx.fillText('f=sin(x²)',p.l+4,16);
+  if(crSt>=4){ctx.fillStyle=CO;ctx.fillText("f′=2x·cos(x²)",p.l+75,16);}
+}
+setCR(0);
+
+// ── 11 Riemann Sums ──────────────────────────────────────────────────
+let rsM11='l';
+const RF11={x2:{f:x=>x*x,ex:(a,b)=>b**3/3},sin:{f:x=>Math.sin(x),ex:(a,b)=>-Math.cos(b)+Math.cos(a)},exp:{f:x=>Math.exp(x)/3,ex:(a,b)=>(Math.exp(b)-Math.exp(a))/3}};
+function setRS11(m){rsM11=m;['rs11l','rs11r','rs11m'].forEach(id=>{const e=document.getElementById(id);if(e)e.classList.remove('on')});const e=document.getElementById('rs11'+m);if(e)e.classList.add('on');D11();}
+function D11(){
+  const key=document.getElementById('fn11').value,fd=RF11[key];
+  const n=parseInt(document.getElementById('n11').value)||6,b=parseFloat(document.getElementById('b11').value)||3;
+  document.getElementById('nv11').textContent=n;document.getElementById('bv11').textContent=b.toFixed(1);
+  const dw=b/n;let approx=0,rects=[];
+  for(let i=0;i<n;i++){const xrep=rsM11==='l'?i*dw:rsM11==='r'?(i+1)*dw:(i+0.5)*dw;approx+=fd.f(xrep)*dw;rects.push({x:i*dw,y:fd.f(xrep),w:dw});}
+  const ex=fd.ex(0,b),err=Math.abs(ex)>0.001?Math.abs((approx-ex)/ex*100):0;
+  const r=C('cv11',215);if(!r)return;
+  const{ctx,W,H}=r,p={l:38,r:12,t:12,b:22};
+  const xr=[-0.3,4.6],yr=[-0.3,5];const{cw,ch}=axes(ctx,W,H,p,xr,yr);
+  rects.forEach(({x,y,w:rw})=>{if(Math.abs(y)<200){
+    const rx=p.l+(x-xr[0])/(xr[1]-xr[0])*cw,ry0=p.t+(yr[1]-0)/(yr[1]-yr[0])*ch;
+    const ry=p.t+(yr[1]-Math.max(0,y))/(yr[1]-yr[0])*ch,pw=rw*cw/(xr[1]-xr[0]);
+    ctx.fillStyle=TL+'55';ctx.fillRect(rx,ry,pw,Math.abs(ry0-ry));
+    ctx.strokeStyle=TL;ctx.lineWidth=0.7;ctx.strokeRect(rx,ry,pw,Math.abs(ry0-ry));
+  }});
+  crv(ctx,fd.f,p,cw,ch,xr,yr,CO,2.5);
+  set('ei11a',hi(n)+' rectangles, Δx='+(b/n).toFixed(3)+'. Sum='+hi(approx.toFixed(4))+'. Exact='+hi(ex.toFixed(4))+'.');
+  set('ei11b','Error='+(err<1?hi(err.toFixed(2)+'%'):err<5?'<span class="am2">'+err.toFixed(2)+'%</span>':co(err.toFixed(2)+'%'))+'. batch_size analogy: n='+n+'. '+(n<=8?co('Small — noisy gradient'):n>=64?hi('Large — accurate gradient'):'Typical mini-batch'));
+}
+
+// ── 13 Critical Points ───────────────────────────────────────────────
+const CPF13={
+  cubic:{f:x=>x**3-3*x,df:x=>3*x**2-3,ddf:x=>6*x,roots:[-1,1]},
+  quartic:{f:x=>x**4-4*x**2,df:x=>4*x**3-8*x,ddf:x=>12*x**2-8,roots:[-Math.sqrt(2),0,Math.sqrt(2)]},
+  double:{f:x=>(x**2-1)**2,df:x=>4*x*(x**2-1),ddf:x=>12*x**2-4,roots:[-1,0,1]},
+  tricky:{f:x=>x*Math.sin(x),df:x=>Math.sin(x)+x*Math.cos(x),ddf:x=>2*Math.cos(x)-x*Math.sin(x),roots:[]}
+};
+function D13(){
+  const key=document.getElementById('fn13').value,fn=CPF13[key];
+  const xv=parseFloat(document.getElementById('x13').value);
+  document.getElementById('xv13').textContent=xv.toFixed(2);
+  const r=C('cv13',220);if(!r)return;
+  const{ctx,W,H}=r,p={l:38,r:12,t:14,b:22};
+  const xr=[-3.8,3.8],yr=[-3.5,5];const{cw,ch}=axes(ctx,W,H,p,xr,yr);
+  crv(ctx,fn.f,p,cw,ch,xr,yr,BL,2.5);crv(ctx,fn.df,p,cw,ch,xr,yr,TL,1.5,0.6);
+  fn.roots.forEach(rv=>{const d2=fn.ddf(rv),col=d2>0.1?TL:d2<-0.1?CO:AM;
+    dot(ctx,p.l+(rv-xr[0])/(xr[1]-xr[0])*cw,p.t+(yr[1]-fn.f(rv))/(yr[1]-yr[0])*ch,7,col,'#fff',2);});
+  dot(ctx,p.l+(xv-xr[0])/(xr[1]-xr[0])*cw,p.t+(yr[1]-fn.f(xv))/(yr[1]-yr[0])*ch,4,PU);
+  const fv=fn.f(xv),dfv=fn.df(xv),ddfv=fn.ddf(xv),isCrit=Math.abs(dfv)<0.2;
+  set('ei13a','f='+hi(fv.toFixed(3))+', f′='+hi(dfv.toFixed(3))+'.'+(isCrit?' '+hi('f′≈0 — CRITICAL POINT!'):''));
+  set('ei13b',isCrit?'f″='+hi(ddfv.toFixed(3))+' → '+(ddfv>0.1?hi('LOCAL MIN ✓'):ddfv<-0.1?co('LOCAL MAX ✗'):'<span class="am2">SADDLE</span>'):'Drag toward a colored dot to find a critical point.');
+}
+
+// ── 14 Gradient Descent (animated) ───────────────────────────────────
+const GDF14={bowl:{f:x=>x*x,df:x=>2*x},bumpy:{f:x=>x**2/4+Math.sin(2*x),df:x=>x/2+2*Math.cos(2*x)},asym:{f:x=>0.5*x**2-2*x+3,df:x=>x-2},double:{f:x=>(x**2-4)**2,df:x=>4*x*(x**2-4)}};
+let GD14={pos:3.5,path:[],run:false,anim:null,lr:0.2};
+function gdUpd14(){GD14.lr=parseFloat(document.getElementById('lr14').value)||0.2;document.getElementById('lrv14').textContent=GD14.lr.toFixed(2);}
+function gdReset14(){
+  const x0=parseFloat(document.getElementById('x014').value)||3.5;
+  document.getElementById('x0v14').textContent=x0.toFixed(1);
+  GD14.pos=x0;GD14.path=[x0];GD14.run=false;cancelAnimationFrame(GD14.anim);
+  document.getElementById('gd14play').textContent='▶ Play';document.getElementById('gd14st').textContent='Ready';
+  document.getElementById('gd14sn').textContent='0';
+  const fn=GDF14[document.getElementById('fn14').value];
+  document.getElementById('gd14lv').textContent=fn.f(x0).toFixed(4);
+  set('ei14a','Press Play or Step.');set('ei14b','Adjust α and observe.');drawGD14();
+}
+function gdToggle14(){GD14.run=!GD14.run;document.getElementById('gd14play').textContent=GD14.run?'⏸ Pause':'▶ Play';if(GD14.run)gdGo14();}
+function gdStep14(){gdCalc14(true);}
+function gdGo14(){if(!GD14.run)return;gdCalc14(false);}
+function gdCalc14(once){
+  const fn=GDF14[document.getElementById('fn14').value];
+  const g=fn.df(GD14.pos),step=GD14.lr*g,xnew=GD14.pos-step,lnew=fn.f(xnew);
+  GD14.pos=xnew;GD14.path.push(xnew);
+  document.getElementById('gd14sn').textContent=GD14.path.length-1;
+  document.getElementById('gd14lv').textContent=lnew.toFixed(4);
+  set('ei14a','Step '+(GD14.path.length-1)+': grad='+hi(g.toFixed(4))+', step='+hi(step.toFixed(4))+'. Loss: '+hi(lnew.toFixed(4)));
+  const d=GD14.lr>1.2?co('Too large — diverging!'):GD14.lr>0.6?'<span class="am2">Large — may oscillate</span>':GD14.lr<0.05?co('Very small — very slow'):hi('Good — steady convergence');
+  set('ei14b','α='+GD14.lr.toFixed(2)+' → '+d);
+  if(Math.abs(xnew)>15||!isFinite(lnew)){
+    GD14.run=false;cancelAnimationFrame(GD14.anim);document.getElementById('gd14play').textContent='▶ Play';document.getElementById('gd14st').textContent='Diverged!';
+    set('ei14a',co('DIVERGED! Reduce α and reset.'));drawGD14();return;
+  }
+  if(Math.abs(g)<1e-5||GD14.path.length>600){
+    GD14.run=false;cancelAnimationFrame(GD14.anim);document.getElementById('gd14play').textContent='▶ Play';document.getElementById('gd14st').textContent='Converged!';
+    set('ei14a',hi('Converged! x='+xnew.toFixed(4)+', L='+lnew.toFixed(6)+' in '+(GD14.path.length-1)+' steps.'));drawGD14();return;
+  }
+  document.getElementById('gd14st').textContent='Step '+(GD14.path.length-1);drawGD14();
+  if(!once)GD14.anim=requestAnimationFrame(gdGo14);
+}
+function drawGD14(){
+  const fn=GDF14[document.getElementById('fn14').value];
+  const r=C('cv14',210);if(!r)return;
+  const{ctx,W,H}=r,p={l:38,r:12,t:14,b:22};
+  const xr=[-5,5],yr=[-1,12];const{cw,ch}=axes(ctx,W,H,p,xr,yr);
+  crv(ctx,fn.f,p,cw,ch,xr,yr,TL,2.5);
+  if(GD14.path.length>1){
+    ctx.save();ctx.strokeStyle=PU;ctx.lineWidth=1.5;ctx.beginPath();
+    GD14.path.slice(-50).forEach((x,i)=>{const y=fn.f(x);if(Math.abs(y)>12)return;const px=p.l+(x-xr[0])/(xr[1]-xr[0])*cw,py=p.t+(yr[1]-y)/(yr[1]-yr[0])*ch;i?ctx.lineTo(px,py):ctx.moveTo(px,py);});
+    ctx.stroke();ctx.restore();
+    const x0=GD14.path[0],y0=fn.f(x0);if(Math.abs(y0)<12&&Math.abs(x0)<5.5)dot(ctx,p.l+(x0-xr[0])/(xr[1]-xr[0])*cw,p.t+(yr[1]-y0)/(yr[1]-yr[0])*ch,5,AM);
+  }
+  const fv=fn.f(GD14.pos);if(Math.abs(fv)<12&&Math.abs(GD14.pos)<5.5)dot(ctx,p.l+(GD14.pos-xr[0])/(xr[1]-xr[0])*cw,p.t+(yr[1]-fv)/(yr[1]-yr[0])*ch,8,CO,'#fff',2);
+}
+gdReset14();
+
+// ── 15 Saddle Points ─────────────────────────────────────────────────
+function D15(){
+  const r=C('cv15',225);if(!r)return;
+  const{ctx,W,H}=r,p={l:14,r:14,t:14,b:22};
+  const sz=Math.min(W-p.l-p.r,H-p.t-p.b);
+  hmap(ctx,(x,y)=>x*x-y*y,p,sz,52);
+  ctx.strokeStyle='rgba(255,255,255,0.08)';ctx.lineWidth=0.5;ctx.strokeRect(p.l,p.t,sz,sz);
+  const ox=p.l+sz/2,oy=p.t+sz/2;
+  arw(ctx,ox,oy,ox+65,oy,TL,2.5,9);arw(ctx,ox,oy,ox-65,oy,TL,2.5,9);
+  arw(ctx,ox,oy,ox,oy-65,CO,2.5,9);arw(ctx,ox,oy,ox,oy+65,CO,2.5,9);
+  dot(ctx,ox,oy,10,'#fff',PU,2.5);
+  ctx.fillStyle=TL;ctx.font='10px ui-monospace';ctx.textAlign='center';ctx.fillText('∂²f/∂x²=+2 (bowl)',ox+78,oy-3);
+  ctx.fillStyle=CO;ctx.fillText('∂²f/∂y²=−2 (hill)',ox,oy-72);
+  ctx.fillStyle=PU;ctx.fillText('saddle (0,0)',ox,oy-14);
+}
+
+// ── 17 Exp & Log ─────────────────────────────────────────────────────
+function D17(){
+  const xv=parseFloat(document.getElementById('x17').value);
+  document.getElementById('xv17').textContent=xv.toFixed(1);
+  const exv=Math.exp(xv);
+  const r=C('cv17',210);if(!r)return;
+  const{ctx,W,H}=r,p={l:38,r:12,t:14,b:22};
+  const xr=[-3,3],yr=[-2,8];const{cw,ch}=axes(ctx,W,H,p,xr,yr);
+  crv(ctx,x=>Math.exp(x),p,cw,ch,xr,yr,TL,2.5);
+  crv(ctx,x=>Math.log(Math.max(x,0.001)),p,cw,ch,xr,yr,CO,2);
+  const tlen=1,tx=x=>p.l+(x-xr[0])/(xr[1]-xr[0])*cw,ty=y=>p.t+(yr[1]-y)/(yr[1]-yr[0])*ch;
+  ctx.save();ctx.setLineDash([4,3]);ctx.strokeStyle=AM;ctx.lineWidth=1.5;
+  ctx.beginPath();ctx.moveTo(tx(xv-tlen),ty(exv-exv*tlen));ctx.lineTo(tx(xv+tlen),ty(exv+exv*tlen));ctx.stroke();ctx.restore();
+  dot(ctx,tx(xv),ty(exv),5,BL);
+  ctx.fillStyle=TL;ctx.font='10px ui-monospace';ctx.textAlign='left';ctx.fillText('eˣ',p.l+4,18);
+  ctx.fillStyle=CO;ctx.fillText('ln(x)',p.l+22,18);
+  set('ei17a','At x='+hi(xv.toFixed(1))+': eˣ='+hi(exv.toFixed(4))+'. Tangent slope='+hi(exv.toFixed(4))+' — exactly the same! d/dx[eˣ]=eˣ everywhere. Unique in mathematics.');
+  const lv=xv>0.001?Math.log(xv):-99;
+  set('ei17b',lv<-5?'ln(x) undefined for x≤0. Apply softmax first to get valid probabilities before log.':'ln('+xv.toFixed(1)+')='+hi(lv.toFixed(4))+'. KEY: log(P₁×P₂×…)=Σlog(Pᵢ) — product→sum avoids numerical underflow for tiny probabilities.');
+}
+
+// ── 18 Taylor Series ─────────────────────────────────────────────────
+const TSF18={
+  sin:{f:x=>Math.sin(x),T:(x,n)=>{let s=0;for(let k=0;k<n;k++){const p2=2*k+1,c=k%2?-1:1;let f=1;for(let j=1;j<=p2;j++)f*=j;s+=c*x**p2/f;}return s;},nm:['x','x−x³/6','…+x⁵/120','…−x⁷/5040']},
+  cos:{f:x=>Math.cos(x),T:(x,n)=>{let s=0;for(let k=0;k<n;k++){const p2=2*k,c=k%2?-1:1;let f=1;for(let j=1;j<=p2;j++)f*=j;s+=c*x**p2/(f||1);}return s;},nm:['1','1−x²/2','…+x⁴/24','…−x⁶/720']},
+  exp:{f:x=>Math.exp(x),T:(x,n)=>{let s=0,f=1;for(let k=0;k<n;k++){if(k>0)f*=k;s+=x**k/f;}return s;},nm:['1','1+x','1+x+x²/2','…+x³/6']},
+  log:{f:x=>Math.log(1+x),T:(x,n)=>{let s=0;for(let k=1;k<n;k++)s+=Math.pow(-1,k+1)*x**k/k;return s;},nm:['x','x−x²/2','…+x³/3','…−x⁴/4']}
+};
+function D18(){
+  const key=document.getElementById('fn18').value,fd=TSF18[key];
+  const n=parseInt(document.getElementById('n18').value)||2;
+  document.getElementById('nv18').textContent=n;
+  const r=C('cv18',220);if(!r)return;
+  const{ctx,W,H}=r,p={l:38,r:12,t:14,b:22};
+  const xr=[-4.5,4.5],yr=[-3,4];const{cw,ch}=axes(ctx,W,H,p,xr,yr);
+  crv(ctx,fd.f,p,cw,ch,xr,yr,TL,2.5);
+  crv(ctx,x=>{try{const v=fd.T(x,n);return Math.abs(v)>50?NaN:v;}catch(e){return NaN;}},p,cw,ch,xr,yr,CO,2);
+  ctx.save();ctx.setLineDash([3,3]);ctx.strokeStyle=AM;ctx.lineWidth=1;
+  const ox=p.l+(4.5)/(9)*cw;ctx.beginPath();ctx.moveTo(ox,p.t);ctx.lineTo(ox,p.t+ch);ctx.stroke();ctx.restore();
+  ctx.fillStyle=TL;ctx.font='10px ui-monospace';ctx.textAlign='left';ctx.fillText('exact',p.l+4,18);ctx.fillStyle=CO;ctx.fillText('Taylor n='+n,p.l+42,18);
+  const fm=fd.nm[Math.min(n-1,fd.nm.length-1)]||'...';
+  const e2=Math.abs(fd.f(2)-fd.T(2,n));
+  set('ei18a',key+' ≈ '+hi(fm)+'. Built from only f(0), f′(0), f″(0)… at x=0.');
+  set('ei18b','Error at x=2: '+(e2<0.01?hi(e2.toFixed(5)+' — very accurate'):e2<0.5?'<span class="am2">'+e2.toFixed(3)+'</span>':co(e2.toFixed(2)+' — inaccurate far from 0'))+'. '+(n<=2?hi('n=2 = Adam\'s approximation — quadratic = curvature correction!'):''));
+}
+
+// ── 19 Backpropagation stepper ───────────────────────────────────────
+const BPS19=[
+  {t:'Setup',b:'Network: ŷ=σ(wx+b). Values: x=2.0, w=0.5, b=0.1, true y=1.0, α=0.1. Goal: compute ∂L/∂w and ∂L/∂b.'},
+  {t:'Forward pass',b:'z = wx+b = 0.5×2+0.1 = <strong>1.1</strong><br>ŷ = σ(1.1) = 1/(1+e⁻¹·¹) = <strong>0.7503</strong><br>Store z=1.1 for backward pass.'},
+  {t:'Loss',b:'L = (ŷ−y)² = (0.7503−1.0)² = <strong>0.0624</strong><br>This one number drives ALL gradient computation.'},
+  {t:'∂L/∂ŷ',b:'∂L/∂ŷ = 2(ŷ−y) = 2(0.7503−1.0) = <strong>−0.4994</strong><br>Negative → ŷ must increase. Chain starts here.'},
+  {t:'Through σ',b:'∂L/∂z = ∂L/∂ŷ × σ′(z) = −0.4994 × σ(1.1)(1−σ(1.1))<br>σ′(1.1) = 0.7503×0.2497 = 0.1874<br>∂L/∂z = −0.4994×0.1874 = <strong>−0.0936</strong>'},
+  {t:'∂L/∂w, ∂L/∂b',b:'∂L/∂w = ∂L/∂z × x = −0.0936×2.0 = <strong>−0.1872</strong>  ← stored in w.grad<br>∂L/∂b = ∂L/∂z × 1 = <strong>−0.0936</strong>  ← stored in b.grad'},
+  {t:'Weight update',b:'w_new = 0.5 − 0.1×(−0.1872) = <strong>0.5187</strong><br>b_new = 0.1 − 0.1×(−0.0936) = <strong>0.1094</strong><br>New ŷ = σ(0.5187×2+0.1094) = <strong>0.759</strong> — closer to 1.0 ✓'}
+];
+let bpSt=0;
+function setBP(i){
+  bpSt=i;document.querySelectorAll('#bp19t .stab').forEach((t,j)=>t.classList.toggle('on',j===i));
+  const s=BPS19[i],nodes=['x=2','z=1.1','ŷ=0.750','L=0.062'];
+  const e3=i>=3?'<span style="padding:5px 9px;border-radius:6px;background:rgba(216,90,48,.15);border:1px solid '+CO+';font-family:ui-monospace;font-size:10px;color:'+CO+'">∂L/∂ŷ=−0.499</span>':'';
+  const e4=i>=4?'<span style="padding:5px 9px;border-radius:6px;background:rgba(216,90,48,.15);border:1px solid '+CO+';font-family:ui-monospace;font-size:10px;color:'+CO+'">∂L/∂z=−0.094</span>':'';
+  const e5=i>=5?'<span style="padding:5px 9px;border-radius:6px;background:rgba(186,117,23,.15);border:1px solid '+AM+';font-family:ui-monospace;font-size:10px;color:'+AM+'">∂L/∂w=−0.187<br>∂L/∂b=−0.094</span>':'';
+  const e6=i>=6?'<span style="padding:5px 9px;border-radius:6px;background:rgba(29,158,117,.15);border:1px solid '+TL+';font-family:ui-monospace;font-size:10px;color:'+TL+'">w:0.5→0.519 ✓<br>b:0.1→0.109 ✓</span>':'';
+  document.getElementById('bp19v').innerHTML='<div style="background:var(--s2);border-radius:8px;padding:11px;margin-bottom:10px"><div style="font-size:11px;font-weight:700;color:var(--tl);margin-bottom:9px">Step '+i+': '+s.t+'</div><div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:11px">'
+    +nodes.map((n,j)=>'<span style="padding:6px 10px;border-radius:6px;background:var(--bg);border:'+(i>j?'1px solid var(--tl)':'1px solid var(--bdr)')+';font-family:ui-monospace;font-size:10px;color:'+(i>j?'var(--tld)':'var(--tx2)')+'">'+n+'</span>'+(j<3?'<span style="color:var(--tx3)">→</span>':'')).join('')
+    +e3+e4+e5+e6+'</div><div style="font-size:12.5px;color:var(--tx2);line-height:1.75">'+s.b+'</div></div>';
+}
+setBP(0);
+
+// ── 20 Loss Landscapes ───────────────────────────────────────────────
+const LSF20={
+  bowl:{f:(x,y)=>x*x+1.5*y*y,gx:(x,y)=>2*x,gy:(x,y)=>3*y,desc:'Smooth convex bowl — any starting position converges to the same single minimum.'},
+  narrow:{f:(x,y)=>0.1*x*x+5*y*y,gx:(x,y)=>0.2*x,gy:(x,y)=>10*y,desc:'Narrow canyon — y-gradient 50× larger than x. Descent zigzags across the valley. Adam fixes this with per-dimension step sizes.'},
+  banana:{f:(x,y)=>(1-x)**2+10*(y-x*x)**2,gx:(x,y)=>-2*(1-x)-40*x*(y-x*x),gy:(x,y)=>20*(y-x*x),desc:'Rosenbrock banana — curved narrow valley. Gradient always perpendicular to valley floor → very indirect path.'},
+  multi:{f:(x,y)=>Math.sin(2*x)*Math.cos(2*y)*2+0.15*(x*x+y*y),gx:(x,y)=>4*Math.cos(2*x)*Math.cos(2*y)+0.3*x,gy:(x,y)=>-4*Math.sin(2*x)*Math.sin(2*y)+0.3*y,desc:'Multiple local minima — different starting positions land in different minima. Shows why initialization matters.'}
+};
+let LS20={p:{x:2.1,y:1.9},path:[],run:false,anim:null,lr:0.08};
+function lsUpd20(){LS20.lr=parseFloat(document.getElementById('lr20').value)||0.08;document.getElementById('lrv20').textContent=LS20.lr.toFixed(3);}
+function lsReset20(){
+  LS20.p={x:2.1+Math.random()*.3-.15,y:1.9+Math.random()*.3-.15};
+  LS20.path=[{...LS20.p}];LS20.run=false;cancelAnimationFrame(LS20.anim);
+  document.getElementById('ls20play').textContent='▶ Play';document.getElementById('ls20st').textContent='Ready';
+  document.getElementById('ls20sn').textContent='0';
+  const fn=LSF20[document.getElementById('fn20').value];
+  document.getElementById('ls20lv').textContent=fn.f(LS20.p.x,LS20.p.y).toFixed(3);
+  set('ei20a',fn.desc);set('ei20b','Press Play to run gradient descent.');drawLS20();
+}
+function lsToggle20(){LS20.run=!LS20.run;document.getElementById('ls20play').textContent=LS20.run?'⏸ Pause':'▶ Play';if(LS20.run)lsGo20();}
+function lsGo20(){
+  if(!LS20.run)return;
+  const fn=LSF20[document.getElementById('fn20').value];
+  const gx=fn.gx(LS20.p.x,LS20.p.y),gy=fn.gy(LS20.p.x,LS20.p.y);
+  LS20.p.x-=LS20.lr*gx;LS20.p.y-=LS20.lr*gy;LS20.path.push({...LS20.p});
+  const lv=fn.f(LS20.p.x,LS20.p.y);
+  document.getElementById('ls20sn').textContent=LS20.path.length-1;
+  document.getElementById('ls20lv').textContent=lv.toFixed(4);
+  if(Math.abs(LS20.p.x)>7||!isFinite(lv)){
+    LS20.run=false;cancelAnimationFrame(LS20.anim);document.getElementById('ls20play').textContent='▶ Play';document.getElementById('ls20st').textContent='Diverged!';
+    set('ei20b',co('Diverged! Reduce α and reset.'));drawLS20();return;
+  }
+  if(Math.hypot(gx,gy)<5e-4||LS20.path.length>600){
+    LS20.run=false;cancelAnimationFrame(LS20.anim);document.getElementById('ls20play').textContent='▶ Play';document.getElementById('ls20st').textContent='Converged!';
+    set('ei20b',hi('Converged! Loss='+lv.toFixed(5)+' in '+(LS20.path.length-1)+' steps.'));drawLS20();return;
+  }
+  set('ei20b','Step '+(LS20.path.length-1)+': loss='+hi(lv.toFixed(4))+(Math.hypot(gx,gy)<0.5?' — '+hi('approaching minimum!'):''));
+  document.getElementById('ls20st').textContent='Step '+(LS20.path.length-1);drawLS20();
+  if(LS20.run)LS20.anim=requestAnimationFrame(lsGo20);
+}
+function drawLS20(){
+  const fn=LSF20[document.getElementById('fn20').value];
+  const r=C('cv20',245);if(!r)return;
+  const{ctx,W,H}=r,p={l:14,r:14,t:14,b:22};
+  const cw=W-p.l-p.r,ch=H-p.t-p.b,xr=[-3.5,3.5],yr=[-3.5,3.5],n=56;
+  for(let i=0;i<n;i++)for(let j=0;j<n;j++){
+    const x=xr[0]+(xr[1]-xr[0])*i/n,y=yr[1]-(yr[1]-yr[0])*j/n,v=fn.f(x,y),nm=Math.max(0,Math.min(1,1-v/18));
+    ctx.fillStyle='rgb('+Math.round(30+nm*195)+','+Math.round(nm*150)+','+Math.round(117*(1-nm*.5))+')';
+    ctx.fillRect(p.l+i*cw/n,p.t+j*ch/n,cw/n+1,ch/n+1);
+  }
+  const T=(x,y)=>[p.l+(x-xr[0])/(xr[1]-xr[0])*cw,p.t+(yr[1]-y)/(yr[1]-yr[0])*ch];
+  if(LS20.path.length>1){
+    ctx.save();ctx.strokeStyle='rgba(255,255,255,0.9)';ctx.lineWidth=1.5;ctx.beginPath();
+    LS20.path.slice(-60).forEach(({x,y},i)=>{const[px,py]=T(x,y);i?ctx.lineTo(px,py):ctx.moveTo(px,py);});
+    ctx.stroke();ctx.restore();
+  }
+  const[cpx,cpy]=T(LS20.p.x,LS20.p.y);dot(ctx,cpx,cpy,7,'#fff',CO,2);
+}
+lsReset20();
+
+// ── SIDEBAR ACTIVE STATE ─────────────────────────────────────────────
+const obs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{if(e.isIntersecting){const id=e.target.id;document.querySelectorAll('.ni').forEach(a=>a.classList.toggle('active',a.getAttribute('href')==='#'+id));}});
+},{rootMargin:'-40% 0px -50% 0px'});
+document.querySelectorAll('.topic').forEach(t=>obs.observe(t));
+
+// ── INIT ALL — TRIPLE-FIRE after layout is fully painted ─────────────
+const ALL_DRAWS=[D01,D02,D03,D05,D06,D07,drawCR08,D15,D17,D18,drawGD14,drawLS20,D11,D13];
+function initAll(){ALL_DRAWS.forEach(fn=>{try{fn();}catch(e){}});}
+
+// The triple-init pattern ensures canvases get correct width
+// even if the browser hasn't fully laid out on the first RAF
+window.addEventListener('load',()=>
+  requestAnimationFrame(()=>
+    requestAnimationFrame(()=>{
+      initAll();
+      setTimeout(initAll,350);
+      setTimeout(initAll,900);
+    })
+  )
+);
+window.addEventListener('resize',initAll,{passive:true});
+</script>
+</body></html>
