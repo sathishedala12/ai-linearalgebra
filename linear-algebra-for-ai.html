@@ -1,0 +1,1593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Linear Algebra for AI — Interactive Visual Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Source+Sans+3:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #FAFAF8;
+  --surface: #FFFFFF;
+  --surface2: #F2F1ED;
+  --border: #E2E0D8;
+  --sidebar: #111827;
+  --sidebar-text: #9CA3AF;
+  --sidebar-active: #1D9E75;
+  --teal: #1D9E75;
+  --teal-light: #E1F5EE;
+  --teal-dark: #0F6E56;
+  --blue: #378ADD;
+  --blue-light: #E6F1FB;
+  --blue-dark: #185FA5;
+  --purple: #7F77DD;
+  --purple-light: #EEEDFE;
+  --coral: #D85A30;
+  --coral-light: #FAECE7;
+  --amber: #BA7517;
+  --amber-light: #FAEEDA;
+  --text: #111827;
+  --text2: #4B5563;
+  --text3: #9CA3AF;
+  --font-body: 'Source Sans 3', sans-serif;
+  --font-head: 'Playfair Display', serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --radius: 10px;
+  --sidebar-w: 260px;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { font-family: var(--font-body); background: var(--bg); color: var(--text); font-size: 16px; line-height: 1.7; display: flex; min-height: 100vh; }
+
+/* SIDEBAR */
+#sidebar {
+  width: var(--sidebar-w); background: var(--sidebar); position: fixed; top: 0; left: 0; height: 100vh;
+  overflow-y: auto; z-index: 100; display: flex; flex-direction: column;
+}
+#sidebar::-webkit-scrollbar { width: 4px; }
+#sidebar::-webkit-scrollbar-thumb { background: #374151; border-radius: 2px; }
+.sidebar-logo { padding: 24px 20px 16px; border-bottom: 1px solid #1F2937; }
+.sidebar-logo h1 { font-family: var(--font-head); font-size: 17px; color: #F9FAFB; font-weight: 600; line-height: 1.3; }
+.sidebar-logo p { font-size: 11px; color: var(--sidebar-text); margin-top: 4px; }
+.nav-section { padding: 16px 0 8px; }
+.nav-section-title { font-size: 10px; color: #6B7280; text-transform: uppercase; letter-spacing: 0.1em; padding: 0 20px; margin-bottom: 6px; font-weight: 500; }
+.nav-link { display: flex; align-items: center; gap: 10px; padding: 8px 20px; font-size: 13px; color: var(--sidebar-text); text-decoration: none; transition: all 0.15s; border-left: 2px solid transparent; }
+.nav-link:hover { color: #E5E7EB; background: #1F2937; }
+.nav-link.active { color: var(--sidebar-active); border-left-color: var(--sidebar-active); background: #0F2922; }
+.nav-link .num { font-family: var(--font-mono); font-size: 10px; color: #4B5563; min-width: 20px; }
+.nav-link.active .num { color: var(--teal); }
+.sidebar-footer { margin-top: auto; padding: 16px 20px; border-top: 1px solid #1F2937; font-size: 11px; color: #4B5563; }
+
+/* MAIN */
+#main { margin-left: var(--sidebar-w); flex: 1; max-width: calc(100% - var(--sidebar-w)); }
+
+/* HERO */
+.hero { background: var(--sidebar); color: white; padding: 64px 56px 56px; }
+.hero-badge { display: inline-block; background: var(--teal); color: white; font-size: 11px; font-weight: 500; padding: 4px 12px; border-radius: 20px; margin-bottom: 16px; letter-spacing: 0.05em; }
+.hero h1 { font-family: var(--font-head); font-size: 44px; font-weight: 700; line-height: 1.15; margin-bottom: 16px; }
+.hero h1 span { color: var(--teal); }
+.hero p { font-size: 18px; color: #9CA3AF; max-width: 640px; line-height: 1.6; margin-bottom: 28px; }
+.hero-stats { display: flex; gap: 32px; flex-wrap: wrap; }
+.hero-stat { text-align: center; }
+.hero-stat .n { font-family: var(--font-head); font-size: 28px; color: var(--teal); font-weight: 700; }
+.hero-stat .l { font-size: 12px; color: #6B7280; margin-top: 2px; }
+
+/* CONTENT */
+.content { padding: 0 56px 80px; }
+.section { padding: 56px 0 0; border-top: 1px solid var(--border); margin-top: 56px; }
+.section:first-child { border-top: none; margin-top: 0; padding-top: 56px; }
+.section-header { display: flex; align-items: flex-start; gap: 20px; margin-bottom: 32px; }
+.section-num { font-family: var(--font-mono); font-size: 13px; color: var(--text3); background: var(--surface2); padding: 4px 10px; border-radius: 6px; margin-top: 4px; white-space: nowrap; }
+.section-title-block h2 { font-family: var(--font-head); font-size: 30px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+.section-title-block p { font-size: 15px; color: var(--text2); }
+.tag { display: inline-block; font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: 20px; margin-right: 6px; margin-bottom: 6px; }
+.tag-teal { background: var(--teal-light); color: var(--teal-dark); }
+.tag-blue { background: var(--blue-light); color: var(--blue-dark); }
+.tag-purple { background: var(--purple-light); color: #3C3489; }
+.tag-coral { background: var(--coral-light); color: #712B13; }
+.tag-amber { background: var(--amber-light); color: #633806; }
+
+/* CARDS */
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px 28px; margin-bottom: 20px; }
+.card h3 { font-family: var(--font-head); font-size: 20px; font-weight: 600; margin-bottom: 12px; color: var(--text); }
+.card p { color: var(--text2); font-size: 15px; line-height: 1.7; margin-bottom: 12px; }
+.card p:last-child { margin-bottom: 0; }
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+.three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+@media (max-width: 900px) { .two-col, .three-col { grid-template-columns: 1fr; } }
+
+/* FORMULA BOX */
+.formula { background: var(--surface2); border-left: 3px solid var(--purple); border-radius: 0 var(--radius) var(--radius) 0; padding: 16px 20px; margin: 16px 0; font-family: var(--font-mono); font-size: 14px; color: var(--text); line-height: 2; }
+.formula .comment { color: var(--text3); font-size: 12px; }
+
+/* AI APPLICATION BOX */
+.ai-app { background: linear-gradient(135deg, #0F2922 0%, #111827 100%); border-radius: var(--radius); padding: 24px 28px; margin: 20px 0; }
+.ai-app h4 { font-size: 12px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--teal); margin-bottom: 12px; font-weight: 600; }
+.ai-app p { color: #D1D5DB; font-size: 14px; line-height: 1.7; margin-bottom: 10px; }
+.ai-app p:last-child { margin-bottom: 0; }
+.ai-app strong { color: #F9FAFB; }
+.app-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+.chip { background: #1F2937; border: 1px solid #374151; color: #9CA3AF; font-size: 12px; padding: 4px 12px; border-radius: 20px; }
+.chip.active { background: #0F2922; border-color: var(--teal); color: var(--teal); }
+
+/* CANVAS SECTION */
+.viz-block { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; margin: 24px 0; }
+.viz-header { padding: 14px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; background: var(--surface2); }
+.viz-header span { font-size: 12px; font-weight: 500; color: var(--text2); display: flex; align-items: center; gap: 8px; }
+.viz-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--teal); display: inline-block; }
+.viz-body { padding: 20px; }
+canvas { width: 100%; display: block; border-radius: 8px; border: 1px solid var(--border); cursor: crosshair; background: var(--bg); }
+
+/* CONTROLS */
+.controls { display: flex; flex-wrap: wrap; gap: 20px; margin-top: 16px; }
+.ctrl { flex: 1; min-width: 200px; }
+.ctrl label { display: block; font-size: 12px; font-weight: 500; color: var(--text2); margin-bottom: 6px; }
+.ctrl-row { display: flex; align-items: center; gap: 10px; }
+.ctrl-row input[type=range] { flex: 1; accent-color: var(--teal); }
+.ctrl-row .val { font-family: var(--font-mono); font-size: 13px; font-weight: 500; color: var(--text); min-width: 36px; text-align: right; }
+select { font-size: 13px; padding: 6px 10px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); color: var(--text); font-family: var(--font-body); cursor: pointer; }
+.btn-group { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+.btn { padding: 6px 14px; font-size: 12px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); color: var(--text2); cursor: pointer; transition: all 0.15s; font-family: var(--font-body); }
+.btn:hover { border-color: var(--teal); color: var(--teal); }
+.btn.active { background: var(--teal-light); border-color: var(--teal); color: var(--teal-dark); font-weight: 500; }
+
+/* STATS ROW */
+.stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; margin-top: 16px; }
+.stat { background: var(--surface2); border-radius: 8px; padding: 12px 16px; }
+.stat .lbl { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
+.stat .val { font-family: var(--font-mono); font-size: 20px; font-weight: 500; color: var(--text); }
+.stat .sub { font-size: 11px; color: var(--text3); margin-top: 3px; }
+
+/* KEY INSIGHT */
+.insight { border: 1px solid var(--teal); background: var(--teal-light); border-radius: var(--radius); padding: 16px 20px; margin: 16px 0; font-size: 14px; color: var(--teal-dark); line-height: 1.6; }
+.insight strong { font-weight: 600; }
+
+/* MATRIX DISPLAY */
+.mat-container { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin: 16px 0; }
+.mat-wrap { position: relative; display: inline-flex; align-items: center; }
+.mat-wrap::before, .mat-wrap::after { content: ''; position: absolute; top: 0; bottom: 0; width: 3px; border: 2px solid var(--text2); }
+.mat-wrap::before { left: -4px; border-right: none; border-radius: 3px 0 0 3px; }
+.mat-wrap::after { right: -4px; border-left: none; border-radius: 0 3px 3px 0; }
+.mat-grid { display: grid; gap: 4px; padding: 8px 10px; font-family: var(--font-mono); font-size: 14px; }
+.mat-grid input { width: 48px; text-align: center; border: 1px solid var(--border); border-radius: 4px; padding: 4px; font-family: var(--font-mono); font-size: 13px; background: var(--surface); color: var(--text); }
+.mat-eq { font-size: 20px; color: var(--text3); font-weight: 300; }
+.vec-wrap { position: relative; display: inline-flex; align-items: center; }
+.vec-wrap::before, .vec-wrap::after { content: ''; position: absolute; top: 0; bottom: 0; width: 3px; border: 2px solid var(--teal); }
+.vec-wrap::before { left: -4px; border-right: none; border-radius: 3px 0 0 3px; }
+.vec-wrap::after { right: -4px; border-left: none; border-radius: 0 3px 3px 0; }
+.vec-grid { display: grid; grid-template-columns: 1fr; gap: 4px; padding: 8px 14px; font-family: var(--font-mono); font-size: 14px; text-align: center; min-width: 48px; }
+.vec-grid span { padding: 2px 0; }
+.teal { color: var(--teal); }
+.coral { color: var(--coral); }
+.purple { color: var(--purple); }
+.blue { color: var(--blue); }
+
+/* CONCEPT TABLE */
+.concept-table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px; }
+.concept-table th { background: var(--surface2); padding: 10px 14px; text-align: left; font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text2); border-bottom: 2px solid var(--border); }
+.concept-table td { padding: 10px 14px; border-bottom: 1px solid var(--border); vertical-align: top; color: var(--text2); font-size: 14px; }
+.concept-table td:first-child { font-family: var(--font-mono); color: var(--text); font-size: 13px; }
+.concept-table tr:last-child td { border-bottom: none; }
+.concept-table tr:hover td { background: var(--surface2); }
+
+/* EMBED WORDS */
+.word-chip { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border: 1px solid var(--border); border-radius: 20px; font-size: 13px; cursor: pointer; transition: all 0.15s; margin: 3px; background: var(--surface); }
+.word-chip:hover, .word-chip.sel { border-color: var(--teal); background: var(--teal-light); color: var(--teal-dark); }
+.word-chip .dot { width: 6px; height: 6px; border-radius: 50%; }
+
+/* CHEAT SHEET */
+.cheatsheet { background: var(--sidebar); color: white; border-radius: var(--radius); padding: 32px 36px; margin-top: 24px; }
+.cheatsheet h3 { font-family: var(--font-head); font-size: 22px; color: white; margin-bottom: 20px; }
+.cs-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
+.cs-item { background: #1F2937; border-radius: 8px; padding: 14px 16px; }
+.cs-item .cs-name { font-size: 12px; color: var(--teal); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; font-weight: 600; }
+.cs-item .cs-formula { font-family: var(--font-mono); font-size: 13px; color: #E5E7EB; margin-bottom: 4px; }
+.cs-item .cs-desc { font-size: 12px; color: #6B7280; }
+
+/* SECTION DIVIDER */
+.divider { display: flex; align-items: center; gap: 12px; margin: 40px 0; color: var(--text3); font-size: 13px; }
+.divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+/* PROGRESS BAR (AI difficulty) */
+.difficulty { display: flex; align-items: center; gap: 10px; margin-top: 8px; }
+.diff-label { font-size: 11px; color: var(--text3); width: 80px; }
+.diff-bar { flex: 1; height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; }
+.diff-fill { height: 100%; border-radius: 2px; }
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  :root { --sidebar-w: 0px; }
+  #sidebar { display: none; }
+  #main { margin-left: 0; max-width: 100%; }
+  .hero { padding: 32px 24px; }
+  .hero h1 { font-size: 28px; }
+  .content { padding: 0 24px 60px; }
+}
+
+/* PRINT */
+@media print {
+  #sidebar { display: none; }
+  #main { margin-left: 0; }
+}
+
+/* SMOOTH ACTIVE NAV */
+.nav-link { cursor: pointer; }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<nav id="sidebar">
+  <div class="sidebar-logo">
+    <h1>Linear Algebra<br>for AI</h1>
+    <p>Interactive Visual Guide</p>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-title">Foundations</div>
+    <a class="nav-link active" href="#intro"><span class="num">00</span>Introduction</a>
+    <a class="nav-link" href="#scalars"><span class="num">01</span>Scalars</a>
+    <a class="nav-link" href="#vectors"><span class="num">02</span>Vectors</a>
+    <a class="nav-link" href="#vector-ops"><span class="num">03</span>Vector Operations</a>
+    <a class="nav-link" href="#dot-product"><span class="num">04</span>Dot Product</a>
+    <a class="nav-link" href="#norms"><span class="num">05</span>Norms & Distance</a>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-title">Matrices</div>
+    <a class="nav-link" href="#matrices"><span class="num">06</span>Matrices</a>
+    <a class="nav-link" href="#mat-mul"><span class="num">07</span>Matrix Multiplication</a>
+    <a class="nav-link" href="#transforms"><span class="num">08</span>Linear Transformations</a>
+    <a class="nav-link" href="#determinant"><span class="num">09</span>Determinant & Inverse</a>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-title">Advanced</div>
+    <a class="nav-link" href="#eigen"><span class="num">10</span>Eigenvectors & PCA</a>
+    <a class="nav-link" href="#embeddings"><span class="num">11</span>Embeddings</a>
+    <a class="nav-link" href="#svd"><span class="num">12</span>SVD & Decomposition</a>
+    <a class="nav-link" href="#cheatsheet"><span class="num">13</span>Cheat Sheet</a>
+  </div>
+
+  <div class="sidebar-footer">
+    Built for AI/ML learners · 2025
+  </div>
+</nav>
+
+<!-- MAIN CONTENT -->
+<main id="main">
+
+<!-- HERO -->
+<div class="hero" id="intro">
+  <div class="hero-badge">Interactive Learning Guide</div>
+  <h1>Linear Algebra<br>for <span>Artificial Intelligence</span></h1>
+  <p>Every AI model — from a simple classifier to GPT-4 — runs on linear algebra. This guide builds your intuition with interactive visuals, clear explanations, and real AI applications.</p>
+  <div class="hero-stats">
+    <div class="hero-stat"><div class="n">13</div><div class="l">Core Concepts</div></div>
+    <div class="hero-stat"><div class="n">8</div><div class="l">Interactive Demos</div></div>
+    <div class="hero-stat"><div class="n">∞</div><div class="l">AI Applications</div></div>
+  </div>
+</div>
+
+<!-- CONTENT -->
+<div class="content">
+
+<!-- INTRO SECTION -->
+<div class="section" id="why">
+  <div class="section-header">
+    <div class="section-num">00</div>
+    <div class="section-title-block">
+      <h2>Why Linear Algebra?</h2>
+      <p>The mathematical backbone of every AI system</p>
+    </div>
+  </div>
+  <div class="two-col">
+    <div class="card">
+      <h3>The language of data</h3>
+      <p>When a neural network processes an image, it doesn't "see" pixels — it sees a vector of numbers. When it generates text, it converts words to vectors. Every operation — attention, multiplication, gradient — is linear algebra.</p>
+      <p>Understanding these operations lets you reason about what AI models are actually doing under the hood, debug them, and design better architectures.</p>
+    </div>
+    <div class="card">
+      <h3>Where it appears in AI</h3>
+      <p>
+        <span class="tag tag-teal">Neural networks</span>
+        <span class="tag tag-blue">Transformers</span>
+        <span class="tag tag-purple">PCA / Dimensionality reduction</span>
+        <span class="tag tag-coral">Embeddings</span>
+        <span class="tag tag-amber">Backpropagation</span>
+        <span class="tag tag-teal">Attention mechanism</span>
+        <span class="tag tag-blue">SVD / Recommendations</span>
+        <span class="tag tag-purple">Computer vision</span>
+        <span class="tag tag-coral">NLP / LLMs</span>
+      </p>
+    </div>
+  </div>
+  <div class="insight">
+    <strong>Big picture:</strong> A neural network is just a sequence of matrix multiplications followed by nonlinear functions. The entire art of deep learning is about choosing the right matrices (weights), finding them via gradient descent, and composing them cleverly.
+  </div>
+</div>
+
+<!-- 01: SCALARS -->
+<div class="section" id="scalars">
+  <div class="section-header">
+    <div class="section-num">01</div>
+    <div class="section-title-block">
+      <h2>Scalars</h2>
+      <p>Single numbers — the atomic unit of math</p>
+    </div>
+  </div>
+  <div class="two-col">
+    <div class="card">
+      <h3>What is a scalar?</h3>
+      <p>A <strong>scalar</strong> is simply a single real number. It has magnitude but no direction. Examples: temperature (98.6°F), price ($4.99), a model's loss (0.342).</p>
+      <p>Scalars are denoted by lowercase letters in italics: <em>a, b, λ, α</em>.</p>
+      <div class="formula">
+        a = 3.14 &nbsp; <span class="comment">// a scalar</span><br>
+        b = -2.7 &nbsp; <span class="comment">// another scalar</span><br>
+        c = a × b = -8.478 &nbsp; <span class="comment">// scalar multiplication</span>
+      </div>
+    </div>
+    <div class="card">
+      <h3>In AI: where scalars appear</h3>
+      <p>
+        <span class="tag tag-teal">Loss value</span> — a single number measuring how wrong the model is (e.g., 0.342).<br>
+        <span class="tag tag-blue">Learning rate α</span> — how big each gradient step is (e.g., 0.001).<br>
+        <span class="tag tag-purple">Temperature</span> — controls randomness in LLM outputs.<br>
+        <span class="tag tag-amber">Dropout rate</span> — fraction of neurons to turn off (e.g., 0.2).<br>
+        <span class="tag tag-coral">Attention score</span> — a single similarity number between two tokens.
+      </p>
+    </div>
+  </div>
+  <div class="ai-app">
+    <h4>AI Application — Loss Function</h4>
+    <p>Training a neural network means minimizing a scalar called the <strong>loss</strong>. For example, Mean Squared Error: <code>L = (1/n) Σ (ŷᵢ - yᵢ)²</code>. This single number tells us how far off our predictions are. The entire backpropagation algorithm works backwards from this one scalar to update millions of weights.</p>
+    <p>The learning rate α (also a scalar) controls how aggressively we move: <code>w ← w - α × ∂L/∂w</code>. Too large and training diverges; too small and it never converges.</p>
+    <div class="app-chips">
+      <span class="chip active">Loss: 0.342</span>
+      <span class="chip active">α = 0.001</span>
+      <span class="chip">Temperature = 0.8</span>
+      <span class="chip">Epochs = 100</span>
+    </div>
+  </div>
+</div>
+
+<!-- 02: VECTORS -->
+<div class="section" id="vectors">
+  <div class="section-header">
+    <div class="section-num">02</div>
+    <div class="section-title-block">
+      <h2>Vectors</h2>
+      <p>Ordered lists of numbers — representing data as points in space</p>
+    </div>
+  </div>
+
+  <div class="two-col">
+    <div class="card">
+      <h3>What is a vector?</h3>
+      <p>A <strong>vector</strong> is an ordered list of numbers arranged in a column. Each number is a component. A 2D vector lives on a plane; a 3D vector in space; an 768D vector in an embedding space.</p>
+      <div class="formula">
+        <span class="teal">v</span> = [v₁, v₂, v₃] = [3, -1, 2]<br>
+        <span class="comment">// n-dimensional vector with n components</span><br><br>
+        Notation: bold <strong>v</strong> or arrow v⃗<br>
+        Components: v₁, v₂, ..., vₙ
+      </div>
+    </div>
+    <div class="card">
+      <h3>Vectors represent real data</h3>
+      <table class="concept-table">
+        <tr><th>Real Object</th><th>As a Vector</th></tr>
+        <tr><td>RGB pixel</td><td>[255, 128, 0] (3D)</td></tr>
+        <tr><td>User profile</td><td>[age, spend, clicks] (3D)</td></tr>
+        <tr><td>Word "king"</td><td>[0.2, -0.5, 0.9, ...] (768D)</td></tr>
+        <tr><td>28×28 image</td><td>784 pixel values (784D)</td></tr>
+        <tr><td>Sentence</td><td>Average of word vectors</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="viz-block">
+    <div class="viz-header">
+      <span><span class="viz-dot"></span> Interactive: 2D Vectors</span>
+      <span style="font-size:11px; color:var(--text3)">Drag sliders to explore</span>
+    </div>
+    <div class="viz-body">
+      <canvas id="cv-vectors" height="260"></canvas>
+      <div class="controls">
+        <div class="ctrl">
+          <label>Vector A &nbsp;<span class="tag tag-teal">x</span></label>
+          <div class="ctrl-row"><input type="range" id="ax" min="-4" max="4" step="0.5" value="3" oninput="drawVectors()"><span class="val" id="axv">3</span></div>
+          <label style="margin-top:8px">Vector A &nbsp;<span class="tag tag-teal">y</span></label>
+          <div class="ctrl-row"><input type="range" id="ay" min="-4" max="4" step="0.5" value="2" oninput="drawVectors()"><span class="val" id="ayv">2</span></div>
+        </div>
+        <div class="ctrl">
+          <label>Vector B &nbsp;<span class="tag tag-coral">x</span></label>
+          <div class="ctrl-row"><input type="range" id="bx" min="-4" max="4" step="0.5" value="-1" oninput="drawVectors()"><span class="val" id="bxv">-1</span></div>
+          <label style="margin-top:8px">Vector B &nbsp;<span class="tag tag-coral">y</span></label>
+          <div class="ctrl-row"><input type="range" id="by" min="-4" max="4" step="0.5" value="3" oninput="drawVectors()"><span class="val" id="byv">3</span></div>
+        </div>
+      </div>
+      <div class="stats-row">
+        <div class="stat"><div class="lbl">|A| magnitude</div><div class="val teal" id="magA">3.61</div><div class="sub">√(x²+y²)</div></div>
+        <div class="stat"><div class="lbl">|B| magnitude</div><div class="val coral" id="magB">3.16</div><div class="sub">√(x²+y²)</div></div>
+        <div class="stat"><div class="lbl">A + B</div><div class="val" id="sumAB">[2, 5]</div><div class="sub">tip-to-tail addition</div></div>
+        <div class="stat"><div class="lbl">A - B</div><div class="val" id="diffAB">[4, -1]</div><div class="sub">vector subtraction</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ai-app">
+    <h4>AI Application — Data Representation</h4>
+    <p>In machine learning, <strong>every data point is a vector</strong>. A tabular dataset row is a feature vector. An image is a pixel vector. A sentence in an LLM is a sequence of token vectors, each with 768–4096 dimensions.</p>
+    <p>The key insight: by representing data as vectors, we can use all the tools of linear algebra — distance, similarity, transformation — to process, compare, and classify that data at massive scale.</p>
+    <div class="app-chips">
+      <span class="chip active">Feature vectors</span>
+      <span class="chip active">Word embeddings</span>
+      <span class="chip">Image pixels</span>
+      <span class="chip">User preferences</span>
+      <span class="chip">Audio waveforms</span>
+    </div>
+  </div>
+</div>
+
+<!-- 03: VECTOR OPERATIONS -->
+<div class="section" id="vector-ops">
+  <div class="section-header">
+    <div class="section-num">03</div>
+    <div class="section-title-block">
+      <h2>Vector Operations</h2>
+      <p>Addition, subtraction, scaling, and projection</p>
+    </div>
+  </div>
+
+  <div class="two-col">
+    <div class="card">
+      <h3>Core operations</h3>
+      <div class="formula">
+        <span class="comment">// Addition (component-wise)</span><br>
+        <span class="teal">a</span> + <span class="coral">b</span> = [a₁+b₁, a₂+b₂, ..., aₙ+bₙ]<br><br>
+        <span class="comment">// Scalar multiplication</span><br>
+        c·<span class="teal">v</span> = [c·v₁, c·v₂, ..., c·vₙ]<br><br>
+        <span class="comment">// Normalization (unit vector)</span><br>
+        <span class="teal">v̂</span> = <span class="teal">v</span> / |<span class="teal">v</span>| &nbsp; <span class="comment">// length = 1</span><br><br>
+        <span class="comment">// Linear combination</span><br>
+        α<span class="teal">a</span> + β<span class="coral">b</span> = new vector
+      </div>
+    </div>
+    <div class="card">
+      <h3>Geometric intuition</h3>
+      <p><strong>Addition:</strong> Place the tail of B at the tip of A. The result points to the new tip. Used in gradient updates — the new weight vector = old vector + gradient step.</p>
+      <p><strong>Scalar multiplication:</strong> Stretches (|c|&gt;1) or shrinks (|c|&lt;1) the vector. Negative c reverses direction.</p>
+      <p><strong>Normalization:</strong> Makes a vector have length 1 while preserving direction. Critical for cosine similarity and attention.</p>
+    </div>
+  </div>
+
+  <div class="insight">
+    <strong>Gradient descent is vector addition:</strong> At each training step, the new weights are computed as <code>w_new = w_old + (-α × ∇L)</code> — the old weight vector plus a scaled gradient vector. All of model training is repeated vector addition in millions of dimensions.
+  </div>
+
+  <div class="three-col">
+    <div class="card">
+      <h3>Linear Independence</h3>
+      <p>Vectors are <strong>linearly independent</strong> if no vector can be written as a combination of the others. Independent vectors span a full space. Dependent vectors are "redundant."</p>
+      <p>In neural nets, you want learned features to be independent — capturing different aspects of data.</p>
+    </div>
+    <div class="card">
+      <h3>Span & Basis</h3>
+      <p>The <strong>span</strong> of a set of vectors is all possible linear combinations. A <strong>basis</strong> is a minimal spanning set — enough vectors to reach every point in a space.</p>
+      <p>Standard basis in 2D: e₁=[1,0], e₂=[0,1]. Any 2D vector = a·e₁ + b·e₂.</p>
+    </div>
+    <div class="card">
+      <h3>Projection</h3>
+      <p>The <strong>projection</strong> of <strong>a</strong> onto <strong>b</strong> is how much of <strong>a</strong> points in the direction of <strong>b</strong>:</p>
+      <div class="formula" style="font-size:12px">proj_b(a) = (a·b / |b|²) × b</div>
+      <p>Used in attention and PCA to find components along specific directions.</p>
+    </div>
+  </div>
+
+  <div class="ai-app">
+    <h4>AI Application — Gradient Descent</h4>
+    <p>Every neural network training step is a vector operation. The gradient ∇L is a vector pointing uphill in loss space. We subtract a scaled version of it: <strong>w ← w − α∇L</strong>. This is vector subtraction, performed millions of times, on weight vectors with millions of components (parameters).</p>
+    <p>Adam optimizer adds momentum (another vector) and adaptive scaling (yet another vector) to make this descent faster and more stable. It's all vectors.</p>
+    <div class="app-chips">
+      <span class="chip active">Gradient descent</span>
+      <span class="chip active">Adam / SGD optimizers</span>
+      <span class="chip">Attention projection</span>
+      <span class="chip">Residual connections</span>
+    </div>
+  </div>
+</div>
+
+<!-- 04: DOT PRODUCT -->
+<div class="section" id="dot-product">
+  <div class="section-header">
+    <div class="section-num">04</div>
+    <div class="section-title-block">
+      <h2>Dot Product & Cosine Similarity</h2>
+      <p>Measuring alignment and similarity between vectors</p>
+    </div>
+  </div>
+
+  <div class="two-col">
+    <div class="card">
+      <h3>What is a dot product?</h3>
+      <p>Multiply corresponding components, then sum everything up. The result is a single scalar.</p>
+      <div class="formula">
+        <span class="teal">a</span> · <span class="coral">b</span> = a₁b₁ + a₂b₂ + ... + aₙbₙ<br><br>
+        <span class="comment">// Geometric form</span><br>
+        <span class="teal">a</span> · <span class="coral">b</span> = |<span class="teal">a</span>| × |<span class="coral">b</span>| × cos(θ)<br><br>
+        <span class="comment">// Cosine similarity (normalized)</span><br>
+        cos(θ) = (<span class="teal">a</span>·<span class="coral">b</span>) / (|<span class="teal">a</span>| × |<span class="coral">b</span>|)
+      </div>
+    </div>
+    <div class="card">
+      <h3>What the angle means</h3>
+      <table class="concept-table">
+        <tr><th>Angle θ</th><th>Dot product</th><th>Meaning</th></tr>
+        <tr><td>0°</td><td>max positive</td><td>Identical direction</td></tr>
+        <tr><td>45°</td><td>positive</td><td>Somewhat similar</td></tr>
+        <tr><td>90°</td><td>0</td><td>Perpendicular / unrelated</td></tr>
+        <tr><td>135°</td><td>negative</td><td>Somewhat opposite</td></tr>
+        <tr><td>180°</td><td>max negative</td><td>Opposite direction</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="viz-block">
+    <div class="viz-header">
+      <span><span class="viz-dot"></span> Interactive: Dot Product Visualizer</span>
+    </div>
+    <div class="viz-body">
+      <canvas id="cv-dot" height="260"></canvas>
+      <div class="controls">
+        <div class="ctrl">
+          <label>Angle of A (°)</label>
+          <div class="ctrl-row"><input type="range" id="da1" min="0" max="360" step="5" value="30" oninput="drawDot()"><span class="val" id="da1v">30°</span></div>
+        </div>
+        <div class="ctrl">
+          <label>Angle of B (°)</label>
+          <div class="ctrl-row"><input type="range" id="da2" min="0" max="360" step="5" value="80" oninput="drawDot()"><span class="val" id="da2v">80°</span></div>
+        </div>
+      </div>
+      <div class="stats-row">
+        <div class="stat"><div class="lbl">Dot product</div><div class="val" id="dot-val">0.87</div><div class="sub">A·B = |A||B|cos(θ)</div></div>
+        <div class="stat"><div class="lbl">Angle between</div><div class="val" id="dot-angle">50°</div><div class="sub">θ in degrees</div></div>
+        <div class="stat"><div class="lbl">Cosine similarity</div><div class="val" id="dot-cos">0.64</div><div class="sub">−1 to +1 range</div></div>
+        <div class="stat"><div class="lbl">Interpretation</div><div class="val" style="font-size:13px" id="dot-interp">Similar</div><div class="sub">based on angle</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ai-app">
+    <h4>AI Application — Attention Mechanism (Transformers)</h4>
+    <p>The attention mechanism in GPT/BERT is built entirely on dot products. For each token, we compute <strong>Attention(Q,K,V) = softmax(QKᵀ / √d_k) × V</strong>. The QKᵀ step is a giant matrix of dot products — each query vector dotted against every key vector — producing a similarity score that determines how much attention to pay.</p>
+    <p>Vector search (used in RAG, recommendation systems) works the same way: find the top-K vectors with the highest cosine similarity to your query. <strong>FAISS</strong>, <strong>Pinecone</strong>, and <strong>Weaviate</strong> all implement fast dot-product search over millions of vectors.</p>
+    <div class="app-chips">
+      <span class="chip active">Transformer attention</span>
+      <span class="chip active">Cosine similarity search</span>
+      <span class="chip active">RAG (retrieval)</span>
+      <span class="chip">Recommendation systems</span>
+      <span class="chip">Semantic search</span>
+    </div>
+  </div>
+</div>
+
+<!-- 05: NORMS -->
+<div class="section" id="norms">
+  <div class="section-header">
+    <div class="section-num">05</div>
+    <div class="section-title-block">
+      <h2>Norms & Distance</h2>
+      <p>Measuring vector length and distance between points</p>
+    </div>
+  </div>
+
+  <div class="two-col">
+    <div class="card">
+      <h3>Vector norms</h3>
+      <p>A <strong>norm</strong> measures the "size" or "length" of a vector. Different norms measure size differently.</p>
+      <div class="formula">
+        <span class="comment">// L1 norm (Manhattan distance)</span><br>
+        ||v||₁ = |v₁| + |v₂| + ... + |vₙ|<br><br>
+        <span class="comment">// L2 norm (Euclidean length) ← most common</span><br>
+        ||v||₂ = √(v₁² + v₂² + ... + vₙ²)<br><br>
+        <span class="comment">// L∞ norm (max component)</span><br>
+        ||v||∞ = max(|v₁|, |v₂|, ..., |vₙ|)<br><br>
+        <span class="comment">// General Lp norm</span><br>
+        ||v||ₚ = (|v₁|ᵖ + |v₂|ᵖ + ... + |vₙ|ᵖ)^(1/p)
+      </div>
+    </div>
+    <div class="card">
+      <h3>Distance metrics</h3>
+      <table class="concept-table">
+        <tr><th>Metric</th><th>Formula</th><th>Used for</th></tr>
+        <tr><td>Euclidean</td><td>||a-b||₂</td><td>k-NN, clustering</td></tr>
+        <tr><td>Cosine</td><td>1 - (a·b)/(|a||b|)</td><td>Text similarity</td></tr>
+        <tr><td>Manhattan</td><td>||a-b||₁</td><td>Sparse features</td></tr>
+        <tr><td>Hamming</td><td>% of bits different</td><td>Binary codes</td></tr>
+        <tr><td>Dot product</td><td>a·b</td><td>Attention scores</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="ai-app">
+    <h4>AI Application — Regularization & Loss Functions</h4>
+    <p>Norms appear everywhere in AI training. <strong>L2 regularization (Ridge)</strong> adds λ||w||₂² to the loss to prevent weights from growing too large — keeping the model simple. <strong>L1 regularization (Lasso)</strong> adds λ||w||₁ and produces sparse weights (many exactly zero) — useful for feature selection.</p>
+    <p>Distance metrics determine how similar data points are in <strong>k-NN classification</strong>, <strong>DBSCAN clustering</strong>, and <strong>embedding search</strong>. Choosing the right metric for your data type can make or break a model's performance.</p>
+    <div class="app-chips">
+      <span class="chip active">L1 regularization (Lasso)</span>
+      <span class="chip active">L2 regularization (Ridge)</span>
+      <span class="chip active">k-NN search</span>
+      <span class="chip">Gradient clipping</span>
+      <span class="chip">Weight decay</span>
+    </div>
+  </div>
+</div>
+
+<!-- 06: MATRICES -->
+<div class="section" id="matrices">
+  <div class="section-header">
+    <div class="section-num">06</div>
+    <div class="section-title-block">
+      <h2>Matrices</h2>
+      <p>2D arrays of numbers — the building blocks of neural networks</p>
+    </div>
+  </div>
+
+  <div class="two-col">
+    <div class="card">
+      <h3>What is a matrix?</h3>
+      <p>A <strong>matrix</strong> is a 2D grid of numbers with m rows and n columns. We write it as A ∈ ℝ^(m×n). Each element Aᵢⱼ is at row i, column j.</p>
+      <div class="formula">
+        A = [[a₁₁, a₁₂, a₁₃],  <span class="comment">// row 1</span><br>
+        &nbsp; &nbsp; &nbsp;[a₂₁, a₂₂, a₂₃],  <span class="comment">// row 2</span><br>
+        &nbsp; &nbsp; &nbsp;[a₃₁, a₃₂, a₃₃]]  <span class="comment">// row 3</span><br><br>
+        Shape: 3×3 &nbsp; <span class="comment">// m rows × n columns</span>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Special matrix types</h3>
+      <table class="concept-table">
+        <tr><th>Type</th><th>Property</th><th>AI Use</th></tr>
+        <tr><td>Identity I</td><td>Diagonal = 1, rest = 0</td><td>Skip connections</td></tr>
+        <tr><td>Diagonal</td><td>Non-zero only on diagonal</td><td>Scaling layers</td></tr>
+        <tr><td>Symmetric</td><td>A = Aᵀ</td><td>Covariance matrix</td></tr>
+        <tr><td>Orthogonal</td><td>AᵀA = I</td><td>Rotation (no distortion)</td></tr>
+        <tr><td>Sparse</td><td>Mostly zeros</td><td>Efficient attention</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Matrix operations: Transpose</h3>
+    <div class="mat-container">
+      <div>
+        <div style="font-size:12px;color:var(--text3);margin-bottom:6px">A (2×3)</div>
+        <div class="mat-wrap">
+          <div class="mat-grid" style="grid-template-columns:1fr 1fr 1fr">
+            <span>1</span><span>2</span><span>3</span>
+            <span>4</span><span>5</span><span>6</span>
+          </div>
+        </div>
+      </div>
+      <span class="mat-eq" style="font-size:24px">→ Aᵀ →</span>
+      <div>
+        <div style="font-size:12px;color:var(--text3);margin-bottom:6px">Aᵀ (3×2)</div>
+        <div class="mat-wrap">
+          <div class="mat-grid" style="grid-template-columns:1fr 1fr">
+            <span class="teal">1</span><span class="coral">4</span>
+            <span class="teal">2</span><span class="coral">5</span>
+            <span class="teal">3</span><span class="coral">6</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p style="font-size:14px;color:var(--text2)">The transpose flips rows and columns. If A is m×n, then Aᵀ is n×m. In transformers, the operation QKᵀ transposes K before multiplying — this is how attention scores are computed across all token pairs simultaneously.</p>
+  </div>
+
+  <div class="ai-app">
+    <h4>AI Application — Weight Matrices in Neural Networks</h4>
+    <p>Every layer in a neural network is a weight matrix W ∈ ℝ^(output × input). A layer that takes 512 inputs and produces 1024 outputs has a weight matrix with shape (1024 × 512) = <strong>524,288 parameters</strong>. GPT-4 has roughly 1.8 trillion such parameters across its layers.</p>
+    <p>The forward pass is: <strong>output = W × input + bias</strong>. The backward pass computes gradients with respect to W and updates it. Every second of ChatGPT inference involves thousands of matrix multiplications happening on specialized GPU hardware (CUDA cores).</p>
+    <div class="app-chips">
+      <span class="chip active">Weight matrices (W, b)</span>
+      <span class="chip active">Attention Q, K, V matrices</span>
+      <span class="chip">Embedding tables</span>
+      <span class="chip">Covariance matrices</span>
+    </div>
+  </div>
+</div>
+
+<!-- 07: MATRIX MULTIPLICATION -->
+<div class="section" id="mat-mul">
+  <div class="section-header">
+    <div class="section-num">07</div>
+    <div class="section-title-block">
+      <h2>Matrix Multiplication</h2>
+      <p>The fundamental operation of deep learning</p>
+    </div>
+  </div>
+
+  <div class="two-col">
+    <div class="card">
+      <h3>How matrix multiplication works</h3>
+      <p>To multiply A (m×k) by B (k×n): the result C is m×n. Each element Cᵢⱼ is the dot product of row i of A with column j of B.</p>
+      <div class="formula">
+        Cᵢⱼ = Σₖ Aᵢₖ × Bₖⱼ<br><br>
+        <span class="comment">// Key rule: inner dimensions must match</span><br>
+        (m×<span class="teal">k</span>) × (<span class="teal">k</span>×n) → (m×n)<br><br>
+        <span class="comment">// NOT commutative!</span><br>
+        AB ≠ BA in general
+      </div>
+    </div>
+    <div class="card">
+      <h3>Neural network forward pass</h3>
+      <div class="formula">
+        <span class="comment">// One layer computation</span><br>
+        z = W × x + b<br>
+        a = σ(z) &nbsp; <span class="comment">// activation function</span><br><br>
+        <span class="comment">// Stacked layers (chain of matmuls)</span><br>
+        h₁ = σ(W₁x + b₁)<br>
+        h₂ = σ(W₂h₁ + b₂)<br>
+        ŷ = softmax(W₃h₂ + b₃)
+      </div>
+    </div>
+  </div>
+
+  <div class="viz-block">
+    <div class="viz-header">
+      <span><span class="viz-dot"></span> Interactive: W × x = output</span>
+    </div>
+    <div class="viz-body">
+      <div class="mat-container" style="margin-bottom:16px">
+        <div>
+          <div style="font-size:12px;color:var(--text3);margin-bottom:6px">Weight matrix W (2×2) — edit values</div>
+          <div class="mat-wrap">
+            <div class="mat-grid" style="grid-template-columns:1fr 1fr">
+              <input type="number" id="m00" value="2" step="0.5" oninput="drawMatMul()">
+              <input type="number" id="m01" value="0" step="0.5" oninput="drawMatMul()">
+              <input type="number" id="m10" value="0" step="0.5" oninput="drawMatMul()">
+              <input type="number" id="m11" value="1" step="0.5" oninput="drawMatMul()">
+            </div>
+          </div>
+        </div>
+        <span class="mat-eq">×</span>
+        <div>
+          <div style="font-size:12px;color:var(--text3);margin-bottom:6px">Input x</div>
+          <div class="vec-wrap">
+            <div class="vec-grid"><span id="v2x">3.0</span><span id="v2y">2.0</span></div>
+          </div>
+        </div>
+        <span class="mat-eq">=</span>
+        <div>
+          <div style="font-size:12px;color:var(--text3);margin-bottom:6px">Output Wx</div>
+          <div class="vec-wrap" style="--teal:var(--teal)">
+            <div class="vec-grid" style="border-left-color:var(--teal)">
+              <span class="teal" id="r2x">6.0</span>
+              <span class="teal" id="r2y">2.0</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <canvas id="cv-matmul" height="260"></canvas>
+      <div class="controls">
+        <div class="ctrl">
+          <label>Input x</label>
+          <div class="ctrl-row"><input type="range" id="v2xs" min="-4" max="4" step="0.5" value="3" oninput="drawMatMul()"><span class="val" id="v2xv">3</span></div>
+          <label style="margin-top:8px">Input y</label>
+          <div class="ctrl-row"><input type="range" id="v2ys" min="-4" max="4" step="0.5" value="2" oninput="drawMatMul()"><span class="val" id="v2yv">2</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="insight">
+    <strong>Batched matrix multiplication:</strong> In practice, we process many inputs at once. If we have a batch of 32 inputs each with 512 features, we pass a matrix X (32×512) through a weight matrix W (512×1024) to get output (32×1024). GPUs are specifically optimized for exactly this — running thousands of dot products in parallel.
+  </div>
+
+  <div class="ai-app">
+    <h4>AI Application — Why GPUs Rule AI</h4>
+    <p>A GPU has thousands of cores designed to run the same operation on many data simultaneously (SIMD). Matrix multiplication is the perfect workload because every element Cᵢⱼ = row·column can be computed independently in parallel. Training GPT-3 required 3.14 × 10²³ floating-point operations — almost all matrix multiplications.</p>
+    <p>Hardware companies (NVIDIA, Google, Cerebras) are building chips specifically to accelerate these ops. Google's TPUs can do <strong>420 trillion matrix ops per second</strong> per chip.</p>
+    <div class="app-chips">
+      <span class="chip active">GPU matrix ops (CUDA)</span>
+      <span class="chip active">Batch processing</span>
+      <span class="chip">TPU / hardware accelerators</span>
+      <span class="chip">Mixed precision (fp16)</span>
+    </div>
+  </div>
+</div>
+
+<!-- 08: LINEAR TRANSFORMATIONS -->
+<div class="section" id="transforms">
+  <div class="section-header">
+    <div class="section-num">08</div>
+    <div class="section-title-block">
+      <h2>Linear Transformations</h2>
+      <p>How matrices reshape, rotate, and compress data</p>
+    </div>
+  </div>
+
+  <div class="two-col">
+    <div class="card">
+      <h3>What makes a transformation linear?</h3>
+      <p>A transformation T is <strong>linear</strong> if it satisfies two properties:</p>
+      <div class="formula">
+        <span class="comment">// Additivity</span><br>
+        T(u + v) = T(u) + T(v)<br><br>
+        <span class="comment">// Homogeneity</span><br>
+        T(c·v) = c·T(v)<br><br>
+        <span class="comment">// Every linear transformation is a matrix!</span><br>
+        T(x) = Ax &nbsp; for some matrix A
+      </div>
+    </div>
+    <div class="card">
+      <h3>Common transformations</h3>
+      <table class="concept-table">
+        <tr><th>Name</th><th>Matrix</th><th>Effect</th></tr>
+        <tr><td>Scale x by 2</td><td>[[2,0],[0,1]]</td><td>Stretch horizontally</td></tr>
+        <tr><td>Rotate 90°</td><td>[[0,-1],[1,0]]</td><td>Quarter turn CCW</td></tr>
+        <tr><td>Reflect x-axis</td><td>[[1,0],[0,-1]]</td><td>Flip vertically</td></tr>
+        <tr><td>Shear</td><td>[[1,k],[0,1]]</td><td>Slant/skew</td></tr>
+        <tr><td>Project to x</td><td>[[1,0],[0,0]]</td><td>Collapse to 1D</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="viz-block">
+    <div class="viz-header"><span><span class="viz-dot"></span> Interactive: Shape Transformation</span></div>
+    <div class="viz-body">
+      <canvas id="cv-transform" height="290"></canvas>
+      <div class="controls">
+        <div class="ctrl">
+          <label>Preset transformations</label>
+          <div class="btn-group">
+            <button class="btn active" id="tp0" onclick="setTransformPreset(0)">Scale</button>
+            <button class="btn" id="tp1" onclick="setTransformPreset(1)">Rotate 45°</button>
+            <button class="btn" id="tp2" onclick="setTransformPreset(2)">Shear</button>
+            <button class="btn" id="tp3" onclick="setTransformPreset(3)">Reflect</button>
+            <button class="btn" id="tp4" onclick="setTransformPreset(4)">Collapse</button>
+          </div>
+        </div>
+        <div class="ctrl">
+          <label>Matrix W — edit</label>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;max-width:140px;margin-top:4px">
+            <input type="number" id="t00" value="2" step="0.1" style="padding:4px;border:1px solid var(--border);border-radius:4px;font-family:var(--font-mono);font-size:12px" oninput="drawTransform()">
+            <input type="number" id="t01" value="0" step="0.1" style="padding:4px;border:1px solid var(--border);border-radius:4px;font-family:var(--font-mono);font-size:12px" oninput="drawTransform()">
+            <input type="number" id="t10" value="0" step="0.1" style="padding:4px;border:1px solid var(--border);border-radius:4px;font-family:var(--font-mono);font-size:12px" oninput="drawTransform()">
+            <input type="number" id="t11" value="1" step="0.1" style="padding:4px;border:1px solid var(--border);border-radius:4px;font-family:var(--font-mono);font-size:12px" oninput="drawTransform()">
+          </div>
+        </div>
+      </div>
+      <div class="stats-row">
+        <div class="stat"><div class="lbl">Determinant</div><div class="val" id="det-val">2.00</div><div class="sub">area scale factor</div></div>
+        <div class="stat"><div class="lbl">Type</div><div class="val" style="font-size:13px" id="trans-type">Scaling</div><div class="sub">what the matrix does</div></div>
+        <div class="stat"><div class="lbl">Invertible?</div><div class="val" id="invertible">Yes</div><div class="sub">det ≠ 0</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ai-app">
+    <h4>AI Application — What Neural Network Layers Learn</h4>
+    <p>Each layer of a neural network applies a linear transformation (matrix multiply) followed by a nonlinear activation function. The transformation rotates, scales, and reshapes the data in high-dimensional space to make classes linearly separable. Deeper networks can carve more complex boundaries through successive transformations.</p>
+    <p>This is why deep networks are powerful: with enough transformations, any curved decision boundary can be approximated. The weight matrix in each layer is literally a transformation matrix being optimized to separate data correctly.</p>
+    <div class="app-chips">
+      <span class="chip active">Decision boundaries</span>
+      <span class="chip active">Feature transformation</span>
+      <span class="chip">Representation learning</span>
+      <span class="chip">Data augmentation</span>
+    </div>
+  </div>
+</div>
+
+<!-- 09: DETERMINANT & INVERSE -->
+<div class="section" id="determinant">
+  <div class="section-header">
+    <div class="section-num">09</div>
+    <div class="section-title-block">
+      <h2>Determinant & Matrix Inverse</h2>
+      <p>Measuring transformation strength and reversibility</p>
+    </div>
+  </div>
+
+  <div class="two-col">
+    <div class="card">
+      <h3>Determinant</h3>
+      <p>The <strong>determinant</strong> of a matrix is a scalar that encodes how a transformation scales area (2D) or volume (3D).</p>
+      <div class="formula">
+        <span class="comment">// 2×2 determinant</span><br>
+        det([[a,b],[c,d]]) = ad − bc<br><br>
+        <span class="comment">// What it means</span><br>
+        det > 0 : orientation preserved<br>
+        det < 0 : orientation flipped<br>
+        det = 0 : <span class="coral">collapses to lower dimension!</span><br>
+        |det| > 1 : area expands<br>
+        |det| < 1 : area shrinks
+      </div>
+    </div>
+    <div class="card">
+      <h3>Matrix Inverse</h3>
+      <p>The <strong>inverse</strong> A⁻¹ undoes the transformation A. A × A⁻¹ = I (identity).</p>
+      <div class="formula">
+        <span class="comment">// 2×2 inverse formula</span><br>
+        A⁻¹ = (1/det(A)) × [[d,-b],[-c,a]]<br><br>
+        <span class="comment">// Only exists when det(A) ≠ 0</span><br>
+        Solving Ax = b:<br>
+        x = A⁻¹b &nbsp; <span class="comment">// if A is invertible</span><br><br>
+        <span class="comment">// Pseudo-inverse for non-square</span><br>
+        A⁺ = (AᵀA)⁻¹ Aᵀ &nbsp; <span class="comment">// Moore-Penrose</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="insight">
+    <strong>Rank matters:</strong> The rank of a matrix is the number of linearly independent rows (or columns). A full-rank matrix can represent information without loss. Low-rank matrices compress information — used in <strong>LoRA</strong> (Low-Rank Adaptation), a method for efficiently fine-tuning LLMs with far fewer parameters.
+  </div>
+
+  <div class="ai-app">
+    <h4>AI Application — LoRA: Low-Rank Adaptation of LLMs</h4>
+    <p>Fine-tuning GPT-3 requires updating 175 billion parameters — too expensive. <strong>LoRA</strong> instead represents weight updates as low-rank matrices: ΔW = A × B where A is (d×r) and B is (r×d), with r ≪ d. Instead of updating a 4096×4096 matrix (16M params), we update two small matrices totaling just thousands of params.</p>
+    <p>This works because weight updates tend to be <strong>low-rank in practice</strong>. The determinant/rank insight is what makes this possible.</p>
+    <div class="app-chips">
+      <span class="chip active">LoRA fine-tuning</span>
+      <span class="chip active">Linear regression (normal equations)</span>
+      <span class="chip">Matrix completion</span>
+      <span class="chip">Pseudo-inverse</span>
+    </div>
+  </div>
+</div>
+
+<!-- 10: EIGENVECTORS -->
+<div class="section" id="eigen">
+  <div class="section-header">
+    <div class="section-num">10</div>
+    <div class="section-title-block">
+      <h2>Eigenvectors & Eigenvalues</h2>
+      <p>Special vectors that only stretch — the key to PCA and stability</p>
+    </div>
+  </div>
+
+  <div class="two-col">
+    <div class="card">
+      <h3>What are eigenvectors?</h3>
+      <p>An <strong>eigenvector</strong> of a matrix A is a special vector that, when transformed by A, doesn't change direction — it only gets scaled. The scale factor is the <strong>eigenvalue</strong> λ.</p>
+      <div class="formula">
+        Av = λv<br><br>
+        <span class="comment">// v is an eigenvector, λ is its eigenvalue</span><br>
+        <span class="comment">// Most vectors get rotated AND scaled</span><br>
+        <span class="comment">// Eigenvectors ONLY get scaled (not rotated)</span><br><br>
+        (A − λI)v = 0<br>
+        det(A − λI) = 0 &nbsp;<span class="comment">// characteristic equation</span>
+      </div>
+    </div>
+    <div class="card">
+      <h3>What eigenvalues tell you</h3>
+      <table class="concept-table">
+        <tr><th>λ value</th><th>Meaning</th><th>AI context</th></tr>
+        <tr><td>λ > 1</td><td>Direction expands</td><td>High-variance feature</td></tr>
+        <tr><td>0 < λ < 1</td><td>Direction shrinks</td><td>Low-variance feature</td></tr>
+        <tr><td>λ = 0</td><td>Direction collapses</td><td>Redundant feature</td></tr>
+        <tr><td>λ < 0</td><td>Direction flips</td><td>Anticorrelated feature</td></tr>
+        <tr><td>Large λ</td><td>Most important direction</td><td>First principal component</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>PCA: Principal Component Analysis</h3>
+    <p>PCA finds the eigenvectors of the data's <strong>covariance matrix</strong>. These eigenvectors point in the directions of maximum variance. By projecting data onto the top K eigenvectors (principal components), we compress data with minimal information loss.</p>
+    <div class="formula">
+      <span class="comment">// PCA algorithm</span><br>
+      1. Center data: X̄ = X − mean(X)<br>
+      2. Covariance: C = (1/n) X̄ᵀX̄<br>
+      3. Eigendecompose: C = VΛVᵀ<br>
+      4. Sort by eigenvalue (largest first)<br>
+      5. Project: Z = X̄ × V[:, :k] &nbsp; <span class="comment">// keep top k components</span>
+    </div>
+    <p style="font-size:14px;color:var(--text2);margin-top:12px">Each principal component is an eigenvector. The eigenvalue tells you how much variance that component explains. PCA is used to visualize high-dimensional data (project 768D embeddings to 2D for plotting) and remove noise.</p>
+  </div>
+
+  <div class="ai-app">
+    <h4>AI Application — PCA, t-SNE, and Stability</h4>
+    <p><strong>Dimensionality reduction</strong> (PCA, t-SNE, UMAP) uses eigenvectors to compress data. When you see beautiful 2D "clusters" of word embeddings — that's PCA projecting 768D vectors to 2D using the top 2 eigenvectors of the covariance matrix.</p>
+    <p><strong>Gradient stability:</strong> The largest eigenvalue of the Hessian matrix determines the maximum safe learning rate. If your learning rate exceeds 2/λ_max, training explodes. Understanding eigenvalues helps diagnose training instability.</p>
+    <p><strong>PageRank (Google):</strong> Finding the most important webpage is an eigenvector problem — the web link matrix's principal eigenvector gives page importance scores.</p>
+    <div class="app-chips">
+      <span class="chip active">PCA visualization</span>
+      <span class="chip active">t-SNE / UMAP</span>
+      <span class="chip">Gradient stability</span>
+      <span class="chip active">PageRank</span>
+      <span class="chip">Spectral clustering</span>
+    </div>
+  </div>
+</div>
+
+<!-- 11: EMBEDDINGS -->
+<div class="section" id="embeddings">
+  <div class="section-header">
+    <div class="section-num">11</div>
+    <div class="section-title-block">
+      <h2>Vector Embeddings</h2>
+      <p>Representing meaning as points in high-dimensional space</p>
+    </div>
+  </div>
+
+  <div class="two-col">
+    <div class="card">
+      <h3>What are embeddings?</h3>
+      <p>An <strong>embedding</strong> is a dense vector representation learned from data. Instead of arbitrary IDs, similar items get similar vectors. The geometry of embedding space encodes semantic meaning.</p>
+      <div class="formula">
+        <span class="comment">// Word2Vec famous example</span><br>
+        king − man + woman ≈ queen<br><br>
+        <span class="comment">// Vector arithmetic works!</span><br>
+        E("Paris") − E("France") + E("Germany")<br>
+        ≈ E("Berlin")<br><br>
+        <span class="comment">// Similarity search</span><br>
+        top_k(cosine_sim(query_vec, all_vecs))
+      </div>
+    </div>
+    <div class="card">
+      <h3>Embedding dimensions in practice</h3>
+      <table class="concept-table">
+        <tr><th>Model</th><th>Dimensions</th><th>Use</th></tr>
+        <tr><td>Word2Vec</td><td>50–300</td><td>Words</td></tr>
+        <tr><td>BERT-base</td><td>768</td><td>Sentences</td></tr>
+        <tr><td>GPT-3</td><td>12,288</td><td>Tokens</td></tr>
+        <tr><td>CLIP</td><td>512</td><td>Images+text</td></tr>
+        <tr><td>ada-002</td><td>1,536</td><td>OpenAI embed.</td></tr>
+        <tr><td>Llama-3</td><td>4,096</td><td>Tokens</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="viz-block">
+    <div class="viz-header"><span><span class="viz-dot"></span> Interactive: Word Embedding Space (2D projection)</span></div>
+    <div class="viz-body">
+      <canvas id="cv-embed" height="280"></canvas>
+      <div style="margin-top:12px;display:flex;flex-wrap:wrap;gap:4px" id="wordchips"></div>
+      <p id="embed-note" style="margin-top:10px;font-size:13px;color:var(--text3);font-style:italic">Click a word to find its nearest neighbour by cosine distance.</p>
+    </div>
+  </div>
+
+  <div class="ai-app">
+    <h4>AI Application — RAG, Semantic Search & Recommendation</h4>
+    <p><strong>RAG (Retrieval-Augmented Generation)</strong>: When you ask ChatGPT a question, it may first embed your query as a vector, search a database of document vectors for the closest matches (using cosine similarity), and feed those documents as context. This is purely linear algebra — query vector vs database of vectors.</p>
+    <p><strong>Recommendation systems:</strong> Netflix, Spotify, Amazon embed users and items as vectors. Items close to your user vector get recommended. The embedding space is learned from your interaction history. Adding vectors: user vector + "action movie genre" vector → new user vector → recommendations shift.</p>
+    <div class="app-chips">
+      <span class="chip active">RAG / vector search</span>
+      <span class="chip active">Semantic similarity</span>
+      <span class="chip active">Recommendation engines</span>
+      <span class="chip">Image-text matching</span>
+      <span class="chip">Document clustering</span>
+    </div>
+  </div>
+</div>
+
+<!-- 12: SVD -->
+<div class="section" id="svd">
+  <div class="section-header">
+    <div class="section-num">12</div>
+    <div class="section-title-block">
+      <h2>SVD & Matrix Decomposition</h2>
+      <p>Factoring matrices to reveal hidden structure</p>
+    </div>
+  </div>
+
+  <div class="two-col">
+    <div class="card">
+      <h3>Singular Value Decomposition (SVD)</h3>
+      <p>SVD factorizes any matrix A into three matrices. It's the most important decomposition in numerical linear algebra and AI.</p>
+      <div class="formula">
+        A = U Σ Vᵀ<br><br>
+        <span class="comment">// U (m×m): left singular vectors (input space)</span><br>
+        <span class="comment">// Σ (m×n): diagonal, singular values (importance)</span><br>
+        <span class="comment">// V (n×n): right singular vectors (output space)</span><br><br>
+        <span class="comment">// Truncated SVD (rank-k approximation)</span><br>
+        Aₖ = U[:,:k] Σ[:k,:k] Vᵀ[:k,:]
+      </div>
+    </div>
+    <div class="card">
+      <h3>Eigendecomposition vs SVD</h3>
+      <table class="concept-table">
+        <tr><th>Property</th><th>Eigendecomp.</th><th>SVD</th></tr>
+        <tr><td>Works on</td><td>Square matrices only</td><td>Any matrix</td></tr>
+        <tr><td>Result</td><td>Av = λv</td><td>A = UΣVᵀ</td></tr>
+        <tr><td>Singular values</td><td>Eigenvalues</td><td>√(eigenvalues of AᵀA)</td></tr>
+        <tr><td>AI use</td><td>PCA, stability</td><td>Compression, LoRA</td></tr>
+        <tr><td>Stability</td><td>Can be unstable</td><td>Numerically stable</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>SVD for Image Compression</h3>
+    <p style="font-size:14px;color:var(--text2)">A grayscale image is a matrix. SVD decomposes it into layers of decreasing importance. By keeping only the top k singular values, we get a compressed approximation. A 1000×1000 image (1M values) compressed with rank-50 SVD needs only 50×(1000+1000+1) ≈ 100K values — 90% smaller with visually acceptable quality. This same principle underlies <strong>LoRA, matrix factorization, and recommendation systems</strong>.</p>
+    <div class="formula">
+      <span class="comment">// Full rank: store 1000×1000 = 1,000,000 values</span><br>
+      <span class="comment">// Rank-50: store U(1000×50) + Σ(50) + V(1000×50)</span><br>
+      Storage: 100,050 values &nbsp; <span class="comment">// 90% compression</span>
+    </div>
+  </div>
+
+  <div class="three-col">
+    <div class="card">
+      <h3>QR Decomposition</h3>
+      <p>A = QR where Q is orthogonal (Qᵀ=Q⁻¹) and R is upper triangular. Used to solve least squares problems efficiently — the foundation of linear regression.</p>
+    </div>
+    <div class="card">
+      <h3>LU Decomposition</h3>
+      <p>A = LU where L is lower triangular and U is upper triangular. Efficiently solves systems Ax = b via forward/backward substitution. O(n³) once, then O(n²) per solve.</p>
+    </div>
+    <div class="card">
+      <h3>Cholesky</h3>
+      <p>A = LLᵀ for symmetric positive-definite matrices. 2× faster than LU. Used in Gaussian processes, Kalman filters, and MCMC sampling in Bayesian ML.</p>
+    </div>
+  </div>
+
+  <div class="ai-app">
+    <h4>AI Application — Collaborative Filtering & Matrix Factorization</h4>
+    <p>Netflix's recommendation system uses matrix factorization (essentially truncated SVD). The user-item rating matrix R (users × movies) is factored as R ≈ U × Vᵀ where U is (users × k) and V is (movies × k). The k latent factors capture hidden concepts like "action lover" or "comedy preference." Missing ratings are predicted by U[user] · V[movie]ᵀ.</p>
+    <p><strong>Transformers use SVD implicitly:</strong> The attention weight matrix has low effective rank — most information lies in a few singular vectors. LoRA exploits this by approximating weight updates as A×B (rank decomposition).</p>
+    <div class="app-chips">
+      <span class="chip active">Matrix factorization (Netflix)</span>
+      <span class="chip active">LoRA (LLM fine-tuning)</span>
+      <span class="chip">Linear regression (QR)</span>
+      <span class="chip">Gaussian processes (Cholesky)</span>
+    </div>
+  </div>
+</div>
+
+<!-- CHEAT SHEET -->
+<div class="section" id="cheatsheet">
+  <div class="section-header">
+    <div class="section-num">13</div>
+    <div class="section-title-block">
+      <h2>Quick Reference Cheat Sheet</h2>
+      <p>Everything in one place</p>
+    </div>
+  </div>
+  <div class="cheatsheet">
+    <h3>Linear Algebra Formulas for AI</h3>
+    <div class="cs-grid">
+      <div class="cs-item">
+        <div class="cs-name">Vector magnitude</div>
+        <div class="cs-formula">||v|| = √(v₁²+v₂²+...+vₙ²)</div>
+        <div class="cs-desc">L2 norm — length of a vector</div>
+      </div>
+      <div class="cs-item">
+        <div class="cs-name">Dot product</div>
+        <div class="cs-formula">a·b = Σ aᵢbᵢ = |a||b|cos θ</div>
+        <div class="cs-desc">Measures similarity / projection</div>
+      </div>
+      <div class="cs-item">
+        <div class="cs-name">Cosine similarity</div>
+        <div class="cs-formula">sim = (a·b) / (||a|| ||b||)</div>
+        <div class="cs-desc">Ranges from -1 to +1</div>
+      </div>
+      <div class="cs-item">
+        <div class="cs-name">Matrix multiply</div>
+        <div class="cs-formula">Cᵢⱼ = Σₖ Aᵢₖ Bₖⱼ</div>
+        <div class="cs-desc">(m×k)×(k×n) → (m×n)</div>
+      </div>
+      <div class="cs-item">
+        <div class="cs-name">Determinant (2×2)</div>
+        <div class="cs-formula">det = ad - bc</div>
+        <div class="cs-desc">Area scaling factor</div>
+      </div>
+      <div class="cs-item">
+        <div class="cs-name">Eigenvector equation</div>
+        <div class="cs-formula">Av = λv</div>
+        <div class="cs-desc">λ = eigenvalue, v = eigenvector</div>
+      </div>
+      <div class="cs-item">
+        <div class="cs-name">SVD decomposition</div>
+        <div class="cs-formula">A = U Σ Vᵀ</div>
+        <div class="cs-desc">Factorizes any matrix</div>
+      </div>
+      <div class="cs-item">
+        <div class="cs-name">Neural layer (forward)</div>
+        <div class="cs-formula">a = σ(Wx + b)</div>
+        <div class="cs-desc">Matrix mult + activation</div>
+      </div>
+      <div class="cs-item">
+        <div class="cs-name">Gradient descent</div>
+        <div class="cs-formula">w ← w − α∇L</div>
+        <div class="cs-desc">Vector subtraction update</div>
+      </div>
+      <div class="cs-item">
+        <div class="cs-name">Attention score</div>
+        <div class="cs-formula">softmax(QKᵀ/√d) · V</div>
+        <div class="cs-desc">Transformer attention</div>
+      </div>
+      <div class="cs-item">
+        <div class="cs-name">PCA projection</div>
+        <div class="cs-formula">Z = X̄ · V[:, :k]</div>
+        <div class="cs-desc">Project onto top k eigenvectors</div>
+      </div>
+      <div class="cs-item">
+        <div class="cs-name">LoRA update</div>
+        <div class="cs-formula">ΔW = A × B (low rank)</div>
+        <div class="cs-desc">Efficient fine-tuning</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider">Learning path suggestion</div>
+
+  <div class="three-col">
+    <div class="card">
+      <h3>Beginner path</h3>
+      <p>Start with scalars → vectors → dot product → matrix multiplication. Build intuition with 2D examples before going higher-dimensional.</p>
+      <p><span class="tag tag-teal">Weeks 1–2</span> Vectors & operations<br><span class="tag tag-teal">Weeks 3–4</span> Matrices & matmul<br><span class="tag tag-teal">Weeks 5–6</span> Apply to linear regression</p>
+    </div>
+    <div class="card">
+      <h3>Intermediate path</h3>
+      <p>Add transformations, eigenvalues, and SVD. Implement a neural network from scratch using NumPy — all you need is matmul and gradients.</p>
+      <p><span class="tag tag-blue">Month 2</span> Transformations & det<br><span class="tag tag-blue">Month 2</span> Eigenvectors & PCA<br><span class="tag tag-blue">Month 3</span> Backprop from scratch</p>
+    </div>
+    <div class="card">
+      <h3>Advanced path</h3>
+      <p>SVD, tensor operations, Jacobians, and Hessians. Understand transformer attention as batched matrix operations. Explore LoRA internals.</p>
+      <p><span class="tag tag-purple">Month 4</span> SVD & decompositions<br><span class="tag tag-purple">Month 5</span> Tensors & autodiff<br><span class="tag tag-purple">Month 6</span> Transformer math</p>
+    </div>
+  </div>
+</div>
+
+</div><!-- /content -->
+</main>
+
+<script>
+// ============================================================
+// UTILITY
+// ============================================================
+const $ = id => document.getElementById(id);
+const setupCanvas = (id, h) => {
+  const c = $(id); const dpr = window.devicePixelRatio || 1;
+  const w = c.clientWidth;
+  c.width = w * dpr; c.height = h * dpr;
+  const ctx = c.getContext('2d'); ctx.scale(dpr, dpr);
+  return { ctx, w, h };
+};
+const getClr = () => ({
+  grid: 'rgba(0,0,0,0.06)', axis: 'rgba(0,0,0,0.3)', lbl: 'rgba(0,0,0,0.45)',
+  txt: '#111827', teal: '#1D9E75', coral: '#D85A30',
+  purple: '#7F77DD', blue: '#378ADD', amber: '#BA7517',
+  bg: '#FAFAF8'
+});
+const drawGrid = (ctx, w, h, pad, xr, yr) => {
+  const cl = getClr();
+  const cw = w-pad.l-pad.r, ch = h-pad.t-pad.b;
+  const ox = pad.l+(0-xr[0])/(xr[1]-xr[0])*cw;
+  const oy = pad.t+(yr[1]-0)/(yr[1]-yr[0])*ch;
+  ctx.strokeStyle = cl.grid; ctx.lineWidth = 0.5;
+  for(let xi=xr[0]; xi<=xr[1]; xi++){
+    const px=pad.l+(xi-xr[0])/(xr[1]-xr[0])*cw;
+    ctx.beginPath(); ctx.moveTo(px,pad.t); ctx.lineTo(px,pad.t+ch); ctx.stroke();
+  }
+  for(let yi=yr[0]; yi<=yr[1]; yi++){
+    const py=pad.t+(yr[1]-yi)/(yr[1]-yr[0])*ch;
+    ctx.beginPath(); ctx.moveTo(pad.l,py); ctx.lineTo(pad.l+cw,py); ctx.stroke();
+  }
+  ctx.strokeStyle = cl.axis; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(pad.l,oy); ctx.lineTo(pad.l+cw,oy); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(ox,pad.t); ctx.lineTo(ox,pad.t+ch); ctx.stroke();
+  ctx.fillStyle = cl.lbl; ctx.font = '10px JetBrains Mono, monospace'; ctx.textAlign = 'center';
+  for(let xi=xr[0]; xi<=xr[1]; xi++){
+    if(!xi) continue;
+    const px=pad.l+(xi-xr[0])/(xr[1]-xr[0])*cw;
+    ctx.fillText(xi, px, oy+14);
+  }
+  ctx.textAlign = 'right';
+  for(let yi=yr[0]; yi<=yr[1]; yi++){
+    if(!yi) continue;
+    const py=pad.t+(yr[1]-yi)/(yr[1]-yr[0])*ch;
+    ctx.fillText(yi, ox-5, py+4);
+  }
+  return { cw, ch, ox, oy };
+};
+const toC = (x,y,pad,cw,ch,xr,yr) => [pad.l+(x-xr[0])/(xr[1]-xr[0])*cw, pad.t+(yr[1]-y)/(yr[1]-yr[0])*ch];
+const arrow = (ctx, x1, y1, x2, y2, color, lw=2.5, hs=10) => {
+  ctx.strokeStyle = color; ctx.fillStyle = color; ctx.lineWidth = lw;
+  ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+  const a = Math.atan2(y2-y1,x2-x1);
+  ctx.beginPath();
+  ctx.moveTo(x2,y2);
+  ctx.lineTo(x2-hs*Math.cos(a-0.4),y2-hs*Math.sin(a-0.4));
+  ctx.lineTo(x2-hs*Math.cos(a+0.4),y2-hs*Math.sin(a+0.4));
+  ctx.closePath(); ctx.fill();
+};
+
+// ============================================================
+// VECTORS CANVAS
+// ============================================================
+function drawVectors() {
+  const ax=+$('ax').value, ay=+$('ay').value;
+  const bx=+$('bx').value, by=+$('by').value;
+  $('axv').textContent=ax; $('ayv').textContent=ay;
+  $('bxv').textContent=bx; $('byv').textContent=by;
+  $('magA').textContent=Math.hypot(ax,ay).toFixed(2);
+  $('magB').textContent=Math.hypot(bx,by).toFixed(2);
+  $('sumAB').textContent='['+(ax+bx).toFixed(1)+', '+(ay+by).toFixed(1)+']';
+  $('diffAB').textContent='['+(ax-bx).toFixed(1)+', '+(ay-by).toFixed(1)+']';
+  const {ctx,w,h} = setupCanvas('cv-vectors',260);
+  const pad={l:44,r:20,t:20,b:32}, xr=[-5,5], yr=[-5,5];
+  const {cw,ch,ox,oy} = drawGrid(ctx,w,h,pad,xr,yr);
+  const cl = getClr();
+  const T=(x,y)=>toC(x,y,pad,cw,ch,xr,yr);
+  // Sum (dashed)
+  const [sx,sy]=T(ax+bx,ay+by);
+  ctx.setLineDash([4,3]); ctx.strokeStyle=cl.purple; ctx.lineWidth=1.5;
+  ctx.beginPath(); ctx.moveTo(ox,oy); ctx.lineTo(sx,sy); ctx.stroke();
+  ctx.setLineDash([]);
+  // B from tip of A (ghost)
+  const [atx,aty]=T(ax,ay), [abtx,abty]=T(ax+bx,ay+by);
+  ctx.setLineDash([3,3]); ctx.strokeStyle=cl.coral+'80'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(atx,aty); ctx.lineTo(abtx,abty); ctx.stroke();
+  ctx.setLineDash([]);
+  // A
+  const [px1,py1]=T(ax,ay); arrow(ctx,ox,oy,px1,py1,cl.teal);
+  ctx.fillStyle=cl.teal; ctx.font='500 13px Source Sans 3, sans-serif'; ctx.textAlign='left';
+  ctx.fillText('A ['+ax+', '+ay+']', px1+8, py1-6);
+  // B
+  const [px2,py2]=T(bx,by); arrow(ctx,ox,oy,px2,py2,cl.coral);
+  ctx.fillStyle=cl.coral;
+  ctx.fillText('B ['+bx+', '+by+']', px2+8, py2-6);
+  // A+B label
+  ctx.fillStyle=cl.purple; ctx.fillText('A+B', sx+6, sy-6);
+  // magnitude arcs
+  ctx.strokeStyle=cl.teal+'60'; ctx.lineWidth=1; ctx.setLineDash([2,2]);
+  ctx.beginPath(); ctx.arc(ox,oy,Math.hypot(px1-ox,py1-oy)*0.15,0,Math.PI*2); ctx.stroke();
+  ctx.setLineDash([]);
+}
+
+// ============================================================
+// DOT PRODUCT CANVAS
+// ============================================================
+function drawDot() {
+  const a1=+$('da1').value*Math.PI/180, a2=+$('da2').value*Math.PI/180;
+  $('da1v').textContent=$('da1').value+'°';
+  $('da2v').textContent=$('da2').value+'°';
+  const A=[Math.cos(a1),Math.sin(a1)], B=[Math.cos(a2),Math.sin(a2)];
+  const dot=A[0]*B[0]+A[1]*B[1];
+  const angle=Math.acos(Math.max(-1,Math.min(1,dot)))*180/Math.PI;
+  $('dot-val').textContent=dot.toFixed(3);
+  $('dot-angle').textContent=angle.toFixed(1)+'°';
+  $('dot-cos').textContent=dot.toFixed(3);
+  $('dot-interp').textContent=angle<30?'Very similar':angle<70?'Somewhat similar':angle<110?'Unrelated':angle<150?'Opposite-ish':'Opposite';
+  const {ctx,w,h}=setupCanvas('cv-dot',260);
+  const pad={l:40,r:40,t:20,b:32}, xr=[-1.5,1.5], yr=[-1.5,1.5];
+  const {cw,ch,ox,oy}=drawGrid(ctx,w,h,pad,xr,yr);
+  const cl=getClr();
+  const sc=cw/3;
+  // angle arc shade
+  ctx.beginPath(); ctx.moveTo(ox,oy);
+  ctx.arc(ox,oy,sc*0.35,-a1,-a2,a1>a2);
+  ctx.closePath();
+  ctx.fillStyle=dot>=0?'rgba(29,158,117,0.15)':'rgba(216,90,48,0.15)'; ctx.fill();
+  // mid-angle label
+  const ma=(a1+a2)/2;
+  ctx.fillStyle=cl.lbl; ctx.font='11px JetBrains Mono, monospace'; ctx.textAlign='center';
+  ctx.fillText(angle.toFixed(0)+'°', ox+sc*0.48*Math.cos(ma), oy-sc*0.48*Math.sin(ma));
+  // projection dashed
+  const proj=dot;
+  const [ppx,ppy]=toC(proj*A[0],proj*A[1],pad,cw,ch,xr,yr);
+  const [bpx,bpy]=toC(B[0],B[1],pad,cw,ch,xr,yr);
+  ctx.setLineDash([3,3]); ctx.strokeStyle=cl.lbl+'80'; ctx.lineWidth=0.8;
+  ctx.beginPath(); ctx.moveTo(bpx,bpy); ctx.lineTo(ppx,ppy); ctx.stroke();
+  ctx.setLineDash([]);
+  // dot on x-axis
+  ctx.beginPath(); ctx.arc(ppx,ppy,4,0,Math.PI*2);
+  ctx.fillStyle=cl.teal; ctx.fill();
+  // vectors
+  const [ax2,ay2]=toC(A[0],A[1],pad,cw,ch,xr,yr);
+  const [bx2,by2]=toC(B[0],B[1],pad,cw,ch,xr,yr);
+  arrow(ctx,ox,oy,ax2,ay2,cl.teal);
+  arrow(ctx,ox,oy,bx2,by2,cl.coral);
+  ctx.fillStyle=cl.teal; ctx.font='500 12px Source Sans 3'; ctx.textAlign='left';
+  ctx.fillText('A', ax2+6, ay2-4);
+  ctx.fillStyle=cl.coral; ctx.fillText('B', bx2+6, by2-4);
+  // dot product bar
+  const bW=Math.abs(dot)*sc*0.6, bX=ox-bW/2, bY=h-18;
+  ctx.fillStyle=dot>=0?cl.teal:cl.coral;
+  ctx.fillRect(bX,bY,bW,7);
+  ctx.strokeStyle=cl.lbl+'60'; ctx.lineWidth=0.5;
+  ctx.strokeRect(ox-sc*0.3,bY,sc*0.6,7);
+  ctx.fillStyle=cl.lbl; ctx.font='10px JetBrains Mono'; ctx.textAlign='center';
+  ctx.fillText('dot product = '+dot.toFixed(3), ox, bY-5);
+}
+
+// ============================================================
+// MATRIX MULTIPLY CANVAS
+// ============================================================
+function drawMatMul() {
+  const m00=+$('m00').value, m01=+$('m01').value;
+  const m10=+$('m10').value, m11=+$('m11').value;
+  const vx=+$('v2xs').value, vy=+$('v2ys').value;
+  $('v2xv').textContent=vx; $('v2yv').textContent=vy;
+  $('v2x').textContent=vx.toFixed(1); $('v2y').textContent=vy.toFixed(1);
+  const rx=m00*vx+m01*vy, ry=m10*vx+m11*vy;
+  $('r2x').textContent=rx.toFixed(1); $('r2y').textContent=ry.toFixed(1);
+  const {ctx,w,h}=setupCanvas('cv-matmul',260);
+  const pad={l:44,r:20,t:20,b:32}, xr=[-7,7], yr=[-7,7];
+  const {cw,ch,ox,oy}=drawGrid(ctx,w,h,pad,xr,yr);
+  const cl=getClr();
+  const T=(x,y)=>toC(x,y,pad,cw,ch,xr,yr);
+  const [px,py]=T(vx,vy); arrow(ctx,ox,oy,px,py,cl.blue);
+  ctx.fillStyle=cl.blue; ctx.font='12px Source Sans 3'; ctx.textAlign='left';
+  ctx.fillText('input ['+vx+', '+vy+']', px+8, py-6);
+  const [rx2,ry2]=T(rx,ry); arrow(ctx,ox,oy,rx2,ry2,cl.teal);
+  ctx.fillStyle=cl.teal; ctx.fillText('Wx = ['+rx.toFixed(1)+', '+ry.toFixed(1)+']', rx2+8, ry2-6);
+  ctx.setLineDash([4,3]); ctx.strokeStyle=cl.lbl+'60'; ctx.lineWidth=0.8;
+  ctx.beginPath(); ctx.moveTo(px,py); ctx.lineTo(rx2,ry2); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle=cl.lbl; ctx.font='11px JetBrains Mono'; ctx.textAlign='left';
+  ctx.fillText('W=[['+m00+','+m01+'],['+m10+','+m11+']]', pad.l+4, 36);
+}
+
+// ============================================================
+// TRANSFORMATION CANVAS
+// ============================================================
+const tpresets = [
+  {name:'Scaling',m:[[2,0],[0,1]]},
+  {name:'Rotate 45°',m:[[.707,-.707],[.707,.707]]},
+  {name:'Shear',m:[[1,1],[0,1]]},
+  {name:'Reflect Y',m:[[-1,0],[0,1]]},
+  {name:'Collapse',m:[[1,0],[1,0]]}
+];
+let curTP = 0;
+function setTransformPreset(i) {
+  curTP=i;
+  document.querySelectorAll('[id^=tp]').forEach((b,j)=>b.classList.toggle('active',j===i));
+  const p=tpresets[i];
+  $('t00').value=p.m[0][0]; $('t01').value=p.m[0][1];
+  $('t10').value=p.m[1][0]; $('t11').value=p.m[1][1];
+  drawTransform();
+}
+function drawTransform() {
+  const m00=+$('t00').value, m01=+$('t01').value;
+  const m10=+$('t10').value, m11=+$('t11').value;
+  const det=m00*m11-m01*m10;
+  $('det-val').textContent=det.toFixed(2);
+  $('trans-type').textContent=tpresets[curTP]?.name||'Custom';
+  $('invertible').textContent=Math.abs(det)<0.001?'No (rank deficient)':'Yes';
+  const {ctx,w,h}=setupCanvas('cv-transform',290);
+  const pad={l:44,r:44,t:24,b:36}, xr=[-5,5], yr=[-5,5];
+  const {cw,ch,ox,oy}=drawGrid(ctx,w,h,pad,xr,yr);
+  const cl=getClr();
+  const T=(x,y)=>toC(x,y,pad,cw,ch,xr,yr);
+  const apply=(x,y)=>[m00*x+m01*y, m10*x+m11*y];
+  // Original grid (dashed)
+  const pts=[[-2,-2],[2,-2],[2,2],[-2,2],[-2,-2]];
+  ctx.setLineDash([3,3]); ctx.strokeStyle=cl.lbl+'60'; ctx.lineWidth=1;
+  ctx.beginPath();
+  pts.forEach(([x,y],i)=>{const[px,py]=T(x,y); i?ctx.lineTo(px,py):ctx.moveTo(px,py);}); ctx.stroke();
+  ctx.setLineDash([]);
+  // Transformed
+  const tpts=pts.map(([x,y])=>apply(x,y));
+  ctx.strokeStyle=cl.purple; ctx.lineWidth=1.5;
+  ctx.fillStyle=cl.purple+'25';
+  ctx.beginPath();
+  tpts.forEach(([x,y],i)=>{const[px,py]=T(x,y); i?ctx.lineTo(px,py):ctx.moveTo(px,py);});
+  ctx.fill(); ctx.stroke();
+  // Basis vectors
+  const [e1x,e1y]=apply(1,0), [e2x,e2y]=apply(0,1);
+  const [p1x,p1y]=T(e1x,e1y), [p2x,p2y]=T(e2x,e2y);
+  arrow(ctx,ox,oy,p1x,p1y,cl.teal,2);
+  arrow(ctx,ox,oy,p2x,p2y,cl.coral,2);
+  ctx.fillStyle=cl.teal; ctx.font='11px JetBrains Mono'; ctx.textAlign='left';
+  ctx.fillText('e₁→['+e1x.toFixed(1)+','+e1y.toFixed(1)+']', p1x+4, p1y-4);
+  ctx.fillStyle=cl.coral;
+  ctx.fillText('e₂→['+e2x.toFixed(1)+','+e2y.toFixed(1)+']', p2x+4, p2y-4);
+  ctx.fillStyle=cl.lbl; ctx.font='10px Source Sans 3'; ctx.textAlign='center';
+  ctx.fillText('original (dashed) → transformed (purple) — det='+det.toFixed(2), w/2, 18);
+}
+
+// ============================================================
+// EMBEDDINGS CANVAS
+// ============================================================
+const words=[
+  {w:'king',  x:2.1, y:2.4, cat:'royalty'},
+  {w:'queen', x:1.8, y:1.8, cat:'royalty'},
+  {w:'prince',x:2.5, y:1.3, cat:'royalty'},
+  {w:'cat',   x:-2.3,y:1.9, cat:'animal'},
+  {w:'dog',   x:-2.8,y:1.3, cat:'animal'},
+  {w:'kitten',x:-2.0,y:2.5, cat:'animal'},
+  {w:'run',   x:0.8, y:-2.5,cat:'action'},
+  {w:'jump',  x:0.2, y:-2.8,cat:'action'},
+  {w:'walk',  x:1.2, y:-1.9,cat:'action'},
+  {w:'apple', x:-1.5,y:-1.8,cat:'food'},
+  {w:'pizza', x:-1.0,y:-2.5,cat:'food'},
+  {w:'bread', x:-1.8,y:-1.3,cat:'food'},
+];
+const catC={royalty:'#7F77DD',animal:'#1D9E75',action:'#D85A30',food:'#BA7517'};
+let selW=-1;
+function buildWordChips(){
+  const g=$('wordchips'); g.innerHTML='';
+  words.forEach((wd,i)=>{
+    const d=document.createElement('span');
+    d.className='word-chip'; d.id='wchip'+i;
+    d.innerHTML=`<span class="dot" style="background:${catC[wd.cat]}"></span>${wd.w}`;
+    d.onclick=()=>{selW=selW===i?-1:i; drawEmbeds();};
+    g.appendChild(d);
+  });
+}
+function drawEmbeds(){
+  words.forEach((_,i)=>$('wchip'+i)?.classList.toggle('sel',i===selW));
+  const {ctx,w,h}=setupCanvas('cv-embed',280);
+  const pad={l:50,r:20,t:20,b:32}, xr=[-4,4], yr=[-4,4];
+  const {cw,ch,ox,oy}=drawGrid(ctx,w,h,pad,xr,yr);
+  const cl=getClr();
+  const T=(x,y)=>toC(x,y,pad,cw,ch,xr,yr);
+  // Category clusters
+  Object.keys(catC).forEach(cat=>{
+    const cws=words.filter(w=>w.cat===cat);
+    const cx2=cws.reduce((s,w)=>s+w.x,0)/cws.length;
+    const cy2=cws.reduce((s,w)=>s+w.y,0)/cws.length;
+    const r=cws.reduce((mx,w)=>Math.max(mx,Math.hypot(w.x-cx2,w.y-cy2)),0)+0.5;
+    const [pcx,pcy]=T(cx2,cy2);
+    const pr=r*cw/(xr[1]-xr[0]);
+    ctx.beginPath(); ctx.arc(pcx,pcy,pr,0,Math.PI*2);
+    ctx.fillStyle=catC[cat]+'15'; ctx.fill();
+    ctx.strokeStyle=catC[cat]+'40'; ctx.lineWidth=0.8;
+    ctx.setLineDash([3,3]); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle=catC[cat]+'90'; ctx.font='11px Source Sans 3'; ctx.textAlign='center';
+    const [lx,ly]=T(cx2,cy2+r+0.2);
+    ctx.fillText(cat,lx,ly);
+  });
+  // Nearest neighbour line
+  if(selW>=0){
+    const sw=words[selW]; let md=Infinity, nn=-1;
+    words.forEach((wd,i)=>{if(i===selW)return; const d=Math.hypot(wd.x-sw.x,wd.y-sw.y); if(d<md){md=d;nn=i;}});
+    if(nn>=0){
+      const nw=words[nn];
+      const [sx,sy]=T(sw.x,sw.y),[nx,ny]=T(nw.x,nw.y);
+      ctx.strokeStyle=cl.blue; ctx.lineWidth=1.5; ctx.setLineDash([4,3]);
+      ctx.beginPath(); ctx.moveTo(sx,sy); ctx.lineTo(nx,ny); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle=cl.blue; ctx.font='11px JetBrains Mono'; ctx.textAlign='center';
+      ctx.fillText('d='+md.toFixed(2),(sx+nx)/2,(sy+ny)/2-7);
+      $('embed-note').textContent='"'+sw.w+'" → nearest: "'+nw.w+'" (dist '+md.toFixed(2)+'). Both are '+sw.cat+'s — same cluster!';
+    }
+  }
+  // Dots and labels
+  words.forEach((wd,i)=>{
+    const [px,py]=T(wd.x,wd.y);
+    const isSel=i===selW;
+    ctx.beginPath(); ctx.arc(px,py,isSel?7:5,0,Math.PI*2);
+    ctx.fillStyle=catC[wd.cat]; ctx.fill();
+    if(isSel){ctx.strokeStyle=cl.txt;ctx.lineWidth=2;ctx.stroke();}
+    ctx.fillStyle=cl.txt; ctx.font=(isSel?'500 ':'')+'12px Source Sans 3';
+    ctx.textAlign='left'; ctx.fillText(wd.w,px+8,py+4);
+  });
+}
+
+// ============================================================
+// SIDEBAR ACTIVE LINK
+// ============================================================
+const sections = document.querySelectorAll('[id]');
+const navLinks = document.querySelectorAll('.nav-link');
+window.addEventListener('scroll', ()=>{
+  let cur='';
+  sections.forEach(s=>{if(window.scrollY>=s.offsetTop-80) cur=s.id;});
+  navLinks.forEach(l=>{
+    l.classList.toggle('active', l.getAttribute('href')==='#'+cur);
+  });
+}, {passive:true});
+
+// ============================================================
+// INIT
+// ============================================================
+buildWordChips();
+window.addEventListener('load',()=>{
+  setTimeout(()=>{
+    drawVectors(); drawDot(); drawMatMul();
+    setTransformPreset(0); drawEmbeds();
+  },100);
+});
+window.addEventListener('resize',()=>{
+  drawVectors(); drawDot(); drawMatMul(); drawTransform(); drawEmbeds();
+});
+</script>
+</body>
+</html>
