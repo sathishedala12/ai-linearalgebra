@@ -1,0 +1,1212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Complete Calculus for AI — Interactive Visual Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Source+Sans+3:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#FAFAF8;--s:#FFF;--s2:#F2F1ED;--bdr:#E2E0D8;--sb:#111827;--tl:#1D9E75;--tll:#E1F5EE;--tld:#0F6E56;--bl:#378ADD;--bll:#E6F1FB;--bld:#185FA5;--pu:#7F77DD;--pul:#EEEDFE;--pud:#3C3489;--co:#D85A30;--col:#FAECE7;--cod:#712B13;--am:#BA7517;--aml:#FAEEDA;--amd:#633806;--tx:#111827;--tx2:#4B5563;--tx3:#9CA3AF;--fb:'Source Sans 3',sans-serif;--fh:'Playfair Display',serif;--fm:'JetBrains Mono',monospace;--r:10px;--sw:270px}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--fb);background:var(--bg);color:var(--tx);font-size:16px;line-height:1.7;display:flex;min-height:100vh}
+#sb{width:var(--sw);background:var(--sb);position:fixed;top:0;left:0;height:100vh;overflow-y:auto;z-index:100;display:flex;flex-direction:column}
+#sb::-webkit-scrollbar{width:3px}#sb::-webkit-scrollbar-thumb{background:#374151;border-radius:2px}
+.sb-logo{padding:20px 18px 14px;border-bottom:1px solid #1F2937}
+.sb-logo h1{font-family:var(--fh);font-size:15px;color:#F9FAFB;font-weight:600;line-height:1.3}
+.sb-logo p{font-size:10px;color:#6B7280;margin-top:3px}
+.ng{padding:12px 0 4px}.ngt{font-size:9px;color:#4B5563;text-transform:uppercase;letter-spacing:.1em;padding:0 18px;margin-bottom:4px;font-weight:500}
+.nl{display:flex;align-items:center;gap:8px;padding:6px 18px;font-size:12px;color:#9CA3AF;text-decoration:none;transition:all .15s;border-left:2px solid transparent;cursor:pointer}
+.nl:hover{color:#E5E7EB;background:#1F2937}
+.nl.on{color:var(--tl);border-left-color:var(--tl);background:#0F2922}
+.nl .n{font-family:var(--fm);font-size:9px;color:#4B5563;min-width:18px}
+.nl.on .n{color:var(--tl)}
+.sb-ft{margin-top:auto;padding:12px 18px;border-top:1px solid #1F2937;font-size:10px;color:#374151}
+#main{margin-left:var(--sw);flex:1;max-width:calc(100% - var(--sw))}
+.hero{background:var(--sb);color:#fff;padding:52px 52px 44px}
+.hbadge{display:inline-block;background:var(--tl);color:#fff;font-size:10px;font-weight:500;padding:3px 10px;border-radius:20px;margin-bottom:14px;letter-spacing:.05em}
+.hero h1{font-family:var(--fh);font-size:40px;font-weight:700;line-height:1.15;margin-bottom:14px}
+.hero h1 span{color:var(--tl)}
+.hero p{font-size:16px;color:#9CA3AF;max-width:600px;line-height:1.6;margin-bottom:24px}
+.hstats{display:flex;gap:28px;flex-wrap:wrap}
+.hstat .n{font-family:var(--fh);font-size:26px;color:var(--tl);font-weight:700}
+.hstat .l{font-size:11px;color:#6B7280;margin-top:1px}
+.cnt{padding:0 52px 80px}
+.sec{padding:48px 0 0;border-top:1px solid var(--bdr);margin-top:48px}
+.sec:first-child{border-top:none;margin-top:0;padding-top:48px}
+.sec-hd{display:flex;align-items:flex-start;gap:16px;margin-bottom:26px}
+.sec-num{font-family:var(--fm);font-size:11px;color:var(--tx3);background:var(--s2);padding:3px 8px;border-radius:5px;margin-top:5px;white-space:nowrap}
+.sec-tb h2{font-family:var(--fh);font-size:27px;font-weight:700;color:var(--tx);margin-bottom:5px}
+.sec-tb p{font-size:14px;color:var(--tx2)}
+.tag{display:inline-block;font-size:10px;font-weight:500;padding:2px 8px;border-radius:20px;margin-right:4px;margin-bottom:4px}
+.ttl{background:var(--tll);color:var(--tld)}.tbl{background:var(--bll);color:var(--bld)}.tpl{background:var(--pul);color:var(--pud)}.tcl{background:var(--col);color:var(--cod)}.tal{background:var(--aml);color:var(--amd)}
+.analogy{background:#EFF6FF;border:1px solid #BFDBFE;border-radius:var(--r);padding:14px 18px;margin-bottom:16px;display:flex;gap:12px;align-items:flex-start}
+.analogy .ic{font-size:20px;flex-shrink:0;margin-top:1px}
+.analogy p{font-size:14px;color:#1E40AF;line-height:1.6;margin:0}
+.card{background:var(--s);border:1px solid var(--bdr);border-radius:var(--r);padding:18px 22px;margin-bottom:14px}
+.card h3{font-family:var(--fh);font-size:17px;font-weight:600;margin-bottom:9px;color:var(--tx)}
+.card p{color:var(--tx2);font-size:13.5px;line-height:1.7;margin-bottom:9px}
+.card p:last-child{margin-bottom:0}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.three-col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:14px}
+@media(max-width:900px){.two-col,.three-col{grid-template-columns:1fr}}
+.formula{background:var(--s2);border-left:3px solid var(--pu);border-radius:0 var(--r) var(--r) 0;padding:12px 16px;margin:12px 0;font-family:var(--fm);font-size:12.5px;color:var(--tx);line-height:2}
+.formula .cm{color:var(--tx3);font-size:11px}
+.code{background:#1E293B;border-radius:var(--r);padding:12px 16px;margin:12px 0;font-family:var(--fm);font-size:11.5px;color:#E2E8F0;line-height:1.8;overflow-x:auto}
+.code .kw{color:#F472B6}.code .fn{color:#34D399}.code .cm{color:#64748B}.code .st{color:#FCD34D}.code .nm{color:#93C5FD}
+.aiapp{background:linear-gradient(135deg,#0F2922 0%,#111827 100%);border-radius:var(--r);padding:18px 22px;margin:14px 0}
+.aiapp h4{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--tl);margin-bottom:9px;font-weight:600}
+.aiapp p{color:#D1D5DB;font-size:13px;line-height:1.7;margin-bottom:7px}
+.aiapp p:last-child{margin-bottom:0}
+.aiapp strong{color:#F9FAFB}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.chip{background:#1F2937;border:1px solid #374151;color:#9CA3AF;font-size:11px;padding:3px 10px;border-radius:20px}
+.chip.a{background:#0F2922;border-color:var(--tl);color:var(--tl)}
+.vb{background:var(--s);border:1px solid var(--bdr);border-radius:var(--r);overflow:hidden;margin:16px 0}
+.vb-hd{padding:10px 16px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between;background:var(--s2)}
+.vb-hd span{font-size:11px;font-weight:500;color:var(--tx2);display:flex;align-items:center;gap:6px}
+.vz{width:8px;height:8px;border-radius:50%;background:var(--tl);display:inline-block}
+.vb-bd{padding:16px}
+canvas{width:100%;display:block;border-radius:7px;border:1px solid var(--bdr);background:var(--bg)}
+.ctrls{display:flex;flex-wrap:wrap;gap:16px;margin-top:12px}
+.ctrl{flex:1;min-width:180px}
+.ctrl label{display:block;font-size:11px;font-weight:500;color:var(--tx2);margin-bottom:4px}
+.cr{display:flex;align-items:center;gap:8px}
+.cr input[type=range]{flex:1;accent-color:var(--tl)}
+.cr .val{font-family:var(--fm);font-size:12px;font-weight:500;color:var(--tx);min-width:38px;text-align:right}
+select{font-size:12px;padding:5px 8px;border:1px solid var(--bdr);border-radius:6px;background:var(--s);color:var(--tx);cursor:pointer;font-family:var(--fb)}
+.sr{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;margin-top:12px}
+.st{background:var(--s2);border-radius:7px;padding:9px 12px}
+.st .lb{font-size:10px;color:var(--tx3);text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px}
+.st .vl{font-family:var(--fm);font-size:17px;font-weight:500;color:var(--tx)}
+.st .sb{font-size:10px;color:var(--tx3);margin-top:2px}
+.ins{border:1px solid var(--tl);background:var(--tll);border-radius:var(--r);padding:12px 16px;margin:12px 0;font-size:13px;color:var(--tld);line-height:1.6}
+.bgrp{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.btn{padding:5px 11px;font-size:11px;border:1px solid var(--bdr);border-radius:6px;background:var(--s);color:var(--tx2);cursor:pointer;transition:all .15s;font-family:var(--fb)}
+.btn:hover{border-color:var(--tl);color:var(--tl)}
+.btn.on{background:var(--tll);border-color:var(--tl);color:var(--tld);font-weight:500}
+.btn-p{background:var(--tl);color:#fff;border:none;padding:6px 16px;font-size:12px;border-radius:6px;cursor:pointer;font-family:var(--fb);font-weight:500;transition:background .15s}
+.btn-p:hover{background:var(--tld)}
+.tbl{width:100%;border-collapse:collapse;margin:10px 0;font-size:13px}
+.tbl th{background:var(--s2);padding:7px 11px;text-align:left;font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--tx2);border-bottom:2px solid var(--bdr)}
+.tbl td{padding:7px 11px;border-bottom:1px solid var(--bdr);vertical-align:top;color:var(--tx2)}
+.tbl td:first-child{font-family:var(--fm);color:var(--tx);font-size:12px}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:var(--s2)}
+.step-tabs{display:flex;gap:5px;margin-bottom:12px;flex-wrap:wrap}
+.step-tab{padding:5px 11px;font-size:11px;border:1px solid var(--bdr);border-radius:20px;background:var(--s);color:var(--tx3);cursor:pointer;transition:all .15s}
+.step-tab.on{background:var(--tll);border-color:var(--tl);color:var(--tld);font-weight:500}
+.cs{background:var(--sb);color:#fff;border-radius:var(--r);padding:26px 30px;margin-top:18px}
+.cs h3{font-family:var(--fh);font-size:20px;color:#fff;margin-bottom:16px}
+.cs-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(195px,1fr));gap:10px}
+.cs-item{background:#1F2937;border-radius:7px;padding:11px 13px}
+.cs-name{font-size:10px;color:var(--tl);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px;font-weight:600}
+.cs-f{font-family:var(--fm);font-size:11.5px;color:#E5E7EB;margin-bottom:3px}
+.cs-d{font-size:10px;color:#6B7280}
+@media(max-width:768px){:root{--sw:0px}#sb{display:none}#main{margin-left:0;max-width:100%}.hero,.cnt{padding-left:20px;padding-right:20px}}
+</style>
+</head>
+<body>
+<nav id="sb">
+  <div class="sb-logo"><h1>Calculus<br>for AI</h1><p>Complete Interactive Guide — 0 to Hero</p></div>
+  <div class="ng"><div class="ngt">Foundations</div>
+    <a class="nl on" href="#intro"><span class="n">00</span>Why Calculus for AI?</a>
+    <a class="nl" href="#functions"><span class="n">01</span>Functions &amp; Graphs</a>
+    <a class="nl" href="#limits"><span class="n">02</span>Limits</a>
+    <a class="nl" href="#continuity"><span class="n">03</span>Continuity</a>
+    <a class="nl" href="#derivative"><span class="n">04</span>The Derivative</a>
+    <a class="nl" href="#rules"><span class="n">05</span>Differentiation Rules</a>
+    <a class="nl" href="#common"><span class="n">06</span>Common Derivatives</a>
+  </div>
+  <div class="ng"><div class="ngt">Multivariable</div>
+    <a class="nl" href="#higher"><span class="n">07</span>Higher-Order Derivatives</a>
+    <a class="nl" href="#partial"><span class="n">08</span>Partial Derivatives</a>
+    <a class="nl" href="#gradient"><span class="n">09</span>The Gradient</a>
+    <a class="nl" href="#chainrule"><span class="n">10</span>Chain Rule</a>
+    <a class="nl" href="#jacobian"><span class="n">11</span>Jacobian Matrix</a>
+    <a class="nl" href="#hessian"><span class="n">12</span>Hessian Matrix</a>
+  </div>
+  <div class="ng"><div class="ngt">Integration</div>
+    <a class="nl" href="#antideriv"><span class="n">13</span>Antiderivatives</a>
+    <a class="nl" href="#riemann"><span class="n">14</span>Riemann Sums</a>
+    <a class="nl" href="#ftc"><span class="n">15</span>Fund. Theorem</a>
+    <a class="nl" href="#techniques"><span class="n">16</span>Integration Techniques</a>
+  </div>
+  <div class="ng"><div class="ngt">Optimization</div>
+    <a class="nl" href="#critpoints"><span class="n">17</span>Critical Points</a>
+    <a class="nl" href="#convexity"><span class="n">18</span>Convexity</a>
+    <a class="nl" href="#graddesc"><span class="n">19</span>Gradient Descent</a>
+    <a class="nl" href="#saddle"><span class="n">20</span>Saddle Points</a>
+    <a class="nl" href="#lagrange"><span class="n">21</span>Lagrange Multipliers</a>
+  </div>
+  <div class="ng"><div class="ngt">AI Applications</div>
+    <a class="nl" href="#explog"><span class="n">22</span>Exp &amp; Log in ML</a>
+    <a class="nl" href="#taylor"><span class="n">23</span>Taylor Series</a>
+    <a class="nl" href="#backprop"><span class="n">24</span>Backpropagation</a>
+    <a class="nl" href="#autodiff"><span class="n">25</span>Automatic Differentiation</a>
+    <a class="nl" href="#losssurface"><span class="n">26</span>Loss Landscapes</a>
+    <a class="nl" href="#probability"><span class="n">27</span>Calculus in Probability</a>
+    <a class="nl" href="#cheatsheet"><span class="n">28</span>Cheat Sheet</a>
+  </div>
+  <div class="sb-ft">28 concepts · 14 interactive demos</div>
+</nav>
+<main id="main">
+<div class="hero" id="intro">
+  <div class="hbadge">Complete Edition — 28 Concepts · 0 to Hero</div>
+  <h1>Calculus<br>for <span>Artificial Intelligence</span></h1>
+  <p>Derivatives power backpropagation. Integrals underlie probability. Gradients drive every optimizer. Build the calculus intuition that makes AI click — with live interactive visuals you can play with.</p>
+  <div class="hstats">
+    <div class="hstat"><div class="n">28</div><div class="l">Core Concepts</div></div>
+    <div class="hstat"><div class="n">14</div><div class="l">Interactive Demos</div></div>
+    <div class="hstat"><div class="n">0</div><div class="l">Prerequisites</div></div>
+  </div>
+</div>
+<div class="cnt">
+
+<!-- 01 FUNCTIONS -->
+<div class="sec" id="functions">
+  <div class="sec-hd"><div class="sec-num">01</div><div class="sec-tb"><h2>Functions &amp; Graphs</h2><p>The raw material of calculus — mapping inputs to outputs</p></div></div>
+  <div class="analogy"><span class="ic">🎛️</span><p><strong>Plain English:</strong> A function is a machine — put a number in, get a number out. f(3)=9 means "when I put 3 in, I get 9 out." Graphing a function draws every (input, output) pair as a point. Neural networks are just very complicated functions mapping inputs (pixels, words) to outputs (class probabilities).</p></div>
+  <div class="vb"><div class="vb-hd"><span><span class="vz"></span> Interactive: Function explorer</span><span style="font-size:10px;color:var(--tx3)">Pick a function and explore</span></div>
+    <div class="vb-bd">
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px;align-items:center">
+        <select id="fn-sel" onchange="drawFn()">
+          <option value="x2">f(x) = x²</option>
+          <option value="x3">f(x) = x³</option>
+          <option value="sin">f(x) = sin(x)</option>
+          <option value="cos">f(x) = cos(x)</option>
+          <option value="exp">f(x) = eˣ</option>
+          <option value="log">f(x) = ln(x)</option>
+          <option value="abs">f(x) = |x|</option>
+          <option value="relu">f(x) = ReLU(x)</option>
+          <option value="sigmoid">f(x) = sigmoid(x)</option>
+          <option value="tanh">f(x) = tanh(x)</option>
+        </select>
+        <span style="font-size:12px;color:var(--tx2)">x = <input type="range" id="fn-x" min="-4" max="4" step="0.1" value="1" oninput="drawFn()" style="width:120px;accent-color:var(--tl)"> <span id="fn-xv" style="font-family:var(--fm);font-size:12px;font-weight:500">1.0</span></span>
+      </div>
+      <canvas id="cv-fn" height="240"></canvas>
+      <div class="sr">
+        <div class="st"><div class="lb">f(x) at x</div><div class="vl" id="fn-fx" style="color:var(--tl)">1.00</div><div class="sb">output value</div></div>
+        <div class="st"><div class="lb">Domain</div><div class="vl" style="font-size:12px" id="fn-domain">all reals</div><div class="sb">valid inputs</div></div>
+        <div class="st"><div class="lb">AI use</div><div class="vl" style="font-size:11px" id="fn-ai">Quadratic loss</div><div class="sb">where it appears</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="aiapp"><h4>AI Application — Activation Functions Are Functions</h4>
+    <p>Every neuron applies a function to its input: <strong>ReLU(x) = max(0,x)</strong>, sigmoid(x) = 1/(1+e⁻ˣ), tanh(x). These are chosen because their <strong>derivatives are easy to compute</strong> — which matters enormously for backpropagation. Try them in the explorer above. Notice ReLU has a sharp corner at 0 — this makes it non-differentiable there (but still usable in practice).</p>
+    <div class="chips"><span class="chip a">ReLU activation</span><span class="chip a">Sigmoid (binary classif.)</span><span class="chip a">Tanh (RNNs)</span><span class="chip">GELU (Transformers)</span></div>
+  </div>
+</div>
+
+<!-- 02 LIMITS -->
+<div class="sec" id="limits">
+  <div class="sec-hd"><div class="sec-num">02</div><div class="sec-tb"><h2>Limits</h2><p>What a function approaches — the foundation of all calculus</p></div></div>
+  <div class="analogy"><span class="ic">🔭</span><p><strong>Plain English:</strong> Imagine walking toward a wall. The limit asks: "what point on the wall are you heading toward?" — NOT whether you actually reach it. lim(x→2) f(x) = 4 means "as x gets close to 2 (from either side), f(x) gets close to 4." The entire concept of the derivative is built on this idea.</p></div>
+  <div class="vb"><div class="vb-hd"><span><span class="vz"></span> Interactive: Approach from left and right</span></div>
+    <div class="vb-bd">
+      <canvas id="cv-lim" height="230"></canvas>
+      <div class="ctrls">
+        <div class="ctrl"><label>Approach point a</label><div class="cr"><input type="range" id="lim-a" min="-3" max="3" step="0.1" value="0" oninput="drawLim()"><span class="val" id="lim-av">0.0</span></div></div>
+        <div class="ctrl"><label>How close Δ (closeness)</label><div class="cr"><input type="range" id="lim-d" min="0.05" max="2" step="0.05" value="1.5" oninput="drawLim()"><span class="val" id="lim-dv">1.50</span></div></div>
+      </div>
+      <div class="sr">
+        <div class="st"><div class="lb">From left</div><div class="vl" id="lim-l" style="color:var(--tl)">—</div><div class="sb">lim x→a⁻</div></div>
+        <div class="st"><div class="lb">From right</div><div class="vl" id="lim-r" style="color:var(--co)">—</div><div class="sb">lim x→a⁺</div></div>
+        <div class="st"><div class="lb">Limit exists?</div><div class="vl" style="font-size:12px" id="lim-ex">Yes</div><div class="sb">if left=right</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="formula">lim[x→a] f(x) = L means: for any ε&gt;0, ∃δ&gt;0 such that<br>if 0 &lt; |x−a| &lt; δ, then |f(x)−L| &lt; ε<br><span class="cm">// "Get f(x) within ε of L by keeping x within δ of a"</span><br><br>lim[x→0] (sin x)/x = 1 &nbsp;<span class="cm">// famous limit — used in signal processing</span><br>lim[x→∞] (1 + 1/x)ˣ = e &nbsp;<span class="cm">// definition of Euler's number</span></div>
+</div>
+
+<!-- 03 CONTINUITY -->
+<div class="sec" id="continuity">
+  <div class="sec-hd"><div class="sec-num">03</div><div class="sec-tb"><h2>Continuity</h2><p>Functions without jumps or holes — why smoothness matters in AI</p></div></div>
+  <div class="analogy"><span class="ic">✏️</span><p><strong>Plain English:</strong> A continuous function is one you can draw without lifting your pen. No jumps, no holes, no vertical gaps. Continuity matters for AI because: (1) we need to take derivatives — discontinuous functions aren't differentiable, (2) gradient-based optimization needs smooth loss surfaces to navigate.</p></div>
+  <div class="two-col">
+    <div class="card"><h3>Formal definition</h3>
+      <div class="formula" style="font-size:12px">f is continuous at a if:<br>1. f(a) is defined<br>2. lim[x→a] f(x) exists<br>3. lim[x→a] f(x) = f(a)<br><span class="cm">// The limit equals the actual value</span></div>
+    </div>
+    <div class="card"><h3>Continuity in AI</h3>
+      <p><span class="tag ttl">Smooth activations</span> GELU, SiLU are smooth everywhere. Better gradient flow than ReLU's kink at 0.</p>
+      <p><span class="tag tbl">Loss functions</span> must be continuous to use gradient descent. MSE and cross-entropy are.</p>
+      <p><span class="tag tpl">Weight initialization</span> ensures the network starts in a continuous regime.</p>
+    </div>
+  </div>
+</div>
+
+<!-- 04 DERIVATIVE -->
+<div class="sec" id="derivative">
+  <div class="sec-hd"><div class="sec-num">04</div><div class="sec-tb"><h2>The Derivative</h2><p>Instantaneous rate of change — the slope at a single point</p></div></div>
+  <div class="analogy"><span class="ic">📐</span><p><strong>Plain English:</strong> The derivative answers: "if I nudge x by a tiny amount, how much does f(x) change?" If you're on a hill, the derivative is the steepness at your exact spot. It's the slope of the tangent line — the line that just barely "kisses" the curve at one point without crossing it.</p></div>
+  <div class="vb"><div class="vb-hd"><span><span class="vz"></span> Interactive: Tangent line — drag x to see slope</span></div>
+    <div class="vb-bd">
+      <div style="display:flex;gap:10px;align-items:center;margin-bottom:10px;flex-wrap:wrap">
+        <select id="deriv-fn" onchange="drawDeriv()">
+          <option value="x2">f(x) = x²</option>
+          <option value="x3">f(x) = x³</option>
+          <option value="sin">f(x) = sin(x)</option>
+          <option value="exp">f(x) = eˣ/3</option>
+          <option value="log">f(x) = ln(|x|+0.1)</option>
+          <option value="relu">f(x) = ReLU(x)</option>
+          <option value="sigmoid">f(x) = sigmoid(x)</option>
+        </select>
+        <span style="font-size:11px;color:var(--tx2)">Toggle:</span>
+        <button class="btn on" id="tog-tan" onclick="togTan()">Tangent line</button>
+        <button class="btn on" id="tog-der" onclick="togDer()">Derivative f′(x)</button>
+      </div>
+      <canvas id="cv-deriv" height="260"></canvas>
+      <div class="ctrls"><div class="ctrl"><label>x position</label><div class="cr"><input type="range" id="dx" min="-4" max="4" step="0.1" value="1.0" oninput="drawDeriv()"><span class="val" id="dxv">1.0</span></div></div></div>
+      <div class="sr">
+        <div class="st"><div class="lb">f(x)</div><div class="vl" id="d-fx" style="color:var(--bl)">1.00</div><div class="sb">function value</div></div>
+        <div class="st"><div class="lb">f′(x) slope</div><div class="vl" id="d-dfx" style="color:var(--co)">2.00</div><div class="sb">derivative</div></div>
+        <div class="st"><div class="lb">Interpretation</div><div class="vl" style="font-size:11px" id="d-interp">rising steeply</div><div class="sb">what slope means</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="formula">Definition (limit form):<br>f′(x) = lim[h→0] (f(x+h) − f(x)) / h<br><span class="cm">// "How much does output change per unit change in input?"</span><br><br>Notation: f′(x) = df/dx = ẋ = Df(x) &nbsp;<span class="cm">// all mean the same thing</span></div>
+  <div class="aiapp"><h4>AI Application — Why Derivatives = Backpropagation</h4>
+    <p>Every weight update in a neural network uses the derivative of the loss with respect to that weight: <strong>w ← w − α × dL/dw</strong>. The derivative tells us: "if we increase this weight by a tiny amount, does the loss go up or down?" We step in the direction that decreases loss. Without derivatives, there's no way to know which direction to adjust weights.</p>
+    <div class="chips"><span class="chip a">Weight updates in training</span><span class="chip a">Learning rate × derivative</span><span class="chip">Sensitivity analysis</span></div>
+  </div>
+</div>
+
+<!-- 05 DIFFERENTIATION RULES -->
+<div class="sec" id="rules">
+  <div class="sec-hd"><div class="sec-num">05</div><div class="sec-tb"><h2>Differentiation Rules</h2><p>Shortcuts for computing derivatives — the toolkit you use daily</p></div></div>
+  <div class="analogy"><span class="ic">🧰</span><p><strong>Plain English:</strong> Computing derivatives from the limit definition is slow. These rules are shortcuts: power rule, product rule, chain rule. The chain rule is by far the most important for AI — it's literally how backpropagation works: "if y depends on u which depends on x, then dy/dx = dy/du × du/dx."</p></div>
+  <div class="two-col">
+    <div class="card"><h3>The core rules</h3>
+      <div class="formula" style="font-size:12px">Power rule: d/dx[xⁿ] = n·xⁿ⁻¹<br>Constant: d/dx[c] = 0<br>Sum: d/dx[f+g] = f′+g′<br>Product: d/dx[fg] = f′g + fg′<br>Quotient: d/dx[f/g] = (f′g−fg′)/g²<br>Chain rule: d/dx[f(g(x))] = f′(g(x))·g′(x)</div>
+    </div>
+    <div class="card"><h3>Chain rule — the big one</h3>
+      <p>The chain rule handles composed functions. Neural networks ARE composed functions: output = f₅(f₄(f₃(f₂(f₁(x))))). Differentiating the whole chain requires multiplying derivatives at each layer — that's exactly what backpropagation does.</p>
+      <div class="formula" style="font-size:12px">dL/dx = dL/d(f₅) × d(f₅)/d(f₄) × d(f₄)/d(f₃) × ...<br><span class="cm">// Multiply ALL layer derivatives together</span></div>
+    </div>
+  </div>
+  <div class="vb"><div class="vb-hd"><span><span class="vz"></span> Interactive: Chain rule step-by-step</span></div>
+    <div class="vb-bd">
+      <div class="step-tabs" id="cr-tabs">
+        <div class="step-tab on" onclick="setCR(0)">① f(x) = (2x+1)²</div>
+        <div class="step-tab" onclick="setCR(1)">② Identify inner/outer</div>
+        <div class="step-tab" onclick="setCR(2)">③ Differentiate outer</div>
+        <div class="step-tab" onclick="setCR(3)">④ Differentiate inner</div>
+        <div class="step-tab" onclick="setCR(4)">⑤ Multiply together</div>
+      </div>
+      <div id="cr-content" style="padding:14px;background:var(--s2);border-radius:var(--r);font-size:13px;color:var(--tx2);line-height:1.8;min-height:100px"></div>
+      <div style="margin-top:10px"><canvas id="cv-chain" height="180"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<!-- 06 COMMON DERIVATIVES -->
+<div class="sec" id="common">
+  <div class="sec-hd"><div class="sec-num">06</div><div class="sec-tb"><h2>Common Derivatives</h2><p>The derivatives you'll use constantly in machine learning</p></div></div>
+  <div class="analogy"><span class="ic">📋</span><p><strong>Plain English:</strong> Just like multiplication tables, you memorize these. The most important ones for AI: derivative of eˣ is eˣ (it's its own derivative!), derivative of ln(x) is 1/x, derivative of sin(x) is cos(x). These appear constantly in loss functions, activations, and probability.</p></div>
+  <div class="two-col">
+    <div class="card"><h3>Essential derivatives for AI</h3>
+      <table class="tbl"><tr><th>f(x)</th><th>f′(x)</th><th>AI use</th></tr>
+        <tr><td>xⁿ</td><td>n·xⁿ⁻¹</td><td>Polynomial layers</td></tr>
+        <tr><td>eˣ</td><td>eˣ</td><td>Softmax numerator</td></tr>
+        <tr><td>ln(x)</td><td>1/x</td><td>Cross-entropy loss</td></tr>
+        <tr><td>sin(x)</td><td>cos(x)</td><td>Positional encoding</td></tr>
+        <tr><td>cos(x)</td><td>−sin(x)</td><td>Positional encoding</td></tr>
+        <tr><td>1/(1+e⁻ˣ)</td><td>σ(x)(1−σ(x))</td><td>Sigmoid backprop</td></tr>
+        <tr><td>tanh(x)</td><td>1−tanh²(x)</td><td>RNN gradient</td></tr>
+        <tr><td>max(0,x)</td><td>0 if x&lt;0, 1 if x&gt;0</td><td>ReLU backprop</td></tr>
+      </table>
+    </div>
+    <div class="card"><h3>Why sigmoid's derivative matters</h3>
+      <p>The sigmoid derivative σ′(x) = σ(x)(1−σ(x)) is elegantly computable from the output itself. But it maxes out at 0.25 (when x=0). In deep networks, multiplying many values ≤ 0.25 causes <strong>vanishing gradients</strong> — gradients shrink to near-zero before reaching early layers, making them impossible to train. This is why ReLU replaced sigmoid in deep nets.</p>
+    </div>
+  </div>
+</div>
+
+<!-- 07 HIGHER ORDER -->
+<div class="sec" id="higher">
+  <div class="sec-hd"><div class="sec-num">07</div><div class="sec-tb"><h2>Higher-Order Derivatives</h2><p>Derivatives of derivatives — curvature, acceleration, concavity</p></div></div>
+  <div class="analogy"><span class="ic">🎢</span><p><strong>Plain English:</strong> The first derivative is speed. The second derivative is acceleration — how fast your speed is changing. If you're driving and speed is increasing, the second derivative is positive (accelerating). On a loss curve, the second derivative tells you if you're in a bowl (positive = good, convex) or on a hill (negative = concave).</p></div>
+  <div class="vb"><div class="vb-hd"><span><span class="vz"></span> Interactive: f, f′, and f″ together</span></div>
+    <div class="vb-bd">
+      <select id="h-fn" onchange="drawHigher()" style="margin-bottom:10px">
+        <option value="x3">f(x) = x³ − 3x</option>
+        <option value="sin">f(x) = sin(x)</option>
+        <option value="x4">f(x) = x⁴ − 4x²</option>
+        <option value="gauss">f(x) = e^(−x²)</option>
+      </select>
+      <canvas id="cv-high" height="250"></canvas>
+      <div class="ctrls"><div class="ctrl"><label>x position</label><div class="cr"><input type="range" id="hx" min="-3.5" max="3.5" step="0.1" value="0.5" oninput="drawHigher()"><span class="val" id="hxv">0.5</span></div></div></div>
+      <div class="sr">
+        <div class="st"><div class="lb">f(x)</div><div class="vl" id="h-f" style="color:var(--bl)">—</div><div class="sb">function</div></div>
+        <div class="st"><div class="lb">f′(x) slope</div><div class="vl" id="h-df" style="color:var(--tl)">—</div><div class="sb">first deriv.</div></div>
+        <div class="st"><div class="lb">f″(x) curve</div><div class="vl" id="h-ddf" style="color:var(--co)">—</div><div class="sb">second deriv.</div></div>
+        <div class="st"><div class="lb">Shape</div><div class="vl" style="font-size:11px" id="h-shape">—</div><div class="sb">concave up/down</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="aiapp"><h4>AI Application — Second-Order Optimizers</h4>
+    <p>Standard gradient descent uses only f′ (first derivative). <strong>Newton's method</strong> uses both f′ and f″: x_new = x − f′(x)/f″(x). This can converge in far fewer steps because it accounts for curvature. The AI challenge: the second derivative of a neural network is an n×n matrix (the <strong>Hessian</strong>) with n=billions of parameters — too expensive to compute directly. Approximations like L-BFGS and K-FAC try to capture curvature cheaply.</p>
+    <div class="chips"><span class="chip a">Newton's method</span><span class="chip a">L-BFGS optimizer</span><span class="chip">K-FAC curvature</span><span class="chip">AdaHessian</span></div>
+  </div>
+</div>
+<!-- 08 PARTIAL DERIVATIVES -->
+<div class="sec" id="partial">
+  <div class="sec-hd"><div class="sec-num">08</div><div class="sec-tb"><h2>Partial Derivatives</h2><p>Derivatives of multi-variable functions — one variable at a time</p></div></div>
+  <div class="analogy"><span class="ic">🏔️</span><p><strong>Plain English:</strong> Imagine a hilly landscape described by height h(x,y). The partial derivative ∂h/∂x asks: "If I walk purely east (changing x only), how steeply am I going up?" Similarly ∂h/∂y asks about walking north. You compute each by treating the other variable as a constant. Neural networks have millions of these — one per weight.</p></div>
+  <div class="vb"><div class="vb-hd"><span><span class="vz"></span> Interactive: Partial derivatives of f(x,y)</span></div>
+    <div class="vb-bd">
+      <select id="pd-fn" onchange="drawPD()" style="margin-bottom:10px">
+        <option value="bowl">f(x,y) = x² + y² (bowl)</option>
+        <option value="saddle">f(x,y) = x² − y² (saddle)</option>
+        <option value="sin2">f(x,y) = sin(x)·cos(y)</option>
+        <option value="exp2">f(x,y) = e^(−x²−y²) (Gaussian)</option>
+      </select>
+      <canvas id="cv-pd" height="260"></canvas>
+      <div class="ctrls">
+        <div class="ctrl"><label>x position</label><div class="cr"><input type="range" id="px" min="-3" max="3" step="0.1" value="1.0" oninput="drawPD()"><span class="val" id="pxv">1.0</span></div></div>
+        <div class="ctrl"><label>y position</label><div class="cr"><input type="range" id="py" min="-3" max="3" step="0.1" value="1.0" oninput="drawPD()"><span class="val" id="pyv">1.0</span></div></div>
+      </div>
+      <div class="sr">
+        <div class="st"><div class="lb">f(x,y)</div><div class="vl" id="pd-f">2.00</div><div class="sb">value at (x,y)</div></div>
+        <div class="st"><div class="lb">∂f/∂x</div><div class="vl" id="pd-dx" style="color:var(--tl)">2.00</div><div class="sb">east slope</div></div>
+        <div class="st"><div class="lb">∂f/∂y</div><div class="vl" id="pd-dy" style="color:var(--co)">2.00</div><div class="sb">north slope</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="formula">∂f/∂x = derivative w.r.t. x, treating y as constant<br>∂f/∂y = derivative w.r.t. y, treating x as constant<br><br>Example: f(x,y) = x²y + 3xy²<br>∂f/∂x = 2xy + 3y² &nbsp;<span class="cm">// treat y as constant</span><br>∂f/∂y = x² + 6xy &nbsp;<span class="cm">// treat x as constant</span></div>
+</div>
+
+<!-- 09 GRADIENT -->
+<div class="sec" id="gradient">
+  <div class="sec-hd"><div class="sec-num">09</div><div class="sec-tb"><h2>The Gradient</h2><p>All partial derivatives packed into one vector — points uphill</p></div></div>
+  <div class="analogy"><span class="ic">🧭</span><p><strong>Plain English:</strong> The gradient is a compass that always points in the direction of steepest ascent on the surface. It collects ALL partial derivatives into one vector: ∇f = [∂f/∂x, ∂f/∂y, ...]. To minimize a loss function, we step in the NEGATIVE gradient direction — downhill. This is literally gradient descent.</p></div>
+  <div class="vb"><div class="vb-hd"><span><span class="vz"></span> Interactive: Gradient field — arrows point uphill</span></div>
+    <div class="vb-bd">
+      <select id="gf-fn" onchange="drawGF()" style="margin-bottom:10px">
+        <option value="bowl">L(x,y) = x² + 2y² (training bowl)</option>
+        <option value="saddle">L(x,y) = x² − y² (saddle point)</option>
+        <option value="banana">L(x,y) = (1−x)² + 10(y−x²)² (Rosenbrock)</option>
+      </select>
+      <canvas id="cv-gf" height="260"></canvas>
+      <div class="ctrls">
+        <div class="ctrl"><label>Your position x</label><div class="cr"><input type="range" id="gfx" min="-3" max="3" step="0.1" value="2" oninput="drawGF()"><span class="val" id="gfxv">2.0</span></div></div>
+        <div class="ctrl"><label>Your position y</label><div class="cr"><input type="range" id="gfy" min="-3" max="3" step="0.1" value="1.5" oninput="drawGF()"><span class="val" id="gfyv">1.5</span></div></div>
+      </div>
+      <div class="sr">
+        <div class="st"><div class="lb">Loss L(x,y)</div><div class="vl" id="gf-l">8.50</div><div class="sb">current loss</div></div>
+        <div class="st"><div class="lb">∇L (gradient)</div><div class="vl" style="font-size:11px" id="gf-g">[4.0, 6.0]</div><div class="sb">uphill direction</div></div>
+        <div class="st"><div class="lb">−∇L (descent)</div><div class="vl" style="font-size:11px" id="gf-ng">[-4, -6]</div><div class="sb">which way to step</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="aiapp"><h4>AI Application — The Gradient IS Backpropagation's Output</h4>
+    <p>When you call <code>loss.backward()</code> in PyTorch, it computes the gradient of the loss with respect to EVERY parameter in the network: <strong>∇_W L</strong> for each weight matrix W. This is a massive gradient vector with one component per parameter (up to 175 billion for GPT-3). The optimizer then uses this gradient vector to update weights: W ← W − α∇_W L.</p>
+    <div class="chips"><span class="chip a">loss.backward() in PyTorch</span><span class="chip a">param.grad attribute</span><span class="chip a">optimizer.step()</span></div>
+  </div>
+</div>
+
+<!-- 10 CHAIN RULE -->
+<div class="sec" id="chainrule">
+  <div class="sec-hd"><div class="sec-num">10</div><div class="sec-tb"><h2>Chain Rule</h2><p>The mathematical engine of backpropagation</p></div></div>
+  <div class="analogy"><span class="ic">⛓️</span><p><strong>Plain English:</strong> If temperature affects ice cream sales, and ice cream sales affect profit, then the chain rule says: "how much does profit change per degree of temperature = (profit change per sale) × (sales change per degree)." Neural networks are chains of functions — the chain rule lets us differentiate through all of them at once.</p></div>
+  <div class="two-col">
+    <div class="card"><h3>Single variable</h3>
+      <div class="formula" style="font-size:12px">If y = f(u) and u = g(x), then:<br>dy/dx = dy/du × du/dx<br><br>Example: y = sin(x²)<br>Let u = x², y = sin(u)<br>dy/dx = cos(u) × 2x = cos(x²) × 2x</div>
+    </div>
+    <div class="card"><h3>Multivariate (for neural nets)</h3>
+      <div class="formula" style="font-size:12px">∂L/∂w = ∂L/∂ŷ × ∂ŷ/∂h × ∂h/∂w<br><span class="cm">// Multiply ALL intermediate derivatives</span><br><br>For a chain of layers:<br>∂L/∂W₁ = ∂L/∂a₃ · ∂a₃/∂a₂ · ∂a₂/∂a₁ · ∂a₁/∂W₁<br><span class="cm">// This IS backpropagation</span></div>
+    </div>
+  </div>
+  <div class="ins"><strong>The fundamental insight of backprop:</strong> Because neural nets are composed functions, the chain rule lets us compute all gradients in ONE backward pass — we multiply derivatives layer by layer from output to input. This is O(n) in the number of parameters, not O(n²). Without the chain rule, training deep networks would be computationally impossible.</div>
+</div>
+
+<!-- 11 JACOBIAN -->
+<div class="sec" id="jacobian">
+  <div class="sec-hd"><div class="sec-num">11</div><div class="sec-tb"><h2>Jacobian Matrix</h2><p>The chain rule for vector-to-vector functions</p></div></div>
+  <div class="analogy"><span class="ic">📊</span><p><strong>Plain English:</strong> The Jacobian is the gradient for a function that takes a vector in and puts a vector out. It's a matrix where entry [i,j] = "how much does output i change when input j changes?" For a neural layer with m outputs and n inputs, the Jacobian is an m×n matrix. The chain rule becomes matrix multiplication when you have Jacobians.</p></div>
+  <div class="two-col">
+    <div class="card"><h3>Definition</h3>
+      <div class="formula" style="font-size:12px">f: ℝⁿ → ℝᵐ<br>J[i,j] = ∂fᵢ/∂xⱼ<br><br>J = [[∂f₁/∂x₁, ∂f₁/∂x₂, ...],<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[∂f₂/∂x₁, ∂f₂/∂x₂, ...],<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;...]<br><span class="cm">// m×n matrix for f: ℝⁿ→ℝᵐ</span></div>
+    </div>
+    <div class="card"><h3>In neural networks</h3>
+      <p>Each layer f(x) = Wx has Jacobian J = W. The chain rule in matrix form: <strong>∂L/∂x = Wᵀ × ∂L/∂(Wx)</strong>. This is exactly the gradient formula used in backpropagation — the Jacobian of a linear layer IS the weight matrix transposed.</p>
+      <table class="tbl"><tr><th>Layer</th><th>Jacobian</th></tr>
+        <tr><td>Linear Wx</td><td>W (m×n)</td></tr>
+        <tr><td>ReLU(x)</td><td>diag(x&gt;0)</td></tr>
+        <tr><td>Softmax</td><td>diag(s) − ssᵀ</td></tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- 12 HESSIAN -->
+<div class="sec" id="hessian">
+  <div class="sec-hd"><div class="sec-num">12</div><div class="sec-tb"><h2>Hessian Matrix</h2><p>Second derivatives in multiple dimensions — the curvature map</p></div></div>
+  <div class="analogy"><span class="ic">🗺️</span><p><strong>Plain English:</strong> The Hessian is like a topographic map of curvature. It's a matrix of second partial derivatives — H[i,j] = ∂²f/(∂xᵢ∂xⱼ). If all eigenvalues of H are positive, you're at a bowl minimum. If all negative, at a peak. Mixed signs = saddle point. This tells you whether gradient descent will converge or diverge.</p></div>
+  <div class="two-col">
+    <div class="card"><h3>Definition</h3>
+      <div class="formula" style="font-size:12px">H[i,j] = ∂²f/(∂xᵢ∂xⱼ)<br><br>For f(x,y) = x² + xy + y²:<br>H = [[∂²f/∂x², ∂²f/∂x∂y],<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[∂²f/∂y∂x, ∂²f/∂y²]]<br>&nbsp;&nbsp;= [[2, 1], [1, 2]]<br><span class="cm">// Symmetric matrix (H = Hᵀ)</span></div>
+    </div>
+    <div class="card"><h3>What eigenvalues of H tell you</h3>
+      <table class="tbl"><tr><th>Eigenvalues</th><th>Point type</th><th>Training</th></tr>
+        <tr><td>All &gt; 0</td><td>Local minimum</td><td>Converged!</td></tr>
+        <tr><td>All &lt; 0</td><td>Local maximum</td><td>Going wrong way</td></tr>
+        <tr><td>Mixed signs</td><td>Saddle point</td><td>Can get stuck</td></tr>
+        <tr><td>Some = 0</td><td>Flat region</td><td>Slow convergence</td></tr>
+      </table>
+    </div>
+  </div>
+  <div class="aiapp"><h4>AI Application — Why Training Gets Stuck at Saddle Points</h4>
+    <p>For high-dimensional neural networks (millions of parameters), pure local minima are rare. Most critical points (where gradient=0) are <strong>saddle points</strong> — minimum in some directions, maximum in others. Gradient descent can get stuck in flat saddle regions. Noise from mini-batches (SGD) naturally escapes these regions, which is one reason SGD often outperforms full-batch gradient descent.</p>
+    <div class="chips"><span class="chip a">Why SGD escapes saddles</span><span class="chip a">Newton's method uses H</span><span class="chip">Learning rate ≤ 2/λ_max(H)</span></div>
+  </div>
+</div>
+
+<!-- 13 ANTIDERIVATIVES -->
+<div class="sec" id="antideriv">
+  <div class="sec-hd"><div class="sec-num">13</div><div class="sec-tb"><h2>Antiderivatives &amp; Integration</h2><p>The reverse of differentiation — accumulation over an interval</p></div></div>
+  <div class="analogy"><span class="ic">🏦</span><p><strong>Plain English:</strong> If the derivative is velocity (how fast you're going), the integral is total distance traveled. If you know your speed at every moment, integrating it tells you how far you've gone. More generally: the integral accumulates all the little contributions of f(x)·dx across an interval. In probability, integrating a density gives a probability.</p></div>
+  <div class="two-col">
+    <div class="card"><h3>Indefinite integral</h3>
+      <div class="formula" style="font-size:12px">∫f(x)dx = F(x) + C &nbsp;<span class="cm">// antiderivative</span><br>where F′(x) = f(x)<br><br>Common integrals:<br>∫xⁿ dx = xⁿ⁺¹/(n+1) + C<br>∫eˣ dx = eˣ + C<br>∫1/x dx = ln|x| + C<br>∫cos(x) dx = sin(x) + C</div>
+    </div>
+    <div class="card"><h3>Definite integral</h3>
+      <div class="formula" style="font-size:12px">∫[a to b] f(x)dx = F(b) − F(a)<br><span class="cm">// Net area from a to b</span><br><br>Geometric meaning:<br>= signed area between f(x) and x-axis<br>Positive area above x-axis<br>Negative area below x-axis</div>
+    </div>
+  </div>
+</div>
+
+<!-- 14 RIEMANN SUMS -->
+<div class="sec" id="riemann">
+  <div class="sec-hd"><div class="sec-num">14</div><div class="sec-tb"><h2>Riemann Sums</h2><p>Building integration from rectangles — approximating area</p></div></div>
+  <div class="analogy"><span class="ic">📦</span><p><strong>Plain English:</strong> Approximate the area under a curve with rectangles. Use 4 rectangles → rough approximation. Use 100 → better. Use infinitely many infinitely thin rectangles → the exact integral. This limit process is how the definite integral is defined. In ML, numerical integration and Monte Carlo estimation use this idea.</p></div>
+  <div class="vb"><div class="vb-hd"><span><span class="vz"></span> Interactive: Watch Riemann sums converge to the integral</span></div>
+    <div class="vb-bd">
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px;align-items:center">
+        <select id="rs-fn" onchange="drawRS()">
+          <option value="x2">f(x) = x²</option>
+          <option value="sin">f(x) = sin(x)</option>
+          <option value="exp">f(x) = eˣ/3</option>
+          <option value="x3">f(x) = x³/8+x</option>
+        </select>
+        <div class="bgrp">
+          <button class="btn on" id="rs-l" onclick="setRS('left')">Left</button>
+          <button class="btn" id="rs-r" onclick="setRS('right')">Right</button>
+          <button class="btn" id="rs-m" onclick="setRS('mid')">Midpoint</button>
+        </div>
+      </div>
+      <canvas id="cv-rs" height="240"></canvas>
+      <div class="ctrls">
+        <div class="ctrl"><label>Number of rectangles n</label><div class="cr"><input type="range" id="rs-n" min="2" max="100" step="1" value="8" oninput="drawRS()"><span class="val" id="rs-nv">8</span></div></div>
+        <div class="ctrl"><label>Integration range [0, b]</label><div class="cr"><input type="range" id="rs-b" min="0.5" max="4" step="0.1" value="3" oninput="drawRS()"><span class="val" id="rs-bv">3.0</span></div></div>
+      </div>
+      <div class="sr">
+        <div class="st"><div class="lb">Approx. area</div><div class="vl" id="rs-approx" style="color:var(--tl)">9.37</div><div class="sb">Riemann sum</div></div>
+        <div class="st"><div class="lb">Exact area</div><div class="vl" id="rs-exact">9.00</div><div class="sb">true integral</div></div>
+        <div class="st"><div class="lb">Error %</div><div class="vl" id="rs-err" style="color:var(--co)">4.1%</div><div class="sb">decreases as n↑</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="aiapp"><h4>AI Application — Monte Carlo Integration in Probability</h4>
+    <p>Computing expectations E[f(X)] = ∫f(x)p(x)dx requires integrating over probability distributions — often intractable analytically. <strong>Monte Carlo estimation</strong> approximates this by sampling: E[f(X)] ≈ (1/n)Σf(xᵢ). This is a Riemann sum using random sample points. Variational autoencoders, diffusion models, and RLHF all use this idea.</p>
+    <div class="chips"><span class="chip a">Monte Carlo estimation</span><span class="chip a">Expected value computation</span><span class="chip">ELBO in VAE</span><span class="chip">Policy gradient (RL)</span></div>
+  </div>
+</div>
+
+<!-- 15 FTC -->
+<div class="sec" id="ftc">
+  <div class="sec-hd"><div class="sec-num">15</div><div class="sec-tb"><h2>Fundamental Theorem of Calculus</h2><p>Integration and differentiation are inverses of each other</p></div></div>
+  <div class="analogy"><span class="ic">⚖️</span><p><strong>Plain English:</strong> The FTC reveals that integration and differentiation are two sides of the same coin — they UNDO each other. Part 1: if you integrate f then differentiate, you get f back. Part 2: the definite integral ∫[a,b]f = F(b)−F(a) where F is any antiderivative. This is why we can evaluate integrals algebraically instead of drawing millions of rectangles.</p></div>
+  <div class="two-col">
+    <div class="card"><h3>FTC Part 1</h3>
+      <div class="formula" style="font-size:12px">If F(x) = ∫[a to x] f(t) dt, then<br>F′(x) = f(x)<br><span class="cm">// Differentiation undoes integration</span><br><span class="cm">// The integral "accumulates" f</span></div>
+    </div>
+    <div class="card"><h3>FTC Part 2</h3>
+      <div class="formula" style="font-size:12px">∫[a to b] f(x)dx = F(b) − F(a)<br>where F′ = f (any antiderivative)<br><br>Example: ∫[0 to 3] x² dx<br>= [x³/3] from 0 to 3 = 9 − 0 = 9</div>
+    </div>
+  </div>
+  <div class="ins"><strong>Why FTC matters for AI:</strong> Neural ODEs (continuous-depth networks) use the FTC to define layers as differential equations: dh/dt = f(h,t). The forward pass integrates this ODE; backpropagation uses the adjoint method which is essentially FTC applied backward. This underpins normalizing flows and Neural ODE architectures.</div>
+</div>
+
+<!-- 16 INTEGRATION TECHNIQUES -->
+<div class="sec" id="techniques">
+  <div class="sec-hd"><div class="sec-num">16</div><div class="sec-tb"><h2>Integration Techniques</h2><p>Substitution, by parts, and numerical methods</p></div></div>
+  <div class="analogy"><span class="ic">🔧</span><p><strong>Plain English:</strong> Just as differentiation has rules (power rule, chain rule), integration has techniques for tricky functions. Substitution reverses the chain rule. Integration by parts reverses the product rule. For integrals that can't be solved analytically (most real ML problems), we use numerical methods — Gaussian quadrature, Monte Carlo, or just Riemann sums.</p></div>
+  <div class="three-col">
+    <div class="card"><h3>Substitution</h3>
+      <div class="formula" style="font-size:11px">∫f(g(x))g′(x)dx<br>Let u = g(x), du = g′(x)dx<br>= ∫f(u)du<br><span class="cm">// Reverse chain rule</span><br>∫2x·eˣ² dx = ∫eᵘ du = eˣ² + C</div>
+    </div>
+    <div class="card"><h3>Integration by parts</h3>
+      <div class="formula" style="font-size:11px">∫u dv = uv − ∫v du<br><span class="cm">// Reverse product rule</span><br>∫x·eˣ dx<br>u=x, dv=eˣdx<br>= xeˣ − ∫eˣ dx = xeˣ − eˣ + C</div>
+    </div>
+    <div class="card"><h3>Numerical integration</h3>
+      <div class="formula" style="font-size:11px">Trapezoidal rule:<br>≈ h/2·Σ(f(xᵢ)+f(xᵢ₊₁))<br>Simpson's rule: more accurate<br>Monte Carlo:<br>≈ (b-a)/n · Σf(random xᵢ)<br><span class="cm">// Works in any dimension</span></div>
+    </div>
+  </div>
+</div>
+<!-- 17 CRITICAL POINTS -->
+<div class="sec" id="critpoints">
+  <div class="sec-hd"><div class="sec-num">17</div><div class="sec-tb"><h2>Critical Points</h2><p>Where the derivative is zero — candidates for minima and maxima</p></div></div>
+  <div class="analogy"><span class="ic">🏳️</span><p><strong>Plain English:</strong> At the top of a hill or bottom of a valley, the slope is exactly zero — you're neither going up nor down. These are critical points. AI training is ALL about finding the critical point that's a global minimum of the loss function — where the gradient is zero AND it's the lowest possible loss value.</p></div>
+  <div class="vb"><div class="vb-hd"><span><span class="vz"></span> Interactive: Find and classify critical points</span></div>
+    <div class="vb-bd">
+      <select id="cp-fn" onchange="drawCP()" style="margin-bottom:10px">
+        <option value="cubic">f(x) = x³ − 3x</option>
+        <option value="quartic">f(x) = x⁴ − 4x²</option>
+        <option value="sin">f(x) = sin(x) + 0.5x</option>
+        <option value="loss">f(x) = (x²−1)² (two minima)</option>
+      </select>
+      <canvas id="cv-cp" height="240"></canvas>
+      <div style="margin-top:10px;padding:10px 14px;background:var(--s2);border-radius:7px;font-size:12px;color:var(--tx2)" id="cp-info">Green = minimum (f″&gt;0) · Red = maximum (f″&lt;0) · Orange = inflection</div>
+    </div>
+  </div>
+  <div class="formula">First derivative test:<br>f′(x) = 0 → candidate critical point<br>If f′ changes − to +: local minimum<br>If f′ changes + to −: local maximum<br><br>Second derivative test:<br>f″(x) &gt; 0 at critical point → local minimum (bowl)<br>f″(x) &lt; 0 at critical point → local maximum (hill)<br>f″(x) = 0 → inconclusive</div>
+  <div class="aiapp"><h4>AI Application — Why Deep Networks Have Many Minima</h4>
+    <p>A loss function with n parameters has critical points where all n partial derivatives are zero simultaneously. For deep networks, there are <strong>exponentially many such points</strong>. Most are saddle points. The good news (the "blessing of dimensionality"): in high dimensions, most minima have similar loss values — you don't need to find the global minimum, any good local minimum works. This is why deep learning is trainable at all.</p>
+    <div class="chips"><span class="chip a">Local vs global minima</span><span class="chip a">Saddle points in deep nets</span><span class="chip">Loss landscape flatness</span></div>
+  </div>
+</div>
+
+<!-- 18 CONVEXITY -->
+<div class="sec" id="convexity">
+  <div class="sec-hd"><div class="sec-num">18</div><div class="sec-tb"><h2>Convexity &amp; Concavity</h2><p>Bowl-shaped vs hill-shaped — when optimization is guaranteed</p></div></div>
+  <div class="analogy"><span class="ic">🥣</span><p><strong>Plain English:</strong> A convex function looks like a bowl — any line between two points on it lies ABOVE the function. A concave function looks like an upside-down bowl. Convex functions have exactly ONE minimum (the global one!). This is why logistic regression always converges — its loss is convex. Neural network losses are generally NOT convex — which is why training can be tricky.</p></div>
+  <div class="two-col">
+    <div class="card"><h3>Convex functions</h3>
+      <div class="formula" style="font-size:12px">f is convex if: f(λx+(1−λ)y) ≤ λf(x)+(1−λ)f(y)<br>for all x, y and 0≤λ≤1<br><br>Equivalently: f″(x) ≥ 0 everywhere<br><span class="cm">// Second derivative non-negative</span><br><br>Convex: x², e^x, |x|, −log(x)<br>Convex loss: MSE, cross-entropy, hinge</div>
+    </div>
+    <div class="card"><h3>Jensen's Inequality</h3>
+      <p>For convex f: <strong>f(E[X]) ≤ E[f(X)]</strong>. The function of the expectation ≤ the expectation of the function. This appears in the VAE's ELBO lower bound and in the derivation of many ML inequalities.</p>
+      <div class="formula" style="font-size:12px">Key: −log(E[x]) ≤ E[−log(x)]<br><span class="cm">// because −log is convex</span><br>This underpins the ELBO in VAEs!</div>
+    </div>
+  </div>
+</div>
+
+<!-- 19 GRADIENT DESCENT -->
+<div class="sec" id="graddesc">
+  <div class="sec-hd"><div class="sec-num">19</div><div class="sec-tb"><h2>Gradient Descent</h2><p>The core optimization algorithm — animated and interactive</p></div></div>
+  <div class="analogy"><span class="ic">⛷️</span><p><strong>Plain English:</strong> You're blindfolded on a mountain trying to find the lowest valley. You feel the slope under your feet (the gradient) and take a step downhill (negative gradient direction). Repeat until you stop moving. The learning rate controls step size. Too big → overshoot and bounce around. Too small → take forever.</p></div>
+  <div class="vb"><div class="vb-hd"><span><span class="vz"></span> Interactive: Watch gradient descent — animated</span><span id="gd-status" style="font-size:10px;color:var(--tx3)">Ready</span></div>
+    <div class="vb-bd">
+      <select id="gd-fn" onchange="gdReset()" style="margin-bottom:10px">
+        <option value="bowl">L(x) = x² (simple bowl)</option>
+        <option value="bumpy">L(x) = x²/4 + sin(2x) (bumpy)</option>
+        <option value="asym">L(x) = 0.5x² − 2x + 3</option>
+        <option value="double">L(x) = (x²−4)² (two minima)</option>
+      </select>
+      <canvas id="cv-gd1d" height="230"></canvas>
+      <div class="ctrls">
+        <div class="ctrl"><label>Learning rate α</label><div class="cr"><input type="range" id="gd1-lr" min="0.01" max="1.5" step="0.01" value="0.15" oninput="gd1Update()"><span class="val" id="gd1-lrv">0.15</span></div></div>
+        <div class="ctrl"><label>Start position x₀</label><div class="cr"><input type="range" id="gd1-x0" min="-4" max="4" step="0.1" value="3.5" oninput="gdReset()"><span class="val" id="gd1-x0v">3.5</span></div></div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;align-items:center">
+        <button class="btn-p" id="gd1-play" onclick="gd1Toggle()">▶ Play</button>
+        <button class="btn" onclick="gdReset()">↺ Reset</button>
+        <button class="btn" onclick="gd1Step()">→ Step</button>
+        <span style="font-size:11px;color:var(--tx2)">Step: <span id="gd1-sn" style="font-family:var(--fm);font-weight:500">0</span> &nbsp; x: <span id="gd1-xv" style="font-family:var(--fm);font-weight:500;color:var(--tl)">—</span> &nbsp; L: <span id="gd1-lv" style="font-family:var(--fm);font-weight:500;color:var(--co)">—</span></span>
+      </div>
+      <div style="margin-top:8px;padding:8px 12px;background:var(--s2);border-radius:7px;font-size:11px;color:var(--tx2)" id="gd1-msg">Try different learning rates! α=1.5 will diverge. α=0.01 is very slow. α=0.15 is just right.</div>
+    </div>
+  </div>
+  <div class="formula">Gradient descent update:<br>x_new = x_old − α · f′(x_old)<br><br>For neural networks (all weights simultaneously):<br>W ← W − α · ∂L/∂W<br>b ← b − α · ∂L/∂b<br><br>Convergence condition (convex): α &lt; 2/L where L = max|f″(x)|</div>
+  <div class="aiapp"><h4>AI Application — SGD vs Adam vs RMSprop</h4>
+    <p><strong>SGD:</strong> Pure gradient descent on random mini-batches. Simple but sensitive to learning rate. <strong>Adam:</strong> Adapts learning rate per-parameter. Maintains running averages of gradient (momentum) and squared gradient (variance). Update: θ ← θ − α·m̂/(√v̂+ε). Converges faster, more robust. Used in 90%+ of modern deep learning. <strong>RMSprop:</strong> Like Adam without momentum — good for RNNs. The mathematics of all these is just calculus: derivatives, sums, and adaptive scaling.</p>
+    <div class="chips"><span class="chip a">SGD with momentum</span><span class="chip a">Adam optimizer</span><span class="chip a">AdaGrad / RMSprop</span><span class="chip">Cosine LR schedule</span></div>
+  </div>
+</div>
+
+<!-- 20 SADDLE POINTS -->
+<div class="sec" id="saddle">
+  <div class="sec-hd"><div class="sec-num">20</div><div class="sec-tb"><h2>Saddle Points</h2><p>Where gradients vanish but you're not at a minimum</p></div></div>
+  <div class="analogy"><span class="ic">🏇</span><p><strong>Plain English:</strong> A saddle point looks like a mountain pass — it's the lowest point going left-right but the highest point going north-south. The gradient is zero there, so gradient descent STOPS — but you're not at a minimum! In 2D loss landscapes of neural networks, saddle points are everywhere. Gradient noise from SGD helps escape them.</p></div>
+  <div class="vb"><div class="vb-hd"><span><span class="vz"></span> Interactive: Saddle point visualization f(x,y) = x²−y²</span></div>
+    <div class="vb-bd"><canvas id="cv-saddle" height="250"></canvas>
+      <div style="margin-top:8px;padding:8px 12px;background:var(--s2);border-radius:7px;font-size:12px;color:var(--tx2)">At origin (0,0): gradient=[0,0] ✓ but ∂²f/∂x²=+2 (bowl in x) and ∂²f/∂y²=−2 (hill in y) — a saddle! Gradient descent converges in x but diverges in y direction without noise.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 21 LAGRANGE -->
+<div class="sec" id="lagrange">
+  <div class="sec-hd"><div class="sec-num">21</div><div class="sec-tb"><h2>Lagrange Multipliers</h2><p>Optimization with constraints — finding the best solution subject to rules</p></div></div>
+  <div class="analogy"><span class="ic">🎯</span><p><strong>Plain English:</strong> You want the cheapest meal (minimize cost) but it must have ≥2000 calories (constraint). Lagrange multipliers handle this — they find the optimal solution along a constraint curve. In ML: train a model with minimum complexity (regularization constraint), or find the maximum entropy distribution subject to observed statistics.</p></div>
+  <div class="two-col">
+    <div class="card"><h3>Method</h3>
+      <div class="formula" style="font-size:12px">Minimize f(x,y) subject to g(x,y) = 0<br><br>Set up: L(x,y,λ) = f(x,y) − λ·g(x,y)<br>Solve: ∇f = λ∇g &nbsp;<span class="cm">// gradients are parallel</span><br>And: g(x,y) = 0 &nbsp;<span class="cm">// constraint satisfied</span><br><br>λ is the Lagrange multiplier<br><span class="cm">// Measures "cost" of the constraint</span></div>
+    </div>
+    <div class="card"><h3>AI applications</h3>
+      <p><strong>SVM:</strong> Maximize margin subject to correctly classifying all points. The dual formulation uses Lagrange multipliers. Support vectors are points where λ &gt; 0.</p>
+      <p><strong>Maximum entropy:</strong> Find the distribution that maximizes entropy (most uncertain) subject to moment constraints (observed statistics). The solution is always an exponential family distribution.</p>
+    </div>
+  </div>
+</div>
+
+<!-- 22 EXP & LOG -->
+<div class="sec" id="explog">
+  <div class="sec-hd"><div class="sec-num">22</div><div class="sec-tb"><h2>Exponential &amp; Log Functions in ML</h2><p>The two most important functions in machine learning</p></div></div>
+  <div class="analogy"><span class="ic">📈</span><p><strong>Plain English:</strong> eˣ is the function that is its own derivative — perfect for probability (always positive, grows smoothly). ln(x) is its inverse — converts products to sums, which makes likelihood calculations tractable. Cross-entropy loss uses log. Softmax uses exp. They appear in literally every loss function you'll ever use.</p></div>
+  <div class="vb"><div class="vb-hd"><span><span class="vz"></span> Interactive: exp, log and their derivatives</span></div>
+    <div class="vb-bd">
+      <canvas id="cv-el" height="230"></canvas>
+      <div class="ctrls">
+        <div class="ctrl"><label>x position</label><div class="cr"><input type="range" id="el-x" min="-3" max="3" step="0.1" value="1" oninput="drawEL()"><span class="val" id="el-xv">1.0</span></div></div>
+      </div>
+      <div class="sr">
+        <div class="st"><div class="lb">eˣ value</div><div class="vl" id="el-ex" style="color:var(--tl)">2.72</div><div class="sb">d/dx(eˣ) = eˣ</div></div>
+        <div class="st"><div class="lb">ln(x) value</div><div class="vl" id="el-lx" style="color:var(--co)">0.00</div><div class="sb">d/dx(ln x) = 1/x</div></div>
+        <div class="st"><div class="lb">Special e</div><div class="vl" style="font-size:12px;color:var(--pu)">2.718...</div><div class="sb">Euler's number</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="formula">Cross-entropy loss: L = −Σ yᵢ log(ŷᵢ) &nbsp;<span class="cm">// log turns products→sums</span><br>∂L/∂ŷᵢ = −yᵢ/ŷᵢ &nbsp;<span class="cm">// clean derivative via 1/x rule</span><br><br>Softmax: σ(x)ᵢ = exp(xᵢ)/Σ exp(xⱼ) &nbsp;<span class="cm">// exp ensures positive probs</span><br>Log-softmax: log(σ(x)ᵢ) = xᵢ − log Σ exp(xⱼ) &nbsp;<span class="cm">// numerically stable</span><br><br>Log-likelihood: log P(data|θ) = Σ log P(xᵢ|θ) &nbsp;<span class="cm">// product → sum</span></div>
+  <div class="aiapp"><h4>AI Application — Why Log-Likelihood Is Used Everywhere</h4>
+    <p>The probability of n independent observations is P = P(x₁)×P(x₂)×...×P(xₙ) — a product of potentially tiny numbers that underflow to zero on computers. Taking log converts it to a sum: log P = log P(x₁) + log P(x₂) + ... + log P(xₙ). Sum of logs is numerically stable and easy to differentiate. <strong>Maximum likelihood estimation</strong> (training objective for most models) is just maximizing this log-likelihood sum.</p>
+    <div class="chips"><span class="chip a">Cross-entropy loss</span><span class="chip a">Log-likelihood (MLE)</span><span class="chip a">Softmax stability</span><span class="chip">KL divergence</span></div>
+  </div>
+</div>
+
+<!-- 23 TAYLOR SERIES -->
+<div class="sec" id="taylor">
+  <div class="sec-hd"><div class="sec-num">23</div><div class="sec-tb"><h2>Taylor Series</h2><p>Approximating any smooth function with a polynomial</p></div></div>
+  <div class="analogy"><span class="ic">🔬</span><p><strong>Plain English:</strong> Any smooth function can be approximated near a point using just its derivatives at that point. sin(x) ≈ x − x³/6 + x⁵/120 — the more terms you add, the better the approximation. AI uses this for: optimizers (Adam's update rule is a 2nd-order Taylor approximation), understanding how loss changes with weight perturbations, and numerical analysis.</p></div>
+  <div class="vb"><div class="vb-hd"><span><span class="vz"></span> Interactive: Add Taylor terms and watch approximation improve</span></div>
+    <div class="vb-bd">
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px;align-items:center">
+        <select id="ts-fn" onchange="drawTS()">
+          <option value="sin">sin(x)</option>
+          <option value="cos">cos(x)</option>
+          <option value="exp">eˣ</option>
+          <option value="log">ln(1+x)</option>
+        </select>
+        <span style="font-size:11px;color:var(--tx2)">Expand around x = <input type="number" id="ts-a" value="0" step="0.5" min="-2" max="2" style="width:48px;padding:3px;border:1px solid var(--bdr);border-radius:4px;font-family:var(--fm);font-size:11px" oninput="drawTS()"></span>
+      </div>
+      <canvas id="cv-ts" height="240"></canvas>
+      <div class="ctrls"><div class="ctrl"><label>Number of terms (order)</label><div class="cr"><input type="range" id="ts-n" min="1" max="10" step="1" value="3" oninput="drawTS()"><span class="val" id="ts-nv">3</span></div></div></div>
+      <div style="margin-top:10px;padding:8px 12px;background:var(--s2);border-radius:7px;font-size:11px;font-family:var(--fm);color:var(--tx2)" id="ts-formula">sin(x) ≈ x − x³/6 + x⁵/120</div>
+    </div>
+  </div>
+  <div class="aiapp"><h4>AI Application — Why Adam Works: 2nd-Order Taylor</h4>
+    <p>Adam optimizer is secretly a 2nd-order Taylor approximation. The loss near current weights is: L(w+Δ) ≈ L(w) + ∇L·Δ + ½Δᵀ·H·Δ. Adam approximates the diagonal of the Hessian H using the running average of squared gradients (v̂). Dividing by √v̂ effectively normalizes by the curvature — taking bigger steps in flat directions, smaller steps in steep directions. That's why Adam converges faster than plain SGD.</p>
+    <div class="chips"><span class="chip a">Adam's adaptive learning rate</span><span class="chip a">Newton's method (exact 2nd order)</span><span class="chip">L-BFGS (approximate Hessian)</span></div>
+  </div>
+</div>
+<!-- 24 BACKPROP -->
+<div class="sec" id="backprop">
+  <div class="sec-hd"><div class="sec-num">24</div><div class="sec-tb"><h2>Backpropagation</h2><p>Chain rule applied to a computation graph — calculus in action</p></div></div>
+  <div class="analogy"><span class="ic">🔄</span><p><strong>Plain English:</strong> Build a tiny network: input → multiply by w → add bias → sigmoid → loss. Backprop asks: "how much does each step contribute to the final error?" It walks backwards, applying the chain rule at each step. The answer tells us exactly how to adjust every weight to reduce the loss.</p></div>
+  <div class="vb"><div class="vb-hd"><span><span class="vz"></span> Interactive: Step through forward &amp; backward pass</span></div>
+    <div class="vb-bd">
+      <div class="step-tabs" id="bp-tabs">
+        <div class="step-tab on" onclick="setBP2(0)">① Setup</div>
+        <div class="step-tab" onclick="setBP2(1)">② Forward pass</div>
+        <div class="step-tab" onclick="setBP2(2)">③ Compute loss</div>
+        <div class="step-tab" onclick="setBP2(3)">④ ∂L/∂ŷ</div>
+        <div class="step-tab" onclick="setBP2(4)">⑤ ∂L/∂z</div>
+        <div class="step-tab" onclick="setBP2(5)">⑥ ∂L/∂w, ∂L/∂b</div>
+        <div class="step-tab" onclick="setBP2(6)">⑦ Update weights</div>
+      </div>
+      <div id="bp2-viz" style="min-height:160px"></div>
+    </div>
+  </div>
+  <div class="formula">Full computation: ŷ = σ(wx + b)<br>Loss: L = (ŷ − y)²<br><br>Backward (chain rule):<br>∂L/∂ŷ = 2(ŷ−y)<br>∂L/∂z = ∂L/∂ŷ · σ′(z) = 2(ŷ−y)·σ(z)(1−σ(z))<br>∂L/∂w = ∂L/∂z · x &nbsp; <span class="cm">// gradient w.r.t. weight</span><br>∂L/∂b = ∂L/∂z · 1 &nbsp; <span class="cm">// gradient w.r.t. bias</span></div>
+  <div class="aiapp"><h4>AI Application — PyTorch Autograd Does This for Billions of Parameters</h4>
+    <p>PyTorch records every operation in a computation graph. Each node stores its local derivative. <code>loss.backward()</code> walks this graph in reverse, applying the chain rule at each node and accumulating gradients. For GPT-3 with 175B parameters, this backward pass computes 175 billion partial derivatives in one sweep — O(n) time, same cost as the forward pass. This efficiency is what makes deep learning practical.</p>
+    <div class="chips"><span class="chip a">PyTorch autograd</span><span class="chip a">TensorFlow tape</span><span class="chip">JAX reverse-mode AD</span></div>
+  </div>
+</div>
+
+<!-- 25 AUTODIFF -->
+<div class="sec" id="autodiff">
+  <div class="sec-hd"><div class="sec-num">25</div><div class="sec-tb"><h2>Automatic Differentiation</h2><p>Computing derivatives of arbitrary programs — not symbolic, not numerical</p></div></div>
+  <div class="analogy"><span class="ic">🤖</span><p><strong>Plain English:</strong> There are 3 ways to compute derivatives: (1) Symbolic — work out the formula by hand (slow, can't handle if-statements), (2) Numerical — finite differences (f(x+h)−f(x))/h (inaccurate, slow), (3) Automatic differentiation — applies the chain rule mechanically through the actual code as it runs. PyTorch/TensorFlow use option 3. It's exact and efficient.</p></div>
+  <div class="two-col">
+    <div class="card"><h3>Forward mode AD</h3>
+      <div class="formula" style="font-size:12px">Compute f(x) AND f′(x) simultaneously<br>Use dual numbers: x + εx̃<br>where ε² = 0<br><br>f(a+εa') = f(a) + εf'(a)·a'<br><span class="cm">// One pass for one input's gradient</span><br><span class="cm">// Good when: n inputs, m outputs, m ≫ n</span></div>
+    </div>
+    <div class="card"><h3>Reverse mode AD (backprop)</h3>
+      <div class="formula" style="font-size:12px">Forward: compute f(x), store intermediates<br>Backward: chain rule in reverse<br><span class="cm">// One pass for ALL inputs' gradients</span><br><span class="cm">// Good when: n inputs, 1 output (loss)</span><br><span class="cm">// This is what backprop IS</span><br><br>Time: O(cost of forward pass)<br>Memory: O(depth of graph)</div>
+    </div>
+  </div>
+  <div class="ins"><strong>Why reverse mode wins for ML:</strong> Networks have millions of inputs (weights) but ONE output (loss). Reverse mode computes all gradients in one backward pass — same cost as forward. Forward mode would need one pass PER weight — millions of forward passes. Reverse mode's efficiency is the mathematical reason deep learning is computationally feasible.</div>
+  <div class="code"><span class="cm"># PyTorch autograd — autodiff in action</span><br>x = torch.<span class="fn">tensor</span>([<span class="nm">2.0</span>, <span class="nm">3.0</span>], requires_grad=<span class="kw">True</span>)<br>y = x[<span class="nm">0</span>]**<span class="nm">2</span> + x[<span class="nm">1</span>]**<span class="nm">3</span> &nbsp;<span class="cm"># y = x₀² + x₁³</span><br>y.<span class="fn">backward</span>() &nbsp;<span class="cm"># compute dy/dx₀ and dy/dx₁</span><br>print(x.grad) &nbsp;<span class="cm"># [2*x₀, 3*x₁²] = [4, 27] — exact!</span></div>
+</div>
+
+<!-- 26 LOSS SURFACES -->
+<div class="sec" id="losssurface">
+  <div class="sec-hd"><div class="sec-num">26</div><div class="sec-tb"><h2>Loss Landscapes</h2><p>The terrain gradient descent must navigate</p></div></div>
+  <div class="analogy"><span class="ic">🌄</span><p><strong>Plain English:</strong> Imagine a 3D landscape where the height is the loss value and the x,y plane represents two of your model's weights. Training is a ball rolling downhill on this surface to find the lowest valley. Real loss landscapes have millions of dimensions and are full of flat regions, narrow valleys, and many saddle points.</p></div>
+  <div class="vb"><div class="vb-hd"><span><span class="vz"></span> Interactive: 2D loss landscape contour map</span></div>
+    <div class="vb-bd">
+      <select id="ls-fn" onchange="lsReset()" style="margin-bottom:10px">
+        <option value="bowl">Quadratic bowl (convex — easy)</option>
+        <option value="narrow">Narrow valley (bad learning rate)</option>
+        <option value="banana">Rosenbrock banana (non-convex)</option>
+        <option value="multimod">Multi-modal (many local minima)</option>
+      </select>
+      <canvas id="cv-ls" height="270"></canvas>
+      <div class="ctrls">
+        <div class="ctrl"><label>Learning rate α</label><div class="cr"><input type="range" id="ls-lr" min="0.01" max="0.5" step="0.01" value="0.1" oninput="lsUpdate()"><span class="val" id="ls-lrv">0.10</span></div></div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;align-items:center">
+        <button class="btn-p" id="ls-play" onclick="lsToggle()">▶ Play</button>
+        <button class="btn" onclick="lsReset()">↺ Reset</button>
+        <span style="font-size:11px;color:var(--tx2)">Step: <span id="ls-sn" style="font-family:var(--fm)">0</span> &nbsp; Loss: <span id="ls-lv" style="font-family:var(--fm);color:var(--tl)">—</span></span>
+      </div>
+      <div style="margin-top:8px;padding:8px 12px;background:var(--s2);border-radius:7px;font-size:11px;color:var(--tx2)" id="ls-msg">Press Play. Try "Narrow valley" with high α to see zigzagging. Try "Rosenbrock banana" — notoriously hard to optimize.</div>
+    </div>
+  </div>
+  <div class="aiapp"><h4>AI Application — Why Batch Normalization Smooths the Loss Landscape</h4>
+    <p>Research (Santurkar et al. 2018) showed that batch normalization doesn't primarily reduce covariate shift — it <strong>smooths the loss landscape</strong>. By normalizing layer inputs, it reduces the maximum curvature (Lipschitz constant of the gradient), allowing larger learning rates and faster convergence. The loss landscape becomes less jagged and easier to navigate. This is a purely calculus-based explanation of why BatchNorm works.</p>
+    <div class="chips"><span class="chip a">Batch normalization</span><span class="chip a">Learning rate warmup</span><span class="chip">Loss landscape sharpness</span><span class="chip">SAM optimizer</span></div>
+  </div>
+</div>
+
+<!-- 27 PROBABILITY CALCULUS -->
+<div class="sec" id="probability">
+  <div class="sec-hd"><div class="sec-num">27</div><div class="sec-tb"><h2>Calculus in Probability &amp; Information Theory</h2><p>Continuous distributions, entropy, and KL divergence</p></div></div>
+  <div class="analogy"><span class="ic">🎲</span><p><strong>Plain English:</strong> For continuous random variables, probabilities are computed by integrating density functions. The probability that X is between a and b = ∫[a,b] p(x)dx. Entropy measures uncertainty — it's an integral of p(x)·log p(x). KL divergence measures how different two distributions are. These integrals appear directly in loss functions like cross-entropy and the VAE's ELBO.</p></div>
+  <div class="two-col">
+    <div class="card"><h3>Key integrals in ML</h3>
+      <div class="formula" style="font-size:12px">PDF normalization: ∫p(x)dx = 1<br>Expected value: E[f(X)] = ∫f(x)p(x)dx<br>Entropy: H(p) = −∫p(x)log p(x)dx<br>KL divergence: KL(p||q) = ∫p(x)log(p(x)/q(x))dx<br>Cross-entropy: H(p,q) = −∫p(x)log q(x)dx<br><span class="cm">// H(p,q) = H(p) + KL(p||q)</span></div>
+    </div>
+    <div class="card"><h3>Gaussian is everywhere</h3>
+      <div class="formula" style="font-size:12px">N(x; μ,σ²) = (1/√(2πσ²))·e^(−(x−μ)²/2σ²)<br><span class="cm">// Normalizing constant from calculus</span><br>∫N(x;μ,σ²)dx = 1 &nbsp;<span class="cm">// always</span><br><br>Log-likelihood of Gaussian data:<br>log L = −n/2·log(2πσ²) − Σ(xᵢ−μ)²/(2σ²)<br><span class="cm">// → MSE loss is MLE under Gaussian noise</span></div>
+    </div>
+  </div>
+  <div class="aiapp"><h4>AI Application — Why Cross-Entropy IS KL Divergence</h4>
+    <p>Training with cross-entropy loss H(p,q) = −Σ p(x) log q(x) is equivalent to minimizing KL(p||q) — the KL divergence between the true distribution p and your model q. Since H(p) is constant (you can't change the data), minimizing cross-entropy IS minimizing KL divergence. This is why cross-entropy is the "correct" loss for classification — it's information-theoretically optimal.</p>
+    <div class="chips"><span class="chip a">Cross-entropy = minimize KL(p||q)</span><span class="chip a">VAE: ELBO = reconstruction + KL</span><span class="chip">MSE = MLE under Gaussian</span></div>
+  </div>
+</div>
+
+<!-- 28 CHEAT SHEET -->
+<div class="sec" id="cheatsheet">
+  <div class="sec-hd"><div class="sec-num">28</div><div class="sec-tb"><h2>Complete Cheat Sheet</h2><p>Every formula in one place</p></div></div>
+  <div class="cs">
+    <h3>Calculus for AI — All Formulas</h3>
+    <div class="cs-grid">
+      <div class="cs-item"><div class="cs-name">Derivative (limit def.)</div><div class="cs-f">f′(x) = lim[h→0] (f(x+h)−f(x))/h</div><div class="cs-d">Slope at a point</div></div>
+      <div class="cs-item"><div class="cs-name">Power rule</div><div class="cs-f">d/dx[xⁿ] = n·xⁿ⁻¹</div><div class="cs-d">Most used rule</div></div>
+      <div class="cs-item"><div class="cs-name">Chain rule</div><div class="cs-f">d/dx[f(g(x))] = f′(g(x))·g′(x)</div><div class="cs-d">Core of backprop</div></div>
+      <div class="cs-item"><div class="cs-name">Product rule</div><div class="cs-f">d/dx[fg] = f′g + fg′</div><div class="cs-d">Two functions multiplied</div></div>
+      <div class="cs-item"><div class="cs-name">eˣ derivative</div><div class="cs-f">d/dx[eˣ] = eˣ</div><div class="cs-d">Self-derivative! Used in softmax</div></div>
+      <div class="cs-item"><div class="cs-name">ln(x) derivative</div><div class="cs-f">d/dx[ln x] = 1/x</div><div class="cs-d">Key for cross-entropy loss</div></div>
+      <div class="cs-item"><div class="cs-name">Gradient</div><div class="cs-f">∇f = [∂f/∂x₁, ..., ∂f/∂xₙ]</div><div class="cs-d">Vector pointing uphill</div></div>
+      <div class="cs-item"><div class="cs-name">Gradient descent</div><div class="cs-f">w ← w − α·∇L</div><div class="cs-d">Step downhill</div></div>
+      <div class="cs-item"><div class="cs-name">Definite integral</div><div class="cs-f">∫[a,b] f(x)dx = F(b)−F(a)</div><div class="cs-d">Area under curve</div></div>
+      <div class="cs-item"><div class="cs-name">FTC</div><div class="cs-f">d/dx[∫[a,x] f(t)dt] = f(x)</div><div class="cs-d">Diff. undoes integration</div></div>
+      <div class="cs-item"><div class="cs-name">Taylor expansion</div><div class="cs-f">f(x) ≈ Σ f⁽ⁿ⁾(a)/n! · (x−a)ⁿ</div><div class="cs-d">Polynomial approximation</div></div>
+      <div class="cs-item"><div class="cs-name">Jacobian</div><div class="cs-f">J[i,j] = ∂fᵢ/∂xⱼ</div><div class="cs-d">Vector chain rule</div></div>
+      <div class="cs-item"><div class="cs-name">Hessian</div><div class="cs-f">H[i,j] = ∂²f/∂xᵢ∂xⱼ</div><div class="cs-d">Curvature matrix</div></div>
+      <div class="cs-item"><div class="cs-name">Sigmoid derivative</div><div class="cs-f">σ′(x) = σ(x)(1−σ(x))</div><div class="cs-d">Vanishing gradient warning</div></div>
+      <div class="cs-item"><div class="cs-name">Cross-entropy</div><div class="cs-f">L = −Σ yᵢ log(ŷᵢ)</div><div class="cs-d">= minimize KL divergence</div></div>
+      <div class="cs-item"><div class="cs-name">Backprop rule</div><div class="cs-f">∂L/∂W = δᵀ · x</div><div class="cs-d">Outer product of error × input</div></div>
+    </div>
+  </div>
+</div>
+
+</div></main>
+<script>
+const $=id=>document.getElementById(id);
+const dpr=window.devicePixelRatio||1;
+function sc(id,h){const c=$(id);if(!c)return null;const w=c.clientWidth;c.width=w*dpr;c.height=h*dpr;const x=c.getContext('2d');x.scale(dpr,dpr);return{ctx:x,w,h}}
+function grid(ctx,w,h,pad,xr,yr){
+  const cw=w-pad.l-pad.r,ch=h-pad.t-pad.b;
+  const ox=pad.l+(0-xr[0])/(xr[1]-xr[0])*cw,oy=pad.t+(yr[1]-0)/(yr[1]-yr[0])*ch;
+  ctx.strokeStyle='rgba(0,0,0,0.06)';ctx.lineWidth=0.5;
+  for(let i=xr[0];i<=xr[1];i++){const px=pad.l+(i-xr[0])/(xr[1]-xr[0])*cw;ctx.beginPath();ctx.moveTo(px,pad.t);ctx.lineTo(px,pad.t+ch);ctx.stroke()}
+  for(let i=yr[0];i<=yr[1];i++){const py=pad.t+(yr[1]-i)/(yr[1]-yr[0])*ch;ctx.beginPath();ctx.moveTo(pad.l,py);ctx.lineTo(pad.l+cw,py);ctx.stroke()}
+  ctx.strokeStyle='rgba(0,0,0,0.3)';ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(pad.l,oy);ctx.lineTo(pad.l+cw,oy);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(ox,pad.t);ctx.lineTo(ox,pad.t+ch);ctx.stroke();
+  ctx.fillStyle='rgba(0,0,0,0.4)';ctx.font='9px JetBrains Mono,monospace';
+  ctx.textAlign='center';
+  for(let i=xr[0];i<=xr[1];i++){if(!i)continue;const px=pad.l+(i-xr[0])/(xr[1]-xr[0])*cw;ctx.fillText(i,px,oy+12)}
+  ctx.textAlign='right';
+  for(let i=yr[0];i<=yr[1];i+=2){if(!i)continue;const py=pad.t+(yr[1]-i)/(yr[1]-yr[0])*ch;ctx.fillText(i,ox-4,py+3)}
+  return{cw,ch,ox,oy}
+}
+function toC(x,y,pad,cw,ch,xr,yr){return[pad.l+(x-xr[0])/(xr[1]-xr[0])*cw,pad.t+(yr[1]-y)/(yr[1]-yr[0])*ch]}
+function plotFn(ctx,fn,pad,cw,ch,xr,yr,col,lw=2){
+  ctx.strokeStyle=col;ctx.lineWidth=lw;ctx.beginPath();let s=false;
+  for(let i=0;i<=600;i++){const x=xr[0]+(xr[1]-xr[0])*i/600;const y=fn(x);if(!isFinite(y)||Math.abs(y)>200){s=false;continue}
+    const[px,py]=toC(x,y,pad,cw,ch,xr,yr);if(!s){ctx.moveTo(px,py);s=true}else ctx.lineTo(px,py)}ctx.stroke()
+}
+function arw(ctx,x1,y1,x2,y2,col,lw=2,hs=9){
+  ctx.strokeStyle=col;ctx.fillStyle=col;ctx.lineWidth=lw;
+  ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();
+  const a=Math.atan2(y2-y1,x2-x1);
+  ctx.beginPath();ctx.moveTo(x2,y2);ctx.lineTo(x2-hs*Math.cos(a-.4),y2-hs*Math.sin(a-.4));ctx.lineTo(x2-hs*Math.cos(a+.4),y2-hs*Math.sin(a+.4));ctx.closePath();ctx.fill()
+}
+const C={tl:'#1D9E75',co:'#D85A30',pu:'#7F77DD',bl:'#378ADD',am:'#BA7517',lbl:'rgba(0,0,0,0.4)',txt:'#111827'};
+const ndiff=(f,x,h=1e-5)=>(f(x+h)-f(x-h))/(2*h);
+
+// ===== FUNCTIONS =====
+const fns={
+  x2:{f:x=>x*x,label:'x²',domain:'all reals',ai:'Quadratic loss (MSE)'},
+  x3:{f:x=>x*x*x,label:'x³',domain:'all reals',ai:'Cubic polynomial'},
+  sin:{f:x=>Math.sin(x),label:'sin(x)',domain:'all reals',ai:'Positional encoding'},
+  cos:{f:x=>Math.cos(x),label:'cos(x)',domain:'all reals',ai:'Positional encoding'},
+  exp:{f:x=>Math.exp(x),label:'eˣ',domain:'all reals',ai:'Softmax numerator'},
+  log:{f:x=>Math.log(Math.max(x,0.001)),label:'ln(x)',domain:'x > 0',ai:'Cross-entropy loss'},
+  abs:{f:x=>Math.abs(x),label:'|x|',domain:'all reals',ai:'L1 regularization'},
+  relu:{f:x=>Math.max(0,x),label:'ReLU(x)',domain:'all reals',ai:'Hidden activation (ReLU)'},
+  sigmoid:{f:x=>1/(1+Math.exp(-x)),label:'σ(x)',domain:'all reals',ai:'Binary classification output'},
+  tanh:{f:x=>Math.tanh(x),label:'tanh(x)',domain:'all reals',ai:'RNN hidden state'}
+};
+function drawFn(){
+  const key=$('fn-sel').value,fn=fns[key];const xv=+$('fn-x').value;
+  $('fn-xv').textContent=xv.toFixed(1);
+  const fval=fn.f(xv);$('fn-fx').textContent=isFinite(fval)?fval.toFixed(3):'∞';
+  $('fn-domain').textContent=fn.domain;$('fn-ai').textContent=fn.ai;
+  const{ctx,w,h}=sc('cv-fn',240)||{};if(!ctx)return;
+  const pad={l:44,r:16,t:16,b:28},xr=[-5,5];
+  let yr=[-3,5];if(['exp','log'].includes(key))yr=[-1,8];if(['sin','cos','tanh','sigmoid','relu'].includes(key))yr=[-2,3];
+  ctx.clearRect(0,0,w,h);const{cw,ch,ox,oy}=grid(ctx,w,h,pad,xr,yr);
+  plotFn(ctx,fn.f,pad,cw,ch,xr,yr,C.tl,2.5);
+  const[px,py]=toC(xv,fn.f(xv),pad,cw,ch,xr,yr);
+  ctx.beginPath();ctx.arc(px,py,6,0,Math.PI*2);ctx.fillStyle=C.co;ctx.fill();ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.stroke();
+  ctx.fillStyle=C.tl;ctx.font='500 12px Source Sans 3,sans-serif';ctx.textAlign='left';ctx.fillText(fn.label,pad.l+6,24);
+}
+
+// ===== LIMITS =====
+function drawLim(){
+  const a=+$('lim-a').value,d=+$('lim-d').value;
+  $('lim-av').textContent=a.toFixed(1);$('lim-dv').textContent=d.toFixed(2);
+  const f=x=>x*x-x+1;
+  const ll=f(a-0.001),lr=f(a+0.001);
+  $('lim-l').textContent=ll.toFixed(4);$('lim-r').textContent=lr.toFixed(4);
+  $('lim-ex').textContent=Math.abs(ll-lr)<0.01?'Yes ✓':'No ✗';
+  const{ctx,w,h}=sc('cv-lim',230)||{};if(!ctx)return;
+  const pad={l:44,r:16,t:20,b:28},xr=[a-3,a+3],yr=[f(a)-3,f(a)+4];
+  const{cw,ch,ox,oy}=grid(ctx,w,h,pad,xr,yr);
+  plotFn(ctx,f,pad,cw,ch,xr,yr,C.tl,2.5);
+  // Left approach points
+  [0.3,0.15,0.05].forEach((dd,i)=>{const x=a-d*dd;const[px,py]=toC(x,f(x),pad,cw,ch,xr,yr);ctx.beginPath();ctx.arc(px,py,4+i*1.5,0,Math.PI*2);ctx.fillStyle=C.tl+'99';ctx.fill()});
+  // Right approach points
+  [0.3,0.15,0.05].forEach((dd,i)=>{const x=a+d*dd;const[px,py]=toC(x,f(x),pad,cw,ch,xr,yr);ctx.beginPath();ctx.arc(px,py,4+i*1.5,0,Math.PI*2);ctx.fillStyle=C.co+'99';ctx.fill()});
+  const[ax2,ay2]=toC(a,f(a),pad,cw,ch,xr,yr);
+  ctx.strokeStyle=C.pu;ctx.lineWidth=1;ctx.setLineDash([4,3]);ctx.beginPath();ctx.moveTo(ax2,pad.t);ctx.lineTo(ax2,pad.t+ch);ctx.stroke();ctx.setLineDash([]);
+  ctx.beginPath();ctx.arc(ax2,ay2,7,0,Math.PI*2);ctx.fillStyle='#fff';ctx.fill();ctx.strokeStyle=C.pu;ctx.lineWidth=2;ctx.stroke();
+  ctx.fillStyle=C.pu;ctx.font='11px Source Sans 3';ctx.textAlign='center';ctx.fillText('x='+a.toFixed(1),ax2,ay2-12);
+}
+
+// ===== DERIVATIVE & TANGENT LINE =====
+let showTan=true,showDer=true;
+function togTan(){showTan=!showTan;$('tog-tan').classList.toggle('on',showTan);drawDeriv()}
+function togDer(){showDer=!showDer;$('tog-der').classList.toggle('on',showDer);drawDeriv()}
+const dfns={
+  x2:{f:x=>x*x,df:x=>2*x},x3:{f:x=>x*x*x,df:x=>3*x*x},
+  sin:{f:x=>Math.sin(x),df:x=>Math.cos(x)},exp:{f:x=>Math.exp(x)/3,df:x=>Math.exp(x)/3},
+  log:{f:x=>Math.log(Math.abs(x)+0.1),df:x=>1/(Math.abs(x)+0.1)*Math.sign(x||1)},
+  relu:{f:x=>Math.max(0,x),df:x=>x>0?1:0},sigmoid:{f:x=>1/(1+Math.exp(-x)),df:x=>{const s=1/(1+Math.exp(-x));return s*(1-s)}}
+};
+function drawDeriv(){
+  const key=$('deriv-fn').value,fn=dfns[key],xv=+$('dx').value;
+  $('dxv').textContent=xv.toFixed(1);
+  const fv=fn.f(xv),dfv=fn.df(xv);
+  $('d-fx').textContent=fv.toFixed(3);$('d-dfx').textContent=dfv.toFixed(3);
+  $('d-interp').textContent=dfv>2?'rising steeply':dfv>0.5?'rising':Math.abs(dfv)<0.1?'nearly flat':dfv<-2?'falling steeply':'falling';
+  const{ctx,w,h}=sc('cv-deriv',260)||{};if(!ctx)return;
+  const pad={l:44,r:16,t:20,b:28},xr=[-5,5],yr=[-3,4];
+  const{cw,ch,ox,oy}=grid(ctx,w,h,pad,xr,yr);
+  // Original function
+  plotFn(ctx,fn.f,pad,cw,ch,xr,yr,C.bl,2.5);
+  // Derivative function
+  if(showDer)plotFn(ctx,fn.df,pad,cw,ch,xr,yr,C.co+'aa',1.5);
+  // Tangent line
+  if(showTan){
+    const x0=xv,y0=fn.f(x0),s=fn.df(x0);const tl=1.5;
+    const[p1x,p1y]=toC(x0-tl,y0-s*tl,pad,cw,ch,xr,yr);
+    const[p2x,p2y]=toC(x0+tl,y0+s*tl,pad,cw,ch,xr,yr);
+    ctx.strokeStyle=C.am;ctx.lineWidth=2;ctx.setLineDash([5,3]);ctx.beginPath();ctx.moveTo(p1x,p1y);ctx.lineTo(p2x,p2y);ctx.stroke();ctx.setLineDash([]);
+  }
+  const[px,py]=toC(xv,fv,pad,cw,ch,xr,yr);
+  ctx.beginPath();ctx.arc(px,py,5,0,Math.PI*2);ctx.fillStyle=C.co;ctx.fill();
+  ctx.fillStyle=C.bl;ctx.font='10px Source Sans 3';ctx.textAlign='left';ctx.fillText('f(x)',pad.l+4,22);
+  if(showDer){ctx.fillStyle=C.co;ctx.fillText('f′(x)',pad.l+30,22)}
+  if(showTan){ctx.fillStyle=C.am;ctx.fillText('tangent',pad.l+60,22)}
+}
+
+// ===== CHAIN RULE STEPPER =====
+const crSteps=[
+  {html:`<strong>Given:</strong> f(x) = (2x+1)² &nbsp;— a composition of two functions.<br>We need to find f′(x). We can't just use the power rule on (2x+1)² because the base is not simply x.`},
+  {html:`<strong>Identify:</strong> outer = u², inner = u = 2x+1<br>So f(x) = outer(inner(x)) = (2x+1)²`},
+  {html:`<strong>Differentiate outer</strong> (treating u as the variable): d/du[u²] = <span style="color:#1D9E75;font-weight:600">2u</span>`},
+  {html:`<strong>Differentiate inner</strong>: d/dx[2x+1] = <span style="color:#D85A30;font-weight:600">2</span>`},
+  {html:`<strong>Multiply together (chain rule):</strong><br>f′(x) = <span style="color:#1D9E75;font-weight:600">2u</span> × <span style="color:#D85A30;font-weight:600">2</span> = 2(2x+1) × 2 = <strong>4(2x+1)</strong><br>This is a polynomial: 8x + 4. Verify: expand (2x+1)² = 4x²+4x+1, differentiate → 8x+4 ✓`}
+];
+let crStep=0;
+function setCR(i){crStep=i;document.querySelectorAll('#cr-tabs .step-tab').forEach((t,j)=>t.classList.toggle('on',j===i));$('cr-content').innerHTML=crSteps[i].html;drawChain(i)}
+function drawChain(step){
+  const{ctx,w,h}=sc('cv-chain',180)||{};if(!ctx)return;
+  const pad={l:20,r:20,t:20,b:28},xr=[-3,3],yr=[-2,12];
+  const{cw,ch,ox,oy}=grid(ctx,w,h,pad,xr,yr);
+  const f=x=>(2*x+1)**2;plotFn(ctx,f,pad,cw,ch,xr,yr,C.tl,2);
+  if(step>=4){const df=x=>4*(2*x+1);plotFn(ctx,df,pad,cw,ch,xr,yr,C.co,2);ctx.fillStyle=C.co;ctx.font='11px Source Sans 3';ctx.textAlign='left';ctx.fillText("f′(x)=4(2x+1)",pad.l+80,28)}
+  ctx.fillStyle=C.tl;ctx.font='11px Source Sans 3';ctx.textAlign='left';ctx.fillText('f(x)=(2x+1)²',pad.l+4,28);
+}
+
+// ===== HIGHER ORDER DERIVATIVES =====
+const hfns={
+  x3:{f:x=>x**3-3*x,df:x=>3*x**2-3,ddf:x=>6*x},
+  sin:{f:x=>Math.sin(x),df:x=>Math.cos(x),ddf:x=>-Math.sin(x)},
+  x4:{f:x=>x**4-4*x**2,df:x=>4*x**3-8*x,ddf:x=>12*x**2-8},
+  gauss:{f:x=>Math.exp(-x*x),df:x=>-2*x*Math.exp(-x*x),ddf:x=>(4*x*x-2)*Math.exp(-x*x)}
+};
+function drawHigher(){
+  const key=$('h-fn').value,fn=hfns[key],xv=+$('hx').value;
+  $('hxv').textContent=xv.toFixed(1);
+  $('h-f').textContent=fn.f(xv).toFixed(3);$('h-df').textContent=fn.df(xv).toFixed(3);$('h-ddf').textContent=fn.ddf(xv).toFixed(3);
+  $('h-shape').textContent=fn.ddf(xv)>0.1?'concave up ∪':fn.ddf(xv)<-0.1?'concave down ∩':'inflection';
+  const{ctx,w,h}=sc('cv-high',250)||{};if(!ctx)return;
+  const pad={l:44,r:16,t:20,b:28},xr=[-4,4],yr=[-4,5];
+  const{cw,ch,ox,oy}=grid(ctx,w,h,pad,xr,yr);
+  plotFn(ctx,fn.f,pad,cw,ch,xr,yr,C.bl,2.5);
+  plotFn(ctx,fn.df,pad,cw,ch,xr,yr,C.tl,1.8);
+  plotFn(ctx,fn.ddf,pad,cw,ch,xr,yr,C.co,1.5);
+  const[px,py]=toC(xv,fn.f(xv),pad,cw,ch,xr,yr);ctx.beginPath();ctx.arc(px,py,5,0,Math.PI*2);ctx.fillStyle=C.co;ctx.fill();
+  ctx.font='10px Source Sans 3';ctx.textAlign='left';ctx.fillStyle=C.bl;ctx.fillText('f(x)',pad.l+4,22);ctx.fillStyle=C.tl;ctx.fillText("f′",pad.l+36,22);ctx.fillStyle=C.co;ctx.fillText("f″",pad.l+54,22);
+}
+
+// ===== PARTIAL DERIVATIVES =====
+const pdfns={
+  bowl:{f:(x,y)=>x*x+y*y,dx:(x,y)=>2*x,dy:(x,y)=>2*y,label:'x²+y²'},
+  saddle:{f:(x,y)=>x*x-y*y,dx:(x,y)=>2*x,dy:(x,y)=>-2*y,label:'x²−y²'},
+  sin2:{f:(x,y)=>Math.sin(x)*Math.cos(y),dx:(x,y)=>Math.cos(x)*Math.cos(y),dy:(x,y)=>-Math.sin(x)*Math.sin(y),label:'sin(x)cos(y)'},
+  exp2:{f:(x,y)=>Math.exp(-x*x-y*y),dx:(x,y)=>-2*x*Math.exp(-x*x-y*y),dy:(x,y)=>-2*y*Math.exp(-x*x-y*y),label:'e^(−x²−y²)'}
+};
+function drawPD(){
+  const key=$('pd-fn').value,fn=pdfns[key];
+  const px=+$('px').value,py2=+$('py').value;
+  $('pxv').textContent=px.toFixed(1);$('pyv').textContent=py2.toFixed(1);
+  $('pd-f').textContent=fn.f(px,py2).toFixed(3);$('pd-dx').textContent=fn.dx(px,py2).toFixed(3);$('pd-dy').textContent=fn.dy(px,py2).toFixed(3);
+  const{ctx,w,h}=sc('cv-pd',260)||{};if(!ctx)return;
+  const pad={l:44,r:16,t:20,b:28};const sz=Math.min(w-pad.l-pad.r,h-pad.t-pad.b);const cellSz=sz/30;
+  // Heatmap
+  for(let i=0;i<30;i++)for(let j=0;j<30;j++){
+    const x=-3+i*0.2,y=3-j*0.2,v=fn.f(x,y);
+    const norm=Math.max(-1,Math.min(1,v*0.5));const r=norm>0?Math.round(29+norm*200):29;const g=Math.round(158*(1-Math.abs(norm)*0.7));const b=norm<0?Math.round(117+Math.abs(norm)*100):Math.round(117*(1-norm*0.5));
+    ctx.fillStyle=`rgb(${r},${g},${b})`;ctx.fillRect(pad.l+i*cellSz,pad.t+j*cellSz,cellSz,cellSz)
+  }
+  ctx.strokeStyle='rgba(0,0,0,0.15)';ctx.lineWidth=0.5;ctx.strokeRect(pad.l,pad.t,sz,sz);
+  // Mark current point
+  const cpx=pad.l+(px+3)/6*sz,cpy2=pad.t+(3-py2)/6*sz;
+  ctx.beginPath();ctx.arc(cpx,cpy2,7,0,Math.PI*2);ctx.fillStyle='#fff';ctx.fill();ctx.strokeStyle=C.co;ctx.lineWidth=2;ctx.stroke();
+  // Gradient arrows
+  const gx=fn.dx(px,py2),gy=fn.dy(px,py2),glen=Math.hypot(gx,gy)+0.001;const sc2=sz/6*0.4;
+  arw(ctx,cpx,cpy2,cpx+gx/glen*sc2,cpy2-gy/glen*sc2,C.tl,2,7);
+  ctx.font='10px Source Sans 3';ctx.textAlign='left';ctx.fillStyle=C.tl;ctx.fillText('∂f/∂x='+fn.dx(px,py2).toFixed(2)+' ∂f/∂y='+fn.dy(px,py2).toFixed(2),pad.l+4,22);
+  ctx.fillStyle=C.txt;ctx.fillText('← color = f value · dot = (x,y) · arrow = gradient',pad.l+4,h-6);
+}
+
+// ===== GRADIENT FIELD =====
+const gffns={
+  bowl:{f:(x,y)=>x*x+2*y*y,gx:(x,y)=>2*x,gy:(x,y)=>4*y,min:[0,0]},
+  saddle:{f:(x,y)=>x*x-y*y,gx:(x,y)=>2*x,gy:(x,y)=>-2*y,min:null},
+  banana:{f:(x,y)=>(1-x)**2+10*(y-x*x)**2,gx:(x,y)=>-2*(1-x)+10*2*(y-x*x)*(-2*x),gy:(x,y)=>10*2*(y-x*x),min:[1,1]}
+};
+function drawGF(){
+  const key=$('gf-fn').value,fn=gffns[key];
+  const gx=+$('gfx').value,gy=+$('gfy').value;
+  $('gfxv').textContent=gx.toFixed(1);$('gfyv').textContent=gy.toFixed(1);
+  const lv=fn.f(gx,gy),gxv=fn.gx(gx,gy),gyv=fn.gy(gx,gy);
+  $('gf-l').textContent=lv.toFixed(3);$('gf-g').textContent='['+gxv.toFixed(2)+','+gyv.toFixed(2)+']';$('gf-ng').textContent='['+(-gxv).toFixed(2)+','+(-gyv).toFixed(2)+']';
+  const{ctx,w,h}=sc('cv-gf',260)||{};if(!ctx)return;
+  const pad={l:44,r:16,t:20,b:28},xr=[-3,3],yr=[-3,3];
+  const{cw,ch,ox,oy}=grid(ctx,w,h,pad,xr,yr);
+  for(let ix=-2.5;ix<=2.5;ix+=0.8)for(let iy=-2.5;iy<=2.5;iy+=0.8){const gxv2=fn.gx(ix,iy),gyv2=fn.gy(ix,iy);const glen=Math.hypot(gxv2,gyv2)+0.001;const sc3=0.3;const[sx,sy]=toC(ix,iy,pad,cw,ch,xr,yr);const[ex,ey]=toC(ix+gxv2/glen*sc3,iy+gyv2/glen*sc3,pad,cw,ch,xr,yr);const alpha=Math.min(0.7,Math.sqrt(gxv2*gxv2+gyv2*gyv2)/5);ctx.strokeStyle=`rgba(186,117,23,${alpha})`;ctx.lineWidth=0.8;ctx.beginPath();ctx.moveTo(sx,sy);ctx.lineTo(ex,ey);ctx.stroke()}
+  if(fn.min){const[mx,my]=fn.min;const[mpx,mpy]=toC(mx,my,pad,cw,ch,xr,yr);ctx.beginPath();ctx.arc(mpx,mpy,6,0,Math.PI*2);ctx.fillStyle=C.tl;ctx.fill()}
+  const[cpx,cpy]=toC(gx,gy,pad,cw,ch,xr,yr);ctx.beginPath();ctx.arc(cpx,cpy,7,0,Math.PI*2);ctx.fillStyle=C.bl;ctx.fill();ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.stroke();
+  const glen2=Math.hypot(gxv,gyv)+0.001;const sc4=0.5;const[gex,gey]=toC(gx+gxv/glen2*sc4,gy+gyv/glen2*sc4,pad,cw,ch,xr,yr);arw(ctx,cpx,cpy,gex,gey,C.co,2,8);
+  const[nex,ney]=toC(gx-gxv/glen2*sc4,gy-gyv/glen2*sc4,pad,cw,ch,xr,yr);arw(ctx,cpx,cpy,nex,ney,C.tl,2,8);
+}
+
+// ===== RIEMANN SUMS =====
+let rsMode='left';
+function setRS(m){rsMode=m;['rs-l','rs-r','rs-m'].forEach(id=>$(id)?.classList.remove('on'));$('rs-'+m[0])?.classList.add('on');drawRS()}
+const rsfns={x2:x=>x*x,sin:x=>Math.sin(x),exp:x=>Math.exp(x)/3,x3:x=>x**3/8+x};
+const rsExact={x2:(a,b)=>b**3/3-a**3/3,sin:(a,b)=>-Math.cos(b)+Math.cos(a),exp:(a,b)=>(Math.exp(b)-Math.exp(a))/3,x3:(a,b)=>(b**4-a**4)/32+(b**2-a**2)/2};
+function drawRS(){
+  const key=$('rs-fn').value,fn=rsfns[key],exact=rsExact[key];const n=+$('rs-n').value,b=+$('rs-b').value,a=0;
+  $('rs-nv').textContent=n;$('rs-bv').textContent=b.toFixed(1);
+  const h2=(b-a)/n;let approx=0;const pts=[];for(let i=0;i<n;i++){let xrep;if(rsMode==='left')xrep=a+i*h2;else if(rsMode==='right')xrep=a+(i+1)*h2;else xrep=a+(i+0.5)*h2;approx+=fn(xrep)*h2;pts.push({x:a+i*h2,xrep,w:h2,y:fn(xrep)})}
+  const ex=exact(a,b);const err=Math.abs((approx-ex)/ex*100);
+  $('rs-approx').textContent=approx.toFixed(4);$('rs-exact').textContent=ex.toFixed(4);$('rs-err').textContent=err.toFixed(2)+'%';
+  const{ctx,w,h3}=sc('cv-rs',240)||{};if(!ctx)return;
+  const pad={l:44,r:16,t:16,b:28},xr=[-0.5,4.5],yr=[-0.5,4];
+  const{cw,ch,ox,oy}=grid(ctx,w,h3,pad,xr,yr);
+  pts.forEach(({x,xrep,w:ww,y})=>{const[px,py]=toC(x,0,pad,cw,ch,xr,yr);const h4=Math.abs(py-toC(0,y,pad,cw,ch,xr,yr)[1]);const rectY=y>=0?py-h4:py;ctx.fillStyle=C.tl+'40';ctx.fillRect(px,rectY,ww*cw/(xr[1]-xr[0]),h4);ctx.strokeStyle=C.tl;ctx.lineWidth=0.5;ctx.strokeRect(px,rectY,ww*cw/(xr[1]-xr[0]),h4)});
+  plotFn(ctx,fn,pad,cw,ch,xr,yr,C.co,2.5);
+}
+
+// ===== CRITICAL POINTS =====
+const cpfns={cubic:{f:x=>x**3-3*x,df:x=>3*x**2-3,ddf:x=>6*x,roots:[-1,1]},quartic:{f:x=>x**4-4*x**2,df:x=>4*x**3-8*x,ddf:x=>12*x**2-8,roots:[-Math.sqrt(2),0,Math.sqrt(2)]},sin:{f:x=>Math.sin(x)+0.5*x,df:x=>Math.cos(x)+0.5,ddf:x=>-Math.sin(x),roots:[]},loss:{f:x=>(x**2-1)**2,df:x=>4*x*(x**2-1),ddf:x=>12*x**2-4,roots:[-1,0,1]}};
+function drawCP(){
+  const key=$('cp-fn').value,fn=cpfns[key];
+  const{ctx,w,h}=sc('cv-cp',240)||{};if(!ctx)return;
+  const pad={l:44,r:16,t:16,b:28},xr=[-3,3],yr=[-3,4];
+  const{cw,ch,ox,oy}=grid(ctx,w,h,pad,xr,yr);
+  plotFn(ctx,fn.f,pad,cw,ch,xr,yr,C.bl,2.5);
+  // Mark critical points
+  if(fn.roots.length){fn.roots.forEach(r=>{const d2=fn.ddf(r);const[px,py]=toC(r,fn.f(r),pad,cw,ch,xr,yr);ctx.beginPath();ctx.arc(px,py,7,0,Math.PI*2);ctx.fillStyle=d2>0.1?C.tl:d2<-0.1?C.co:C.am;ctx.fill();ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.stroke();const label=d2>0.1?'min':'max';ctx.fillStyle=d2>0.1?C.tld:d2<-0.1?C.cod:C.am;ctx.font='500 10px Source Sans 3';ctx.textAlign='center';ctx.fillText(label,px,py-12)})}
+  else{for(let x=-3;x<=3;x+=0.05){if(Math.abs(fn.df(x))<0.15){const[px,py]=toC(x,fn.f(x),pad,cw,ch,xr,yr);ctx.beginPath();ctx.arc(px,py,5,0,Math.PI*2);ctx.fillStyle=C.am;ctx.fill()}}}
+}
+
+// ===== GRADIENT DESCENT 1D =====
+const gd1fns={bowl:{f:x=>x*x,df:x=>2*x,min:0},bumpy:{f:x=>x*x/4+Math.sin(2*x),df:x=>x/2+2*Math.cos(2*x),min:null},asym:{f:x=>0.5*x*x-2*x+3,df:x=>x-2,min:2},double:{f:x=>(x*x-4)**2,df:x=>4*x*(x*x-4),min:null}};
+let gd1pos=3.5,gd1path=[],gd1running=false,gd1anim=null,gd1lr=0.15;
+function gd1Update(){gd1lr=+$('gd1-lr').value;$('gd1-lrv').textContent=gd1lr.toFixed(2)}
+function gdReset(){
+  const x0=+$('gd1-x0').value;$('gd1-x0v').textContent=x0.toFixed(1);
+  gd1pos=x0;gd1path=[x0];gd1running=false;cancelAnimationFrame(gd1anim);$('gd1-play').textContent='▶ Play';
+  $('gd1-sn').textContent='0';$('gd1-xv').textContent=x0.toFixed(4);
+  const fn=gd1fns[$('gd-fn').value];$('gd1-lv').textContent=fn.f(x0).toFixed(4);
+  $('gd1-msg').textContent='Try different learning rates! α=1.5 will diverge. α=0.01 is very slow.';
+  drawGD1d();
+}
+function gd1Toggle(){gd1running=!gd1running;$('gd1-play').textContent=gd1running?'⏸ Pause':'▶ Play';if(gd1running)gd1Step2()}
+function gd1Step(){gd1Step2(true)}
+function gd1Step2(once=false){
+  if(!gd1running&&!once)return;
+  const fn=gd1fns[$('gd-fn').value];const g=fn.df(gd1pos);gd1pos-=gd1lr*g;gd1path.push(gd1pos);
+  const lv=fn.f(gd1pos);$('gd1-sn').textContent=gd1path.length-1;$('gd1-xv').textContent=gd1pos.toFixed(4);$('gd1-lv').textContent=lv.toFixed(4);
+  if(Math.abs(gd1pos)>20){gd1running=false;$('gd1-play').textContent='▶ Play';$('gd1-msg').textContent='⚠ Diverged! Learning rate α='+gd1lr.toFixed(2)+' is too large. Try smaller.';$('gd-status').textContent='Diverged!';drawGD1d();return}
+  if(Math.abs(fn.df(gd1pos))<1e-5||gd1path.length>500){gd1running=false;$('gd1-play').textContent='▶ Play';$('gd1-msg').textContent='✓ Converged at x='+gd1pos.toFixed(4)+', L='+lv.toFixed(4);$('gd-status').textContent='Converged!';drawGD1d();return}
+  $('gd-status').textContent='Step '+( gd1path.length-1);$('gd1-msg').textContent=gd1lr>0.8?'⚠ Large α — bouncing! Reduce for stability.':'Running... step '+( gd1path.length-1);
+  drawGD1d();if(!once)gd1anim=requestAnimationFrame(()=>gd1Step2());
+}
+function drawGD1d(){
+  const fn=gd1fns[$('gd-fn').value];const{ctx,w,h}=sc('cv-gd1d',230)||{};if(!ctx)return;
+  const pad={l:44,r:16,t:20,b:28},xr=[-5,5],yr=[-1,10];
+  const{cw,ch,ox,oy}=grid(ctx,w,h,pad,xr,yr);
+  plotFn(ctx,fn.f,pad,cw,ch,xr,yr,C.tl,2.5);
+  if(gd1path.length>1){ctx.strokeStyle=C.pu;ctx.lineWidth=1.5;ctx.beginPath();gd1path.slice(-30).forEach((x,i)=>{const y=fn.f(x);if(Math.abs(y)>20)return;const[px,py]=toC(x,y,pad,cw,ch,xr,yr);i?ctx.lineTo(px,py):ctx.moveTo(px,py)});ctx.stroke()}
+  const fv=fn.f(gd1pos);if(Math.abs(fv)<15&&Math.abs(gd1pos)<5){const[px,py]=toC(gd1pos,fv,pad,cw,ch,xr,yr);ctx.beginPath();ctx.arc(px,py,8,0,Math.PI*2);ctx.fillStyle=C.co;ctx.fill();ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.stroke()}
+}
+
+// ===== EXP & LOG =====
+function drawEL(){
+  const xv=+$('el-x').value;$('el-xv').textContent=xv.toFixed(1);
+  $('el-ex').textContent=Math.exp(xv).toFixed(3);
+  $('el-lx').textContent=(xv>0?Math.log(xv):-Infinity).toFixed(3);
+  const{ctx,w,h}=sc('cv-el',230)||{};if(!ctx)return;
+  const pad={l:44,r:16,t:16,b:28},xr=[-3,3],yr=[-2,8];
+  const{cw,ch,ox,oy}=grid(ctx,w,h,pad,xr,yr);
+  plotFn(ctx,x=>Math.exp(x),pad,cw,ch,xr,yr,C.tl,2.5);
+  plotFn(ctx,x=>Math.log(Math.max(x,0.01)),pad,cw,ch,xr,yr,C.co,2);
+  // Tangent lines at x
+  const s1=Math.exp(xv);const[p1x,p1y]=toC(xv,s1,pad,cw,ch,xr,yr);
+  ctx.setLineDash([4,3]);ctx.strokeStyle=C.am;ctx.lineWidth=1.5;
+  const tl=1;const[t1x,t1y]=toC(xv-tl,s1-s1*tl,pad,cw,ch,xr,yr);const[t2x,t2y]=toC(xv+tl,s1+s1*tl,pad,cw,ch,xr,yr);ctx.beginPath();ctx.moveTo(t1x,t1y);ctx.lineTo(t2x,t2y);ctx.stroke();ctx.setLineDash([]);
+  ctx.beginPath();ctx.arc(p1x,p1y,5,0,Math.PI*2);ctx.fillStyle=C.tl;ctx.fill();
+  ctx.fillStyle=C.tl;ctx.font='11px Source Sans 3';ctx.textAlign='left';ctx.fillText('eˣ (d/dx = eˣ)',pad.l+4,22);ctx.fillStyle=C.co;ctx.fillText('ln(x) (d/dx = 1/x)',pad.l+80,22);
+}
+
+// ===== TAYLOR SERIES =====
+const tsfns={
+  sin:{f:x=>Math.sin(x),terms:(x,a,n)=>{let s=0;for(let k=0;k<n;k++){const p=2*k+1;const c=p%4===1?1:-1;let f=1;for(let j=1;j<=p;j++)f*=j;s+=c*Math.pow(x-a,p)/f}return s},getFormula:(n,a)=>{const terms=[];for(let k=0;k<n;k++){const p=2*k+1;const s=p%4===1?'+':'-';const label=a===0?`x^${p}/${p}!`:`(x-${a})^${p}/${p}!`;terms.push(`${terms.length>0?s:s==='-'?'−':''}${label}`)}return'sin(x) ≈ '+terms.join(' ')}},
+  cos:{f:x=>Math.cos(x),terms:(x,a,n)=>{let s=0;for(let k=0;k<n;k++){const p=2*k;const c=p%4===0?1:-1;let f=1;for(let j=1;j<=p;j++)f*=j;s+=c*Math.pow(x-a,p)/(f||1)}return s},getFormula:(n)=>'cos(x) ≈ 1 - x²/2! + x⁴/4! ...'},
+  exp:{f:x=>Math.exp(x),terms:(x,a,n)=>{let s=0;let f=1;for(let k=0;k<n;k++){if(k>0)f*=k;s+=Math.pow(x-a,k)/f}return s},getFormula:(n)=>'eˣ ≈ 1 + x + x²/2! + x³/3! ...'},
+  log:{f:x=>Math.log(1+x),terms:(x,a,n)=>{let s=0;for(let k=1;k<n;k++)s+=Math.pow(-1,k+1)*Math.pow(x-a,k)/k;return s},getFormula:(n)=>'ln(1+x) ≈ x − x²/2 + x³/3 ...'}
+};
+function drawTS(){
+  const key=$('ts-fn').value,fn=tsfns[key];const n=+$('ts-n').value;const a=parseFloat($('ts-a').value)||0;
+  $('ts-nv').textContent=n;$('ts-formula').textContent=fn.getFormula(n,a);
+  const{ctx,w,h}=sc('cv-ts',240)||{};if(!ctx)return;
+  const pad={l:44,r:16,t:16,b:28},xr=[-4,4],yr=[-3,4];
+  const{cw,ch,ox,oy}=grid(ctx,w,h,pad,xr,yr);
+  plotFn(ctx,fn.f,pad,cw,ch,xr,yr,C.tl,2.5);
+  plotFn(ctx,x=>fn.terms(x,a,n),pad,cw,ch,xr,yr,C.co,2);
+  const[aax,aay]=toC(a,fn.f(a),pad,cw,ch,xr,yr);ctx.setLineDash([3,3]);ctx.strokeStyle=C.am;ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(aax,pad.t);ctx.lineTo(aax,pad.t+ch);ctx.stroke();ctx.setLineDash([]);
+  ctx.fillStyle=C.tl;ctx.font='10px Source Sans 3';ctx.textAlign='left';ctx.fillText('exact f(x)',pad.l+4,22);ctx.fillStyle=C.co;ctx.fillText('Taylor approx (n='+n+')',pad.l+64,22);
+}
+
+// ===== BACKPROP STEPPER =====
+const bp2steps=[
+  {title:'Setup: simple network',body:'Network: ŷ = σ(wx + b) where x=2, w=0.5, b=0.1, true y=1.0<br>σ = sigmoid function. We want to find ∂L/∂w and ∂L/∂b to update weights.',hi:''},
+  {title:'Forward pass: compute ŷ',body:'z = wx + b = 0.5×2 + 0.1 = <strong>1.1</strong><br>ŷ = σ(z) = σ(1.1) = 1/(1+e⁻¹·¹) ≈ <strong>0.750</strong><br>Values computed left to right. Store z for backward pass.',hi:'fwd'},
+  {title:'Compute loss L',body:'L = (ŷ − y)² = (0.750 − 1.0)² = (−0.250)² = <strong>0.0625</strong><br>We want to minimize this. The gradient will tell us how.',hi:'loss'},
+  {title:'∂L/∂ŷ — gradient of loss w.r.t. output',body:'∂L/∂ŷ = 2(ŷ − y) = 2(0.750 − 1.0) = <strong>−0.500</strong><br>Negative: increasing ŷ would decrease loss. Good — we need ŷ to go up toward 1.0.',hi:'dy'},
+  {title:'∂L/∂z — through sigmoid (chain rule)',body:'∂L/∂z = ∂L/∂ŷ × ∂ŷ/∂z = ∂L/∂ŷ × σ(z)(1−σ(z))<br>= (−0.500) × 0.750×(1−0.750) = (−0.500) × <strong>0.1875</strong> = <strong>−0.0938</strong>',hi:'dz'},
+  {title:'∂L/∂w and ∂L/∂b — gradients for weights',body:'∂L/∂w = ∂L/∂z × x = (−0.0938) × 2 = <strong>−0.1875</strong><br>∂L/∂b = ∂L/∂z × 1 = <strong>−0.0938</strong><br>These are the gradients we need for weight updates!',hi:'dw'},
+  {title:'Update weights (α=0.1)',body:'w_new = w − α·∂L/∂w = 0.5 − 0.1×(−0.1875) = <strong>0.5188</strong><br>b_new = b − α·∂L/∂b = 0.1 − 0.1×(−0.0938) = <strong>0.1094</strong><br>New prediction: ŷ = σ(0.5188×2+0.1094) ≈ <strong>0.759</strong> — closer to 1.0! ✓',hi:'upd'}
+];
+let bp2step=0;
+function setBP2(i){bp2step=i;document.querySelectorAll('#bp-tabs .step-tab').forEach((t,j)=>t.classList.toggle('on',j===i));renderBP2()}
+function renderBP2(){
+  const s=bp2steps[bp2step];
+  const hiCol=(nm)=>s.hi===nm?'background:#E1F5EE;border:2px solid #1D9E75;':'background:#F2F1ED;border:1px solid #E2E0D8;';
+  $('bp2-viz').innerHTML=`<div style="padding:12px;background:#F2F1ED;border-radius:8px">
+    <div style="font-size:12px;font-weight:600;color:#111827;margin-bottom:10px">Step ${bp2step}: ${s.title}</div>
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px">
+      <div style="padding:8px 12px;border-radius:8px;text-align:center;font-family:var(--fm);font-size:11px;${hiCol('fwd')}">x=2<br><span style="color:#9CA3AF">input</span></div>
+      <div style="font-size:18px;color:#9CA3AF">→</div>
+      <div style="padding:8px 12px;border-radius:8px;text-align:center;font-family:var(--fm);font-size:11px;${hiCol('fwd')}">z=wx+b<br>=1.1</div>
+      <div style="font-size:18px;color:#9CA3AF">→</div>
+      <div style="padding:8px 12px;border-radius:8px;text-align:center;font-family:var(--fm);font-size:11px;${hiCol('dy')||hiCol('dz')}">σ(z)<br>=0.750</div>
+      <div style="font-size:18px;color:#9CA3AF">→</div>
+      <div style="padding:8px 12px;border-radius:8px;text-align:center;font-family:var(--fm);font-size:11px;${hiCol('loss')}">L=0.063<br><span style="color:#BA7517">y=1.0</span></div>
+      ${bp2step>=3?`<div style="margin-left:4px;padding:6px 10px;border-radius:8px;font-family:var(--fm);font-size:10px;background:#FAECE7;border:1px solid #D85A30;color:#712B13">∂L/∂ŷ<br>=−0.500</div>`:''}
+      ${bp2step>=4?`<div style="padding:6px 10px;border-radius:8px;font-family:var(--fm);font-size:10px;background:#FAECE7;border:1px solid #D85A30;color:#712B13">∂L/∂z<br>=−0.094</div>`:''}
+      ${bp2step>=5?`<div style="padding:6px 10px;border-radius:8px;font-family:var(--fm);font-size:10px;background:#FAEEDA;border:1px solid #BA7517;color:#633806">∂L/∂w=−0.188<br>∂L/∂b=−0.094</div>`:''}
+      ${bp2step>=6?`<div style="padding:6px 10px;border-radius:8px;font-family:var(--fm);font-size:10px;background:#E1F5EE;border:1px solid #1D9E75;color:#0F6E56">w=0.519↑<br>b=0.109↑</div>`:''}
+    </div>
+    <div style="font-size:12px;color:#4B5563;line-height:1.7">${s.body}</div>
+  </div>`;
+}
+
+// ===== SADDLE POINT =====
+function drawSaddle(){
+  const{ctx,w,h}=sc('cv-saddle',250)||{};if(!ctx)return;
+  const pad={l:44,r:16,t:20,b:28},xr=[-3,3],yr=[-3,3];const cw2=w-pad.l-pad.r,ch2=h-pad.t-pad.b;
+  // Heatmap of x²−y²
+  for(let i=0;i<50;i++)for(let j=0;j<50;j++){const x=-3+i*0.12,y=3-j*0.12,v=x*x-y*y;const n=Math.max(-1,Math.min(1,v/5));const r=n>0?Math.round(29+n*200):29;const g2=Math.round(158*(1-Math.abs(n)*0.6));const b2=n<0?Math.round(117+Math.abs(n)*100):Math.round(117*(1-n*0.5));ctx.fillStyle=`rgb(${r},${g2},${b2})`;ctx.fillRect(pad.l+i*cw2/50,pad.t+j*ch2/50,cw2/50+1,ch2/50+1)}
+  const{ox,oy}=grid(ctx,w,h,pad,xr,yr);
+  ctx.beginPath();ctx.arc(ox,oy,8,0,Math.PI*2);ctx.fillStyle='#fff';ctx.fill();ctx.strokeStyle=C.pu;ctx.lineWidth=2.5;ctx.stroke();
+  arw(ctx,ox,oy,ox+50,oy,C.tl,2,8);arw(ctx,ox,oy,ox-50,oy,C.tl,2,8);arw(ctx,ox,oy,ox,oy-50,C.co,2,8);arw(ctx,ox,oy,ox,oy+50,C.co,2,8);
+  ctx.fillStyle=C.tl;ctx.font='10px Source Sans 3';ctx.textAlign='center';ctx.fillText('bowl (minimum in x)',ox+75,oy-6);ctx.fillStyle=C.co;ctx.fillText('hill (maximum in y)',ox+8,oy-58);
+  ctx.fillStyle=C.pu;ctx.fillText('saddle point (0,0)',ox+4,oy-10);
+}
+
+// ===== LOSS SURFACE 2D =====
+const lsfns={
+  bowl:{f:(x,y)=>x*x+1.5*y*y,gx:(x,y)=>2*x,gy:(x,y)=>3*y},
+  narrow:{f:(x,y)=>0.1*x*x+5*y*y,gx:(x,y)=>0.2*x,gy:(x,y)=>10*y},
+  banana:{f:(x,y)=>(1-x)**2+10*(y-x*x)**2,gx:(x,y)=>-2*(1-x)-40*x*(y-x*x),gy:(x,y)=>20*(y-x*x)},
+  multimod:{f:(x,y)=>(Math.sin(2*x)*Math.cos(2*y)+0.2*x*x+0.2*y*y),gx:(x,y)=>2*Math.cos(2*x)*Math.cos(2*y)+0.4*x,gy:(x,y)=>-2*Math.sin(2*x)*Math.sin(2*y)+0.4*y}
+};
+let lsPos={x:3,y:2.5},lsPath=[],lsRunning=false,lsAnim=null,lsLR=0.1;
+function lsUpdate(){lsLR=+$('ls-lr').value;$('ls-lrv').textContent=lsLR.toFixed(2)}
+function lsReset(){
+  lsPos={x:2.5+Math.random()-0.5,y:2+Math.random()-0.5};lsPath=[{...lsPos}];lsRunning=false;cancelAnimationFrame(lsAnim);$('ls-play').textContent='▶ Play';
+  const fn=lsfns[$('ls-fn').value];$('ls-sn').textContent='0';$('ls-lv').textContent=fn.f(lsPos.x,lsPos.y).toFixed(3);
+  $('ls-msg').textContent='Press Play. Try "Narrow valley" with high α to see zigzagging.';drawLS();
+}
+function lsToggle(){lsRunning=!lsRunning;$('ls-play').textContent=lsRunning?'⏸ Pause':'▶ Play';if(lsRunning)lsStep()}
+function lsStep(){
+  if(!lsRunning)return;const fn=lsfns[$('ls-fn').value];const gx=fn.gx(lsPos.x,lsPos.y),gy=fn.gy(lsPos.x,lsPos.y);lsPos.x-=lsLR*gx;lsPos.y-=lsLR*gy;lsPath.push({...lsPos});
+  const lv=fn.f(lsPos.x,lsPos.y);$('ls-sn').textContent=lsPath.length-1;$('ls-lv').textContent=lv.toFixed(4);
+  if(Math.abs(lsPos.x)>8||Math.abs(lsPos.y)>8){lsRunning=false;$('ls-play').textContent='▶ Play';$('ls-msg').textContent='⚠ Diverged! Learning rate too large.';drawLS();return}
+  if(Math.hypot(gx,gy)<5e-4||lsPath.length>600){lsRunning=false;$('ls-play').textContent='▶ Play';$('ls-msg').textContent='✓ Converged! Loss='+lv.toFixed(4);drawLS();return}
+  drawLS();lsAnim=requestAnimationFrame(lsStep);
+}
+function drawLS(){
+  const fn=lsfns[$('ls-fn').value];const{ctx,w,h}=sc('cv-ls',270)||{};if(!ctx)return;
+  const pad={l:44,r:16,t:20,b:28};const cw2=w-pad.l-pad.r,ch2=h-pad.t-pad.b;
+  const xr=[-4,4],yr=[-4,4];
+  for(let i=0;i<50;i++)for(let j=0;j<50;j++){const x=xr[0]+(xr[1]-xr[0])*i/50,y=yr[1]-(yr[1]-yr[0])*j/50,v=fn.f(x,y);const n=Math.max(0,Math.min(1,1-v/20));const r=Math.round(29+n*200);const g2=Math.round(n*158);const b2=Math.round(117*(1-n*0.5));ctx.fillStyle=`rgb(${r},${g2},${b2})`;ctx.fillRect(pad.l+i*cw2/50,pad.t+j*ch2/50,cw2/50+1,ch2/50+1)}
+  const T=(x,y)=>[pad.l+(x-xr[0])/(xr[1]-xr[0])*cw2,pad.t+(yr[1]-y)/(yr[1]-yr[0])*ch2];
+  if(lsPath.length>1){ctx.strokeStyle='rgba(255,255,255,0.9)';ctx.lineWidth=1.5;ctx.beginPath();lsPath.slice(-50).forEach(({x,y},i)=>{const[px,py]=T(x,y);i?ctx.lineTo(px,py):ctx.moveTo(px,py)});ctx.stroke()}
+  const[cpx,cpy]=T(lsPos.x,lsPos.y);ctx.beginPath();ctx.arc(cpx,cpy,7,0,Math.PI*2);ctx.fillStyle='#fff';ctx.fill();ctx.strokeStyle=C.co;ctx.lineWidth=2;ctx.stroke();
+}
+
+// ===== SIDEBAR ACTIVE =====
+window.addEventListener('scroll',()=>{let cur='';document.querySelectorAll('[id]').forEach(s=>{if(window.scrollY>=s.offsetTop-100)cur=s.id});document.querySelectorAll('.nl').forEach(l=>l.classList.toggle('on',l.getAttribute('href')==='#'+cur))},{passive:true});
+
+// ===== INIT =====
+window.addEventListener('load',()=>{setTimeout(()=>{drawFn();drawLim();drawDeriv();drawHigher();setCR(0);drawPD();drawGF();setRS('left');drawCP();gdReset();drawEL();drawTS();setBP2(0);drawSaddle();lsReset();},150)});
+window.addEventListener('resize',()=>{drawFn();drawLim();drawDeriv();drawHigher();drawChain(crStep);drawPD();drawGF();drawRS();drawCP();drawGD1d();drawEL();drawTS();drawSaddle();drawLS();});
+</script>
+</body></html>
