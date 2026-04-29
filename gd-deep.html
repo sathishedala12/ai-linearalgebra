@@ -1,0 +1,1720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>The Cost Function & The Bowl — Linear Regression in 3D</title>
+<style>
+:root{--bg:#0D1117;--s:#161B22;--s2:#21262D;--bdr:#30363D;--tl:#1D9E75;--tll:#0D2318;--tld:#34D399;--bl:#378ADD;--pu:#7F77DD;--co:#D85A30;--am:#BA7517;--tx:#E6EDF3;--tx2:#8B949E;--tx3:#484F58;--r:8px}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--tx);display:flex;flex-direction:column;min-height:100vh}
+.hdr{background:#0D1117;border-bottom:1px solid var(--bdr);padding:12px 20px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:200}
+.hdr-t{font-size:16px;font-weight:900;font-style:italic;color:var(--tx)}
+.hdr-s{font-size:11px;color:var(--tx3);margin-top:1px}
+.hdr-b{margin-left:auto;font-size:10px;background:var(--tll);border:1px solid var(--tl);color:var(--tld);padding:3px 10px;border-radius:20px;font-weight:700;white-space:nowrap}
+.layout{display:flex;flex:1}
+.sidebar{width:220px;flex-shrink:0;border-right:1px solid var(--bdr);position:sticky;top:49px;height:calc(100vh - 49px);overflow-y:auto;padding:14px 0}
+.cat{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.13em;color:var(--tx3);padding:14px 16px 5px}
+.cat:first-child{padding-top:0}
+.ni{display:flex;align-items:center;gap:9px;padding:6px 16px;text-decoration:none;color:var(--tx2);font-size:12px;border-left:2px solid transparent;transition:all .15s;cursor:pointer}
+.ni:hover{color:var(--tx);background:var(--s2);border-left-color:var(--bdr)}
+.ni.active{color:var(--tld);background:var(--tll);border-left-color:var(--tl);font-weight:600}
+.nn{font-size:10px;font-family:ui-monospace,monospace;color:var(--tx3);width:18px;text-align:right;flex-shrink:0}
+.ni:hover .nn,.ni.active .nn{color:var(--tl)}
+.main{flex:1;min-width:0;padding:0 28px 80px;max-width:820px}
+.topic{padding:38px 0 0;border-top:1px solid var(--bdr);margin-top:38px}
+.topic:first-child{border-top:none;margin-top:0;padding-top:32px}
+.thd{display:flex;align-items:flex-start;gap:12px;margin-bottom:14px}
+.tnum{font-size:10px;font-family:ui-monospace,monospace;background:var(--s2);border:1px solid var(--bdr);color:var(--tx3);padding:3px 8px;border-radius:5px;white-space:nowrap;margin-top:4px}
+.topic h2{font-size:22px;font-weight:900;font-style:italic;line-height:1.2;margin-bottom:3px}
+.tsub{font-size:13px;color:var(--tx2)}
+.chd{display:flex;align-items:center;gap:10px;padding:28px 0 0;margin-bottom:4px}
+.chd h3{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.13em;color:var(--tx3);white-space:nowrap}
+.chd::after{content:'';flex:1;height:1px;background:var(--bdr)}
+.analogy{background:#1C2333;border:1px solid #2D4A6F;border-radius:var(--r);padding:12px 14px;margin-bottom:12px;display:flex;gap:10px}
+.analogy .ic{font-size:17px;flex-shrink:0;margin-top:1px}
+.analogy p{font-size:13px;color:#93C5FD;line-height:1.65;margin:0}
+.analogy p strong{color:#BFDBFE}
+.vb{background:var(--s);border:1px solid var(--bdr);border-radius:var(--r);overflow:hidden;margin:12px 0}
+.vbhd{padding:7px 13px;border-bottom:1px solid var(--bdr);background:var(--s2);display:flex;align-items:center;gap:6px}
+.vbt{font-size:11px;font-weight:600;color:var(--tx2)}
+.pulse{width:7px;height:7px;border-radius:50%;background:var(--tl);animation:pu 2s infinite;flex-shrink:0}
+@keyframes pu{0%,100%{opacity:1}50%{opacity:.3}}
+.vbd{padding:12px}
+canvas{display:block;width:100%;border-radius:5px;border:1px solid var(--bdr);background:#0D1117}
+.ctrls{display:flex;flex-wrap:wrap;gap:9px;margin-top:9px}
+.ctrl{flex:1;min-width:130px}
+.ctrl label{display:block;font-size:11px;color:var(--tx2);margin-bottom:3px;font-weight:500}
+.cr{display:flex;align-items:center;gap:6px}
+.cr input[type=range]{flex:1;accent-color:var(--tl);cursor:pointer}
+.val{font-size:11px;font-weight:700;color:var(--tld);min-width:40px;text-align:right;font-family:ui-monospace,monospace}
+select{font-size:12px;padding:5px 8px;border:1px solid var(--bdr);border-radius:6px;background:var(--s2);color:var(--tx);cursor:pointer;outline:none}
+.btn{padding:4px 11px;font-size:11px;border:1px solid var(--bdr);border-radius:6px;background:var(--s2);color:var(--tx2);cursor:pointer;transition:all .15s}
+.btn:hover,.btn.on{border-color:var(--tl);color:var(--tld);background:var(--tll)}
+.btnp{background:var(--tl);color:#fff;border:none;padding:5px 13px;font-size:11px;border-radius:6px;cursor:pointer;font-weight:700}
+.legend{display:flex;flex-wrap:wrap;gap:6px;padding:6px 10px;background:var(--s2);border-radius:6px;margin-bottom:8px}
+.li{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--tx2)}
+.ldot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.lln{width:14px;height:3px;border-radius:2px;flex-shrink:0}
+.xp{background:#0D1117;border:1px solid var(--bdr);border-left:3px solid var(--tl);border-radius:var(--r);padding:11px 13px;margin-top:8px}
+.xphd{display:flex;align-items:center;gap:5px;margin-bottom:7px}
+.xplbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--tl)}
+.xpb{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.xpc h5{font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--tx3);margin-bottom:4px;font-weight:700}
+.xpc p{font-size:12px;color:var(--tx2);line-height:1.65}
+.hi{color:var(--tld);font-weight:600}.co2{color:#F87171;font-weight:600}.am2{color:#FCD34D;font-weight:600}.bl2{color:#93C5FD;font-weight:600}
+.tryb{background:var(--tll);border:1px solid var(--tl);border-radius:var(--r);padding:9px 12px;margin-top:7px}
+.tryb h5{font-size:10px;color:var(--tld);text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px;font-weight:700}
+.tryb ul{padding-left:14px}
+.tryb li{font-size:12px;color:#7BB897;line-height:1.7}
+.tryb li strong{color:var(--tld)}
+.dive{border-radius:var(--r);overflow:hidden;margin:16px 0;border:1px solid #1D3A2A}
+.divehd{background:linear-gradient(90deg,#0A1F14,#111827);padding:9px 16px;display:flex;align-items:center;gap:8px;border-bottom:1px solid #1D3A2A}
+.divehd h4{font-size:12px;font-weight:700;color:var(--tx)}
+.divehd .mod{font-size:10px;color:var(--tx3);margin-left:auto}
+.divepp{display:grid;grid-template-columns:1fr 1fr}
+.dwhy{background:#0A1929;padding:14px 16px;border-right:1px solid #1D3A2A}
+.dwhy h5{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:#60A5FA;margin-bottom:8px;font-weight:700}
+.dwhy p{font-size:12.5px;color:#B0C4D8;line-height:1.7;margin-bottom:6px}
+.dwhy p:last-child,.dhow p:last-child{margin-bottom:0}
+.dwhy strong{color:#93C5FD}
+.dconcept{background:#0F1A14;padding:13px 16px;border-bottom:1px solid #1D3A2A}
+.dconcept h5{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:#A78BFA;margin-bottom:8px;font-weight:700}
+.dconcept p{font-size:12.5px;color:var(--tx2);line-height:1.7;margin-bottom:6px}
+.dconcept p:last-child{margin:0}
+.dconcept strong{color:var(--tx)}
+.dintu{background:#1A1830;border-left:3px solid #7F77DD;padding:8px 12px;margin-top:9px;border-radius:0 6px 6px 0;font-size:12px;color:#C4B5FD;line-height:1.65}
+.dintu strong{color:#DDD6FE}
+.dexample{background:#15110A;padding:13px 16px;border-top:1px solid #1D3A2A}
+.dexample h5{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:#FCD34D;margin-bottom:8px;font-weight:700}
+.dexample p{font-size:12.5px;color:var(--tx2);line-height:1.7;margin-bottom:6px}
+.dexample p:last-child{margin-bottom:0}
+.we{background:#0A0E13;border:1px solid #2A2F3A;border-radius:6px;margin-top:9px;overflow:hidden}
+.wehd{background:linear-gradient(90deg,#1F1605,#0A0E13);padding:6px 12px;border-bottom:1px solid #2A2F3A;font-size:10px;font-weight:700;color:#FCD34D;text-transform:uppercase;letter-spacing:.08em}
+.webd{padding:4px 0}
+.werow{display:grid;grid-template-columns:64px 1fr;gap:10px;padding:5px 12px;font-size:11.5px;line-height:1.55;font-family:ui-monospace,'Cascadia Code',monospace;border-bottom:1px solid #161B22;align-items:start}
+.werow:last-child{border-bottom:none}
+.wetag{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;padding:2px 0;color:var(--tx3)}
+.wegiven .wetag{color:#93C5FD}
+.westep .wetag{color:#FCD34D}
+.weresult .wetag{color:#34D399}
+.weresult{background:#0A1F14}
+.wecontent{color:#E2E8F0;word-break:break-word}
+.wl{list-style:none;padding:0;margin:7px 0 0}
+.wl li{font-size:12px;color:#7E9BB5;line-height:1.7;padding-left:12px;position:relative;margin-bottom:1px}
+.wl li::before{content:'›';position:absolute;left:2px;color:#60A5FA;font-weight:700}
+.dhow{background:var(--s2);padding:14px 16px}
+.dhow h5{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--tl);margin-bottom:8px;font-weight:700}
+.dhow p{font-size:12.5px;color:var(--tx2);line-height:1.7;margin-bottom:6px}
+.dhow strong{color:var(--tx)}
+.cb{background:#0D1117;border:1px solid var(--bdr);border-radius:6px;padding:9px 12px;margin:8px 0;font-family:ui-monospace,'Cascadia Code',monospace;font-size:11px;color:#E2E8F0;line-height:1.85;overflow-x:auto;white-space:pre}
+.chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+.chip{font-size:10px;padding:2px 9px;border-radius:20px}
+.chh{background:var(--tll);border:1px solid var(--tl);color:var(--tld)}
+.chn{background:var(--s2);border:1px solid var(--bdr);color:var(--tx3)}
+.fm{background:var(--s2);border-left:3px solid var(--pu);border-radius:0 var(--r) var(--r) 0;padding:9px 13px;margin:10px 0;font-family:ui-monospace,monospace;font-size:12px;line-height:2;color:var(--tx)}
+.fm .cm{color:var(--tx3);font-size:10px}
+.tbl{width:100%;border-collapse:collapse;font-size:12px;margin:10px 0}
+.tbl th{background:var(--s2);padding:7px 10px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--tx2);border-bottom:2px solid var(--bdr)}
+.tbl td{padding:6px 10px;border-bottom:1px solid var(--bdr);color:var(--tx2)}
+.tbl td:first-child{font-family:ui-monospace,monospace;color:var(--tx);font-size:11px}
+.tbl tr:last-child td{border-bottom:none}
+.twoc{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin:11px 0}
+.card{background:var(--s);border:1px solid var(--bdr);border-radius:var(--r);padding:14px 16px}
+.card h3{font-size:13px;font-weight:700;font-style:italic;margin-bottom:7px;color:var(--tx)}
+.card p{font-size:12.5px;color:var(--tx2);line-height:1.7;margin-bottom:6px}
+.card p:last-child{margin:0}
+.note{background:var(--tll);border:1px solid var(--tl);border-radius:var(--r);padding:9px 13px;margin:10px 0;font-size:13px;color:var(--tld);line-height:1.6}
+.csg{display:grid;grid-template-columns:repeat(auto-fill,minmax(175px,1fr));gap:8px;margin:10px 0}
+.csi{background:var(--s2);border:1px solid var(--bdr);border-radius:var(--r);padding:10px 12px}
+.csn{font-size:9px;color:var(--tl);text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px;font-weight:700}
+.csf{font-family:ui-monospace,monospace;font-size:11px;color:var(--tx);margin-bottom:2px;line-height:1.5}
+.csd{font-size:10px;color:var(--tx3)}
+@media(max-width:768px){.sidebar{display:none}.main{padding:0 14px 60px}.twoc{grid-template-columns:1fr}.divepp{grid-template-columns:1fr}.xpb{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header class="hdr">
+  <div><div class="hdr-t">Gradient Descent — Deep Dive</div><div class="hdr-s">From One Step to Billion-Parameter Training — The Algorithm at the Heart of All Modern AI</div></div>
+  <span class="hdr-b">11 Topics · 10 Demos</span>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sb">
+  <div class="cat">The Mathematics</div>
+  <a class="ni" href="#t01"><span class="nn">01</span>The Gradient Vector Field</a>
+  <a class="ni" href="#t02"><span class="nn">02</span>Anatomy of a Single Step</a>
+  <a class="ni" href="#t03"><span class="nn">03</span>The Learning Rate</a>
+  <div class="cat">Algorithms</div>
+  <a class="ni" href="#t04"><span class="nn">04</span>Batch · SGD · Mini-batch</a>
+  <a class="ni" href="#t05"><span class="nn">05</span>Momentum — Adding Inertia</a>
+  <a class="ni" href="#t06"><span class="nn">06</span>Narrow Valleys &amp; Adam</a>
+  <div class="cat">Pathologies</div>
+  <a class="ni" href="#t07"><span class="nn">07</span>Saddle Points</a>
+  <a class="ni" href="#t08"><span class="nn">08</span>Vanishing &amp; Exploding</a>
+  <div class="cat">Production</div>
+  <a class="ni" href="#t09"><span class="nn">09</span>Learning Rate Schedules</a>
+  <a class="ni" href="#t10"><span class="nn">10</span>Convergence Theory</a>
+  <div class="cat">Reference</div>
+  <a class="ni" href="#t11"><span class="nn">11</span>Cheat Sheet</a>
+</nav>
+<main class="main">
+
+<div class="chd"><h3>The Mathematics</h3></div>
+
+<div class="topic" id="t01">
+<div class="thd"><span class="tnum">01</span><div><h2>The Gradient as a Vector Field</h2><div class="tsub">At every point on the bowl, an arrow tells you which way is downhill — and how steeply</div></div></div>
+<div class="analogy"><div class="ic">🧭</div><p><strong>Plain English:</strong> Stand anywhere on the bowl. Now imagine a tiny weather vane glued to the floor that always points <em>downhill</em>, with its length proportional to how steep the descent is. Repeat that vane at every (w, b) location — you've drawn the <strong>gradient vector field</strong>. The gradient ∇J is the most important object in all of machine learning: it's the only signal the optimizer has. The whole point of backpropagation is to compute this vector for billions of parameters efficiently.</p></div>
+<div class="vb"><div class="vbhd"><span class="pulse"></span><span class="vbt">The gradient vector field — every arrow points away from the minimum</span></div>
+  <div class="vbd">
+    <canvas id="cv01" style="height:380px"></canvas>
+    <div class="ctrls">
+      <div class="ctrl"><label>Slope w</label><div class="cr"><input type="range" id="w_01" min="-0.05" max="0.35" step="0.005" value="0.20" oninput="D01()"><span class="val" id="wv01">0.200</span></div></div>
+      <div class="ctrl"><label>Intercept b</label><div class="cr"><input type="range" id="b_01" min="-50" max="250" step="2" value="180" oninput="D01()"><span class="val" id="bv01">180</span></div></div>
+      <div class="ctrl"><label>Show</label><select id="sh_01" onchange="D01()" style="width:100%">
+        <option value="both">Vectors + contours</option>
+        <option value="vec">Vectors only</option>
+        <option value="con">Contours only</option>
+      </select></div>
+    </div>
+    <div class="xp"><div class="xphd"><span class="pulse"></span><span class="xplbl">Live</span></div>
+    <div class="xpb"><div class="xpc"><h5>Gradient at your point</h5><p id="ei01a">—</p></div><div class="xpc"><h5>What the field tells you</h5><p id="ei01b">—</p></div></div></div>
+    <div class="tryb"><h5>Build intuition</h5><ul>
+    <li>The arrows always point AWAY from the minimum (uphill direction). Gradient descent moves opposite — that's why we use −∇J.</li>
+    <li>Arrows are <strong>longer</strong> where the slope is steeper. Near the minimum, arrows shrink to nothing — that's how gradient descent "knows" to slow down.</li>
+    <li>Arrows are <strong>perpendicular to the contour lines</strong> — always. That's a deep geometric fact: ∇J ⊥ level sets.</li>
+    </ul></div>
+  </div>
+</div>
+<div class="fm">∇J(w, b) = (∂J/∂w, ∂J/∂b)<br>For our cost: ∂J/∂w = (1/m) Σᵢ (f(xᵢ) − yᵢ)·xᵢ, &nbsp; ∂J/∂b = (1/m) Σᵢ (f(xᵢ) − yᵢ)<br>magnitude = ||∇J|| = √((∂J/∂w)² + (∂J/∂b)²)<br>direction = ∇J / ||∇J||</div>
+<div class="dive">
+  <div class="divehd"><span style="color:var(--tl)">★</span><h4>AI Deep Dive — The Gradient</h4><span class="mod">Topic 01</span></div>
+  <div class="dconcept"><h5>📚 The Concept</h5>
+    <p>The gradient ∇J of a scalar function J(θ) is a <strong>vector</strong> — one entry per parameter — that points in the direction of <em>steepest ascent</em>. Three crucial facts: (1) ∇J is always <strong>perpendicular to the level sets</strong> of J — at any point, the contour line through that point is tangent to the surface and the gradient points away from it normally. (2) The magnitude ||∇J|| measures local steepness — large near hills, small near minima/maxima/saddles. (3) The gradient is the <strong>unique direction</strong> in which J increases fastest — proven by Cauchy-Schwarz: among all unit vectors u, u·∇J is maximised when u = ∇J/||∇J||. Therefore −∇J is the unique direction of fastest decrease, which is what gradient <em>descent</em> uses. Computing ∇J is the entire purpose of backpropagation in neural networks — without efficient gradient computation, deep learning is impossible.</p>
+    <div class="dintu">💡 <strong>Intuition:</strong> Pour water on the cost surface. It flows along the negative gradient direction. The vector field is the "drainage map" — every droplet of water at every point already knows which way to flow toward the minimum. Gradient descent is just simulating one droplet of water taking discrete steps.</div>
+  </div>
+  <div class="divepp">
+    <div class="dwhy"><h5>❓ Why AI needs this</h5><p>The gradient is the optimizer's only window into the cost surface:</p><ul class="wl"><li>The optimizer never sees the full cost surface — only its slope at the current point</li><li>Backpropagation computes ∇L(θ) for billion-parameter θ in time ≈ forward pass</li><li>Without exact gradients, only random-search methods work — far too slow for big models</li><li>Stochastic gradients (computed on a mini-batch) are noisy estimates of true ∇J</li><li>The gradient field structure (smooth or jagged) determines what optimizer to use</li><li>Vector field visualisations are how researchers diagnose pathological loss landscapes</li></ul></div>
+    <div class="dhow"><h5>⚙️ How AI uses it</h5><p>Computing the gradient in PyTorch:</p><div class="cb">w = torch.tensor(0.1, requires_grad=True)
+b = torch.tensor(50.0, requires_grad=True)
+
+pred = w * X + b
+loss = ((pred - y)**2).mean() / 2
+
+loss.backward()              # populates w.grad and b.grad
+
+print(w.grad)                # ∂J/∂w
+print(b.grad)                # ∂J/∂b
+
+# Magnitude:
+grad_norm = torch.sqrt(w.grad**2 + b.grad**2)
+print(f"||∇J|| = {grad_norm.item():.3f}")</div><div class="chips"><span class="chip chh">∇J</span><span class="chip chh">backprop</span><span class="chip chh">vector field</span><span class="chip chn">⊥ to level sets</span></div></div>
+  </div>
+  <div class="dexample"><h5>🧮 Worked Example</h5>
+    <p>Compute ∇J at three points on the housing bowl. See how the vector points toward the minimum.</p>
+    <div class="we"><div class="wehd">Three gradient vectors on the same bowl</div><div class="webd">
+      <div class="werow wegiven"><span class="wetag">Setup</span><span class="wecontent">3-house dataset: (1, 2), (2, 3), (3, 5).  Optimum at (w*, b*) ≈ (1.5, 0.33), J* ≈ 0.083.</span></div>
+      <div class="werow westep"><span class="wetag">At (0, 0)</span><span class="wecontent">Predictions: (0, 0, 0). Errors: (−2, −3, −5).<br>∂J/∂w = (1/3)(−2·1 −3·2 −5·3) = −7.67<br>∂J/∂b = (1/3)(−2 −3 −5) = −3.33<br>∇J = (−7.67, −3.33), ||∇J|| = <b>8.36</b>. Points <em>down-and-left</em> (away from optimum which is up-and-right).</span></div>
+      <div class="werow westep"><span class="wetag">At (1.5, 0.33)</span><span class="wecontent">Predictions: (1.83, 3.33, 4.83). Errors: (−0.17, 0.33, −0.17).<br>∂J/∂w ≈ 0, ∂J/∂b ≈ 0. <b>||∇J|| ≈ 0</b> — at the bottom, gradient vanishes.</span></div>
+      <div class="werow westep"><span class="wetag">At (3, 0)</span><span class="wecontent">Predictions: (3, 6, 9). Errors: (1, 3, 4).<br>∂J/∂w = (1+6+12)/3 = 6.33<br>∂J/∂b = (1+3+4)/3 = 2.67<br>∇J = (6.33, 2.67), ||∇J|| = <b>6.87</b>. Points up-and-right (away from optimum which is down-left from here).</span></div>
+      <div class="werow weresult"><span class="wetag">Insight</span><span class="wecontent">At every point, ∇J points <span class="hi">away from the minimum</span>, with magnitude proportional to the steepness. Gradient descent uses −∇J — always heading toward the bottom.</span></div>
+    </div></div>
+  </div>
+</div>
+</div>
+
+<div class="topic" id="t02">
+<div class="thd"><span class="tnum">02</span><div><h2>Anatomy of a Single Step</h2><div class="tsub">Zoom in on one update — the math, the geometry, the Taylor expansion behind it</div></div></div>
+<div class="analogy"><div class="ic">👣</div><p><strong>Plain English:</strong> A gradient descent step is the world's simplest formula: take where you are now, subtract α times the gradient, and you're at the new place. But there's deep math hiding inside that single step. The Taylor expansion tells us <em>exactly</em> how much the cost will drop: it's α·||∇J||² to first order. The step size α determines whether the linearisation is accurate enough — too big and you overshoot the bowl; too small and you waste compute. Understanding one step is understanding all of training.</p></div>
+<div class="vb"><div class="vbhd"><span class="pulse"></span><span class="vbt">A single gradient descent step — visualised</span></div>
+  <div class="vbd">
+    <canvas id="cv02" style="height:340px"></canvas>
+    <div class="ctrls">
+      <div class="ctrl"><label>Starting w</label><div class="cr"><input type="range" id="w_02" min="-0.04" max="0.34" step="0.005" value="0.28" oninput="D02()"><span class="val" id="wv02">0.280</span></div></div>
+      <div class="ctrl"><label>Starting b</label><div class="cr"><input type="range" id="b_02" min="-40" max="240" step="2" value="200" oninput="D02()"><span class="val" id="bv02">200</span></div></div>
+      <div class="ctrl"><label>Step size α (×1e-7)</label><div class="cr"><input type="range" id="lr_02" min="1" max="100" step="1" value="50" oninput="D02()"><span class="val" id="lrv02">50</span></div></div>
+    </div>
+    <div class="xp"><div class="xphd"><span class="pulse"></span><span class="xplbl">Live</span></div>
+    <div class="xpb"><div class="xpc"><h5>Predicted vs actual cost drop</h5><p id="ei02a">—</p></div><div class="xpc"><h5>The Taylor approximation</h5><p id="ei02b">—</p></div></div></div>
+    <div class="tryb"><h5>Build intuition</h5><ul>
+    <li>Small α: the actual cost drop matches the Taylor prediction almost exactly. Step is "in the linear regime."</li>
+    <li>Big α: the predicted drop is huge but the actual drop disappoints (or the cost RISES) — you've left the linear regime.</li>
+    <li>Goldilocks zone: the step is large enough to make real progress, small enough that the linearisation still holds.</li>
+    </ul></div>
+  </div>
+</div>
+<div class="fm">θ_new = θ − α · ∇J(θ)<br>Taylor: J(θ + Δθ) ≈ J(θ) + Δθ · ∇J(θ) + ½·Δθᵀ·H·Δθ + …<br>With Δθ = −α∇J: ΔJ ≈ <b>−α·||∇J||²</b> + ½·α²·∇Jᵀ·H·∇J<br>For small α, only first term matters → guaranteed decrease</div>
+<div class="dive">
+  <div class="divehd"><span style="color:var(--tl)">★</span><h4>AI Deep Dive — One Step</h4><span class="mod">Topic 02</span></div>
+  <div class="dconcept"><h5>📚 The Concept</h5>
+    <p>Why does gradient descent work? Because of the <strong>first-order Taylor expansion</strong>: any smooth function J near θ looks locally like a tilted plane J(θ) + Δθ·∇J(θ). Substituting Δθ = −α∇J gives ΔJ ≈ −α·||∇J||² — a <em>guaranteed decrease</em> as long as α &gt; 0 and we're not at a critical point (where ∇J = 0). The catch: the linearisation only works for small Δθ. The second-order term ½·α²·∇Jᵀ·H·∇J kicks in for large α. If H (the Hessian) has positive eigenvalues (we're in a bowl), the second-order term is <em>positive</em>, eating into our predicted decrease. If α is too large, the second-order term outweighs the first-order one and the cost <em>increases</em>. The convergence threshold is α &lt; 2/L where L is the largest eigenvalue of H. This is why "learning rate finder" tools work: they find the largest α where one step still decreases loss.</p>
+    <div class="dintu">💡 <strong>Intuition:</strong> Imagine you're skiing downhill. Take a tiny step — you go down by exactly the slope times your step size. Take a bigger step — you start curving with the terrain, and your actual descent is slightly less than the slope predicted (you swept up a bit at the end). Take a step that's too big — you jump right over the valley and end up on the OTHER side, possibly higher than where you started. Gradient descent's "trust region" is the regime where the linearisation is still accurate.</div>
+  </div>
+  <div class="divepp">
+    <div class="dwhy"><h5>❓ Why AI needs this</h5><p>Understanding one step explains everything about training:</p><ul class="wl"><li>Why too-large LR causes loss to spike: leaving the linear regime, second-order term dominates</li><li>Why too-small LR is useless: ΔJ ≈ α·||∇J||² is tiny when α is tiny</li><li>Why curvature (Hessian) matters: highly curved directions need smaller steps</li><li>This is why second-order methods (Newton, K-FAC) exist — they use H explicitly</li><li>For deep learning, second-order is too expensive (H is parameters² in size); we approximate with momentum + adaptive LRs</li></ul></div>
+    <div class="dhow"><h5>⚙️ How AI uses it</h5><p>One step in any framework:</p><div class="cb"># PyTorch — one gradient descent step
+loss.backward()                  # compute ∇J for all params
+with torch.no_grad():
+    for p in model.parameters():
+        p -= alpha * p.grad      # θ ← θ − α∇J
+        p.grad.zero_()
+
+# Or use built-in optimizer (does the same):
+optimizer.step()
+optimizer.zero_grad()
+
+# To see the predicted decrease:
+pred_drop = sum((alpha * p.grad**2).sum() for p in model.parameters())
+print(f"Expected ΔJ ≈ {-pred_drop.item():.6f}")</div><div class="chips"><span class="chip chh">θ ← θ − α∇J</span><span class="chip chh">Taylor 1st order</span><span class="chip chn">Hessian curvature</span></div></div>
+  </div>
+  <div class="dexample"><h5>🧮 Worked Example</h5>
+    <p>Trace one gradient descent step on the 3-house dataset and verify the Taylor prediction.</p>
+    <div class="we"><div class="wehd">First-order Taylor — actual vs predicted ΔJ</div><div class="webd">
+      <div class="werow wegiven"><span class="wetag">Setup</span><span class="wecontent">Data: (1, 2), (2, 3), (3, 5).  Start: (w, b) = (0, 0). α = 0.05.</span></div>
+      <div class="werow westep"><span class="wetag">Initial</span><span class="wecontent">J(0, 0) = (4 + 9 + 25)/6 = 6.333</span></div>
+      <div class="werow westep"><span class="wetag">Gradient</span><span class="wecontent">∇J = (−7.67, −3.33), ||∇J||² = 58.84 + 11.09 = 69.93</span></div>
+      <div class="werow westep"><span class="wetag">Predicted ΔJ</span><span class="wecontent">−α·||∇J||² = −0.05·69.93 = <b>−3.50</b> (Taylor 1st order)</span></div>
+      <div class="werow westep"><span class="wetag">Take step</span><span class="wecontent">w = 0 − 0.05·(−7.67) = 0.383, b = 0 − 0.05·(−3.33) = 0.167</span></div>
+      <div class="werow westep"><span class="wetag">New cost</span><span class="wecontent">predictions: (0.55, 0.93, 1.32). Errors: (−1.45, −2.07, −3.68). J = (2.10+4.27+13.51)/6 = <b>3.31</b></span></div>
+      <div class="werow westep"><span class="wetag">Actual ΔJ</span><span class="wecontent">3.31 − 6.33 = <b>−3.02</b></span></div>
+      <div class="werow weresult"><span class="wetag">Compare</span><span class="wecontent">Predicted: −3.50, actual: −3.02. The 0.48 difference is the second-order term: ½α²·∇JᵀH∇J. Step was a touch too aggressive — actual drop is 14% less than the linear prediction. Smaller α → tighter agreement.</span></div>
+    </div></div>
+  </div>
+</div>
+</div>
+
+<div class="topic" id="t03">
+<div class="thd"><span class="tnum">03</span><div><h2>The Learning Rate</h2><div class="tsub">The single most important hyperparameter — too small wastes time, too large diverges</div></div></div>
+<div class="analogy"><div class="ic">📏</div><p><strong>Plain English:</strong> The learning rate α is how big a step you take. Get it wrong by 10× either way and your model never converges. <strong>Too tiny:</strong> takes forever, training stalls. <strong>Just right:</strong> smooth descent, converges in reasonable time. <strong>A bit too large:</strong> oscillates around the minimum, may still converge slowly. <strong>Way too large:</strong> overshoots so badly that loss goes UP — divergence. There's a sharp threshold at α = 2/L (where L is the largest curvature). Above it, you diverge; below it (but close), you converge fast.</p></div>
+<div class="vb"><div class="vbhd"><span class="pulse"></span><span class="vbt">Four learning rates, four trajectories — same starting point</span></div>
+  <div class="vbd">
+    <canvas id="cv03" style="height:380px"></canvas>
+    <div class="ctrls">
+      <div class="ctrl"><label>Starting w</label><div class="cr"><input type="range" id="w0_03" min="-0.04" max="0.34" step="0.005" value="0.28" oninput="D03()"><span class="val" id="w0v03">0.280</span></div></div>
+      <div class="ctrl"><label>Starting b</label><div class="cr"><input type="range" id="b0_03" min="-40" max="240" step="2" value="220" oninput="D03()"><span class="val" id="b0v03">220</span></div></div>
+      <div class="ctrl"><label>Steps</label><div class="cr"><input type="range" id="st_03" min="0" max="60" step="1" value="30" oninput="D03()"><span class="val" id="stv03">30</span></div></div>
+    </div>
+    <div class="xp"><div class="xphd"><span class="pulse"></span><span class="xplbl">Live</span></div>
+    <div class="xpb"><div class="xpc"><h5>Final cost for each α</h5><p id="ei03a">—</p></div><div class="xpc"><h5>Diagnosis</h5><p id="ei03b">—</p></div></div></div>
+    <div class="tryb"><h5>Build intuition</h5><ul>
+    <li>Tiny α (purple): trajectory creeps toward optimum, never gets close in 30 steps.</li>
+    <li>Good α (teal): smooth curve, lands at the bottom.</li>
+    <li>Large α (orange): oscillates across the valley, slow zigzag convergence.</li>
+    <li>Way too large (red): explodes — loss runs away to infinity.</li>
+    </ul></div>
+  </div>
+</div>
+<div class="fm">α_critical = 2 / L  <span class="cm">// L = max eigenvalue of Hessian (largest curvature direction)</span><br>For α &gt; α_critical: divergence (each step amplifies error)<br>For α near α_critical: oscillation, slow convergence<br>For α near α_critical/2: fastest convergence<br>For α ≪ α_critical: slow but stable<br>Practical rule: <strong>start with α=1e-3 for Adam, α=1e-2 for SGD; tune by 10× steps</strong></div>
+<div class="dive">
+  <div class="divehd"><span style="color:var(--tl)">★</span><h4>AI Deep Dive — Learning Rate</h4><span class="mod">Topic 03</span></div>
+  <div class="dconcept"><h5>📚 The Concept</h5>
+    <p>The learning rate sits at the boundary between two failure modes. The mathematical analysis: for a quadratic cost J(θ) = ½θᵀHθ near a minimum, gradient descent's update θ ← (I − αH)θ has a <strong>contraction factor</strong> per step. If H has eigenvalues λ₁ ≤ ... ≤ λₙ, the i-th eigendirection contracts by factor (1 − αλᵢ) per step. For convergence we need |1 − αλᵢ| &lt; 1 for ALL i — i.e., α &lt; 2/λₙ = 2/L. The OPTIMAL α (fastest convergence) is α = 2/(λ₁ + λₙ), giving contraction (κ−1)/(κ+1) where κ = L/μ is the condition number. The takeaway: convergence speed is bottlenecked by the largest curvature direction (which sets the upper bound on α) AND by the smallest curvature direction (which determines how fast the slowest direction moves). Ill-conditioned problems (κ ≫ 1) are the curse of plain GD — and the motivation for adaptive methods like Adam.</p>
+    <div class="dintu">💡 <strong>Intuition:</strong> The learning rate is your hiking pace. On a gentle path, you can stride confidently. In a narrow rocky chute, you need tiny careful steps or you'll slip. Plain GD uses ONE pace for ALL terrain — that's why it's slow on real problems. Modern optimizers like Adam adapt the pace per-direction.</div>
+  </div>
+  <div class="divepp">
+    <div class="dwhy"><h5>❓ Why AI needs this</h5><p>LR tuning consumes a huge fraction of practical ML effort:</p><ul class="wl"><li>The "learning rate finder" (fast.ai) sweeps α exponentially and watches loss to find the sweet spot</li><li>Most failed training runs are LR-related — too high → NaN; too low → loss flat</li><li>For transformers, the safe LR window is narrow (1e-5 to 1e-3); for CNNs it's wider</li><li>Modern recipe: linear warmup to peak LR (avoid early instability) then cosine decay</li><li>LR schedules are essential at scale — GPT-3 used warmup + cosine over 300B tokens</li></ul></div>
+    <div class="dhow"><h5>⚙️ How AI uses it</h5><p>The LR finder pattern:</p><div class="cb"># Standard learning rate finder
+import math
+lrs, losses = [], []
+lr = 1e-7
+for batch in data_loader:
+    for g in opt.param_groups: g['lr'] = lr
+    loss = train_one_step(batch)
+    lrs.append(lr); losses.append(loss.item())
+    lr *= 1.05                              # exponential ramp
+    if loss > 4 * losses[0]: break          # diverged, stop
+
+# Pick LR ~ 10× before the loss minimum
+plt.plot(lrs, losses); plt.xscale('log')
+# best_lr = lr where loss is decreasing fastest, ~10x left of minimum</div><div class="chips"><span class="chip chh">α critical</span><span class="chip chh">condition number</span><span class="chip chh">LR finder</span><span class="chip chn">warmup</span></div></div>
+  </div>
+  <div class="dexample"><h5>🧮 Worked Example</h5>
+    <p>Compute the critical learning rate for the housing-data bowl.</p>
+    <div class="we"><div class="wehd">α_critical from Hessian eigenvalues</div><div class="webd">
+      <div class="werow wegiven"><span class="wetag">Hessian</span><span class="wecontent">For J(w, b), H = (1/m) [[Σxᵢ², Σxᵢ], [Σxᵢ, m]]. For housing data: H ≈ [[3.55e6, 1750], [1750, 1.0]] / 30 = [[1.18e5, 58.3], [58.3, 1.0]]</span></div>
+      <div class="werow westep"><span class="wetag">Eigenvalues</span><span class="wecontent">trace = 1.18e5 + 1, det ≈ 1.18e5 − 58.3² = 1.15e5. λ ≈ trace/2 ± √((trace/2)² − det). λ_max ≈ <b>1.18e5</b>, λ_min ≈ <b>0.97</b>.</span></div>
+      <div class="werow westep"><span class="wetag">α_critical</span><span class="wecontent">2 / λ_max = 2 / 1.18e5 ≈ <b>1.7e-5</b></span></div>
+      <div class="werow westep"><span class="wetag">Optimal α</span><span class="wecontent">2 / (λ_max + λ_min) ≈ 2 / 1.18e5 ≈ <b>1.7e-5</b> (almost same as critical, since κ huge)</span></div>
+      <div class="werow westep"><span class="wetag">Condition</span><span class="wecontent">κ = λ_max / λ_min ≈ 1.18e5 / 0.97 ≈ <b>122,000</b>. Extremely ill-conditioned — w-direction is 122,000× steeper than b-direction!</span></div>
+      <div class="werow weresult"><span class="wetag">Practical fix</span><span class="wecontent">Either feature-scale x (subtract mean, divide by std) so κ ≈ 1, OR use Adam which adapts per-parameter. After scaling, κ ≈ 1, α can be 1.0, converges in <span class="hi">5 iterations</span> instead of 100,000.</span></div>
+    </div></div>
+  </div>
+</div>
+</div>
+
+
+<div class="chd"><h3>Algorithms</h3></div>
+
+<div class="topic" id="t04">
+<div class="thd"><span class="tnum">04</span><div><h2>Batch · Stochastic · Mini-batch</h2><div class="tsub">Three ways to compute the gradient — and why we deliberately add noise</div></div></div>
+<div class="analogy"><div class="ic">🎲</div><p><strong>Plain English:</strong> The "true" gradient averages over <em>all</em> data — but if you have a million examples, that takes forever per step. <strong>Stochastic GD (SGD)</strong> uses just one randomly-picked example each step — fast, but the gradient is noisy (it's an unbiased estimate of the true one). <strong>Mini-batch</strong> uses a random subset of, say, 32 examples — a sweet spot of speed and stability. The astonishing finding: the noise from mini-batches doesn't just NOT hurt — it <em>helps</em>. It nudges the optimizer out of sharp minima toward flatter ones that generalise better.</p></div>
+<div class="vb"><div class="vbhd"><span class="pulse"></span><span class="vbt">Three trajectories — same start, three batch sizes</span></div>
+  <div class="vbd">
+    <canvas id="cv04" style="height:380px"></canvas>
+    <div class="ctrls">
+      <div class="ctrl"><label>Steps taken</label><div class="cr"><input type="range" id="st_04" min="0" max="80" step="1" value="40" oninput="D04()"><span class="val" id="stv04">40</span></div></div>
+      <div class="ctrl"><label>Mini-batch size</label><div class="cr"><input type="range" id="mb_04" min="1" max="30" step="1" value="8" oninput="D04()"><span class="val" id="mbv04">8</span></div></div>
+      <div class="ctrl"><label>Random seed</label><div class="cr"><input type="range" id="sd_04" min="1" max="20" step="1" value="3" oninput="D04()"><span class="val" id="sdv04">3</span></div></div>
+    </div>
+    <div class="xp"><div class="xphd"><span class="pulse"></span><span class="xplbl">Live</span></div>
+    <div class="xpb"><div class="xpc"><h5>Trajectory characters</h5><p id="ei04a">—</p></div><div class="xpc"><h5>Why noise helps</h5><p id="ei04b">—</p></div></div></div>
+    <div class="tryb"><h5>Build intuition</h5><ul>
+    <li>Batch (teal): smoothest curve, exact gradient at each step. Predictable.</li>
+    <li>Mini-batch (orange): mostly correct, with small wobble. The modern default.</li>
+    <li>SGD (purple): zigzaggy. Each step is on one example only — gradient wildly varies.</li>
+    <li>Notice: ALL THREE eventually converge near the optimum. The noise is bounded by the data distribution.</li>
+    </ul></div>
+  </div>
+</div>
+<div class="fm">Batch GD: g = (1/m) Σᵢ₌₁ᵐ ∇L(θ; xᵢ, yᵢ)  <span class="cm">// exact, slow</span><br>SGD: g = ∇L(θ; xⱼ, yⱼ)  for j ~ Uniform[1, m]  <span class="cm">// 1 example, noisy</span><br>Mini-batch: g = (1/B) Σⱼ∈batch ∇L(θ; xⱼ, yⱼ)  <span class="cm">// B examples, balanced</span><br>E[g] = ∇J(θ) for all three (unbiased), but Var(g) ∝ 1/B</div>
+<div class="dive">
+  <div class="divehd"><span style="color:var(--tl)">★</span><h4>AI Deep Dive — SGD &amp; Mini-batch</h4><span class="mod">Topic 04</span></div>
+  <div class="dconcept"><h5>📚 The Concept</h5>
+    <p>Batch gradient descent is the textbook version: at each step, compute ∇J using ALL m training examples. Cost per step: O(m·d). For m = 1B, d = 1B (modern LLM scale), one step takes hours. SGD trades exactness for speed: use ONE random example per step. Cost per step: O(d). The gradient becomes a <em>noisy unbiased estimator</em> — its expectation is the true gradient, but it varies wildly. <strong>Mini-batch</strong> uses B examples: expected cost is true gradient, variance is 1/B times the per-example variance. The noise from mini-batching has two beneficial effects: (1) <em>regularisation</em> — it acts like injected noise that helps escape sharp minima; (2) <em>SGD's implicit bias</em> — empirically, SGD finds <strong>flat minima</strong> that generalise better than the sharp minima full-batch GD prefers. The optimal batch size depends on hardware (GPU memory) and the loss landscape — typically 32 to 512 for vision, up to 4M for LLMs.</p>
+    <div class="dintu">💡 <strong>Intuition:</strong> Imagine asking 1000 people their opinion to make a decision. Polling all 1000 every time is overkill — 32 random opinions give you a decent estimate, and the slight noise actually helps you avoid being captured by any single quirky outlier. Each step you ask DIFFERENT 32 people, so over time the noise averages out — but along the way, you've explored more of the decision space.</div>
+  </div>
+  <div class="divepp">
+    <div class="dwhy"><h5>❓ Why AI needs this</h5><p>SGD made deep learning possible at scale:</p><ul class="wl"><li>Modern datasets (ImageNet, Common Crawl, LAION) don't fit in memory — must use mini-batches</li><li>Each GPU step processes one mini-batch in parallel — perfectly suited to hardware</li><li>The "scaling laws" of LLMs show that larger batch sizes have diminishing returns — optimal batch grows with model size but slowly</li><li>SGD's implicit regularisation explains why deep nets generalise despite over-parameterisation</li><li>Linear scaling rule: when you scale batch size by k, scale LR by k (Goyal et al. 2017) — preserves convergence</li><li>Beyond a critical batch size (~10K for ImageNet), SGD's benefits saturate — that's why GPT scales differently</li></ul></div>
+    <div class="dhow"><h5>⚙️ How AI uses it</h5><p>Standard mini-batch SGD in PyTorch:</p><div class="cb">loader = DataLoader(dataset, batch_size=64, shuffle=True)
+opt = torch.optim.SGD(model.parameters(), lr=0.1)
+
+for epoch in range(n_epochs):
+    for x_batch, y_batch in loader:           # B examples per step
+        pred = model(x_batch)
+        loss = F.cross_entropy(pred, y_batch)
+        opt.zero_grad()
+        loss.backward()                       # ∇J on this batch
+        opt.step()                            # θ ← θ − α·g
+
+# For 1B-parameter models, batch size goes up:
+# - Train on 4M tokens per step (1024 × 4096 sequence length)
+# - Gradient accumulation if doesn't fit in GPU memory</div><div class="chips"><span class="chip chh">DataLoader</span><span class="chip chh">batch_size</span><span class="chip chh">unbiased estimator</span><span class="chip chn">flat minima</span></div></div>
+  </div>
+  <div class="dexample"><h5>🧮 Worked Example</h5>
+    <p>Compute the variance of gradient estimates for batch sizes B = 1, 4, 16.</p>
+    <div class="we"><div class="wehd">Variance of gradient estimator vs batch size</div><div class="webd">
+      <div class="werow wegiven"><span class="wetag">Setup</span><span class="wecontent">m = 16 examples, σ²_per_example = 1.0 (variance of a single gradient ∇L(θ; xᵢ, yᵢ))</span></div>
+      <div class="werow westep"><span class="wetag">B = 1 (SGD)</span><span class="wecontent">Var(g) = σ²/B = <b>1.0</b>. Each step's gradient varies a lot from the true mean.</span></div>
+      <div class="werow westep"><span class="wetag">B = 4</span><span class="wecontent">Var(g) = 1.0/4 = <b>0.25</b>. Standard deviation halved.</span></div>
+      <div class="werow westep"><span class="wetag">B = 16 (full batch)</span><span class="wecontent">Var(g) = 1.0/16 = <b>0.0625</b>. Std dropped to 1/4 of single-example.</span></div>
+      <div class="werow westep"><span class="wetag">SNR</span><span class="wecontent">Signal-to-noise ratio (||∇J||/σ_g) grows as √B. Doubling B improves SNR by √2.</span></div>
+      <div class="werow weresult"><span class="wetag">Compute trade</span><span class="wecontent">B = 16 needs 16× compute per step but moves more reliably. B = 1 needs 1× compute but takes 16× more steps to reach same noise floor. <span class="hi">Equal total compute</span> — but B = 1 explores more, often generalising better.</span></div>
+    </div></div>
+  </div>
+</div>
+</div>
+
+<div class="topic" id="t05">
+<div class="thd"><span class="tnum">05</span><div><h2>Momentum — Adding Inertia</h2><div class="tsub">Don't just go where the gradient says — keep going where you've BEEN going</div></div></div>
+<div class="analogy"><div class="ic">🎳</div><p><strong>Plain English:</strong> Plain gradient descent has zero memory: every step is computed fresh from the current gradient. <strong>Momentum</strong> adds memory. Instead of stepping in the gradient direction directly, you maintain a "velocity" that accumulates past gradients, decayed exponentially. The result: like a bowling ball rolling down a bumpy hill, momentum smooths out the trajectory. Where the gradient zigzags (e.g., narrow valleys), opposite directions cancel out in the velocity, and the consistent component (down the valley) reinforces. Momentum was invented in 1964 by Polyak — it's still a workhorse 60 years later.</p></div>
+<div class="vb"><div class="vbhd"><span class="pulse"></span><span class="vbt">Plain GD vs Momentum — race on a 3D bowl</span></div>
+  <div class="vbd">
+    <canvas id="cv05" style="height:400px"></canvas>
+    <div class="ctrls">
+      <div class="ctrl"><label>Momentum β</label><div class="cr"><input type="range" id="be_05" min="0" max="0.98" step="0.01" value="0.9" oninput="D05()"><span class="val" id="bev05">0.90</span></div></div>
+      <div class="ctrl"><label>Steps</label><div class="cr"><input type="range" id="st_05" min="0" max="60" step="1" value="40" oninput="D05()"><span class="val" id="stv05">40</span></div></div>
+      <div class="ctrl"><label>Rotate</label><div class="cr"><input type="range" id="az_05" min="0" max="360" step="1" value="40" oninput="D05()"><span class="val" id="azv05">40°</span></div></div>
+      <div class="ctrl"><label>Tilt</label><div class="cr"><input type="range" id="el_05" min="10" max="80" step="1" value="35" oninput="D05()"><span class="val" id="elv05">35°</span></div></div>
+    </div>
+    <div class="xp"><div class="xphd"><span class="pulse"></span><span class="xplbl">Live</span></div>
+    <div class="xpb"><div class="xpc"><h5>Path comparison</h5><p id="ei05a">—</p></div><div class="xpc"><h5>Why momentum is faster</h5><p id="ei05b">—</p></div></div></div>
+    <div class="tryb"><h5>Build intuition</h5><ul>
+    <li>β = 0: momentum disabled — same as plain GD. Slow, methodical.</li>
+    <li>β = 0.9 (default): velocity averages last ~10 gradients. Smooth, faster trajectory.</li>
+    <li>β = 0.98: very long memory — extremely smooth but may overshoot, taking many steps to settle.</li>
+    <li>The two trajectories diverge: momentum builds up speed where gradient is consistent, gets there first.</li>
+    </ul></div>
+  </div>
+</div>
+<div class="fm">Momentum:<br>v ← β · v + ∇J(θ)<br>θ ← θ − α · v<br>Equivalently: v_t = Σₖ β^(t−k) · ∇J(θₖ)  <span class="cm">// exponentially-weighted average of past gradients</span><br>Effective time horizon: 1/(1−β). β=0.9 → ~10 steps. β=0.99 → ~100 steps.</div>
+<div class="dive">
+  <div class="divehd"><span style="color:var(--tl)">★</span><h4>AI Deep Dive — Momentum</h4><span class="mod">Topic 05</span></div>
+  <div class="dconcept"><h5>📚 The Concept</h5>
+    <p>Momentum is mathematically equivalent to <strong>exponentially-weighted averaging</strong> of all past gradients: at step t, v_t = Σₖ β^(t−k) · g_k. The most recent gradient has weight 1; one step ago has weight β; t steps ago has weight β^t. The "effective memory" is roughly 1/(1−β) steps — for β = 0.9, the velocity is dominated by the last ~10 gradients. Why this helps: in a narrow valley with elongated contours, the gradient flips direction across the valley but stays consistent <em>along</em> the valley. Averaging gradients <em>cancels the perpendicular oscillations</em> while <em>reinforcing the parallel component</em>. The net effect: momentum reduces effective condition number from κ to √κ — quadratic speedup on ill-conditioned problems. This is why <strong>Nesterov momentum</strong> (a variant that "looks ahead" before computing the gradient) is even better, achieving the optimal first-order rate in convex problems.</p>
+    <div class="dintu">💡 <strong>Intuition:</strong> Picture pushing a shopping cart through a wobbly aisle. With no momentum (light cart), you correct every wobble step-by-step — slow zigzag. With momentum (heavy cart), small perpendicular wobbles cancel out, and you mostly travel forward — straight, fast trajectory. The "weight" of the cart is β.</div>
+  </div>
+  <div class="divepp">
+    <div class="dwhy"><h5>❓ Why AI needs this</h5><p>Momentum is foundational to nearly every modern optimizer:</p><ul class="wl"><li>SGD+momentum (β=0.9) is the standard for ResNets, EfficientNets, and most CNNs</li><li>Adam includes momentum as one of its two components (the m term)</li><li>Nesterov momentum is the theoretically-optimal first-order method for convex problems</li><li>Heavy-ball / momentum interpretation reveals connection to physics (mass + friction)</li><li>Without momentum, training a 152-layer ResNet would take weeks longer</li><li>Recent work (Lion, Sophia) keeps refining momentum-based optimizers</li></ul></div>
+    <div class="dhow"><h5>⚙️ How AI uses it</h5><p>Momentum in PyTorch is one parameter:</p><div class="cb"># SGD with momentum (most common for vision)
+opt = torch.optim.SGD(model.parameters(), lr=0.1,
+                      momentum=0.9, nesterov=True)
+
+# Manual implementation (for clarity):
+v = {p: torch.zeros_like(p) for p in model.parameters()}
+for batch in loader:
+    loss = train_step(batch)
+    loss.backward()
+    with torch.no_grad():
+        for p in model.parameters():
+            v[p] = 0.9 * v[p] + p.grad      # v ← β·v + ∇J
+            p -= 0.1 * v[p]                 # θ ← θ − α·v
+            p.grad.zero_()</div><div class="chips"><span class="chip chh">β = 0.9</span><span class="chip chh">EMA of grads</span><span class="chip chh">√κ speedup</span><span class="chip chn">Nesterov</span></div></div>
+  </div>
+  <div class="dexample"><h5>🧮 Worked Example</h5>
+    <p>Trace 5 momentum updates on a simple 1D parabola.</p>
+    <div class="we"><div class="wehd">Momentum updates — see the velocity build up</div><div class="webd">
+      <div class="werow wegiven"><span class="wetag">Setup</span><span class="wecontent">J(w) = ½w². ∇J = w. Start w₀ = 4. α = 0.1, β = 0.9, v₀ = 0.</span></div>
+      <div class="werow westep"><span class="wetag">Step 1</span><span class="wecontent">g = w = 4. v = 0.9·0 + 4 = <b>4</b>. w = 4 − 0.1·4 = <b>3.6</b></span></div>
+      <div class="werow westep"><span class="wetag">Step 2</span><span class="wecontent">g = 3.6. v = 0.9·4 + 3.6 = 7.2. w = 3.6 − 0.1·7.2 = <b>2.88</b></span></div>
+      <div class="werow westep"><span class="wetag">Step 3</span><span class="wecontent">g = 2.88. v = 0.9·7.2 + 2.88 = 9.36. w = 2.88 − 0.936 = <b>1.944</b></span></div>
+      <div class="werow westep"><span class="wetag">Step 4</span><span class="wecontent">g = 1.944. v = 0.9·9.36 + 1.944 = 10.37. w = 1.944 − 1.037 = <b>0.907</b></span></div>
+      <div class="werow westep"><span class="wetag">Step 5</span><span class="wecontent">g = 0.907. v = 0.9·10.37 + 0.907 = 10.24. w = 0.907 − 1.024 = <b>−0.117</b> ← overshot!</span></div>
+      <div class="werow westep"><span class="wetag">Plain GD</span><span class="wecontent">For comparison: w₅ (plain GD) = 4·0.9⁵ = 2.36. Momentum got past the minimum already.</span></div>
+      <div class="werow weresult"><span class="wetag">Pattern</span><span class="wecontent">Momentum accelerates aggressively, possibly overshooting once. After overshoot, gradients reverse, velocity damps and eventually settles. Net result: <span class="hi">faster convergence</span> than plain GD even with brief oscillation.</span></div>
+    </div></div>
+  </div>
+</div>
+</div>
+
+<div class="topic" id="t06">
+<div class="thd"><span class="tnum">06</span><div><h2>Narrow Valleys &amp; Adam</h2><div class="tsub">When the bowl is stretched, plain GD zigzags — Adam adapts each parameter's step size individually</div></div></div>
+<div class="analogy"><div class="ic">🛤️</div><p><strong>Plain English:</strong> Real loss landscapes are almost never well-balanced bowls. Some directions are hundreds of times steeper than others. When this happens, plain GD <strong>zigzags</strong> — too big a step in the steep direction (overshoots), too small in the gentle direction (creeps). <strong>Adam</strong> fixes this by tracking the recent gradient magnitude per-parameter and dividing by it. Steep direction → large recent magnitude → Adam shrinks the step. Gentle direction → small magnitude → Adam grows the step. Result: every direction makes equal progress. Adam is the default optimizer for transformers.</p></div>
+<div class="vb"><div class="vbhd"><span class="pulse"></span><span class="vbt">Race on a narrow valley — SGD vs Momentum vs Adam</span></div>
+  <div class="vbd">
+    <canvas id="cv06" style="height:380px"></canvas>
+    <div class="ctrls">
+      <div class="ctrl"><label>Valley narrowness (κ)</label><div class="cr"><input type="range" id="ks_06" min="1" max="40" step="1" value="20" oninput="D06()"><span class="val" id="ksv06">20</span></div></div>
+      <div class="ctrl"><label>Steps</label><div class="cr"><input type="range" id="st_06" min="0" max="80" step="1" value="40" oninput="D06()"><span class="val" id="stv06">40</span></div></div>
+      <div class="ctrl"><label>Learning rate α</label><div class="cr"><input type="range" id="lr_06" min="0.01" max="0.5" step="0.01" value="0.1" oninput="D06()"><span class="val" id="lrv06">0.10</span></div></div>
+    </div>
+    <div class="xp"><div class="xphd"><span class="pulse"></span><span class="xplbl">Live</span></div>
+    <div class="xpb"><div class="xpc"><h5>Final losses</h5><p id="ei06a">—</p></div><div class="xpc"><h5>Why Adam wins narrow valleys</h5><p id="ei06b">—</p></div></div></div>
+    <div class="tryb"><h5>Build intuition</h5><ul>
+    <li>κ = 1: round bowl. All three optimizers do equally well.</li>
+    <li>κ = 20: stretched valley. SGD zigzags violently. Momentum dampens. Adam goes nearly straight.</li>
+    <li>κ = 40: extreme narrowness. SGD barely moves down the valley. Adam still cruises.</li>
+    <li>This is why transformers (which have ill-conditioned losses) require Adam, not plain SGD.</li>
+    </ul></div>
+  </div>
+</div>
+<div class="fm">Adam (Kingma &amp; Ba, 2014):<br>m ← β₁·m + (1−β₁)·∇J     <span class="cm">// 1st moment (momentum)</span><br>v ← β₂·v + (1−β₂)·∇J²    <span class="cm">// 2nd moment (per-parameter scale)</span><br>m̂ = m / (1 − β₁ᵗ),   v̂ = v / (1 − β₂ᵗ)  <span class="cm">// bias correction</span><br>θ ← θ − α · m̂ / (√v̂ + ε)<br>Defaults: β₁=0.9, β₂=0.999, ε=1e-8, α=1e-3</div>
+<div class="dive">
+  <div class="divehd"><span style="color:var(--tl)">★</span><h4>AI Deep Dive — Adam</h4><span class="mod">Topic 06</span></div>
+  <div class="dconcept"><h5>📚 The Concept</h5>
+    <p>Adam combines two ideas: (1) <strong>momentum</strong> (m, the first moment) — exponential moving average of past gradients, smooths the trajectory. (2) <strong>RMSProp</strong> (v, the second moment) — exponential moving average of squared gradients, used to normalise the step size per parameter. The actual update divides momentum by √v — a parameter that's been seeing big gradients gets a small step (it's already moving a lot), while one that's been seeing tiny gradients gets a big step (it's been under-trained). The bias-correction terms m̂ = m/(1−β₁ᵗ), v̂ = v/(1−β₂ᵗ) compensate for the fact that early in training, m and v are biased toward zero (started at 0, EMA hasn't caught up yet). The effect: Adam is <strong>scale-invariant per parameter</strong> — you can multiply any single parameter's gradient by 1000 and Adam barely changes its behaviour. This makes it robust to weird parameterisations and ill-conditioned problems. It's why transformers, which have wildly varying gradient scales across layers, train so reliably with Adam.</p>
+    <div class="dintu">💡 <strong>Intuition:</strong> If plain SGD is a hiker with one fixed pace, Adam is a hiker with adaptive boots — each foot steps further when the terrain is gentle and shorter when it's steep. Each parameter (each "foot") gets its own step size based on its own recent history. The hiker travels much faster on uneven terrain because no foot is ever overstepping or under-stepping its share.</div>
+  </div>
+  <div class="divepp">
+    <div class="dwhy"><h5>❓ Why AI needs this</h5><p>Adam (and AdamW) is the default optimizer of modern AI:</p><ul class="wl"><li>Used to train every major LLM: GPT-3/4, Llama, Claude, Gemini, BERT</li><li>Works robustly with default hyperparameters across vastly different architectures</li><li>AdamW (Loshchilov &amp; Hutter, 2017) — decouples weight decay from gradient adaptation. Standard for transformers</li><li>For CNNs, SGD+momentum often slightly beats Adam on test accuracy — but Adam is faster to converge</li><li>Recent variants: Lion (memory-efficient, signs only), Sophia (uses Hessian diagonal), Shampoo (full Hessian preconditioning)</li><li>The "Adam is not all you need" debate continues — but it remains the safe default</li></ul></div>
+    <div class="dhow"><h5>⚙️ How AI uses it</h5><p>Adam is one line — but the implementation is rich:</p><div class="cb">opt = torch.optim.AdamW(model.parameters(),
+                        lr=1e-4,
+                        betas=(0.9, 0.999),
+                        eps=1e-8,
+                        weight_decay=0.01)
+
+# Inside opt.step(), for each parameter p:
+#   m = β₁·m + (1−β₁)·p.grad
+#   v = β₂·v + (1−β₂)·p.grad²
+#   m_hat = m / (1 − β₁^t)
+#   v_hat = v / (1 − β₂^t)
+#   p -= lr * m_hat / (sqrt(v_hat) + eps)
+#   (AdamW also: p -= lr * weight_decay * p)</div><div class="chips"><span class="chip chh">Adam</span><span class="chip chh">AdamW</span><span class="chip chh">per-param scale</span><span class="chip chn">Lion</span><span class="chip chn">Sophia</span></div></div>
+  </div>
+  <div class="dexample"><h5>🧮 Worked Example</h5>
+    <p>Trace 3 Adam steps on a 1D problem and see how m and v build up.</p>
+    <div class="we"><div class="wehd">Adam updates — bias correction in action</div><div class="webd">
+      <div class="werow wegiven"><span class="wetag">Setup</span><span class="wecontent">J(w) = w². ∇J = 2w. w₀ = 4, α=0.1, β₁=0.9, β₂=0.999.</span></div>
+      <div class="werow westep"><span class="wetag">Step 1</span><span class="wecontent">g=8. m=0.9·0+0.1·8=0.8, v=0.999·0+0.001·64=0.064. m̂=0.8/0.1=8, v̂=0.064/0.001=64. Δw=−0.1·8/√64=<b>−0.1</b>. w=<b>3.9</b></span></div>
+      <div class="werow westep"><span class="wetag">Step 2</span><span class="wecontent">g=7.8. m=0.9·0.8+0.1·7.8=1.5, v=0.999·0.064+0.001·60.84=0.124. m̂=1.5/(1−0.81)=7.89, v̂=0.124/(1−0.998)=62.0. Δw=−0.1·7.89/√62=<b>−0.1</b>. w=<b>3.8</b></span></div>
+      <div class="werow westep"><span class="wetag">Step 3</span><span class="wecontent">g=7.6. m≈2.11, v≈0.181. m̂=2.11/(1−0.729)=7.78, v̂=0.181/(1−0.997)=60.4. Δw=−0.1·7.78/√60.4=<b>−0.1</b>. w=<b>3.7</b></span></div>
+      <div class="werow weresult"><span class="wetag">Pattern</span><span class="wecontent">Each step is <strong>almost exactly α = 0.1</strong> — independent of gradient magnitude! Plain SGD with α=0.1 would take steps of 0.8, 0.78, 0.76 → much larger. Adam's per-parameter scale is what makes it tolerant of huge gradient differences across layers.</span></div>
+    </div></div>
+  </div>
+</div>
+</div>
+
+
+<div class="chd"><h3>Pathologies</h3></div>
+
+<div class="topic" id="t07">
+<div class="thd"><span class="tnum">07</span><div><h2>Saddle Points</h2><div class="tsub">Flat in some directions, steep in others — where plain GD slows to a crawl</div></div></div>
+<div class="analogy"><div class="ic">🏞️</div><p><strong>Plain English:</strong> A saddle point is shaped like a horse's saddle (or a Pringles chip): going forward-back is uphill, going left-right is downhill. The gradient at the exact saddle is <strong>zero</strong> — the same condition that defines a minimum! But it's not a minimum: in some directions, you can still go down. Plain GD slows to a crawl near saddles because the gradient magnitude is small. Here's the crucial insight from modern theory: <em>in high-dimensional spaces, saddles vastly outnumber local minima</em> — most "stuck" points in deep network training are saddles, not bad minima.</p></div>
+<div class="vb"><div class="vbhd"><span class="pulse"></span><span class="vbt">3D saddle — see how GD struggles, momentum escapes</span></div>
+  <div class="vbd">
+    <canvas id="cv07" style="height:400px"></canvas>
+    <div class="ctrls">
+      <div class="ctrl"><label>Start x</label><div class="cr"><input type="range" id="sx_07" min="-1.5" max="1.5" step="0.05" value="0.05" oninput="D07()"><span class="val" id="sxv07">0.05</span></div></div>
+      <div class="ctrl"><label>Start y</label><div class="cr"><input type="range" id="sy_07" min="-1.5" max="1.5" step="0.05" value="-1.0" oninput="D07()"><span class="val" id="syv07">-1.00</span></div></div>
+      <div class="ctrl"><label>Steps</label><div class="cr"><input type="range" id="st_07" min="0" max="120" step="1" value="60" oninput="D07()"><span class="val" id="stv07">60</span></div></div>
+      <div class="ctrl"><label>Method</label><select id="md_07" onchange="D07()" style="width:100%"><option value="sgd">Plain GD (gets stuck)</option><option value="mom">Momentum (escapes)</option><option value="noise">SGD with noise (escapes via randomness)</option></select></div>
+      <div class="ctrl"><label>Rotate</label><div class="cr"><input type="range" id="az_07" min="0" max="360" step="1" value="40" oninput="D07()"><span class="val" id="azv07">40°</span></div></div>
+      <div class="ctrl"><label>Tilt</label><div class="cr"><input type="range" id="el_07" min="10" max="80" step="1" value="30" oninput="D07()"><span class="val" id="elv07">30°</span></div></div>
+    </div>
+    <div class="xp"><div class="xphd"><span class="pulse"></span><span class="xplbl">Live</span></div>
+    <div class="xpb"><div class="xpc"><h5>Trajectory near saddle</h5><p id="ei07a">—</p></div><div class="xpc"><h5>Why high-D AI escapes saddles</h5><p id="ei07b">—</p></div></div></div>
+    <div class="tryb"><h5>Build intuition</h5><ul>
+    <li>Start near (0, 0) — the saddle. Plain GD: gradient is tiny, barely moves. Stuck for many steps.</li>
+    <li>Start a bit off — plain GD slowly slides toward one of the descent directions, then accelerates as gradient grows.</li>
+    <li>Momentum: even if gradient is tiny, accumulated velocity carries you past the saddle quickly.</li>
+    <li>Noisy SGD: random perturbations push you off the unstable axis — escape happens probabilistically.</li>
+    </ul></div>
+  </div>
+</div>
+<div class="fm">Saddle point: ∇J = 0, but Hessian H has both positive AND negative eigenvalues<br>Example: J(w, b) = w² − b². ∇J = (2w, −2b) = 0 at (0, 0). H = [[2, 0], [0, −2]] — mixed signs<br>Local minimum: H all positive eigenvalues. Saddle: mixed signs. Local maximum: all negative.<br><strong>In d-dim space:</strong> P(critical point is saddle) ≈ 1 − 2⁻ᵈ → ~100% for large d</div>
+<div class="dive">
+  <div class="divehd"><span style="color:var(--tl)">★</span><h4>AI Deep Dive — Saddles in High Dimensions</h4><span class="mod">Topic 07</span></div>
+  <div class="dconcept"><h5>📚 The Concept</h5>
+    <p>At a critical point of J (where ∇J = 0), the Hessian H tells you the type. If all eigenvalues of H are positive, it's a local minimum. If all negative, a local maximum. If mixed signs, it's a <strong>saddle</strong>. The crucial high-dimensional fact (Bray &amp; Dean, 2007; Dauphin et al., 2014): for a "random" smooth function in d dimensions, <em>almost all critical points are saddles</em>, not minima. Specifically, the probability that all d eigenvalues of H have the same sign at a random critical point shrinks as 2⁻ᵈ. For a 1B-parameter neural network, finding a true local minimum among critical points is essentially impossible — every "stuck" point is overwhelmingly likely to be a saddle. This <strong>resolves the original mystery of deep learning</strong>: classical theory worried about getting trapped in bad local minima, but the real failure mode is just slow progress at saddles. Solutions: (1) <em>Momentum</em> — accumulated velocity carries you through low-gradient regions; (2) <em>SGD noise</em> — random perturbations move you off unstable directions; (3) <em>Specifically-designed escapes</em> — algorithms like perturbed GD with explicit noise injection.</p>
+    <div class="dintu">💡 <strong>Intuition:</strong> Imagine balancing a marble at the centre of a horse saddle. With perfect balance, it could stay there forever. The slightest puff of wind, and it rolls down one of the descent directions and accelerates. SGD's mini-batch noise is that puff of wind — it's why deep nets train despite living in a saddle-rich landscape.</div>
+  </div>
+  <div class="divepp">
+    <div class="dwhy"><h5>❓ Why AI needs this</h5><p>The saddle-point understanding rewrote optimization theory for deep learning:</p><ul class="wl"><li>Pre-2014, training failures were blamed on "bad local minima"</li><li>Dauphin et al. (2014) showed: most plateaus in NN training are saddles, not minima</li><li>This explains why bigger networks train MORE reliably — more dimensions = even more dominated by saddles, but also more escape directions</li><li>Adam, momentum, and BatchNorm all help escape saddles by different mechanisms</li><li>Second-order methods (Newton) can be FOOLED by saddles — they may converge to a saddle thinking it's a minimum</li><li>"Saddle escape" is an active research area — connects to differential geometry and random matrix theory</li></ul></div>
+    <div class="dhow"><h5>⚙️ How AI uses it</h5><p>Diagnosing saddles in practice:</p><div class="cb"># Symptom: training plateaus, gradient norm small, but cost still high
+# Check: compute Hessian eigenvalues at current point (expensive!)
+
+# Cheap proxy — gradient noise:
+g_full = compute_gradient_full(model)        # over all data
+g_batch = compute_gradient_batch(model, B=32)  # over a batch
+gradient_signal_to_noise = g_full.norm() / (g_batch - g_full).norm()
+# If SNR ~ 1 → likely near saddle (signal weak, noise comparable)
+
+# Mitigation:
+# 1. Increase momentum: opt.momentum = 0.95
+# 2. Add explicit noise: p.grad += 1e-3 * torch.randn_like(p)
+# 3. Use Adam (less affected by saddle slowdown)
+# 4. Restart from a perturbed point</div><div class="chips"><span class="chip chh">∇J=0, mixed Hessian</span><span class="chip chh">high-D dominance</span><span class="chip chh">momentum escape</span><span class="chip chn">noise injection</span></div></div>
+  </div>
+  <div class="dexample"><h5>🧮 Worked Example</h5>
+    <p>Plain GD near a 2D saddle: how slow is the escape?</p>
+    <div class="we"><div class="wehd">Saddle escape — exponential dynamics</div><div class="webd">
+      <div class="werow wegiven"><span class="wetag">Setup</span><span class="wecontent">J(w, b) = ½w² − ½b². ∇J = (w, −b). Start: (w, b) = (0.01, 0.01) — slightly off the saddle. α = 0.1.</span></div>
+      <div class="werow westep"><span class="wetag">Step 1</span><span class="wecontent">w = 0.01 − 0.1·0.01 = 0.009. b = 0.01 + 0.1·0.01 = 0.011</span></div>
+      <div class="werow westep"><span class="wetag">Step 5</span><span class="wecontent">w = 0.01·(0.9)⁵ = 0.0059. b = 0.01·(1.1)⁵ = 0.0161 (growing!)</span></div>
+      <div class="werow westep"><span class="wetag">Step 30</span><span class="wecontent">w = 0.01·(0.9)³⁰ ≈ 0.0004. b = 0.01·(1.1)³⁰ ≈ 0.174</span></div>
+      <div class="werow westep"><span class="wetag">Step 100</span><span class="wecontent">w → 0 (irrelevant). b = 0.01·(1.1)¹⁰⁰ ≈ 138 — exploded out of the saddle.</span></div>
+      <div class="werow weresult"><span class="wetag">Insight</span><span class="wecontent">The escape is <span class="hi">exponential</span> — once b becomes nonzero, it doubles every ~7 steps until it dominates. But if you start <em>exactly</em> on the saddle (b=0), you'd never leave. SGD's noise ensures b ≠ 0, escape happens. Momentum makes the escape much faster (β=0.9 → ~10× faster).</span></div>
+    </div></div>
+  </div>
+</div>
+</div>
+
+<div class="topic" id="t08">
+<div class="thd"><span class="tnum">08</span><div><h2>Vanishing &amp; Exploding Gradients</h2><div class="tsub">When gradients shrink to zero or blow up to infinity — and how clipping saves the day</div></div></div>
+<div class="analogy"><div class="ic">⚡</div><p><strong>Plain English:</strong> In deep networks, the gradient at the input layer is the gradient at the output multiplied by the Jacobians of every layer in between. If those Jacobians average less than 1, the product collapses to zero (<strong>vanishing</strong>) — early layers stop learning. If they average more than 1, the product explodes (<strong>exploding</strong>) — training diverges in one step. RNNs over long sequences are particularly susceptible. Solutions: better initialisation (Xavier, He), normalisation layers (BatchNorm, LayerNorm), residual connections, and the simplest one — <strong>gradient clipping</strong>: if ||∇J|| exceeds a threshold, scale it down.</p></div>
+<div class="vb"><div class="vbhd"><span class="pulse"></span><span class="vbt">Gradient norm over training — with and without clipping</span></div>
+  <div class="vbd">
+    <canvas id="cv08" style="height:340px"></canvas>
+    <div class="ctrls">
+      <div class="ctrl"><label>Network depth (layers)</label><div class="cr"><input type="range" id="dp_08" min="2" max="40" step="1" value="20" oninput="D08()"><span class="val" id="dpv08">20</span></div></div>
+      <div class="ctrl"><label>Init scale σ</label><div class="cr"><input type="range" id="ig_08" min="0.5" max="2.0" step="0.05" value="1.5" oninput="D08()"><span class="val" id="igv08">1.50</span></div></div>
+      <div class="ctrl"><label>Gradient clip threshold</label><div class="cr"><input type="range" id="cl_08" min="0" max="10" step="0.5" value="0" oninput="D08()"><span class="val" id="clv08">off</span></div></div>
+    </div>
+    <div class="xp"><div class="xphd"><span class="pulse"></span><span class="xplbl">Live</span></div>
+    <div class="xpb"><div class="xpc"><h5>Per-layer gradient norm</h5><p id="ei08a">—</p></div><div class="xpc"><h5>What's happening</h5><p id="ei08b">—</p></div></div></div>
+    <div class="tryb"><h5>Build intuition</h5><ul>
+    <li>σ = 0.5: gradients shrink layer by layer → vanishing. Early layers receive ≈ 0 signal.</li>
+    <li>σ = 2.0: gradients grow exponentially → exploding. Last layer's gradient is astronomical.</li>
+    <li>σ = 1.0–1.4: Goldilocks zone — gradients stay roughly constant. This is what He/Xavier init achieves.</li>
+    <li>Turn on gradient clipping (threshold 1) — exploding gradients are tamed instantly.</li>
+    </ul></div>
+  </div>
+</div>
+<div class="fm">Backprop chain rule: ∂L/∂θ_layer1 = ∂L/∂a_L · J_L · J_{L−1} · … · J_2 · J_1<br>Gradient norm: ||∂L/∂θ_layer1|| ≈ ||∂L/∂a_L|| · Π_l ||J_l||<br><strong>Vanishing:</strong> Π ||J_l|| → 0 (e.g., all sigmoid in deep net)<br><strong>Exploding:</strong> Π ||J_l|| → ∞ (e.g., recurrent net with weight &gt; 1)<br>Gradient clipping: if ||∇J|| &gt; τ, scale ∇J ← τ · ∇J / ||∇J||</div>
+<div class="dive">
+  <div class="divehd"><span style="color:var(--tl)">★</span><h4>AI Deep Dive — Gradient Pathologies</h4><span class="mod">Topic 08</span></div>
+  <div class="dconcept"><h5>📚 The Concept</h5>
+    <p>The chain rule turns backprop through L layers into a product of L Jacobian matrices. The gradient at the deepest hidden layer scales with this product's spectral norm. <strong>If average ||J_l|| &lt; 1, the product decays exponentially</strong> — early layers never learn (vanishing gradients). <strong>If average ||J_l|| &gt; 1, the product explodes exponentially</strong> — training diverges (exploding gradients). The activation function matters: sigmoid's max derivative is 0.25, so a chain of L sigmoids gives Π ≤ 0.25^L → vanishes for L &gt; 5. ReLU has derivative 0 or 1, so it doesn't shrink (but can "die" if always 0). Modern fixes: (1) <strong>He/Xavier initialisation</strong> — set the variance of weights so each Jacobian has spectral norm ≈ 1; (2) <strong>BatchNorm/LayerNorm</strong> — explicitly rescale activations between layers; (3) <strong>Residual connections</strong> — y = x + F(x) — gradient flows through the identity path even when F(x)'s Jacobian vanishes; (4) <strong>Gradient clipping</strong> — bandage that prevents exploding by capping gradient norm. RNNs use clipping because their recurrent dynamics naturally produce exploding gradients on long sequences.</p>
+    <div class="dintu">💡 <strong>Intuition:</strong> Imagine whispering a message down a chain of 30 people. If each person is hard of hearing (multiplies signal by 0.8), by the end the message is inaudible — vanishing. If each person amplifies the volume (multiplies by 1.2), the last person screams — exploding. Good initialisation makes each link preserve volume; normalisation layers re-amplify if signal drops; residual connections let some words pass through unchanged.</div>
+  </div>
+  <div class="divepp">
+    <div class="dwhy"><h5>❓ Why AI needs this</h5><p>Vanishing gradients held back deep learning for decades:</p><ul class="wl"><li>Sigmoid + tanh networks of the 90s couldn't go deeper than ~5 layers without failing</li><li>2010 Glorot init + 2015 He init solved this for ReLU networks</li><li>2015 Batch Normalization made 100+ layer networks practical (ResNets)</li><li>2017 Layer Normalization unlocked transformers (which can't use batch stats due to variable seq length)</li><li>2014 LSTMs added gating to RNNs, partially solving the long-range gradient problem</li><li>Transformers fundamentally use residual + LayerNorm in EVERY block — explicitly designed for stable gradient flow</li><li>For modern LLMs, gradient clipping at norm 1.0 is standard practice during pretraining</li></ul></div>
+    <div class="dhow"><h5>⚙️ How AI uses it</h5><p>Gradient clipping in PyTorch:</p><div class="cb"># Standard training loop with clipping
+for batch in loader:
+    loss = model(batch)
+    loss.backward()
+    
+    # Clip total gradient norm (most common)
+    torch.nn.utils.clip_grad_norm_(
+        model.parameters(), max_norm=1.0)
+    
+    # OR clip per-element (alternative)
+    torch.nn.utils.clip_grad_value_(
+        model.parameters(), clip_value=1.0)
+    
+    optimizer.step()
+    optimizer.zero_grad()
+
+# Inspecting gradients (debugging):
+total_norm = 0
+for p in model.parameters():
+    if p.grad is not None:
+        total_norm += p.grad.data.norm(2).item() ** 2
+total_norm = total_norm ** 0.5
+print(f"Gradient norm: {total_norm:.4f}")</div><div class="chips"><span class="chip chh">clip_grad_norm</span><span class="chip chh">He init</span><span class="chip chh">BatchNorm</span><span class="chip chn">residual</span><span class="chip chn">LSTM gates</span></div></div>
+  </div>
+  <div class="dexample"><h5>🧮 Worked Example</h5>
+    <p>Show how a 30-layer sigmoid net's gradient vanishes — and how He init fixes ReLU.</p>
+    <div class="we"><div class="wehd">Vanishing: 30-layer sigmoid; surviving: 30-layer ReLU+He</div><div class="webd">
+      <div class="werow wegiven"><span class="wetag">Sigmoid</span><span class="wecontent">σ'(x) = σ(x)·(1−σ(x)). Maximum at x=0: σ'(0) = 0.25. Average across activations: ~0.10 (typical).</span></div>
+      <div class="werow westep"><span class="wetag">30-layer chain</span><span class="wecontent">||∂L/∂θ_layer1|| ≈ Π_l ||J_l|| ≈ 0.10³⁰ = <b>10⁻³⁰</b>. Effectively zero — early layers don't learn.</span></div>
+      <div class="werow westep"><span class="wetag">ReLU + small init (σ=0.01)</span><span class="wecontent">Each weight matrix has spectral norm ≈ 0.01·√n. With n=100: norm ≈ 0.1. Chain: 0.1³⁰ = 10⁻³⁰. STILL vanishes.</span></div>
+      <div class="werow westep"><span class="wetag">ReLU + He init (σ=√(2/n))</span><span class="wecontent">For n=100: σ = √0.02 ≈ 0.14. Spectral norm of W ≈ √n·σ = 1.41. ReLU keeps half: effective norm ≈ 1.0. Chain: 1.0³⁰ = <b>1.0</b> — preserved!</span></div>
+      <div class="werow westep"><span class="wetag">Without clipping at large norm</span><span class="wecontent">If a single batch produces gradient norm 50 (occasional outlier), step = 50α. With α=0.001 → step of 0.05 in some direction → catastrophic.</span></div>
+      <div class="werow weresult"><span class="wetag">With clip at 1.0</span><span class="wecontent">Gradient capped — step is at most α = 0.001 in any direction. Training stays stable through outlier batches. <span class="hi">Modern LLMs</span> (GPT-4, Claude) train with norm-1 clipping throughout.</span></div>
+    </div></div>
+  </div>
+</div>
+</div>
+
+<div class="chd"><h3>Production</h3></div>
+
+<div class="topic" id="t09">
+<div class="thd"><span class="tnum">09</span><div><h2>Learning Rate Schedules</h2><div class="tsub">Big steps early, tiny steps late — and warmup at the very start</div></div></div>
+<div class="analogy"><div class="ic">📅</div><p><strong>Plain English:</strong> A constant learning rate is suboptimal. Early in training, you want big steps to make fast progress through bad regions. Late in training, you want tiny steps to fine-tune around the minimum. <strong>Schedules</strong> automate this. The most popular: <em>warmup + cosine</em> — start at 0, ramp linearly to peak over the first 1000 steps (avoid early instability), then smoothly decay to near 0 over the rest. Used by GPT, BERT, Vision Transformers — basically every major modern architecture.</p></div>
+<div class="vb"><div class="vbhd"><span class="pulse"></span><span class="vbt">Four schedules — see how the trajectory changes</span></div>
+  <div class="vbd">
+    <canvas id="cv09" style="height:380px"></canvas>
+    <div class="ctrls">
+      <div class="ctrl"><label>Schedule</label><select id="sc_09" onchange="D09()" style="width:100%">
+        <option value="const">Constant lr</option>
+        <option value="step">Step decay (×0.1 every 1/3)</option>
+        <option value="cos">Cosine decay</option>
+        <option value="warm">Warmup + cosine (modern default)</option>
+      </select></div>
+      <div class="ctrl"><label>Peak lr (×1e-7)</label><div class="cr"><input type="range" id="lr_09" min="1" max="60" step="1" value="20" oninput="D09()"><span class="val" id="lrv09">20</span></div></div>
+      <div class="ctrl"><label>Total steps</label><div class="cr"><input type="range" id="ts_09" min="20" max="200" step="10" value="100" oninput="D09()"><span class="val" id="tsv09">100</span></div></div>
+      <div class="ctrl"><label>Warmup fraction</label><div class="cr"><input type="range" id="wu_09" min="0" max="0.3" step="0.01" value="0.1" oninput="D09()"><span class="val" id="wuv09">0.10</span></div></div>
+    </div>
+    <div class="xp"><div class="xphd"><span class="pulse"></span><span class="xplbl">Live</span></div>
+    <div class="xpb"><div class="xpc"><h5>Schedule shape</h5><p id="ei09a">—</p></div><div class="xpc"><h5>Effect on training</h5><p id="ei09b">—</p></div></div></div>
+    <div class="tryb"><h5>Build intuition</h5><ul>
+    <li>Constant: works but inefficient — never settles deeply.</li>
+    <li>Step decay: classic for ResNets — discrete drops at fixed epochs.</li>
+    <li>Cosine: smooth, no manual tuning. Modern default.</li>
+    <li>Warmup + cosine: ramp up first → avoids early divergence; then cosine down → settles cleanly. The transformer recipe.</li>
+    </ul></div>
+  </div>
+</div>
+<div class="fm">Constant: lr(t) = lr_max<br>Step: lr(t) = lr_max · γ^⌊t/k⌋   <span class="cm">// γ=0.1, k=epochs/3</span><br>Cosine: lr(t) = ½·lr_max·(1 + cos(π·t/T))<br>Warmup: lr(t) = lr_max · t/T_warmup,&nbsp; for t &lt; T_warmup<br>Warmup+Cosine: warmup until T_warmup, then cosine from there to T</div>
+<div class="dive">
+  <div class="divehd"><span style="color:var(--tl)">★</span><h4>AI Deep Dive — LR Schedules</h4><span class="mod">Topic 09</span></div>
+  <div class="dconcept"><h5>📚 The Concept</h5>
+    <p>The optimal learning rate changes over training. Early on, parameters are far from the minimum — the linearisation is rough, second-order effects matter, large LRs can diverge. Late on, parameters are near the minimum — the bowl is well-approximated by a quadratic, large LRs cause oscillation. A good schedule traces this trajectory: small at the very start (warmup), grow to a peak, then decay. <strong>Warmup</strong> specifically addresses early-training instability: when momentum and Adam's variance estimates are warming up (their EMA hasn't accumulated enough samples yet), they're noisy and biased — a high LR amplifies this noise. After ~1000 steps the EMAs stabilise and the peak LR is safe. <strong>Cosine annealing</strong> (Loshchilov &amp; Hutter, 2016) decays smoothly without abrupt drops, which empirically gives slightly better generalisation than step decay. The combination <em>linear warmup + cosine decay</em> is now the de-facto standard, used in BERT, GPT, T5, ViT, Llama, and countless other models.</p>
+    <div class="dintu">💡 <strong>Intuition:</strong> Driving home from work. Acceleration phase (warmup) — ramp gradually from a stop to highway speed (don't slam the gas). Cruise phase (peak LR) — maintain speed across long stretches. Deceleration phase (cosine decay) — ease off as you approach home, parking-lot pace at the end. A constant high speed crashes the parking job; a constant low speed wastes hours.</div>
+  </div>
+  <div class="divepp">
+    <div class="dwhy"><h5>❓ Why AI needs this</h5><p>Modern training is unthinkable without schedules:</p><ul class="wl"><li>Without warmup, transformers diverge in the first ~500 steps with peak LR</li><li>Cosine decay outperforms step decay by 1-2% accuracy on vision benchmarks</li><li>For LLMs trained on hundreds of billions of tokens, schedule shape becomes critical — small differences compound</li><li>One-cycle (Smith, 2018) was popular for image classification — high → low → very low</li><li>Cyclical LR (CLR / SGDR) periodically restarts to escape local minima — more recent</li><li>Implicit regularisation: large LR early discourages sharp minima, small LR late refines</li></ul></div>
+    <div class="dhow"><h5>⚙️ How AI uses it</h5><p>Schedules are first-class in PyTorch:</p><div class="cb">opt = torch.optim.AdamW(model.parameters(), lr=1e-4)
+
+# Cosine annealing over total epochs
+sched = torch.optim.lr_scheduler.CosineAnnealingLR(
+    opt, T_max=n_epochs)
+
+# Modern transformer schedule: warmup + cosine
+from transformers import get_cosine_schedule_with_warmup
+sched = get_cosine_schedule_with_warmup(
+    opt,
+    num_warmup_steps=1000,
+    num_training_steps=100000)
+
+# In training loop:
+for step in range(total_steps):
+    loss.backward()
+    opt.step()
+    sched.step()              # advance lr by one step
+    opt.zero_grad()</div><div class="chips"><span class="chip chh">warmup</span><span class="chip chh">cosine</span><span class="chip chh">step decay</span><span class="chip chn">one-cycle</span><span class="chip chn">SGDR</span></div></div>
+  </div>
+  <div class="dexample"><h5>🧮 Worked Example</h5>
+    <p>Compute lr at three timestamps for a warmup + cosine schedule.</p>
+    <div class="we"><div class="wehd">Warmup + Cosine: 10K steps, peak 1e-3, warmup 1K</div><div class="webd">
+      <div class="werow wegiven"><span class="wetag">Schedule</span><span class="wecontent">Phase 1 (t&lt;1000): linear warmup, lr(t) = 1e-3·t/1000.<br>Phase 2 (t≥1000): cosine, lr(t) = ½·1e-3·(1 + cos(π·(t−1000)/9000))</span></div>
+      <div class="werow westep"><span class="wetag">t = 0</span><span class="wecontent">Phase 1: lr = 0  (start at zero, ramping up)</span></div>
+      <div class="werow westep"><span class="wetag">t = 100</span><span class="wecontent">Phase 1: lr = 1e-3·100/1000 = <b>1e-4</b>  (10% of peak)</span></div>
+      <div class="werow westep"><span class="wetag">t = 1000</span><span class="wecontent">Phase 1 end: lr = 1e-3·1000/1000 = <b>1e-3</b>  (peak)</span></div>
+      <div class="werow westep"><span class="wetag">t = 5500</span><span class="wecontent">Phase 2: progress = (5500−1000)/9000 = 0.5. lr = ½·1e-3·(1 + cos(π/2)) = ½·1e-3·1 = <b>5e-4</b></span></div>
+      <div class="werow westep"><span class="wetag">t = 9000</span><span class="wecontent">Phase 2: progress = 8/9 ≈ 0.889. lr = ½·1e-3·(1 + cos(0.889π)) = ½·1e-3·0.030 = <b>1.5e-5</b></span></div>
+      <div class="werow westep"><span class="wetag">t = 10000</span><span class="wecontent">Phase 2 end: lr = ½·1e-3·(1 + cos(π)) = ½·1e-3·0 = <b>0</b></span></div>
+      <div class="werow weresult"><span class="wetag">Curve</span><span class="wecontent">lr ramps 0 → 1e-3 over first 10% of training, then smoothly decays back to 0. <span class="hi">Same shape</span> used by GPT-3, BERT, Llama — just at different scales.</span></div>
+    </div></div>
+  </div>
+</div>
+</div>
+
+<div class="topic" id="t10">
+<div class="thd"><span class="tnum">10</span><div><h2>Convergence Theory</h2><div class="tsub">How fast does GD converge? — geometric for convex, ε-linear for ill-conditioned</div></div></div>
+<div class="analogy"><div class="ic">📈</div><p><strong>Plain English:</strong> Why does training a model take exactly 100 epochs and not 10 or 1000? The answer comes from <em>convergence theory</em> — quantifying how fast gradient descent reduces the cost. For nice convex problems, GD's error shrinks <strong>exponentially</strong> per step (geometric convergence). The shrinkage rate per step depends on the condition number κ of the loss surface: κ = 1 (round bowl) → super fast; κ = 1000 (narrow valley) → super slow. Theory tells you EXACTLY how many steps you need to reach error ε — and this is the basis for "scaling laws" in modern AI.</p></div>
+<div class="vb"><div class="vbhd"><span class="pulse"></span><span class="vbt">Log-loss vs iteration — see geometric convergence</span></div>
+  <div class="vbd">
+    <canvas id="cv10" style="height:340px"></canvas>
+    <div class="ctrls">
+      <div class="ctrl"><label>Condition number κ</label><div class="cr"><input type="range" id="kp_10" min="1" max="200" step="1" value="20" oninput="D10()"><span class="val" id="kpv10">20</span></div></div>
+      <div class="ctrl"><label>Method</label><select id="md_10" onchange="D10()" style="width:100%"><option value="gd">Plain GD</option><option value="mom">Momentum</option><option value="adam">Adam</option></select></div>
+      <div class="ctrl"><label>Steps</label><div class="cr"><input type="range" id="st_10" min="20" max="500" step="20" value="200" oninput="D10()"><span class="val" id="stv10">200</span></div></div>
+    </div>
+    <div class="xp"><div class="xphd"><span class="pulse"></span><span class="xplbl">Live</span></div>
+    <div class="xpb"><div class="xpc"><h5>Convergence rate</h5><p id="ei10a">—</p></div><div class="xpc"><h5>Theory predicts</h5><p id="ei10b">—</p></div></div></div>
+    <div class="tryb"><h5>Build intuition</h5><ul>
+    <li>On a log-y plot, geometric convergence is a straight line. Slope = log of contraction factor per step.</li>
+    <li>Larger κ → flatter slope → slower decrease per step.</li>
+    <li>Momentum gives slope √κ instead of κ — square-root improvement at every condition number.</li>
+    <li>Adam in this setting handles the per-direction scaling and effectively makes κ ≈ 1.</li>
+    </ul></div>
+  </div>
+</div>
+<div class="fm">Plain GD on strongly convex quadratic:<br>||θ_t − θ*|| ≤ ((κ−1)/(κ+1))ᵗ · ||θ_0 − θ*||<br>Iterations to reach error ε: t ≈ κ · log(1/ε)<br>Momentum (Nesterov): t ≈ √κ · log(1/ε)  <span class="cm">// quadratic speedup</span><br>For non-strongly convex: t ≈ 1/ε (sublinear), or 1/√ε with momentum</div>
+<div class="dive">
+  <div class="divehd"><span style="color:var(--tl)">★</span><h4>AI Deep Dive — Convergence</h4><span class="mod">Topic 10</span></div>
+  <div class="dconcept"><h5>📚 The Concept</h5>
+    <p>For a strongly convex quadratic J(θ) = ½(θ − θ*)ᵀH(θ − θ*) with eigenvalues μ ≤ ... ≤ L (so condition number κ = L/μ), gradient descent with step size α = 2/(L+μ) gives the contraction <strong>||θ_t − θ*|| ≤ ((κ−1)/(κ+1))ᵗ · ||θ_0 − θ*||</strong>. This is a geometric (linear-in-log) decay. To reach error ε, we need t ≈ ½κ·log(1/ε) iterations. <strong>Heavy-ball momentum</strong> (Polyak, 1964) improves this to ((√κ−1)/(√κ+1))ᵗ — i.e., t ≈ √κ·log(1/ε) iterations, which is a <em>provable quadratic speedup</em>. <strong>Nesterov's accelerated gradient</strong> (1983) achieves the optimal rate (Nemirovski-Yudin lower bound) for first-order methods. Beyond convex problems: in <strong>non-convex</strong> settings (NN training), we don't have these clean rates, but empirically, training loss often does decrease nearly geometrically until plateauing. The <strong>Chinchilla scaling laws</strong> (Hoffmann et al., 2022) for LLMs are essentially convergence rate estimates at huge scale: they predict the loss as a function of compute, leading to optimal model size + data combinations.</p>
+    <div class="dintu">💡 <strong>Intuition:</strong> If you cut a piece of paper in half, you reduce its size by 50% per cut. After 10 cuts, it's 0.1% of the original. That's geometric (exponential) shrinkage. Gradient descent does the same with the cost — multiplies it by some factor &lt; 1 each step. The bigger the κ, the closer the factor is to 1 (slow shrinkage). Modern adaptive optimizers cheat by effectively making κ ≈ 1 per direction.</div>
+  </div>
+  <div class="divepp">
+    <div class="dwhy"><h5>❓ Why AI needs this</h5><p>Convergence theory gives compute estimates for AI training:</p><ul class="wl"><li>To train a model 10× more accurate, classical GD needs 10× more steps (linear convergence)</li><li>Plus, total compute = steps × cost-per-step. Cost-per-step scales with parameters</li><li>Scaling laws (Hoffmann et al.) predict loss as a power law in compute, parameters, data</li><li>Knowing convergence rate helps decide: more parameters or more data?</li><li>Stopping rule: when expected gain over next 1000 steps is &lt; cost of those steps</li><li>Modern LLM training: 10²⁵ FLOP, weeks of A100 time — convergence theory tells you what you'll get</li></ul></div>
+    <div class="dhow"><h5>⚙️ How AI uses it</h5><p>Estimating training compute:</p><div class="cb"># Empirical convergence check: fit loss curve
+import numpy as np
+losses = []
+for step in range(n_steps):
+    loss = train_step()
+    losses.append(loss)
+
+# Fit exponential decay: loss(t) ≈ a · exp(−b·t) + c
+from scipy.optimize import curve_fit
+def f(t, a, b, c): return a * np.exp(-b * t) + c
+popt, _ = curve_fit(f, range(len(losses)), losses)
+print(f"Decay rate: {popt[1]:.6f} per step")
+print(f"Predicted final loss (if trained 10×): {f(n_steps*10, *popt):.4f}")
+
+# For Chinchilla-style scaling laws on LLMs:
+# Loss(N, D) ≈ E + A/N^α + B/D^β
+# Optimal allocation given compute C ~ N·D: N* = (αB/(βA))^(1/(α+β)) · C^(α/(α+β))</div><div class="chips"><span class="chip chh">geometric convergence</span><span class="chip chh">κ</span><span class="chip chh">scaling laws</span><span class="chip chn">Chinchilla</span></div></div>
+  </div>
+  <div class="dexample"><h5>🧮 Worked Example</h5>
+    <p>How many GD iterations to reach 1% error on bowls of varying κ?</p>
+    <div class="we"><div class="wehd">Convergence rate vs condition number</div><div class="webd">
+      <div class="werow wegiven"><span class="wetag">Setup</span><span class="wecontent">Strongly convex quadratic, target ε = 0.01 (1% error). Plain GD with optimal α.</span></div>
+      <div class="werow westep"><span class="wetag">κ = 1 (round bowl)</span><span class="wecontent">Contraction = (1−1)/(1+1) = 0. Error 0 in <b>ONE step</b>. (special case, gradient points exactly to minimum)</span></div>
+      <div class="werow westep"><span class="wetag">κ = 10</span><span class="wecontent">Contraction = 9/11 ≈ 0.818. After t steps, error = 0.818ᵗ. Solve 0.818ᵗ = 0.01: t ≈ <b>23 steps</b></span></div>
+      <div class="werow westep"><span class="wetag">κ = 100</span><span class="wecontent">Contraction = 99/101 ≈ 0.980. t ≈ <b>228 steps</b></span></div>
+      <div class="werow westep"><span class="wetag">κ = 1000</span><span class="wecontent">Contraction = 0.998. t ≈ <b>2,302 steps</b></span></div>
+      <div class="werow westep"><span class="wetag">κ = 10,000</span><span class="wecontent">Contraction ≈ 0.9998. t ≈ <b>23,026 steps</b></span></div>
+      <div class="werow westep"><span class="wetag">With momentum (κ=10,000)</span><span class="wecontent">Contraction = (√10000 − 1)/(√10000 + 1) = 99/101 ≈ 0.980. t ≈ <b>228 steps</b> — 100× speedup!</span></div>
+      <div class="werow weresult"><span class="wetag">Take-away</span><span class="wecontent">The condition number is THE bottleneck for first-order optimization. Reducing κ by 100× (via better init, normalisation, or adaptive methods) saves 100× compute. <span class="hi">Adam reduces κ to ~1</span> per parameter — that's why it's so dominant.</span></div>
+    </div></div>
+  </div>
+</div>
+</div>
+
+<div class="chd"><h3>Reference</h3></div>
+
+<div class="topic" id="t11">
+<div class="thd"><span class="tnum">11</span><div><h2>Cheat Sheet</h2><div class="tsub">All gradient descent variants, formulas, hyperparameters — in one place</div></div></div>
+
+<div class="chd"><h3>🧭 The Gradient</h3></div>
+<div class="csg">
+  <div class="csi"><div class="csn">Definition</div><div class="csf">∇J(θ) = (∂J/∂θ₁, …, ∂J/∂θₙ)</div><div class="csd">Vector pointing uphill</div></div>
+  <div class="csi"><div class="csn">Magnitude</div><div class="csf">||∇J|| = √Σᵢ (∂J/∂θᵢ)²</div><div class="csd">Steepness at θ</div></div>
+  <div class="csi"><div class="csn">Steepest descent</div><div class="csf">−∇J / ||∇J||</div><div class="csd">Unit vector going down fastest</div></div>
+  <div class="csi"><div class="csn">⊥ to level sets</div><div class="csf">∇J ⊥ {θ : J(θ) = c}</div><div class="csd">Perpendicular to contours</div></div>
+  <div class="csi"><div class="csn">At critical point</div><div class="csf">∇J = 0</div><div class="csd">Min, max, or saddle</div></div>
+  <div class="csi"><div class="csn">Computed via</div><div class="csf">backpropagation</div><div class="csd">O(parameters), one backward pass</div></div>
+</div>
+
+<div class="chd"><h3>👣 The Step</h3></div>
+<div class="csg">
+  <div class="csi"><div class="csn">Update rule</div><div class="csf">θ ← θ − α · ∇J(θ)</div><div class="csd">The whole algorithm</div></div>
+  <div class="csi"><div class="csn">First-order Taylor</div><div class="csf">ΔJ ≈ −α · ||∇J||²</div><div class="csd">Predicted decrease</div></div>
+  <div class="csi"><div class="csn">Second-order term</div><div class="csf">+ ½α²·∇JᵀH∇J</div><div class="csd">Curvature correction</div></div>
+  <div class="csi"><div class="csn">Convergence</div><div class="csf">α &lt; 2/L</div><div class="csd">L = max eigenvalue of H</div></div>
+  <div class="csi"><div class="csn">Optimal α</div><div class="csf">2/(L + μ)</div><div class="csd">μ = min eigenvalue</div></div>
+  <div class="csi"><div class="csn">Default α (Adam)</div><div class="csf">1e-3</div><div class="csd">Tune by 10× steps</div></div>
+</div>
+
+<div class="chd"><h3>🎲 Stochastic Variants</h3></div>
+<div class="csg">
+  <div class="csi"><div class="csn">Batch GD</div><div class="csf">g = (1/m) Σᵢ ∇L(θ; xᵢ, yᵢ)</div><div class="csd">All m examples, exact</div></div>
+  <div class="csi"><div class="csn">SGD</div><div class="csf">g = ∇L(θ; xⱼ, yⱼ), j ~ U[1,m]</div><div class="csd">1 example, noisy</div></div>
+  <div class="csi"><div class="csn">Mini-batch</div><div class="csf">g = (1/B) Σⱼ∈batch ∇L(θ; xⱼ, yⱼ)</div><div class="csd">B examples, default</div></div>
+  <div class="csi"><div class="csn">Variance</div><div class="csf">Var(g) ∝ 1/B</div><div class="csd">Bigger B → less noise</div></div>
+  <div class="csi"><div class="csn">Linear scaling rule</div><div class="csf">batch ↑ k → lr ↑ k</div><div class="csd">Goyal et al. 2017</div></div>
+  <div class="csi"><div class="csn">Default B</div><div class="csf">32–512 (vision), up to 4M (LLM)</div><div class="csd">Hardware-bounded</div></div>
+</div>
+
+<div class="chd"><h3>🚀 Accelerated Methods</h3></div>
+<div class="csg">
+  <div class="csi"><div class="csn">Momentum</div><div class="csf">v ← βv + ∇J,&nbsp; θ ← θ − αv</div><div class="csd">β = 0.9</div></div>
+  <div class="csi"><div class="csn">Nesterov</div><div class="csf">"Look-ahead" momentum</div><div class="csd">Optimal first-order convex rate</div></div>
+  <div class="csi"><div class="csn">RMSProp</div><div class="csf">v ← β₂v + (1−β₂)g²,&nbsp; θ ← θ − αg/√v</div><div class="csd">Per-param scale</div></div>
+  <div class="csi"><div class="csn">Adam</div><div class="csf">m, v with bias correction</div><div class="csd">Defaults: 0.9, 0.999</div></div>
+  <div class="csi"><div class="csn">AdamW</div><div class="csf">Adam + decoupled weight decay</div><div class="csd">LLM standard</div></div>
+  <div class="csi"><div class="csn">Lion (2023)</div><div class="csf">θ ← θ − α·sign(βm + (1−β)g)</div><div class="csd">Memory-efficient</div></div>
+</div>
+
+<div class="chd"><h3>📅 LR Schedules</h3></div>
+<div class="csg">
+  <div class="csi"><div class="csn">Constant</div><div class="csf">lr(t) = lr_max</div><div class="csd">Simple baseline</div></div>
+  <div class="csi"><div class="csn">Step decay</div><div class="csf">lr(t) = lr_max · γ^⌊t/k⌋</div><div class="csd">γ=0.1, ResNet classic</div></div>
+  <div class="csi"><div class="csn">Cosine</div><div class="csf">½·lr_max·(1 + cos(πt/T))</div><div class="csd">Smooth, modern</div></div>
+  <div class="csi"><div class="csn">Linear warmup</div><div class="csf">lr_max · t / T_warmup</div><div class="csd">First 0.1% to 10% of training</div></div>
+  <div class="csi"><div class="csn">Warmup + cosine</div><div class="csf">warmup → cosine decay</div><div class="csd">GPT, BERT, ViT default</div></div>
+  <div class="csi"><div class="csn">One-cycle</div><div class="csf">low → peak → very low</div><div class="csd">Smith 2018</div></div>
+</div>
+
+<div class="chd"><h3>🛡️ Pathology Diagnosis</h3></div>
+<div class="csg">
+  <div class="csi"><div class="csn">Loss = NaN immediately</div><div class="csf">Reduce α 10×, add gradient clipping</div><div class="csd">Exploding gradients</div></div>
+  <div class="csi"><div class="csn">Loss flat for many epochs</div><div class="csf">Increase α, check gradients ≠ 0</div><div class="csd">Vanishing or wrong init</div></div>
+  <div class="csi"><div class="csn">Loss oscillates wildly</div><div class="csf">Reduce α, add momentum</div><div class="csd">Step too large or noisy data</div></div>
+  <div class="csi"><div class="csn">Loss plateaus then drops</div><div class="csf">Patience — likely escaping a saddle</div><div class="csd">Common in deep nets</div></div>
+  <div class="csi"><div class="csn">Train ≪ val loss</div><div class="csf">Add regularisation, reduce capacity</div><div class="csd">Overfitting</div></div>
+  <div class="csi"><div class="csn">Slow convergence</div><div class="csf">Use Adam + cosine + warmup</div><div class="csd">Modern recipe</div></div>
+</div>
+
+<div class="chd"><h3>📊 Convergence Rates</h3></div>
+<div class="csg">
+  <div class="csi"><div class="csn">Strongly convex, GD</div><div class="csf">((κ−1)/(κ+1))ᵗ</div><div class="csd">Linear convergence</div></div>
+  <div class="csi"><div class="csn">Strongly convex, momentum</div><div class="csf">((√κ−1)/(√κ+1))ᵗ</div><div class="csd">Quadratic speedup</div></div>
+  <div class="csi"><div class="csn">Convex, GD</div><div class="csf">O(1/t)</div><div class="csd">Sublinear</div></div>
+  <div class="csi"><div class="csn">Convex, Nesterov</div><div class="csf">O(1/t²)</div><div class="csd">Optimal first-order</div></div>
+  <div class="csi"><div class="csn">Non-convex, SGD</div><div class="csf">No clean rate; empirical</div><div class="csd">NN regime</div></div>
+  <div class="csi"><div class="csn">LLM scaling laws</div><div class="csf">Loss ≈ A·N^−α + B·D^−β + E</div><div class="csd">Chinchilla 2022</div></div>
+</div>
+
+<div class="note"><strong>★ The Modern Recipe (2024+):</strong> AdamW (β₁=0.9, β₂=0.999, ε=1e-8, weight_decay=0.01) + linear warmup over 1-10% of steps + cosine decay to ~0 + gradient clipping at norm 1.0 + LayerNorm or RMSNorm in every block + residual connections + He/Xavier initialisation. With this stack, your only real hyperparameter is the peak learning rate — typically 1e-4 to 5e-4 for transformers, 1e-3 for smaller models.</div>
+
+</div>
+
+</main></div>
+<script>
+/* ============= HELPERS ============= */
+function ctx2(id){const c=document.getElementById(id);if(!c)return null;const r=c.getBoundingClientRect();const dpr=window.devicePixelRatio||1;c.width=r.width*dpr;c.height=r.height*dpr;const ctx=c.getContext('2d');ctx.scale(dpr,dpr);return{c,ctx,W:r.width,H:r.height};}
+function val(id){const e=document.getElementById(id);return e?parseFloat(e.value):0;}
+function ival(id){const e=document.getElementById(id);return e?parseInt(e.value):0;}
+function sval(id){const e=document.getElementById(id);return e?e.value:'';}
+function setText(id,t){const e=document.getElementById(id);if(e)e.textContent=t;}
+function setVal(id,v){const e=document.getElementById(id);if(e)e.textContent=v;}
+const COL={tl:'#1D9E75',tld:'#34D399',pu:'#7F77DD',co:'#D85A30',am:'#BA7517',bl:'#378ADD',tx:'#E6EDF3',tx2:'#8B949E',tx3:'#484F58',bdr:'#30363D',bg:'#0D1117',s2:'#21262D',red:'#F87171',ylo:'#FCD34D',blu:'#93C5FD',grn:'#34D399'};
+function clip(v,a,b){return Math.max(a,Math.min(b,v));}
+function mulberry32(seed){let t=seed>>>0;return function(){t+=0x6D2B79F5;let r=t;r=Math.imul(r^(r>>>15),r|1);r^=r+Math.imul(r^(r>>>7),r|61);return((r^(r>>>14))>>>0)/4294967296;};}
+
+/* ============= HOUSING DATA (same as cost-fn deep dive) ============= */
+const HOUSING=(()=>{const rnd=mulberry32(7);const data=[];for(let i=0;i<30;i++){const x=600+i*80+(rnd()*120-60);const y=0.13*x+80+(rnd()*80-40);data.push([x,y]);}return data;})();
+function cost(w,b,data){let s=0;for(const[x,y]of data){const e=w*x+b-y;s+=e*e;}return s/(2*data.length);}
+function gradJ(w,b,data){let dw=0,db=0;for(const[x,y]of data){const e=w*x+b-y;dw+=e*x;db+=e;}return[dw/data.length,db/data.length];}
+const _xs=HOUSING.map(d=>d[0]),_ys=HOUSING.map(d=>d[1]);
+const _xb=_xs.reduce((a,b)=>a+b)/30,_yb=_ys.reduce((a,b)=>a+b)/30;
+let _num=0,_den=0;for(let i=0;i<30;i++){_num+=(_xs[i]-_xb)*(_ys[i]-_yb);_den+=(_xs[i]-_xb)*(_xs[i]-_xb);}
+const W_OPT=_num/_den, B_OPT=_yb-W_OPT*_xb, J_OPT=cost(W_OPT,B_OPT,HOUSING);
+
+/* ============= 3D PROJECTION ============= */
+function project3D(x,y,z,az,el,scale,cx,cy){
+  const ar=az*Math.PI/180, er=el*Math.PI/180;
+  const x1=x*Math.cos(ar)-y*Math.sin(ar);
+  const y1=x*Math.sin(ar)+y*Math.cos(ar);
+  const z1=z;
+  const y2=y1*Math.cos(er)-z1*Math.sin(er);
+  const z2=y1*Math.sin(er)+z1*Math.cos(er);
+  return{px:cx+x1*scale, py:cy-y2*scale, depth:z2};
+}
+
+/* ============= D01: Gradient vector field ============= */
+function D01(){
+  const o=ctx2('cv01');if(!o)return;
+  const{ctx,W,H}=o;
+  const wv=val('w_01'),bv=val('b_01'),sh=sval('sh_01');
+  setVal('wv01',wv.toFixed(3));setVal('bv01',Math.round(bv));
+  ctx.fillStyle=COL.bg;ctx.fillRect(0,0,W,H);
+  const wMin=-0.05,wMax=0.35,bMin=-50,bMax=250;
+  const PAD=42;
+  const plotL=PAD,plotR=W-12,plotT=18,plotB=H-30;
+  const mx=w=>plotL+(plotR-plotL)*(w-wMin)/(wMax-wMin);
+  const my=b=>plotB-(plotB-plotT)*(b-bMin)/(bMax-bMin);
+  // Background: J value as color
+  if(sh!=='vec'){
+    const NW=70,NB=70;
+    let Jmax=0;const Jgrid=[];
+    for(let i=0;i<NW;i++){const row=[];for(let j=0;j<NB;j++){const w=wMin+(wMax-wMin)*i/(NW-1);const b=bMin+(bMax-bMin)*j/(NB-1);const J=cost(w,b,HOUSING);row.push(J);if(J>Jmax)Jmax=J;}Jgrid.push(row);}
+    for(let i=0;i<NW-1;i++){for(let j=0;j<NB-1;j++){const J=Jgrid[i][j];const t=Math.min(J/Jmax,1);
+      let r,g,bb;
+      if(t<0.05){r=29;g=158;bb=117;}
+      else if(t<0.15){r=24;g=110;bb=110;}
+      else if(t<0.30){r=35;g=80;bb=120;}
+      else if(t<0.55){r=55;g=70;bb=140;}
+      else if(t<0.80){r=80;g=55;bb=140;}
+      else{r=70;g=35;bb=110;}
+      ctx.fillStyle=`rgb(${r},${g},${bb})`;
+      const w=wMin+(wMax-wMin)*i/(NW-1);const b=bMin+(bMax-bMin)*j/(NB-1);
+      const w2=wMin+(wMax-wMin)*(i+1)/(NW-1);const b2=bMin+(bMax-bMin)*(j+1)/(NB-1);
+      ctx.fillRect(mx(w),my(b2),mx(w2)-mx(w)+0.5,my(b)-my(b2)+0.5);
+    }}
+    // Contour lines
+    const levels=[J_OPT*1.5,J_OPT*4,J_OPT*10,J_OPT*25,J_OPT*60,J_OPT*120];
+    ctx.strokeStyle='rgba(230,237,243,0.25)';ctx.lineWidth=0.8;
+    for(const lv of levels){
+      for(let i=0;i<NW-1;i++){for(let j=0;j<NB-1;j++){
+        const a=Jgrid[i][j],b1=Jgrid[i+1][j],c=Jgrid[i+1][j+1],d=Jgrid[i][j+1];
+        const x0=wMin+(wMax-wMin)*i/(NW-1),x1=wMin+(wMax-wMin)*(i+1)/(NW-1);
+        const y0=bMin+(bMax-bMin)*j/(NB-1),y1=bMin+(bMax-bMin)*(j+1)/(NB-1);
+        const pts=[];
+        if((a-lv)*(b1-lv)<0){const t=(lv-a)/(b1-a);pts.push([x0+t*(x1-x0),y0]);}
+        if((b1-lv)*(c-lv)<0){const t=(lv-b1)/(c-b1);pts.push([x1,y0+t*(y1-y0)]);}
+        if((c-lv)*(d-lv)<0){const t=(lv-c)/(d-c);pts.push([x1+(x0-x1)*t,y1]);}
+        if((d-lv)*(a-lv)<0){const t=(lv-d)/(a-d);pts.push([x0,y1+(y0-y1)*t]);}
+        if(pts.length>=2){ctx.beginPath();ctx.moveTo(mx(pts[0][0]),my(pts[0][1]));ctx.lineTo(mx(pts[1][0]),my(pts[1][1]));ctx.stroke();}
+      }}
+    }
+  }
+  // Vector field: grid of arrows
+  if(sh!=='con'){
+    const NX=14,NY=14;
+    // Find max gradient magnitude for normalization
+    let maxG=0;const grads=[];
+    for(let i=0;i<NX;i++){const row=[];for(let j=0;j<NY;j++){const w=wMin+(wMax-wMin)*(i+0.5)/NX;const b=bMin+(bMax-bMin)*(j+0.5)/NY;const[gw,gb]=gradJ(w,b,HOUSING);
+      // normalize: scale gw by w-range and gb by b-range so they're comparable
+      const ngw=gw*(wMax-wMin),ngb=gb*(bMax-bMin)*0.001;
+      const mag=Math.sqrt(ngw*ngw+ngb*ngb);if(mag>maxG)maxG=mag;
+      row.push({w,b,gw,gb,mag});}grads.push(row);}
+    // draw arrows showing -∇J
+    const arrowMaxLen=Math.min((plotR-plotL)/NX,(plotB-plotT)/NY)*0.85;
+    for(let i=0;i<NX;i++){for(let j=0;j<NY;j++){const c=grads[i][j];if(c.mag<1e-6)continue;
+      // direction in screen space
+      const px0=mx(c.w),py0=my(c.b);
+      const sx=mx(c.w-c.gw*0.001)-px0,sy=my(c.b-c.gb)-py0;
+      const slen=Math.sqrt(sx*sx+sy*sy);
+      const useLen=Math.min(slen*Math.sqrt(c.mag/maxG)*0.5,arrowMaxLen)*1.0;
+      if(slen<1e-6)continue;
+      const ux=sx/slen,uy=sy/slen;
+      const ex=px0+useLen*ux,ey=py0+useLen*uy;
+      const t=clip(c.mag/maxG,0,1);
+      ctx.strokeStyle=t>0.4?COL.tld:'rgba(52,211,153,0.7)';
+      ctx.lineWidth=1+t*1.5;
+      ctx.beginPath();ctx.moveTo(px0,py0);ctx.lineTo(ex,ey);ctx.stroke();
+      // arrowhead
+      const a=Math.atan2(uy,ux);
+      ctx.beginPath();ctx.moveTo(ex,ey);ctx.lineTo(ex-6*Math.cos(a-0.4),ey-6*Math.sin(a-0.4));ctx.lineTo(ex-6*Math.cos(a+0.4),ey-6*Math.sin(a+0.4));ctx.closePath();ctx.fillStyle=ctx.strokeStyle;ctx.fill();
+    }}
+  }
+  // Optimum
+  ctx.fillStyle=COL.am;ctx.font='bold 14px ui-monospace,monospace';ctx.textAlign='center';
+  ctx.fillText('×',mx(W_OPT),my(B_OPT)+5);
+  ctx.font='9px -apple-system,sans-serif';ctx.fillText('w*, b*',mx(W_OPT),my(B_OPT)-7);
+  // Current point with its gradient as a big arrow
+  const[gw,gb]=gradJ(wv,bv,HOUSING);
+  ctx.fillStyle=COL.co;ctx.beginPath();ctx.arc(mx(wv),my(bv),6,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#fff';ctx.lineWidth=1.5;ctx.stroke();
+  // big arrow showing -∇J
+  const px0=mx(wv),py0=my(bv);
+  const sx=mx(wv-gw*0.001)-px0,sy=my(bv-gb)-py0;
+  const slen=Math.sqrt(sx*sx+sy*sy);
+  if(slen>1e-6){const ux=sx/slen,uy=sy/slen;const arrL=40;
+    const ex=px0+arrL*ux,ey=py0+arrL*uy;
+    ctx.strokeStyle=COL.co;ctx.lineWidth=2.5;
+    ctx.beginPath();ctx.moveTo(px0,py0);ctx.lineTo(ex,ey);ctx.stroke();
+    const a=Math.atan2(uy,ux);
+    ctx.beginPath();ctx.moveTo(ex,ey);ctx.lineTo(ex-9*Math.cos(a-0.4),ey-9*Math.sin(a-0.4));ctx.lineTo(ex-9*Math.cos(a+0.4),ey-9*Math.sin(a+0.4));ctx.closePath();ctx.fillStyle=COL.co;ctx.fill();
+  }
+  // axes labels
+  ctx.fillStyle=COL.tx3;ctx.font='9px ui-monospace,monospace';
+  for(let i=0;i<=4;i++){const w=wMin+(wMax-wMin)*i/4;ctx.textAlign='center';ctx.fillText(w.toFixed(2),mx(w),plotB+11);}
+  for(let i=0;i<=4;i++){const b=bMin+(bMax-bMin)*i/4;ctx.textAlign='right';ctx.fillText(Math.round(b),plotL-3,my(b)+3);}
+  ctx.fillStyle=COL.tx3;ctx.font='10px -apple-system,sans-serif';ctx.textAlign='center';ctx.fillText('w (slope)',(plotL+plotR)/2,H-8);
+  ctx.save();ctx.translate(12,(plotT+plotB)/2);ctx.rotate(-Math.PI/2);ctx.fillText('b (intercept)',0,0);ctx.restore();
+  // legend
+  ctx.font='10px -apple-system,sans-serif';ctx.textAlign='left';
+  ctx.strokeStyle=COL.tld;ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(W-180,17);ctx.lineTo(W-160,17);ctx.stroke();
+  ctx.fillStyle=COL.tx2;ctx.fillText('−∇J vector field',W-156,21);
+  ctx.fillStyle=COL.co;ctx.beginPath();ctx.arc(W-175,32,4,0,Math.PI*2);ctx.fill();ctx.fillStyle=COL.tx2;ctx.fillText('your point',W-156,36);
+  // readout
+  const Jc=cost(wv,bv,HOUSING);const norm=Math.sqrt(gw*gw+gb*gb);
+  setText('ei01a','At (w='+wv.toFixed(3)+', b='+Math.round(bv)+'): ∇J = ('+gw.toFixed(1)+', '+gb.toFixed(2)+'), ||∇J|| = '+norm.toFixed(2)+'. J = '+Jc.toFixed(1)+'.');
+  setText('ei01b',norm<5?'Near the bottom of the bowl — gradient magnitude is small. Steps will be tiny.':norm<50?'On a moderate slope. Standard gradient descent works fine here.':'On a steep wall. Gradient is large — standard step would overshoot. This is where ill-conditioning bites.');
+}
+
+/* ============= D02: Anatomy of a step (Taylor) ============= */
+function D02(){
+  const o=ctx2('cv02');if(!o)return;
+  const{ctx,W,H}=o;
+  const wv=val('w_02'),bv=val('b_02'),lr=val('lr_02')*1e-7;
+  setVal('wv02',wv.toFixed(3));setVal('bv02',Math.round(bv));setVal('lrv02',Math.round(val('lr_02')));
+  ctx.fillStyle=COL.bg;ctx.fillRect(0,0,W,H);
+  // Two panels: contour view + bar chart of predicted vs actual ΔJ
+  const PAD=36,gap=16;
+  const lpW=(W-PAD-12-gap)*0.62,rpW=(W-PAD-12-gap)*0.38;
+  const lpL=PAD,lpR=lpL+lpW,lpT=18,lpB=H-30;
+  const rpL=lpR+gap,rpR=W-12,rpT=18,rpB=H-30;
+  // LEFT: contour with single step
+  const wMin=-0.05,wMax=0.35,bMin=-50,bMax=250;
+  const mx=w=>lpL+lpW*(w-wMin)/(wMax-wMin);
+  const my=b=>lpB-(lpB-lpT)*(b-bMin)/(bMax-bMin);
+  const NW=50,NB=50;let Jmax=0;const Jgrid=[];
+  for(let i=0;i<NW;i++){const row=[];for(let j=0;j<NB;j++){const w=wMin+(wMax-wMin)*i/(NW-1);const b=bMin+(bMax-bMin)*j/(NB-1);const J=cost(w,b,HOUSING);row.push(J);if(J>Jmax)Jmax=J;}Jgrid.push(row);}
+  for(let i=0;i<NW-1;i++){for(let j=0;j<NB-1;j++){const J=Jgrid[i][j];const t=Math.min(J/Jmax,1);
+    let r,g,bb;
+    if(t<0.05){r=29;g=158;bb=117;}else if(t<0.15){r=24;g=110;bb=110;}else if(t<0.30){r=35;g=80;bb=120;}else if(t<0.55){r=55;g=70;bb=140;}else{r=80;g=55;bb=140;}
+    ctx.fillStyle=`rgb(${r},${g},${bb})`;
+    const w=wMin+(wMax-wMin)*i/(NW-1);const b=bMin+(bMax-bMin)*j/(NB-1);
+    const w2=wMin+(wMax-wMin)*(i+1)/(NW-1);const b2=bMin+(bMax-bMin)*(j+1)/(NB-1);
+    ctx.fillRect(mx(w),my(b2),mx(w2)-mx(w)+0.5,my(b)-my(b2)+0.5);
+  }}
+  // contour lines
+  const levels=[J_OPT*1.5,J_OPT*4,J_OPT*10,J_OPT*30,J_OPT*80];
+  ctx.strokeStyle='rgba(230,237,243,0.25)';ctx.lineWidth=0.7;
+  for(const lv of levels){for(let i=0;i<NW-1;i++){for(let j=0;j<NB-1;j++){
+    const a=Jgrid[i][j],b1=Jgrid[i+1][j],c=Jgrid[i+1][j+1],d=Jgrid[i][j+1];
+    const x0=wMin+(wMax-wMin)*i/(NW-1),x1=wMin+(wMax-wMin)*(i+1)/(NW-1);
+    const y0=bMin+(bMax-bMin)*j/(NB-1),y1=bMin+(bMax-bMin)*(j+1)/(NB-1);
+    const pts=[];
+    if((a-lv)*(b1-lv)<0){const t=(lv-a)/(b1-a);pts.push([x0+t*(x1-x0),y0]);}
+    if((b1-lv)*(c-lv)<0){const t=(lv-b1)/(c-b1);pts.push([x1,y0+t*(y1-y0)]);}
+    if((c-lv)*(d-lv)<0){const t=(lv-c)/(d-c);pts.push([x1+(x0-x1)*t,y1]);}
+    if((d-lv)*(a-lv)<0){const t=(lv-d)/(a-d);pts.push([x0,y1+(y0-y1)*t]);}
+    if(pts.length>=2){ctx.beginPath();ctx.moveTo(mx(pts[0][0]),my(pts[0][1]));ctx.lineTo(mx(pts[1][0]),my(pts[1][1]));ctx.stroke();}
+  }}}
+  // current point + step
+  const[gw,gb]=gradJ(wv,bv,HOUSING);
+  const wn=wv-lr*gw,bn=bv-lr*gb;
+  // arrow start to end
+  ctx.strokeStyle=COL.co;ctx.lineWidth=2.5;
+  ctx.beginPath();ctx.moveTo(mx(wv),my(bv));ctx.lineTo(mx(wn),my(bn));ctx.stroke();
+  // arrowhead
+  const ax=mx(wn)-mx(wv),ay=my(bn)-my(bv);const an=Math.sqrt(ax*ax+ay*ay);
+  if(an>3){const ang=Math.atan2(ay,ax);ctx.beginPath();ctx.moveTo(mx(wn),my(bn));ctx.lineTo(mx(wn)-8*Math.cos(ang-0.4),my(bn)-8*Math.sin(ang-0.4));ctx.lineTo(mx(wn)-8*Math.cos(ang+0.4),my(bn)-8*Math.sin(ang+0.4));ctx.closePath();ctx.fillStyle=COL.co;ctx.fill();}
+  ctx.fillStyle=COL.am;ctx.beginPath();ctx.arc(mx(wv),my(bv),5,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#fff';ctx.lineWidth=1.2;ctx.stroke();
+  ctx.fillStyle=COL.tld;ctx.beginPath();ctx.arc(mx(wn),my(bn),5,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#fff';ctx.lineWidth=1.2;ctx.stroke();
+  // optimum
+  ctx.fillStyle=COL.am;ctx.font='bold 14px ui-monospace,monospace';ctx.textAlign='center';ctx.fillText('×',mx(W_OPT),my(B_OPT)+5);
+  // axes
+  ctx.fillStyle=COL.tx3;ctx.font='9px ui-monospace,monospace';
+  for(let i=0;i<=4;i++){const w=wMin+(wMax-wMin)*i/4;ctx.textAlign='center';ctx.fillText(w.toFixed(2),mx(w),lpB+11);}
+  ctx.fillStyle=COL.tx2;ctx.font='10px -apple-system,sans-serif';ctx.fillText('w',(lpL+lpR)/2,H-8);
+  ctx.textAlign='left';ctx.fillText('start (amber) → step → new (green)',lpL,lpT-4);
+  // RIGHT: bar comparison
+  const Jc=cost(wv,bv,HOUSING);const Jn=cost(wn,bn,HOUSING);
+  const actualDrop=Jc-Jn;
+  const gradNormSq=gw*gw+gb*gb;
+  const predDrop=lr*gradNormSq; // first-order Taylor: |ΔJ| = α·||∇J||²
+  const maxBar=Math.max(actualDrop,predDrop)*1.2||1;
+  ctx.fillStyle=COL.tx2;ctx.font='10px -apple-system,sans-serif';ctx.textAlign='left';ctx.fillText('Cost decrease ΔJ',rpL,rpT-4);
+  // bars
+  const barW=(rpR-rpL-30)/2;
+  const barH=rpB-rpT-40;
+  // Predicted (bl)
+  const pH=barH*predDrop/maxBar;
+  ctx.fillStyle=COL.bl;ctx.fillRect(rpL+10,rpB-20-pH,barW,pH);
+  ctx.fillStyle=COL.tx2;ctx.font='9px -apple-system,sans-serif';ctx.textAlign='center';ctx.fillText('Predicted',rpL+10+barW/2,rpB-6);
+  ctx.font='10px ui-monospace,monospace';ctx.fillStyle=COL.tld;ctx.fillText(predDrop.toFixed(1),rpL+10+barW/2,rpB-22-pH-3);
+  // Actual (tld)
+  const aH=barH*actualDrop/maxBar;
+  ctx.fillStyle=COL.tld;ctx.fillRect(rpL+10+barW+15,rpB-20-(aH<0?0:aH),barW,Math.abs(aH));
+  if(aH<0){ctx.fillStyle=COL.red;ctx.fillRect(rpL+10+barW+15,rpB-20,barW,-aH);}
+  ctx.fillStyle=COL.tx2;ctx.font='9px -apple-system,sans-serif';ctx.fillText('Actual',rpL+10+barW+15+barW/2,rpB-6);
+  ctx.font='10px ui-monospace,monospace';ctx.fillStyle=COL.tld;ctx.fillText(actualDrop.toFixed(1),rpL+10+barW+15+barW/2,rpB-22-aH-3);
+  setText('ei02a','J before = '+Jc.toFixed(1)+', J after = '+Jn.toFixed(1)+'. ΔJ_actual = '+actualDrop.toFixed(2)+'. Predicted (Taylor 1st-order) = '+predDrop.toFixed(2)+'.');
+  const ratio=actualDrop/(predDrop||1);
+  setText('ei02b',ratio>0.95?'Near-perfect agreement — step is small enough that linear approximation holds exactly.':ratio>0.7?'Reasonable agreement (~'+(ratio*100).toFixed(0)+'%). Second-order curvature is starting to matter.':ratio>0.2?'Significant curvature: actual drop only '+(ratio*100).toFixed(0)+'% of predicted. Step is leaving the linear regime.':ratio>0?'Very large step: linearisation fails, actual drop tiny or negative. Reduce α!':'COST INCREASED. Step too aggressive — overshooting the bowl.');
+}
+
+/* ============= D03: Four learning rates compared ============= */
+function D03(){
+  const o=ctx2('cv03');if(!o)return;
+  const{ctx,W,H}=o;
+  const w0=val('w0_03'),b0=val('b0_03'),steps=ival('st_03');
+  setVal('w0v03',w0.toFixed(3));setVal('b0v03',Math.round(b0));setVal('stv03',steps);
+  ctx.fillStyle=COL.bg;ctx.fillRect(0,0,W,H);
+  // Layout: contour on left, loss-vs-iter on right
+  const PAD=36,gap=16;
+  const lpW=(W-PAD-12-gap)*0.6,rpW=(W-PAD-12-gap)*0.4;
+  const lpL=PAD,lpR=lpL+lpW,lpT=18,lpB=H-30;
+  const rpL=lpR+gap,rpR=W-12,rpT=18,rpB=H-30;
+  const wMin=-0.05,wMax=0.35,bMin=-50,bMax=250;
+  const mx=w=>lpL+lpW*(w-wMin)/(wMax-wMin);
+  const my=b=>lpB-(lpB-lpT)*(b-bMin)/(bMax-bMin);
+  // Render contour
+  const NW=55,NB=55;let Jmax=0;const Jgrid=[];
+  for(let i=0;i<NW;i++){const row=[];for(let j=0;j<NB;j++){const w=wMin+(wMax-wMin)*i/(NW-1);const b=bMin+(bMax-bMin)*j/(NB-1);const J=cost(w,b,HOUSING);row.push(J);if(J>Jmax)Jmax=J;}Jgrid.push(row);}
+  for(let i=0;i<NW-1;i++){for(let j=0;j<NB-1;j++){const J=Jgrid[i][j];const t=Math.min(J/Jmax,1);
+    let r,g,bb;
+    if(t<0.05){r=29;g=158;bb=117;}else if(t<0.15){r=24;g=110;bb=110;}else if(t<0.30){r=35;g=80;bb=120;}else if(t<0.55){r=55;g=70;bb=140;}else{r=80;g=55;bb=140;}
+    ctx.fillStyle=`rgb(${r},${g},${bb})`;
+    const w=wMin+(wMax-wMin)*i/(NW-1);const b=bMin+(bMax-bMin)*j/(NB-1);
+    const w2=wMin+(wMax-wMin)*(i+1)/(NW-1);const b2=bMin+(bMax-bMin)*(j+1)/(NB-1);
+    ctx.fillRect(mx(w),my(b2),mx(w2)-mx(w)+0.5,my(b)-my(b2)+0.5);
+  }}
+  const levels=[J_OPT*2,J_OPT*8,J_OPT*30,J_OPT*100];
+  ctx.strokeStyle='rgba(230,237,243,0.2)';ctx.lineWidth=0.6;
+  for(const lv of levels){for(let i=0;i<NW-1;i++){for(let j=0;j<NB-1;j++){
+    const a=Jgrid[i][j],b1=Jgrid[i+1][j],c=Jgrid[i+1][j+1],d=Jgrid[i][j+1];
+    const x0=wMin+(wMax-wMin)*i/(NW-1),x1=wMin+(wMax-wMin)*(i+1)/(NW-1);
+    const y0=bMin+(bMax-bMin)*j/(NB-1),y1=bMin+(bMax-bMin)*(j+1)/(NB-1);
+    const pts=[];
+    if((a-lv)*(b1-lv)<0){const t=(lv-a)/(b1-a);pts.push([x0+t*(x1-x0),y0]);}
+    if((b1-lv)*(c-lv)<0){const t=(lv-b1)/(c-b1);pts.push([x1,y0+t*(y1-y0)]);}
+    if((c-lv)*(d-lv)<0){const t=(lv-c)/(d-c);pts.push([x1+(x0-x1)*t,y1]);}
+    if((d-lv)*(a-lv)<0){const t=(lv-d)/(a-d);pts.push([x0,y1+(y0-y1)*t]);}
+    if(pts.length>=2){ctx.beginPath();ctx.moveTo(mx(pts[0][0]),my(pts[0][1]));ctx.lineTo(mx(pts[1][0]),my(pts[1][1]));ctx.stroke();}
+  }}}
+  // Run 4 trajectories with different α
+  const ALPHAS=[5e-9,1e-7,1.4e-6,5e-6];
+  const COLS=[COL.pu,COL.tld,COL.am,COL.red];
+  const NAMES=['α=5e-9 (too small)','α=1e-7 (good)','α=1.4e-6 (oscillating)','α=5e-6 (diverging)'];
+  const trajectories=[];
+  for(let k=0;k<4;k++){
+    let cw=w0,cb=b0;const tr=[[cw,cb,cost(cw,cb,HOUSING)]];
+    for(let s=0;s<steps;s++){const[gw,gb]=gradJ(cw,cb,HOUSING);cw-=ALPHAS[k]*gw;cb-=ALPHAS[k]*gb;
+      if(!isFinite(cw)||Math.abs(cw)>10)break;tr.push([cw,cb,cost(cw,cb,HOUSING)]);}
+    trajectories.push(tr);
+  }
+  // Draw trajectories on contour
+  for(let k=0;k<4;k++){const tr=trajectories[k];
+    ctx.strokeStyle=COLS[k];ctx.lineWidth=1.8;ctx.beginPath();
+    for(let i=0;i<tr.length;i++){const w=tr[i][0],b=tr[i][1];if(Math.abs(w)>1||Math.abs(b)>500)break;if(i===0)ctx.moveTo(mx(clip(w,wMin,wMax)),my(clip(b,bMin,bMax)));else ctx.lineTo(mx(clip(w,wMin,wMax)),my(clip(b,bMin,bMax)));}
+    ctx.stroke();
+    const lst=tr[tr.length-1];if(Math.abs(lst[0])<1&&Math.abs(lst[1])<500){ctx.fillStyle=COLS[k];ctx.beginPath();ctx.arc(mx(clip(lst[0],wMin,wMax)),my(clip(lst[1],bMin,bMax)),3.5,0,Math.PI*2);ctx.fill();}
+  }
+  // start
+  ctx.fillStyle=COL.tx;ctx.beginPath();ctx.arc(mx(w0),my(b0),5,0,Math.PI*2);ctx.fill();
+  // optimum
+  ctx.fillStyle=COL.am;ctx.font='bold 14px ui-monospace,monospace';ctx.textAlign='center';ctx.fillText('×',mx(W_OPT),my(B_OPT)+5);
+  // axes
+  ctx.fillStyle=COL.tx3;ctx.font='9px ui-monospace,monospace';
+  for(let i=0;i<=4;i++){const w=wMin+(wMax-wMin)*i/4;ctx.textAlign='center';ctx.fillText(w.toFixed(2),mx(w),lpB+11);}
+  ctx.fillStyle=COL.tx2;ctx.font='10px -apple-system,sans-serif';ctx.fillText('contour view',lpL,lpT-4);
+  // RIGHT: loss vs iter (log scale)
+  ctx.fillStyle=COL.tx2;ctx.font='10px -apple-system,sans-serif';ctx.textAlign='left';ctx.fillText('log J vs iteration',rpL,rpT-4);
+  // Find max steps drawn
+  const maxJ=Math.max(...trajectories.flatMap(t=>t.map(p=>p[2])).filter(v=>isFinite(v)));
+  const minJ=Math.max(J_OPT*0.9,1e-3);
+  const lJmax=Math.log10(maxJ),lJmin=Math.log10(minJ);
+  const mxR=t=>rpL+(rpR-rpL)*t/steps,myR=J=>rpB-(rpB-rpT-10)*(Math.log10(Math.max(J,minJ))-lJmin)/(lJmax-lJmin);
+  ctx.strokeStyle=COL.bdr;ctx.lineWidth=0.5;
+  for(let i=0;i<=4;i++){ctx.beginPath();ctx.moveTo(rpL+i*(rpR-rpL)/4,rpT);ctx.lineTo(rpL+i*(rpR-rpL)/4,rpB-10);ctx.stroke();
+                        ctx.beginPath();ctx.moveTo(rpL,rpT+i*(rpB-rpT-10)/4);ctx.lineTo(rpR,rpT+i*(rpB-rpT-10)/4);ctx.stroke();}
+  for(let k=0;k<4;k++){ctx.strokeStyle=COLS[k];ctx.lineWidth=1.8;ctx.beginPath();
+    for(let i=0;i<trajectories[k].length;i++){const J=trajectories[k][i][2];if(!isFinite(J))break;if(i===0)ctx.moveTo(mxR(i),myR(J));else ctx.lineTo(mxR(i),myR(J));}
+    ctx.stroke();
+  }
+  // legend
+  ctx.font='9px -apple-system,sans-serif';let yL=rpT+12;
+  for(let k=0;k<4;k++){ctx.fillStyle=COLS[k];ctx.fillRect(rpL+5,yL-3,10,2);ctx.fillStyle=COL.tx2;ctx.fillText(NAMES[k],rpL+19,yL);yL+=12;}
+  ctx.fillStyle=COL.tx3;ctx.font='9px -apple-system,sans-serif';ctx.textAlign='center';ctx.fillText('iteration',(rpL+rpR)/2,H-8);
+  // readouts
+  const finals=trajectories.map(t=>t[t.length-1][2]);
+  setText('ei03a','Final J after '+steps+' steps: '+NAMES.map((n,i)=>n.split(' ')[0]+'='+(isFinite(finals[i])?finals[i].toFixed(0):'∞')).join(', ')+'. Optimum J* = '+J_OPT.toFixed(0));
+  setText('ei03b','Tiny α: still descending but slowly. Good α: log-loss is a clean line (geometric convergence). Oscillating α: zigzag in contour, jagged in log-loss. Diverging α: log-loss skyrocketing.');
+}
+
+/* ============= D04: Batch / SGD / Mini-batch ============= */
+function D04(){
+  const o=ctx2('cv04');if(!o)return;
+  const{ctx,W,H}=o;
+  const steps=ival('st_04'),mb=ival('mb_04'),sd=ival('sd_04');
+  setVal('stv04',steps);setVal('mbv04',mb);setVal('sdv04',sd);
+  ctx.fillStyle=COL.bg;ctx.fillRect(0,0,W,H);
+  const PAD=36;
+  const plotL=PAD,plotR=W-12,plotT=18,plotB=H-30;
+  const wMin=-0.05,wMax=0.35,bMin=-50,bMax=250;
+  const mx=w=>plotL+(plotR-plotL)*(w-wMin)/(wMax-wMin);
+  const my=b=>plotB-(plotB-plotT)*(b-bMin)/(bMax-bMin);
+  // Background contour
+  const NW=55,NB=55;let Jmax=0;const Jgrid=[];
+  for(let i=0;i<NW;i++){const row=[];for(let j=0;j<NB;j++){const w=wMin+(wMax-wMin)*i/(NW-1);const b=bMin+(bMax-bMin)*j/(NB-1);const J=cost(w,b,HOUSING);row.push(J);if(J>Jmax)Jmax=J;}Jgrid.push(row);}
+  for(let i=0;i<NW-1;i++){for(let j=0;j<NB-1;j++){const J=Jgrid[i][j];const t=Math.min(J/Jmax,1);
+    let r,g,bb;
+    if(t<0.05){r=29;g=158;bb=117;}else if(t<0.15){r=24;g=110;bb=110;}else if(t<0.30){r=35;g=80;bb=120;}else if(t<0.55){r=55;g=70;bb=140;}else{r=80;g=55;bb=140;}
+    ctx.fillStyle=`rgb(${r},${g},${bb})`;
+    const w=wMin+(wMax-wMin)*i/(NW-1);const b=bMin+(bMax-bMin)*j/(NB-1);
+    const w2=wMin+(wMax-wMin)*(i+1)/(NW-1);const b2=bMin+(bMax-bMin)*(j+1)/(NB-1);
+    ctx.fillRect(mx(w),my(b2),mx(w2)-mx(w)+0.5,my(b)-my(b2)+0.5);
+  }}
+  const levels=[J_OPT*1.5,J_OPT*4,J_OPT*12,J_OPT*40];
+  ctx.strokeStyle='rgba(230,237,243,0.22)';ctx.lineWidth=0.6;
+  for(const lv of levels){for(let i=0;i<NW-1;i++){for(let j=0;j<NB-1;j++){
+    const a=Jgrid[i][j],b1=Jgrid[i+1][j],c=Jgrid[i+1][j+1],d=Jgrid[i][j+1];
+    const x0=wMin+(wMax-wMin)*i/(NW-1),x1=wMin+(wMax-wMin)*(i+1)/(NW-1);
+    const y0=bMin+(bMax-bMin)*j/(NB-1),y1=bMin+(bMax-bMin)*(j+1)/(NB-1);
+    const pts=[];
+    if((a-lv)*(b1-lv)<0){const t=(lv-a)/(b1-a);pts.push([x0+t*(x1-x0),y0]);}
+    if((b1-lv)*(c-lv)<0){const t=(lv-b1)/(c-b1);pts.push([x1,y0+t*(y1-y0)]);}
+    if((c-lv)*(d-lv)<0){const t=(lv-c)/(d-c);pts.push([x1+(x0-x1)*t,y1]);}
+    if((d-lv)*(a-lv)<0){const t=(lv-d)/(a-d);pts.push([x0,y1+(y0-y1)*t]);}
+    if(pts.length>=2){ctx.beginPath();ctx.moveTo(mx(pts[0][0]),my(pts[0][1]));ctx.lineTo(mx(pts[1][0]),my(pts[1][1]));ctx.stroke();}
+  }}}
+  // Run three trajectories with different batch sizes
+  const w0=0.30,b0=220;
+  const lr=8e-7;
+  const cfgs=[{B:30,col:COL.tld,name:'Batch (B=30)'},{B:mb,col:COL.co,name:'Mini-batch (B='+mb+')'},{B:1,col:COL.pu,name:'SGD (B=1)'}];
+  const rng=mulberry32(sd*1000+1);
+  // Pre-shuffle indices for reproducibility per config
+  function gradBatch(w,b,B){
+    let dw=0,db=0;
+    if(B>=HOUSING.length){return gradJ(w,b,HOUSING);}
+    for(let k=0;k<B;k++){const idx=Math.floor(rng()*HOUSING.length);const[x,y]=HOUSING[idx];const e=w*x+b-y;dw+=e*x;db+=e;}
+    return[dw/B,db/B];
+  }
+  for(const cfg of cfgs){
+    let cw=w0,cb=b0;const tr=[[cw,cb]];
+    for(let s=0;s<steps;s++){const[gw,gb]=gradBatch(cw,cb,cfg.B);cw-=lr*gw;cb-=lr*gb;tr.push([cw,cb]);}
+    ctx.strokeStyle=cfg.col;ctx.lineWidth=cfg.B===30?2.2:cfg.B===1?1.2:1.6;ctx.globalAlpha=cfg.B===1?0.7:1;
+    ctx.beginPath();
+    for(let i=0;i<tr.length;i++){const[w,b]=tr[i];if(i===0)ctx.moveTo(mx(clip(w,wMin,wMax)),my(clip(b,bMin,bMax)));else ctx.lineTo(mx(clip(w,wMin,wMax)),my(clip(b,bMin,bMax)));}
+    ctx.stroke();ctx.globalAlpha=1;
+    const lst=tr[tr.length-1];ctx.fillStyle=cfg.col;ctx.beginPath();ctx.arc(mx(clip(lst[0],wMin,wMax)),my(clip(lst[1],bMin,bMax)),4,0,Math.PI*2);ctx.fill();
+  }
+  // start
+  ctx.fillStyle=COL.tx;ctx.beginPath();ctx.arc(mx(w0),my(b0),5,0,Math.PI*2);ctx.fill();
+  // optimum
+  ctx.fillStyle=COL.am;ctx.font='bold 14px ui-monospace,monospace';ctx.textAlign='center';ctx.fillText('×',mx(W_OPT),my(B_OPT)+5);
+  // legend
+  ctx.font='10px -apple-system,sans-serif';ctx.textAlign='left';let yL=lpT=plotT+8;
+  for(const cfg of cfgs){ctx.strokeStyle=cfg.col;ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(plotR-180,yL);ctx.lineTo(plotR-160,yL);ctx.stroke();
+    ctx.fillStyle=COL.tx2;ctx.fillText(cfg.name,plotR-156,yL+4);yL+=14;}
+  // axis labels
+  ctx.fillStyle=COL.tx3;ctx.font='9px ui-monospace,monospace';
+  for(let i=0;i<=4;i++){const w=wMin+(wMax-wMin)*i/4;ctx.textAlign='center';ctx.fillText(w.toFixed(2),mx(w),plotB+11);}
+  ctx.fillStyle=COL.tx2;ctx.font='10px -apple-system,sans-serif';ctx.fillText('contour: same start, three batch sizes',plotL,plotT-4);
+  setText('ei04a','Batch (teal): smooth, exact gradient. Mini-batch B='+mb+' (orange): some wobble, mostly correct. SGD B=1 (purple): very noisy each step but still moves toward optimum on average.');
+  setText('ei04b','SGD\'s noise is a feature: it explores more of the cost surface, helps escape sharp minima, and finds flatter (better-generalising) regions. The variance shrinks as 1/B — bigger batch = less noise per step but more compute.');
+}
+
+/* ============= D05: Momentum on 3D bowl ============= */
+function D05(){
+  const o=ctx2('cv05');if(!o)return;
+  const{ctx,W,H}=o;
+  const beta=val('be_05'),steps=ival('st_05'),az=val('az_05'),el=val('el_05');
+  setVal('bev05',beta.toFixed(2));setVal('stv05',steps);setVal('azv05',Math.round(az)+'°');setVal('elv05',Math.round(el)+'°');
+  ctx.fillStyle=COL.bg;ctx.fillRect(0,0,W,H);
+  // Same housing bowl as D05/D06 from cost-fn file
+  const wMin=-0.05,wMax=0.35,bMin=-50,bMax=250;
+  const N=20;const grid=[];let Jmax=0;
+  for(let i=0;i<=N;i++){const row=[];for(let j=0;j<=N;j++){const w=wMin+(wMax-wMin)*i/N;const b=bMin+(bMax-bMin)*j/N;const J=cost(w,b,HOUSING);row.push({w,b,J});if(J>Jmax)Jmax=J;}grid.push(row);}
+  const cx=W/2,cy=H/2+30;
+  const scale=Math.min(W,H)*0.30;
+  function projWB(w,b,J){const x=(w-(wMin+wMax)/2)/((wMax-wMin)/2);const y=(b-(bMin+bMax)/2)/((bMax-bMin)/2);const z=(J/Jmax)*1.4-0.7;return project3D(x,y,z,az,el,scale,cx,cy);}
+  // Floor grid
+  ctx.strokeStyle='rgba(72,79,88,0.5)';ctx.lineWidth=0.5;
+  for(let k=0;k<=8;k++){
+    const w=wMin+(wMax-wMin)*k/8;const p1=projWB(w,bMin,0);const p2=projWB(w,bMax,0);
+    ctx.beginPath();ctx.moveTo(p1.px,p1.py);ctx.lineTo(p2.px,p2.py);ctx.stroke();
+    const b=bMin+(bMax-bMin)*k/8;const q1=projWB(wMin,b,0);const q2=projWB(wMax,b,0);
+    ctx.beginPath();ctx.moveTo(q1.px,q1.py);ctx.lineTo(q2.px,q2.py);ctx.stroke();
+  }
+  // Bowl cells
+  const proj=[];for(let i=0;i<=N;i++){const row=[];for(let j=0;j<=N;j++){const p=projWB(grid[i][j].w,grid[i][j].b,grid[i][j].J);row.push({...p,J:grid[i][j].J});}proj.push(row);}
+  const cells=[];
+  for(let i=0;i<N;i++){for(let j=0;j<N;j++){const a=proj[i][j],b=proj[i+1][j],c=proj[i+1][j+1],d=proj[i][j+1];cells.push({a,b,c,d,depth:(a.depth+b.depth+c.depth+d.depth)/4,J:(grid[i][j].J+grid[i+1][j].J+grid[i+1][j+1].J+grid[i][j+1].J)/4});}}
+  cells.sort((a,b)=>a.depth-b.depth);
+  for(const cell of cells){
+    const t=clip(cell.J/Jmax,0,1);
+    let r,g,bb;
+    if(t<0.05){r=29;g=158;bb=117;}else if(t<0.12){r=24;g=128;bb=110;}else if(t<0.25){r=35;g=90;bb=120;}else if(t<0.5){r=55;g=80;bb=140;}else if(t<0.75){r=80;g=60;bb=150;}else{r=100;g=50;bb=140;}
+    ctx.fillStyle=`rgb(${r},${g},${bb})`;ctx.globalAlpha=0.78;
+    ctx.beginPath();ctx.moveTo(cell.a.px,cell.a.py);ctx.lineTo(cell.b.px,cell.b.py);ctx.lineTo(cell.c.px,cell.c.py);ctx.lineTo(cell.d.px,cell.d.py);ctx.closePath();ctx.fill();
+    ctx.globalAlpha=1;ctx.strokeStyle='rgba(13,17,23,0.3)';ctx.lineWidth=0.4;ctx.stroke();
+  }
+  // Two trajectories: plain GD and momentum
+  const w0=0.30,b0=220;const lr=8e-7;
+  // Plain GD
+  let cw=w0,cb=b0;const tr1=[[cw,cb,cost(cw,cb,HOUSING)]];
+  for(let s=0;s<steps;s++){const[gw,gb]=gradJ(cw,cb,HOUSING);cw-=lr*gw;cb-=lr*gb;tr1.push([cw,cb,cost(cw,cb,HOUSING)]);}
+  // Momentum
+  let mw=w0,mb_=b0;let vw=0,vb=0;const tr2=[[mw,mb_,cost(mw,mb_,HOUSING)]];
+  for(let s=0;s<steps;s++){const[gw,gb]=gradJ(mw,mb_,HOUSING);vw=beta*vw+gw;vb=beta*vb+gb;mw-=lr*vw;mb_-=lr*vb;tr2.push([mw,mb_,cost(mw,mb_,HOUSING)]);}
+  // Draw trajectories on bowl
+  for(const[tr,col,name]of[[tr1,COL.bl,'plain GD'],[tr2,COL.co,'momentum']]){
+    ctx.strokeStyle=col;ctx.lineWidth=2.5;ctx.beginPath();
+    for(let i=0;i<tr.length;i++){const p=projWB(tr[i][0],tr[i][1],tr[i][2]);if(i===0)ctx.moveTo(p.px,p.py);else ctx.lineTo(p.px,p.py);}
+    ctx.stroke();
+    // shadow
+    ctx.strokeStyle=col;ctx.globalAlpha=0.45;ctx.setLineDash([3,3]);ctx.lineWidth=1.4;ctx.beginPath();
+    for(let i=0;i<tr.length;i++){const p=projWB(tr[i][0],tr[i][1],0);if(i===0)ctx.moveTo(p.px,p.py);else ctx.lineTo(p.px,p.py);}
+    ctx.stroke();ctx.setLineDash([]);ctx.globalAlpha=1;
+    const lst=tr[tr.length-1];const p=projWB(lst[0],lst[1],lst[2]);ctx.fillStyle=col;ctx.beginPath();ctx.arc(p.px,p.py,5,0,Math.PI*2);ctx.fill();
+  }
+  // Optimum
+  const opt=projWB(W_OPT,B_OPT,J_OPT);ctx.fillStyle=COL.am;ctx.beginPath();ctx.arc(opt.px,opt.py,4,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#fff';ctx.lineWidth=1.5;ctx.stroke();
+  // Legend
+  ctx.font='10px -apple-system,sans-serif';ctx.textAlign='left';
+  ctx.fillStyle=COL.bl;ctx.beginPath();ctx.arc(W-180,18,4,0,Math.PI*2);ctx.fill();ctx.fillStyle=COL.tx2;ctx.fillText('plain GD',W-170,22);
+  ctx.fillStyle=COL.co;ctx.beginPath();ctx.arc(W-180,32,4,0,Math.PI*2);ctx.fill();ctx.fillStyle=COL.tx2;ctx.fillText('momentum (β='+beta.toFixed(2)+')',W-170,36);
+  ctx.fillStyle=COL.am;ctx.beginPath();ctx.arc(W-180,46,3.5,0,Math.PI*2);ctx.fill();ctx.fillStyle=COL.tx2;ctx.fillText('optimum',W-170,50);
+  const f1=tr1[tr1.length-1],f2=tr2[tr2.length-1];
+  setText('ei05a','After '+steps+' steps: plain GD J = '+f1[2].toFixed(0)+', momentum J = '+f2[2].toFixed(0)+'. Optimum J* = '+J_OPT.toFixed(0)+'. '+(f2[2]<f1[2]?'Momentum is ahead.':'GD has caught up — momentum still settling.'));
+  setText('ei05b','Momentum builds velocity from past gradients. On a smooth bowl with consistent gradient direction, velocity adds up — each step moves further than plain GD. The acceleration is most pronounced when gradients are repeatedly in the same direction.');
+}
+
+/* ============= D06: Narrow valley — SGD vs Momentum vs Adam ============= */
+function D06(){
+  const o=ctx2('cv06');if(!o)return;
+  const{ctx,W,H}=o;
+  const kappa=ival('ks_06'),steps=ival('st_06'),lr=val('lr_06');
+  setVal('ksv06',kappa);setVal('stv06',steps);setVal('lrv06',lr.toFixed(2));
+  ctx.fillStyle=COL.bg;ctx.fillRect(0,0,W,H);
+  const PAD=36,gap=16;
+  const lpW=(W-PAD-12-gap)*0.62,rpW=(W-PAD-12-gap)*0.38;
+  const lpL=PAD,lpR=lpL+lpW,lpT=18,lpB=H-30;
+  const rpL=lpR+gap,rpR=W-12,rpT=18,rpB=H-30;
+  // Synthetic narrow valley: J(w,b) = ½(w² + κ·b²). ∇J = (w, κ·b)
+  // w-axis range [-1.5, 1.5], b-axis range [-1.5, 1.5]
+  const wMin=-1.5,wMax=1.5,bMin=-1.5,bMax=1.5;
+  const mx=w=>lpL+lpW*(w-wMin)/(wMax-wMin);
+  const my=b=>lpB-(lpB-lpT)*(b-bMin)/(bMax-bMin);
+  function J6(w,b){return 0.5*(w*w+kappa*b*b);}
+  function g6(w,b){return[w,kappa*b];}
+  // Background
+  const NW=55,NB=55;let Jmax=0;const Jgrid=[];
+  for(let i=0;i<NW;i++){const row=[];for(let j=0;j<NB;j++){const w=wMin+(wMax-wMin)*i/(NW-1);const b=bMin+(bMax-bMin)*j/(NB-1);const J=J6(w,b);row.push(J);if(J>Jmax)Jmax=J;}Jgrid.push(row);}
+  for(let i=0;i<NW-1;i++){for(let j=0;j<NB-1;j++){const J=Jgrid[i][j];const t=Math.min(J/Jmax,1);
+    let r,g,bb;
+    if(t<0.05){r=29;g=158;bb=117;}else if(t<0.15){r=24;g=110;bb=110;}else if(t<0.30){r=35;g=80;bb=120;}else if(t<0.55){r=55;g=70;bb=140;}else{r=80;g=55;bb=140;}
+    ctx.fillStyle=`rgb(${r},${g},${bb})`;
+    const w=wMin+(wMax-wMin)*i/(NW-1);const b=bMin+(bMax-bMin)*j/(NB-1);
+    const w2=wMin+(wMax-wMin)*(i+1)/(NW-1);const b2=bMin+(bMax-bMin)*(j+1)/(NB-1);
+    ctx.fillRect(mx(w),my(b2),mx(w2)-mx(w)+0.5,my(b)-my(b2)+0.5);
+  }}
+  const levels=[Jmax*0.02,Jmax*0.08,Jmax*0.2,Jmax*0.45,Jmax*0.8];
+  ctx.strokeStyle='rgba(230,237,243,0.25)';ctx.lineWidth=0.7;
+  for(const lv of levels){for(let i=0;i<NW-1;i++){for(let j=0;j<NB-1;j++){
+    const a=Jgrid[i][j],b1=Jgrid[i+1][j],c=Jgrid[i+1][j+1],d=Jgrid[i][j+1];
+    const x0=wMin+(wMax-wMin)*i/(NW-1),x1=wMin+(wMax-wMin)*(i+1)/(NW-1);
+    const y0=bMin+(bMax-bMin)*j/(NB-1),y1=bMin+(bMax-bMin)*(j+1)/(NB-1);
+    const pts=[];
+    if((a-lv)*(b1-lv)<0){const t=(lv-a)/(b1-a);pts.push([x0+t*(x1-x0),y0]);}
+    if((b1-lv)*(c-lv)<0){const t=(lv-b1)/(c-b1);pts.push([x1,y0+t*(y1-y0)]);}
+    if((c-lv)*(d-lv)<0){const t=(lv-c)/(d-c);pts.push([x1+(x0-x1)*t,y1]);}
+    if((d-lv)*(a-lv)<0){const t=(lv-d)/(a-d);pts.push([x0,y1+(y0-y1)*t]);}
+    if(pts.length>=2){ctx.beginPath();ctx.moveTo(mx(pts[0][0]),my(pts[0][1]));ctx.lineTo(mx(pts[1][0]),my(pts[1][1]));ctx.stroke();}
+  }}}
+  // Three optimizers
+  const w0=-1.2,b0=1.2;
+  // SGD
+  let cw=w0,cb=b0;const trS=[[cw,cb,J6(cw,cb)]];
+  for(let s=0;s<steps;s++){const[gw,gb]=g6(cw,cb);cw-=lr*gw;cb-=lr*gb;if(!isFinite(cw))break;trS.push([cw,cb,J6(cw,cb)]);}
+  // Momentum
+  cw=w0;cb=b0;let vw=0,vb=0;const trM=[[cw,cb,J6(cw,cb)]];
+  for(let s=0;s<steps;s++){const[gw,gb]=g6(cw,cb);vw=0.9*vw+gw;vb=0.9*vb+gb;cw-=lr*vw;cb-=lr*vb;if(!isFinite(cw))break;trM.push([cw,cb,J6(cw,cb)]);}
+  // Adam
+  cw=w0;cb=b0;let mw_=0,mb_=0,nw=0,nb=0;const eps=1e-8;const trA=[[cw,cb,J6(cw,cb)]];
+  for(let s=0;s<steps;s++){const[gw,gb]=g6(cw,cb);mw_=0.9*mw_+0.1*gw;mb_=0.9*mb_+0.1*gb;nw=0.999*nw+0.001*gw*gw;nb=0.999*nb+0.001*gb*gb;
+    const t=s+1;const mhw=mw_/(1-Math.pow(0.9,t)),mhb=mb_/(1-Math.pow(0.9,t)),vhw=nw/(1-Math.pow(0.999,t)),vhb=nb/(1-Math.pow(0.999,t));
+    cw-=lr*mhw/(Math.sqrt(vhw)+eps);cb-=lr*mhb/(Math.sqrt(vhb)+eps);if(!isFinite(cw))break;trA.push([cw,cb,J6(cw,cb)]);}
+  // Draw trajectories
+  for(const[tr,col,name]of[[trS,COL.pu,'SGD'],[trM,COL.bl,'Momentum'],[trA,COL.tld,'Adam']]){
+    ctx.strokeStyle=col;ctx.lineWidth=1.8;ctx.beginPath();
+    for(let i=0;i<tr.length;i++){const w=tr[i][0],b=tr[i][1];if(Math.abs(w)>3||Math.abs(b)>3)break;if(i===0)ctx.moveTo(mx(clip(w,wMin,wMax)),my(clip(b,bMin,bMax)));else ctx.lineTo(mx(clip(w,wMin,wMax)),my(clip(b,bMin,bMax)));}
+    ctx.stroke();
+    const lst=tr[tr.length-1];if(Math.abs(lst[0])<3&&Math.abs(lst[1])<3){ctx.fillStyle=col;ctx.beginPath();ctx.arc(mx(clip(lst[0],wMin,wMax)),my(clip(lst[1],bMin,bMax)),3.5,0,Math.PI*2);ctx.fill();}
+  }
+  // Start + optimum
+  ctx.fillStyle=COL.tx;ctx.beginPath();ctx.arc(mx(w0),my(b0),5,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle=COL.am;ctx.font='bold 14px ui-monospace,monospace';ctx.textAlign='center';ctx.fillText('×',mx(0),my(0)+5);
+  ctx.fillStyle=COL.tx2;ctx.font='10px -apple-system,sans-serif';ctx.textAlign='left';ctx.fillText('narrow valley J(w,b) = ½(w² + '+kappa+'·b²)',lpL,lpT-4);
+  // Right panel: log loss vs iter
+  ctx.fillStyle=COL.tx2;ctx.font='10px -apple-system,sans-serif';ctx.textAlign='left';ctx.fillText('log J vs iter',rpL,rpT-4);
+  const allJ=[...trS,...trM,...trA].map(p=>p[2]).filter(v=>isFinite(v)&&v>0);
+  const Jhi=Math.max(...allJ),Jlo=Math.max(Math.min(...allJ),1e-8);
+  const lJh=Math.log10(Jhi),lJl=Math.log10(Jlo);
+  const mxR=t=>rpL+(rpR-rpL)*t/steps,myR=J=>rpB-(rpB-rpT-10)*(Math.log10(Math.max(J,Jlo))-lJl)/(lJh-lJl||1);
+  ctx.strokeStyle=COL.bdr;ctx.lineWidth=0.5;
+  for(let i=0;i<=4;i++){ctx.beginPath();ctx.moveTo(rpL+i*(rpR-rpL)/4,rpT);ctx.lineTo(rpL+i*(rpR-rpL)/4,rpB-10);ctx.stroke();
+                        ctx.beginPath();ctx.moveTo(rpL,rpT+i*(rpB-rpT-10)/4);ctx.lineTo(rpR,rpT+i*(rpB-rpT-10)/4);ctx.stroke();}
+  for(const[tr,col]of[[trS,COL.pu],[trM,COL.bl],[trA,COL.tld]]){
+    ctx.strokeStyle=col;ctx.lineWidth=1.8;ctx.beginPath();
+    for(let i=0;i<tr.length;i++){const J=tr[i][2];if(!isFinite(J))break;if(i===0)ctx.moveTo(mxR(i),myR(J));else ctx.lineTo(mxR(i),myR(J));}
+    ctx.stroke();
+  }
+  // legend
+  ctx.font='9px -apple-system,sans-serif';let yL=rpT+12;
+  for(const[col,name]of[[COL.pu,'SGD'],[COL.bl,'Momentum (β=0.9)'],[COL.tld,'Adam']]){ctx.fillStyle=col;ctx.fillRect(rpL+5,yL-3,10,2);ctx.fillStyle=COL.tx2;ctx.fillText(name,rpL+19,yL);yL+=12;}
+  ctx.fillStyle=COL.tx3;ctx.font='9px -apple-system,sans-serif';ctx.textAlign='center';ctx.fillText('iteration',(rpL+rpR)/2,H-8);
+  const fS=trS[trS.length-1][2],fM=trM[trM.length-1][2],fA=trA[trA.length-1][2];
+  setText('ei06a','Final J after '+steps+' steps — SGD: '+(isFinite(fS)?fS.toExponential(2):'∞')+', Momentum: '+(isFinite(fM)?fM.toExponential(2):'∞')+', Adam: '+(isFinite(fA)?fA.toExponential(2):'∞'));
+  setText('ei06b','κ='+kappa+': b-direction is '+kappa+'× steeper. Plain SGD must use small α to avoid overshoot in b — but then w-direction barely moves. Adam tracks per-parameter gradient magnitude, takes large steps in shallow w, small in steep b. Result: nearly diagonal path to minimum.');
+}
+
+/* ============= D07: Saddle point (3D) ============= */
+function D07(){
+  const o=ctx2('cv07');if(!o)return;
+  const{ctx,W,H}=o;
+  const sx=val('sx_07'),sy=val('sy_07'),steps=ival('st_07'),md=sval('md_07'),az=val('az_07'),el=val('el_07');
+  setVal('sxv07',sx.toFixed(2));setVal('syv07',sy.toFixed(2));setVal('stv07',steps);setVal('azv07',Math.round(az)+'°');setVal('elv07',Math.round(el)+'°');
+  ctx.fillStyle=COL.bg;ctx.fillRect(0,0,W,H);
+  // Saddle: J(w, b) = ½(w² − b²). ∇J = (w, −b). H = [[1,0],[0,-1]].
+  const wMin=-1.5,wMax=1.5,bMin=-1.5,bMax=1.5;
+  const N=22;const grid=[];let Jmin=Infinity,Jmax=-Infinity;
+  for(let i=0;i<=N;i++){const row=[];for(let j=0;j<=N;j++){const w=wMin+(wMax-wMin)*i/N;const b=bMin+(bMax-bMin)*j/N;const J=0.5*(w*w-b*b);row.push({w,b,J});if(J<Jmin)Jmin=J;if(J>Jmax)Jmax=J;}grid.push(row);}
+  const Jrange=Jmax-Jmin||1;
+  const cx=W/2,cy=H/2+10;
+  const scale=Math.min(W,H)*0.30;
+  function projP(w,b,J){const x=w/1.5;const y=b/1.5;const z=((J-Jmin)/Jrange)*1.6-0.8;return project3D(x,y,z,az,el,scale,cx,cy);}
+  // Floor grid
+  ctx.strokeStyle='rgba(72,79,88,0.5)';ctx.lineWidth=0.5;
+  for(let k=0;k<=8;k++){
+    const w=wMin+(wMax-wMin)*k/8;const p1=projP(w,bMin,Jmin);const p2=projP(w,bMax,Jmin);
+    ctx.beginPath();ctx.moveTo(p1.px,p1.py);ctx.lineTo(p2.px,p2.py);ctx.stroke();
+    const b=bMin+(bMax-bMin)*k/8;const q1=projP(wMin,b,Jmin);const q2=projP(wMax,b,Jmin);
+    ctx.beginPath();ctx.moveTo(q1.px,q1.py);ctx.lineTo(q2.px,q2.py);ctx.stroke();
+  }
+  // Saddle cells
+  const proj=[];for(let i=0;i<=N;i++){const row=[];for(let j=0;j<=N;j++){const p=projP(grid[i][j].w,grid[i][j].b,grid[i][j].J);row.push({...p,J:grid[i][j].J});}proj.push(row);}
+  const cells=[];
+  for(let i=0;i<N;i++){for(let j=0;j<N;j++){const a=proj[i][j],b=proj[i+1][j],c=proj[i+1][j+1],d=proj[i][j+1];cells.push({a,b,c,d,depth:(a.depth+b.depth+c.depth+d.depth)/4,J:(grid[i][j].J+grid[i+1][j].J+grid[i+1][j+1].J+grid[i][j+1].J)/4});}}
+  cells.sort((a,b)=>a.depth-b.depth);
+  for(const cell of cells){
+    const t=clip((cell.J-Jmin)/Jrange,0,1);
+    let r,g,bb;
+    if(t<0.10){r=80;g=55;bb=140;}else if(t<0.30){r=55;g=70;bb=140;}else if(t<0.50){r=35;g=90;bb=130;}else if(t<0.70){r=24;g=120;bb=120;}else{r=29;g=158;bb=117;}
+    ctx.fillStyle=`rgb(${r},${g},${bb})`;ctx.globalAlpha=0.85;
+    ctx.beginPath();ctx.moveTo(cell.a.px,cell.a.py);ctx.lineTo(cell.b.px,cell.b.py);ctx.lineTo(cell.c.px,cell.c.py);ctx.lineTo(cell.d.px,cell.d.py);ctx.closePath();ctx.fill();
+    ctx.globalAlpha=1;ctx.strokeStyle='rgba(13,17,23,0.35)';ctx.lineWidth=0.4;ctx.stroke();
+  }
+  // Trajectory
+  const lr=0.1;const rng=mulberry32(11);
+  let cw=sx,cb=sy;let vw=0,vb=0;const tr=[[cw,cb,0.5*(cw*cw-cb*cb)]];
+  for(let s=0;s<steps;s++){let gw=cw,gb=-cb;
+    if(md==='noise'){gw+=(rng()-0.5)*0.1;gb+=(rng()-0.5)*0.1;}
+    if(md==='mom'){vw=0.9*vw+gw;vb=0.9*vb+gb;cw-=lr*vw;cb-=lr*vb;}
+    else{cw-=lr*gw;cb-=lr*gb;}
+    if(Math.abs(cw)>3||Math.abs(cb)>3||!isFinite(cw))break;
+    tr.push([cw,cb,0.5*(cw*cw-cb*cb)]);
+  }
+  // Trajectory on saddle
+  ctx.strokeStyle=COL.co;ctx.lineWidth=2.5;ctx.beginPath();
+  for(let i=0;i<tr.length;i++){const p=projP(tr[i][0],tr[i][1],tr[i][2]);if(i===0)ctx.moveTo(p.px,p.py);else ctx.lineTo(p.px,p.py);}
+  ctx.stroke();
+  // Floor shadow
+  ctx.strokeStyle=COL.co;ctx.globalAlpha=0.45;ctx.setLineDash([3,3]);ctx.lineWidth=1.4;ctx.beginPath();
+  for(let i=0;i<tr.length;i++){const p=projP(tr[i][0],tr[i][1],Jmin);if(i===0)ctx.moveTo(p.px,p.py);else ctx.lineTo(p.px,p.py);}
+  ctx.stroke();ctx.setLineDash([]);ctx.globalAlpha=1;
+  // Endpoints
+  const start=projP(sx,sy,0.5*(sx*sx-sy*sy));ctx.fillStyle=COL.am;ctx.beginPath();ctx.arc(start.px,start.py,5,0,Math.PI*2);ctx.fill();
+  const lst=tr[tr.length-1];const ePt=projP(lst[0],lst[1],lst[2]);ctx.fillStyle=COL.co;ctx.beginPath();ctx.arc(ePt.px,ePt.py,5,0,Math.PI*2);ctx.fill();
+  // Saddle marker at origin
+  const sad=projP(0,0,0);ctx.fillStyle=COL.ylo;ctx.beginPath();ctx.arc(sad.px,sad.py,4,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#fff';ctx.lineWidth=1.2;ctx.stroke();
+  // Title and legend
+  ctx.fillStyle=COL.tx;ctx.font='bold 12px -apple-system,sans-serif';ctx.textAlign='center';ctx.fillText('saddle: J(w, b) = ½(w² − b²) — ∇J=0 at origin, but not a min!',W/2,18);
+  ctx.font='10px -apple-system,sans-serif';ctx.textAlign='left';
+  ctx.fillStyle=COL.am;ctx.beginPath();ctx.arc(W-180,32,4,0,Math.PI*2);ctx.fill();ctx.fillStyle=COL.tx2;ctx.fillText('start',W-170,36);
+  ctx.fillStyle=COL.co;ctx.beginPath();ctx.arc(W-180,46,4,0,Math.PI*2);ctx.fill();ctx.fillStyle=COL.tx2;ctx.fillText('after '+(tr.length-1)+' steps',W-170,50);
+  ctx.fillStyle=COL.ylo;ctx.beginPath();ctx.arc(W-180,60,3.5,0,Math.PI*2);ctx.fill();ctx.fillStyle=COL.tx2;ctx.fillText('saddle (∇J=0)',W-170,64);
+  const dist=Math.sqrt(lst[0]*lst[0]+lst[1]*lst[1]);
+  setText('ei07a','Started at distance '+Math.sqrt(sx*sx+sy*sy).toFixed(3)+' from saddle. After '+(tr.length-1)+' steps, distance = '+dist.toFixed(3)+'. Method: '+md+'.');
+  setText('ei07b',md==='sgd'?'Plain GD: near saddle, gradient is tiny → progress slows exponentially. Eventually escapes along the unstable b-axis.':md==='mom'?'Momentum: accumulated velocity persists even when gradient is small. Carries the optimizer through the saddle region quickly.':'SGD with noise: random perturbations push you off the unstable axis. Saddle escape happens via stochastic kicks. This is what mini-batch noise does in real training.');
+}
+
+/* ============= D08: Vanishing/exploding gradients ============= */
+function D08(){
+  const o=ctx2('cv08');if(!o)return;
+  const{ctx,W,H}=o;
+  const depth=ival('dp_08'),sigma=val('ig_08'),clipT=val('cl_08');
+  setVal('dpv08',depth);setVal('igv08',sigma.toFixed(2));setVal('clv08',clipT===0?'off':clipT.toFixed(1));
+  ctx.fillStyle=COL.bg;ctx.fillRect(0,0,W,H);
+  const PAD=42;
+  const plotL=PAD,plotR=W-PAD,plotT=30,plotB=H-30;
+  // Compute per-layer gradient norm: ||g_l|| = ||g_L|| · σ^(L−l)
+  const gradL=1.0; // last layer
+  const norms=[];for(let l=1;l<=depth;l++){let n=gradL*Math.pow(sigma,depth-l);
+    if(clipT>0&&n>clipT)n=clipT;
+    norms.push(n);}
+  const maxN=Math.max(...norms,clipT||0,1);
+  const minN=Math.min(...norms.filter(v=>v>0),1e-30);
+  const useLog=maxN/minN>100;
+  const lMax=useLog?Math.log10(maxN):maxN;
+  const lMin=useLog?Math.log10(Math.max(minN,1e-30)):0;
+  const range=lMax-lMin||1;
+  const barW=(plotR-plotL)/depth*0.85;
+  const gap=(plotR-plotL)/depth*0.15;
+  // grid
+  ctx.strokeStyle=COL.bdr;ctx.lineWidth=0.5;
+  for(let i=0;i<=4;i++){const y=plotT+i*(plotB-plotT)/4;ctx.beginPath();ctx.moveTo(plotL,y);ctx.lineTo(plotR,y);ctx.stroke();
+    const v=useLog?Math.pow(10,lMax-i*range/4):lMax-i*range/4;
+    ctx.fillStyle=COL.tx3;ctx.font='9px ui-monospace,monospace';ctx.textAlign='right';ctx.fillText(useLog?v.toExponential(0):v.toFixed(2),plotL-3,y+3);}
+  // bars
+  for(let l=0;l<depth;l++){const n=norms[l];
+    const v=useLog?Math.log10(Math.max(n,1e-30)):n;
+    const h=(plotB-plotT)*(v-lMin)/range;
+    const x=plotL+l*(barW+gap);
+    // color by health: dangerous if very small or large
+    let col=COL.tld;
+    if(n<1e-3)col=COL.pu;else if(n>10)col=COL.red;else if(n<0.1)col='#7F77DD';else if(n>5)col=COL.am;
+    ctx.fillStyle=col;ctx.fillRect(x,plotB-h,barW,h);
+    if(clipT>0&&Math.pow(sigma,depth-l-1)*gradL>clipT){
+      // mark clipping line
+      ctx.strokeStyle=COL.ylo;ctx.lineWidth=1;ctx.setLineDash([2,2]);
+      const ch=(plotB-plotT)*((useLog?Math.log10(clipT):clipT)-lMin)/range;
+      ctx.beginPath();ctx.moveTo(x,plotB-ch);ctx.lineTo(x+barW,plotB-ch);ctx.stroke();ctx.setLineDash([]);
+    }
+  }
+  // Title
+  ctx.fillStyle=COL.tx;ctx.font='bold 12px -apple-system,sans-serif';ctx.textAlign='center';ctx.fillText('Per-layer gradient norm in a '+depth+'-layer net (layer 1 = input, layer '+depth+' = output)',W/2,18);
+  // Axis labels
+  ctx.fillStyle=COL.tx3;ctx.font='9px -apple-system,sans-serif';ctx.textAlign='center';ctx.fillText('layer index',(plotL+plotR)/2,H-8);
+  ctx.save();ctx.translate(15,(plotT+plotB)/2);ctx.rotate(-Math.PI/2);ctx.textAlign='center';ctx.fillText('||∇L|| at layer '+(useLog?'(log scale)':''),0,0);ctx.restore();
+  // X tick labels (sparse)
+  ctx.fillStyle=COL.tx3;ctx.font='9px ui-monospace,monospace';ctx.textAlign='center';
+  for(let l=0;l<depth;l+=Math.max(1,Math.floor(depth/8))){const x=plotL+l*(barW+gap)+barW/2;ctx.fillText(l+1,x,plotB+11);}
+  // Diagnose
+  let diag='healthy';
+  const minLayer=norms[0],maxLayer=norms[depth-1];
+  if(minLayer<1e-6&&clipT===0)diag='vanishing — layer 1 grad ≈ '+minLayer.toExponential(1)+', no learning at the input';
+  else if(maxLayer>100&&clipT===0)diag='exploding — gradient norm '+maxLayer.toExponential(1)+' will diverge';
+  else if(clipT>0)diag='exploding gradients clipped at norm '+clipT.toFixed(1);
+  else diag='balanced — gradients pass through layers without major scale changes';
+  setText('ei08a','Layer 1 norm = '+minLayer.toExponential(1)+', layer '+depth+' norm = '+maxLayer.toExponential(1)+'. Ratio = '+(maxLayer/minLayer).toExponential(1));
+  setText('ei08b','Status: '+diag+'. Try σ ≈ 1.0 to 1.4 for balanced flow (matches He init for ReLU). σ &lt; 0.8 → vanishing. σ &gt; 1.6 → exploding.');
+}
+
+/* ============= D09: LR schedules ============= */
+function D09(){
+  const o=ctx2('cv09');if(!o)return;
+  const{ctx,W,H}=o;
+  const sc=sval('sc_09'),lrPeak=val('lr_09')*1e-7,total=ival('ts_09'),wuFrac=val('wu_09');
+  setVal('lrv09',Math.round(val('lr_09')));setVal('tsv09',total);setVal('wuv09',wuFrac.toFixed(2));
+  ctx.fillStyle=COL.bg;ctx.fillRect(0,0,W,H);
+  const PAD=36,gap=16;
+  const lpW=(W-PAD-12-gap)*0.55,rpW=(W-PAD-12-gap)*0.45;
+  const lpL=PAD,lpR=lpL+lpW,lpT=18,lpB=H-30;
+  const rpL=lpR+gap,rpR=W-12,rpT=18,rpB=H-30;
+  // Compute schedule
+  const wuSteps=Math.floor(total*wuFrac);
+  function sched(t){
+    if(sc==='const')return lrPeak;
+    if(sc==='step'){const dec=Math.floor(3*t/total);return lrPeak*Math.pow(0.1,dec);}
+    if(sc==='cos')return 0.5*lrPeak*(1+Math.cos(Math.PI*t/total));
+    if(sc==='warm'){
+      if(t<wuSteps)return lrPeak*t/Math.max(wuSteps,1);
+      const tn=(t-wuSteps)/(total-wuSteps);return 0.5*lrPeak*(1+Math.cos(Math.PI*tn));
+    }
+    return lrPeak;
+  }
+  // LEFT: contour with trajectory using this schedule
+  const wMin=-0.05,wMax=0.35,bMin=-50,bMax=250;
+  const mx=w=>lpL+lpW*(w-wMin)/(wMax-wMin);
+  const my=b=>lpB-(lpB-lpT)*(b-bMin)/(bMax-bMin);
+  const NW=55,NB=55;let Jmax=0;const Jgrid=[];
+  for(let i=0;i<NW;i++){const row=[];for(let j=0;j<NB;j++){const w=wMin+(wMax-wMin)*i/(NW-1);const b=bMin+(bMax-bMin)*j/(NB-1);const J=cost(w,b,HOUSING);row.push(J);if(J>Jmax)Jmax=J;}Jgrid.push(row);}
+  for(let i=0;i<NW-1;i++){for(let j=0;j<NB-1;j++){const J=Jgrid[i][j];const t=Math.min(J/Jmax,1);
+    let r,g,bb;
+    if(t<0.05){r=29;g=158;bb=117;}else if(t<0.15){r=24;g=110;bb=110;}else if(t<0.30){r=35;g=80;bb=120;}else if(t<0.55){r=55;g=70;bb=140;}else{r=80;g=55;bb=140;}
+    ctx.fillStyle=`rgb(${r},${g},${bb})`;
+    const w=wMin+(wMax-wMin)*i/(NW-1);const b=bMin+(bMax-bMin)*j/(NB-1);
+    const w2=wMin+(wMax-wMin)*(i+1)/(NW-1);const b2=bMin+(bMax-bMin)*(j+1)/(NB-1);
+    ctx.fillRect(mx(w),my(b2),mx(w2)-mx(w)+0.5,my(b)-my(b2)+0.5);
+  }}
+  const levels=[J_OPT*1.5,J_OPT*4,J_OPT*12,J_OPT*40];
+  ctx.strokeStyle='rgba(230,237,243,0.22)';ctx.lineWidth=0.6;
+  for(const lv of levels){for(let i=0;i<NW-1;i++){for(let j=0;j<NB-1;j++){
+    const a=Jgrid[i][j],b1=Jgrid[i+1][j],c=Jgrid[i+1][j+1],d=Jgrid[i][j+1];
+    const x0=wMin+(wMax-wMin)*i/(NW-1),x1=wMin+(wMax-wMin)*(i+1)/(NW-1);
+    const y0=bMin+(bMax-bMin)*j/(NB-1),y1=bMin+(bMax-bMin)*(j+1)/(NB-1);
+    const pts=[];
+    if((a-lv)*(b1-lv)<0){const t=(lv-a)/(b1-a);pts.push([x0+t*(x1-x0),y0]);}
+    if((b1-lv)*(c-lv)<0){const t=(lv-b1)/(c-b1);pts.push([x1,y0+t*(y1-y0)]);}
+    if((c-lv)*(d-lv)<0){const t=(lv-c)/(d-c);pts.push([x1+(x0-x1)*t,y1]);}
+    if((d-lv)*(a-lv)<0){const t=(lv-d)/(a-d);pts.push([x0,y1+(y0-y1)*t]);}
+    if(pts.length>=2){ctx.beginPath();ctx.moveTo(mx(pts[0][0]),my(pts[0][1]));ctx.lineTo(mx(pts[1][0]),my(pts[1][1]));ctx.stroke();}
+  }}}
+  // Trajectory using the schedule
+  const w0=0.30,b0=220;
+  let cw=w0,cb=b0;const tr=[[cw,cb]];
+  for(let s=0;s<total;s++){const lr=sched(s);const[gw,gb]=gradJ(cw,cb,HOUSING);cw-=lr*gw;cb-=lr*gb;
+    if(!isFinite(cw)||Math.abs(cw)>1)break;tr.push([cw,cb]);}
+  ctx.strokeStyle=COL.co;ctx.lineWidth=2;ctx.beginPath();
+  for(let i=0;i<tr.length;i++){const w=tr[i][0],b=tr[i][1];if(i===0)ctx.moveTo(mx(clip(w,wMin,wMax)),my(clip(b,bMin,bMax)));else ctx.lineTo(mx(clip(w,wMin,wMax)),my(clip(b,bMin,bMax)));}
+  ctx.stroke();
+  ctx.fillStyle=COL.tx;ctx.beginPath();ctx.arc(mx(w0),my(b0),5,0,Math.PI*2);ctx.fill();
+  const lst=tr[tr.length-1];if(Math.abs(lst[0])<1){ctx.fillStyle=COL.co;ctx.beginPath();ctx.arc(mx(clip(lst[0],wMin,wMax)),my(clip(lst[1],bMin,bMax)),4,0,Math.PI*2);ctx.fill();}
+  ctx.fillStyle=COL.am;ctx.font='bold 14px ui-monospace,monospace';ctx.textAlign='center';ctx.fillText('×',mx(W_OPT),my(B_OPT)+5);
+  ctx.fillStyle=COL.tx2;ctx.font='10px -apple-system,sans-serif';ctx.textAlign='left';
+  const titles={const:'constant',step:'step decay',cos:'cosine',warm:'warmup + cosine'};
+  ctx.fillText('trajectory using '+titles[sc]+' schedule',lpL,lpT-4);
+  // RIGHT: lr vs step
+  ctx.fillStyle=COL.tx2;ctx.font='10px -apple-system,sans-serif';ctx.textAlign='left';ctx.fillText('lr(t) over training',rpL,rpT-4);
+  const lrs=[];for(let t=0;t<=total;t++)lrs.push(sched(t));
+  const lrMx=Math.max(...lrs)*1.05;
+  const mxR=t=>rpL+(rpR-rpL)*t/total,myR=v=>rpB-(rpB-rpT-10)*v/lrMx;
+  ctx.strokeStyle=COL.bdr;ctx.lineWidth=0.5;
+  for(let i=0;i<=4;i++){ctx.beginPath();ctx.moveTo(rpL+i*(rpR-rpL)/4,rpT);ctx.lineTo(rpL+i*(rpR-rpL)/4,rpB-10);ctx.stroke();
+                        ctx.beginPath();ctx.moveTo(rpL,rpT+i*(rpB-rpT-10)/4);ctx.lineTo(rpR,rpT+i*(rpB-rpT-10)/4);ctx.stroke();}
+  ctx.strokeStyle=COL.tld;ctx.lineWidth=2.2;ctx.beginPath();
+  for(let t=0;t<=total;t++){if(t===0)ctx.moveTo(mxR(t),myR(lrs[t]));else ctx.lineTo(mxR(t),myR(lrs[t]));}
+  ctx.stroke();
+  // axis labels for right panel
+  ctx.fillStyle=COL.tx3;ctx.font='9px -apple-system,sans-serif';ctx.textAlign='center';ctx.fillText('step',(rpL+rpR)/2,H-8);
+  ctx.fillStyle=COL.tx3;ctx.font='9px ui-monospace,monospace';ctx.textAlign='right';
+  for(let i=0;i<=4;i++){const y=rpT+i*(rpB-rpT-10)/4;const v=lrMx-i*lrMx/4;ctx.fillText((v*1e7).toFixed(1)+'e-7',rpL-3,y+3);}
+  const finalCost=tr.length>1?cost(tr[tr.length-1][0],tr[tr.length-1][1],HOUSING):Infinity;
+  setText('ei09a','Schedule: '+titles[sc]+'. Peak lr = '+lrPeak.toExponential(1)+'. Steps = '+total+(sc==='warm'?', warmup = '+wuSteps+' steps':'')+'.');
+  setText('ei09b','Final cost: '+(isFinite(finalCost)?finalCost.toFixed(1):'∞')+' (optimum '+J_OPT.toFixed(1)+'). '+(sc==='const'?'Constant lr never settles deeply.':sc==='warm'?'Modern recipe — ramp up safely, then anneal toward zero.':sc==='cos'?'Smooth decay — no abrupt drops.':'Discrete drops at fixed milestones.'));
+}
+
+/* ============= D10: Convergence rate (log loss vs iter) ============= */
+function D10(){
+  const o=ctx2('cv10');if(!o)return;
+  const{ctx,W,H}=o;
+  const kappa=ival('kp_10'),md=sval('md_10'),steps=ival('st_10');
+  setVal('kpv10',kappa);setVal('stv10',steps);
+  ctx.fillStyle=COL.bg;ctx.fillRect(0,0,W,H);
+  const PAD=42;
+  const plotL=PAD,plotR=W-12,plotT=20,plotB=H-30;
+  // Strongly convex quadratic: J(w,b) = ½(w² + κ·b²). Optimal α=2/(L+μ)=2/(κ+1).
+  const lr=2/(kappa+1)*0.95;
+  function J6(w,b){return 0.5*(w*w+kappa*b*b);}
+  function g6(w,b){return[w,kappa*b];}
+  // Run optimizer
+  let cw=1.0,cb=1.0;
+  let vw=0,vb=0;let mw_=0,mb_=0,nw=0,nb=0;const eps=1e-8;
+  const losses=[J6(cw,cb)];
+  for(let s=0;s<steps;s++){
+    const[gw,gb]=g6(cw,cb);
+    if(md==='gd'){cw-=lr*gw;cb-=lr*gb;}
+    else if(md==='mom'){vw=0.9*vw+gw;vb=0.9*vb+gb;cw-=lr*vw;cb-=lr*vb;}
+    else if(md==='adam'){const adamLr=0.05;mw_=0.9*mw_+0.1*gw;mb_=0.9*mb_+0.1*gb;nw=0.999*nw+0.001*gw*gw;nb=0.999*nb+0.001*gb*gb;
+      const t=s+1;const mhw=mw_/(1-Math.pow(0.9,t)),mhb=mb_/(1-Math.pow(0.9,t)),vhw=nw/(1-Math.pow(0.999,t)),vhb=nb/(1-Math.pow(0.999,t));
+      cw-=adamLr*mhw/(Math.sqrt(vhw)+eps);cb-=adamLr*mhb/(Math.sqrt(vhb)+eps);}
+    if(!isFinite(cw))break;losses.push(J6(cw,cb));
+  }
+  // Theoretical curve
+  const theo=[];const c0=J6(1,1);
+  let rate;
+  if(md==='gd')rate=Math.pow((kappa-1)/(kappa+1),2);
+  else if(md==='mom'){const sk=Math.sqrt(kappa);rate=Math.pow((sk-1)/(sk+1),2);}
+  else rate=null;
+  if(rate!==null){for(let s=0;s<=steps;s++)theo.push(c0*Math.pow(rate,s));}
+  // Plot setup (log y)
+  const allJ=losses.filter(v=>isFinite(v)&&v>0);
+  const Jhi=Math.max(...allJ),Jlo=Math.max(Math.min(...allJ),1e-15);
+  const lJh=Math.log10(Jhi),lJl=Math.log10(Jlo);
+  const range=lJh-lJl||1;
+  const mxR=t=>plotL+(plotR-plotL)*t/steps,myR=J=>plotB-(plotB-plotT)*(Math.log10(Math.max(J,Jlo))-lJl)/range;
+  ctx.strokeStyle=COL.bdr;ctx.lineWidth=0.5;
+  for(let i=0;i<=5;i++){ctx.beginPath();ctx.moveTo(plotL+i*(plotR-plotL)/5,plotT);ctx.lineTo(plotL+i*(plotR-plotL)/5,plotB);ctx.stroke();
+                        ctx.beginPath();ctx.moveTo(plotL,plotT+i*(plotB-plotT)/5);ctx.lineTo(plotR,plotT+i*(plotB-plotT)/5);ctx.stroke();}
+  // axis labels
+  ctx.fillStyle=COL.tx3;ctx.font='9px ui-monospace,monospace';
+  for(let i=0;i<=5;i++){const x=plotL+i*(plotR-plotL)/5;ctx.textAlign='center';ctx.fillText(Math.round(steps*i/5),x,plotB+11);
+    const y=plotT+i*(plotB-plotT)/5;const v=Math.pow(10,lJh-i*range/5);ctx.textAlign='right';ctx.fillText(v.toExponential(0),plotL-3,y+3);}
+  ctx.fillStyle=COL.tx3;ctx.font='9px -apple-system,sans-serif';ctx.textAlign='center';ctx.fillText('iteration',(plotL+plotR)/2,H-8);
+  ctx.save();ctx.translate(15,(plotT+plotB)/2);ctx.rotate(-Math.PI/2);ctx.textAlign='center';ctx.fillText('J (log scale)',0,0);ctx.restore();
+  // Theory
+  if(rate!==null){
+    ctx.strokeStyle='rgba(186,117,23,0.5)';ctx.setLineDash([4,3]);ctx.lineWidth=1.5;ctx.beginPath();
+    for(let i=0;i<theo.length;i++){if(i===0)ctx.moveTo(mxR(i),myR(theo[i]));else ctx.lineTo(mxR(i),myR(theo[i]));}
+    ctx.stroke();ctx.setLineDash([]);
+  }
+  // Empirical
+  ctx.strokeStyle=md==='gd'?COL.bl:md==='mom'?COL.tld:COL.co;ctx.lineWidth=2.2;ctx.beginPath();
+  for(let i=0;i<losses.length;i++){if(i===0)ctx.moveTo(mxR(i),myR(losses[i]));else ctx.lineTo(mxR(i),myR(losses[i]));}
+  ctx.stroke();
+  // Title
+  ctx.fillStyle=COL.tx;ctx.font='bold 12px -apple-system,sans-serif';ctx.textAlign='center';ctx.fillText('Convergence on J(w,b) = ½(w² + '+kappa+'·b²),  optimal α used',W/2,16);
+  // Legend
+  ctx.font='10px -apple-system,sans-serif';ctx.textAlign='left';
+  const empCol=md==='gd'?COL.bl:md==='mom'?COL.tld:COL.co;
+  ctx.strokeStyle=empCol;ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(W-180,32);ctx.lineTo(W-160,32);ctx.stroke();ctx.fillStyle=COL.tx2;ctx.fillText('empirical ('+md+')',W-156,36);
+  if(rate!==null){ctx.strokeStyle='rgba(186,117,23,0.6)';ctx.setLineDash([4,3]);ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(W-180,46);ctx.lineTo(W-160,46);ctx.stroke();ctx.setLineDash([]);ctx.fillStyle=COL.tx2;ctx.fillText('theory: rate ' + rate.toFixed(4),W-156,50);}
+  // Compute "iterations to ε" estimate
+  const target=c0*1e-4;
+  let iterToTarget=Infinity;
+  if(rate!==null){iterToTarget=Math.ceil(Math.log(target/c0)/Math.log(rate));}
+  setText('ei10a','Final J after '+steps+' steps: '+losses[losses.length-1].toExponential(2)+' (started at '+c0.toFixed(3)+'). Method: '+md+'.');
+  if(md==='gd')setText('ei10b','Theory: per-step contraction = ((κ−1)/(κ+1))² = '+rate.toFixed(4)+'. Iterations to reach 1e-4 of starting cost ≈ '+iterToTarget+'.');
+  else if(md==='mom')setText('ei10b','Theory with momentum: rate = ((√κ−1)/(√κ+1))² = '+rate.toFixed(4)+' — quadratic speedup over plain GD. Iterations to 1e-4 ≈ '+iterToTarget+'.');
+  else setText('ei10b','Adam adapts per-parameter — effective κ ≈ 1. Convergence is essentially independent of original κ. Often beats both plain GD and momentum on ill-conditioned problems.');
+}
+
+/* ============= INIT ============= */
+function initAll(){
+  for(let i=1;i<=10;i++){const fn=window['D'+(i<10?'0'+i:i)];if(fn)try{fn();}catch(e){console.warn('D'+i,e);}}
+}
+window.addEventListener('load',initAll);
+window.addEventListener('resize',()=>{clearTimeout(window._rzd);window._rzd=setTimeout(initAll,150);});
+</script>
+</body>
+</html>

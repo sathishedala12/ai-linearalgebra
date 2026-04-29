@@ -1,0 +1,1148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>The Cost Function & The Bowl — Linear Regression in 3D</title>
+<style>
+:root{--bg:#0D1117;--s:#161B22;--s2:#21262D;--bdr:#30363D;--tl:#1D9E75;--tll:#0D2318;--tld:#34D399;--bl:#378ADD;--pu:#7F77DD;--co:#D85A30;--am:#BA7517;--tx:#E6EDF3;--tx2:#8B949E;--tx3:#484F58;--r:8px}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--tx);display:flex;flex-direction:column;min-height:100vh}
+.hdr{background:#0D1117;border-bottom:1px solid var(--bdr);padding:12px 20px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:200}
+.hdr-t{font-size:16px;font-weight:900;font-style:italic;color:var(--tx)}
+.hdr-s{font-size:11px;color:var(--tx3);margin-top:1px}
+.hdr-b{margin-left:auto;font-size:10px;background:var(--tll);border:1px solid var(--tl);color:var(--tld);padding:3px 10px;border-radius:20px;font-weight:700;white-space:nowrap}
+.layout{display:flex;flex:1}
+.sidebar{width:220px;flex-shrink:0;border-right:1px solid var(--bdr);position:sticky;top:49px;height:calc(100vh - 49px);overflow-y:auto;padding:14px 0}
+.cat{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.13em;color:var(--tx3);padding:14px 16px 5px}
+.cat:first-child{padding-top:0}
+.ni{display:flex;align-items:center;gap:9px;padding:6px 16px;text-decoration:none;color:var(--tx2);font-size:12px;border-left:2px solid transparent;transition:all .15s;cursor:pointer}
+.ni:hover{color:var(--tx);background:var(--s2);border-left-color:var(--bdr)}
+.ni.active{color:var(--tld);background:var(--tll);border-left-color:var(--tl);font-weight:600}
+.nn{font-size:10px;font-family:ui-monospace,monospace;color:var(--tx3);width:18px;text-align:right;flex-shrink:0}
+.ni:hover .nn,.ni.active .nn{color:var(--tl)}
+.main{flex:1;min-width:0;padding:0 28px 80px;max-width:820px}
+.topic{padding:38px 0 0;border-top:1px solid var(--bdr);margin-top:38px}
+.topic:first-child{border-top:none;margin-top:0;padding-top:32px}
+.thd{display:flex;align-items:flex-start;gap:12px;margin-bottom:14px}
+.tnum{font-size:10px;font-family:ui-monospace,monospace;background:var(--s2);border:1px solid var(--bdr);color:var(--tx3);padding:3px 8px;border-radius:5px;white-space:nowrap;margin-top:4px}
+.topic h2{font-size:22px;font-weight:900;font-style:italic;line-height:1.2;margin-bottom:3px}
+.tsub{font-size:13px;color:var(--tx2)}
+.chd{display:flex;align-items:center;gap:10px;padding:28px 0 0;margin-bottom:4px}
+.chd h3{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.13em;color:var(--tx3);white-space:nowrap}
+.chd::after{content:'';flex:1;height:1px;background:var(--bdr)}
+.analogy{background:#1C2333;border:1px solid #2D4A6F;border-radius:var(--r);padding:12px 14px;margin-bottom:12px;display:flex;gap:10px}
+.analogy .ic{font-size:17px;flex-shrink:0;margin-top:1px}
+.analogy p{font-size:13px;color:#93C5FD;line-height:1.65;margin:0}
+.analogy p strong{color:#BFDBFE}
+.vb{background:var(--s);border:1px solid var(--bdr);border-radius:var(--r);overflow:hidden;margin:12px 0}
+.vbhd{padding:7px 13px;border-bottom:1px solid var(--bdr);background:var(--s2);display:flex;align-items:center;gap:6px}
+.vbt{font-size:11px;font-weight:600;color:var(--tx2)}
+.pulse{width:7px;height:7px;border-radius:50%;background:var(--tl);animation:pu 2s infinite;flex-shrink:0}
+@keyframes pu{0%,100%{opacity:1}50%{opacity:.3}}
+.vbd{padding:12px}
+canvas{display:block;width:100%;border-radius:5px;border:1px solid var(--bdr);background:#0D1117}
+.ctrls{display:flex;flex-wrap:wrap;gap:9px;margin-top:9px}
+.ctrl{flex:1;min-width:130px}
+.ctrl label{display:block;font-size:11px;color:var(--tx2);margin-bottom:3px;font-weight:500}
+.cr{display:flex;align-items:center;gap:6px}
+.cr input[type=range]{flex:1;accent-color:var(--tl);cursor:pointer}
+.val{font-size:11px;font-weight:700;color:var(--tld);min-width:40px;text-align:right;font-family:ui-monospace,monospace}
+select{font-size:12px;padding:5px 8px;border:1px solid var(--bdr);border-radius:6px;background:var(--s2);color:var(--tx);cursor:pointer;outline:none}
+.btn{padding:4px 11px;font-size:11px;border:1px solid var(--bdr);border-radius:6px;background:var(--s2);color:var(--tx2);cursor:pointer;transition:all .15s}
+.btn:hover,.btn.on{border-color:var(--tl);color:var(--tld);background:var(--tll)}
+.btnp{background:var(--tl);color:#fff;border:none;padding:5px 13px;font-size:11px;border-radius:6px;cursor:pointer;font-weight:700}
+.legend{display:flex;flex-wrap:wrap;gap:6px;padding:6px 10px;background:var(--s2);border-radius:6px;margin-bottom:8px}
+.li{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--tx2)}
+.ldot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.lln{width:14px;height:3px;border-radius:2px;flex-shrink:0}
+.xp{background:#0D1117;border:1px solid var(--bdr);border-left:3px solid var(--tl);border-radius:var(--r);padding:11px 13px;margin-top:8px}
+.xphd{display:flex;align-items:center;gap:5px;margin-bottom:7px}
+.xplbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--tl)}
+.xpb{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.xpc h5{font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--tx3);margin-bottom:4px;font-weight:700}
+.xpc p{font-size:12px;color:var(--tx2);line-height:1.65}
+.hi{color:var(--tld);font-weight:600}.co2{color:#F87171;font-weight:600}.am2{color:#FCD34D;font-weight:600}.bl2{color:#93C5FD;font-weight:600}
+.tryb{background:var(--tll);border:1px solid var(--tl);border-radius:var(--r);padding:9px 12px;margin-top:7px}
+.tryb h5{font-size:10px;color:var(--tld);text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px;font-weight:700}
+.tryb ul{padding-left:14px}
+.tryb li{font-size:12px;color:#7BB897;line-height:1.7}
+.tryb li strong{color:var(--tld)}
+.dive{border-radius:var(--r);overflow:hidden;margin:16px 0;border:1px solid #1D3A2A}
+.divehd{background:linear-gradient(90deg,#0A1F14,#111827);padding:9px 16px;display:flex;align-items:center;gap:8px;border-bottom:1px solid #1D3A2A}
+.divehd h4{font-size:12px;font-weight:700;color:var(--tx)}
+.divehd .mod{font-size:10px;color:var(--tx3);margin-left:auto}
+.divepp{display:grid;grid-template-columns:1fr 1fr}
+.dwhy{background:#0A1929;padding:14px 16px;border-right:1px solid #1D3A2A}
+.dwhy h5{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:#60A5FA;margin-bottom:8px;font-weight:700}
+.dwhy p{font-size:12.5px;color:#B0C4D8;line-height:1.7;margin-bottom:6px}
+.dwhy p:last-child,.dhow p:last-child{margin-bottom:0}
+.dwhy strong{color:#93C5FD}
+.dconcept{background:#0F1A14;padding:13px 16px;border-bottom:1px solid #1D3A2A}
+.dconcept h5{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:#A78BFA;margin-bottom:8px;font-weight:700}
+.dconcept p{font-size:12.5px;color:var(--tx2);line-height:1.7;margin-bottom:6px}
+.dconcept p:last-child{margin:0}
+.dconcept strong{color:var(--tx)}
+.dintu{background:#1A1830;border-left:3px solid #7F77DD;padding:8px 12px;margin-top:9px;border-radius:0 6px 6px 0;font-size:12px;color:#C4B5FD;line-height:1.65}
+.dintu strong{color:#DDD6FE}
+.dexample{background:#15110A;padding:13px 16px;border-top:1px solid #1D3A2A}
+.dexample h5{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:#FCD34D;margin-bottom:8px;font-weight:700}
+.dexample p{font-size:12.5px;color:var(--tx2);line-height:1.7;margin-bottom:6px}
+.dexample p:last-child{margin-bottom:0}
+.we{background:#0A0E13;border:1px solid #2A2F3A;border-radius:6px;margin-top:9px;overflow:hidden}
+.wehd{background:linear-gradient(90deg,#1F1605,#0A0E13);padding:6px 12px;border-bottom:1px solid #2A2F3A;font-size:10px;font-weight:700;color:#FCD34D;text-transform:uppercase;letter-spacing:.08em}
+.webd{padding:4px 0}
+.werow{display:grid;grid-template-columns:64px 1fr;gap:10px;padding:5px 12px;font-size:11.5px;line-height:1.55;font-family:ui-monospace,'Cascadia Code',monospace;border-bottom:1px solid #161B22;align-items:start}
+.werow:last-child{border-bottom:none}
+.wetag{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;padding:2px 0;color:var(--tx3)}
+.wegiven .wetag{color:#93C5FD}
+.westep .wetag{color:#FCD34D}
+.weresult .wetag{color:#34D399}
+.weresult{background:#0A1F14}
+.wecontent{color:#E2E8F0;word-break:break-word}
+.wl{list-style:none;padding:0;margin:7px 0 0}
+.wl li{font-size:12px;color:#7E9BB5;line-height:1.7;padding-left:12px;position:relative;margin-bottom:1px}
+.wl li::before{content:'›';position:absolute;left:2px;color:#60A5FA;font-weight:700}
+.dhow{background:var(--s2);padding:14px 16px}
+.dhow h5{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--tl);margin-bottom:8px;font-weight:700}
+.dhow p{font-size:12.5px;color:var(--tx2);line-height:1.7;margin-bottom:6px}
+.dhow strong{color:var(--tx)}
+.cb{background:#0D1117;border:1px solid var(--bdr);border-radius:6px;padding:9px 12px;margin:8px 0;font-family:ui-monospace,'Cascadia Code',monospace;font-size:11px;color:#E2E8F0;line-height:1.85;overflow-x:auto;white-space:pre}
+.chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+.chip{font-size:10px;padding:2px 9px;border-radius:20px}
+.chh{background:var(--tll);border:1px solid var(--tl);color:var(--tld)}
+.chn{background:var(--s2);border:1px solid var(--bdr);color:var(--tx3)}
+.fm{background:var(--s2);border-left:3px solid var(--pu);border-radius:0 var(--r) var(--r) 0;padding:9px 13px;margin:10px 0;font-family:ui-monospace,monospace;font-size:12px;line-height:2;color:var(--tx)}
+.fm .cm{color:var(--tx3);font-size:10px}
+.tbl{width:100%;border-collapse:collapse;font-size:12px;margin:10px 0}
+.tbl th{background:var(--s2);padding:7px 10px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--tx2);border-bottom:2px solid var(--bdr)}
+.tbl td{padding:6px 10px;border-bottom:1px solid var(--bdr);color:var(--tx2)}
+.tbl td:first-child{font-family:ui-monospace,monospace;color:var(--tx);font-size:11px}
+.tbl tr:last-child td{border-bottom:none}
+.twoc{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin:11px 0}
+.card{background:var(--s);border:1px solid var(--bdr);border-radius:var(--r);padding:14px 16px}
+.card h3{font-size:13px;font-weight:700;font-style:italic;margin-bottom:7px;color:var(--tx)}
+.card p{font-size:12.5px;color:var(--tx2);line-height:1.7;margin-bottom:6px}
+.card p:last-child{margin:0}
+.note{background:var(--tll);border:1px solid var(--tl);border-radius:var(--r);padding:9px 13px;margin:10px 0;font-size:13px;color:var(--tld);line-height:1.6}
+.csg{display:grid;grid-template-columns:repeat(auto-fill,minmax(175px,1fr));gap:8px;margin:10px 0}
+.csi{background:var(--s2);border:1px solid var(--bdr);border-radius:var(--r);padding:10px 12px}
+.csn{font-size:9px;color:var(--tl);text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px;font-weight:700}
+.csf{font-family:ui-monospace,monospace;font-size:11px;color:var(--tx);margin-bottom:2px;line-height:1.5}
+.csd{font-size:10px;color:var(--tx3)}
+@media(max-width:768px){.sidebar{display:none}.main{padding:0 14px 60px}.twoc{grid-template-columns:1fr}.divepp{grid-template-columns:1fr}.xpb{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header class="hdr">
+  <div><div class="hdr-t">The Cost Function &amp; The Bowl</div><div class="hdr-s">Linear Regression Visualised in 1D, 2D, and 3D — and How AI Scales It</div></div>
+  <span class="hdr-b">8 Topics · 7 Demos</span>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sb">
+  <div class="cat">Setup</div>
+  <a class="ni" href="#t01"><span class="nn">01</span>Linear Regression Model</a>
+  <a class="ni" href="#t02"><span class="nn">02</span>The Cost Function J(w, b)</a>
+  <div class="cat">The Three Views</div>
+  <a class="ni" href="#t03"><span class="nn">03</span>1D View — Cost Curve</a>
+  <a class="ni" href="#t04"><span class="nn">04</span>2D View — Contour Plot</a>
+  <a class="ni" href="#t05"><span class="nn">05</span>3D View — The Bowl</a>
+  <div class="cat">Optimization</div>
+  <a class="ni" href="#t06"><span class="nn">06</span>Gradient Descent on the Bowl</a>
+  <div class="cat">Scaling to AI</div>
+  <a class="ni" href="#t07"><span class="nn">07</span>From 2 Params to 175 Billion</a>
+  <div class="cat">Reference</div>
+  <a class="ni" href="#t08"><span class="nn">08</span>Cheat Sheet</a>
+</nav>
+<main class="main">
+
+<div class="chd"><h3>Setup</h3></div>
+
+<div class="topic" id="t01">
+<div class="thd"><span class="tnum">01</span><div><h2>Linear Regression Model</h2><div class="tsub">Predict y from x with a straight line — the simplest learning algorithm</div></div></div>
+<div class="analogy"><div class="ic">📏</div><p><strong>Plain English:</strong> You have a bunch of data points — say, house sizes and their prices. You want to predict price from size. The simplest possible model: draw a <em>straight line</em> through the cloud of points. The line is described by two numbers: <strong>w</strong> (slope — how much price changes per square foot) and <strong>b</strong> (intercept — the baseline price even at size 0). The whole task of "training" reduces to: find the w and b that make the line fit the data best.</p></div>
+<div class="vb"><div class="vbhd"><span class="pulse"></span><span class="vbt">Drag w and b — find the line that fits</span></div>
+  <div class="vbd">
+    <canvas id="cv01" style="height:280px"></canvas>
+    <div class="ctrls">
+      <div class="ctrl"><label>Slope w (price per sq ft, $1000s)</label><div class="cr"><input type="range" id="w_01" min="-0.05" max="0.35" step="0.005" value="0.06" oninput="D01()"><span class="val" id="wv01">0.060</span></div></div>
+      <div class="ctrl"><label>Intercept b ($1000s baseline)</label><div class="cr"><input type="range" id="b_01" min="-100" max="200" step="2" value="50" oninput="D01()"><span class="val" id="bv01">50</span></div></div>
+      <div class="ctrl"><label>Show residuals</label><select id="rs_01" onchange="D01()" style="width:100%"><option value="line">Just the line</option><option value="lines">Line + residual segments</option><option value="sq">Line + squared residuals</option></select></div>
+    </div>
+    <div class="xp"><div class="xphd"><span class="pulse"></span><span class="xplbl">Live</span></div>
+    <div class="xpb"><div class="xpc"><h5>Current model</h5><p id="ei01a">—</p></div><div class="xpc"><h5>Cost J(w, b)</h5><p id="ei01b">—</p></div></div></div>
+    <div class="tryb"><h5>Build intuition</h5><ul>
+    <li>Set w = 0 — line is flat (price doesn't depend on size). Useless model. Cost is huge.</li>
+    <li>Set w = 0.15, b = 0 — much better fit. Cost shrinks dramatically.</li>
+    <li>Switch to "squared residuals" mode — see literal squares from each data point to the line. The cost is the average area of these squares.</li>
+    </ul></div>
+  </div>
+</div>
+<div class="fm">f<sub>w,b</sub>(x) = w · x + b   <span class="cm">// the model</span><br>x = input feature (size in sq ft)<br>y = target (price in $1000s)<br>Parameters to learn: <strong>w</strong> (slope), <strong>b</strong> (intercept)</div>
+<div class="dive">
+  <div class="divehd"><span style="color:var(--tl)">★</span><h4>AI Deep Dive — Linear Regression</h4><span class="mod">Topic 01</span></div>
+  <div class="dconcept"><h5>📚 The Concept</h5>
+    <p>Linear regression is the foundational supervised learning algorithm. Given a dataset {(x⁽¹⁾, y⁽¹⁾), (x⁽²⁾, y⁽²⁾), ..., (x⁽ᵐ⁾, y⁽ᵐ⁾)}, we assume the relationship between x and y can be approximated by a straight line: f<sub>w,b</sub>(x) = wx + b. The two parameters <strong>w</strong> (weight or slope) and <strong>b</strong> (bias or intercept) are unknown — our job is to learn them from the data. Once learned, we can predict y for any new x. This same f<sub>w,b</sub>(x) = w·x + b structure is exactly the formula for a single neuron — linear regression is literally a neural network with one neuron, no activation, and one input. Everything in modern AI is a generalisation of this.</p>
+    <div class="dintu">💡 <strong>Intuition:</strong> A straight line is the simplest possible "rule" you can extract from data. If you can find the right slope and intercept, you've compressed a cloud of thousands of data points into just <em>two numbers</em>. That's machine learning in its purest form: data in, parameters out, predictions on new data.</div>
+  </div>
+  <div class="divepp">
+    <div class="dwhy"><h5>❓ Why AI needs this</h5><p>Linear regression is the <em>blueprint</em> for everything that follows:</p><ul class="wl"><li>The formula wx + b is the building block of every neural network neuron</li><li>The squared error cost is the basis of MSE loss — used in regression heads everywhere</li><li>The optimization technique (gradient descent) generalises to all of deep learning</li><li>Every modern model — GPT, Stable Diffusion, AlphaFold — uses these same three ingredients: a model, a cost, and gradient descent</li><li>Linear regression also remains the most-deployed ML model in industry: pricing, forecasting, A/B test analysis</li></ul></div>
+    <div class="dhow"><h5>⚙️ How AI uses it</h5><p>One-liner in any framework:</p><div class="cb"># Pure NumPy — closed form solution
+import numpy as np
+X = np.column_stack([x, np.ones_like(x)])  # add bias column
+w, b = np.linalg.lstsq(X, y, rcond=None)[0]
+
+# scikit-learn
+from sklearn.linear_model import LinearRegression
+model = LinearRegression().fit(x.reshape(-1,1), y)
+print(model.coef_, model.intercept_)
+
+# PyTorch — same model, gradient descent
+linear = nn.Linear(in_features=1, out_features=1)
+y_pred = linear(x)              # f(x) = w·x + b under the hood</div><div class="chips"><span class="chip chh">f(x) = wx + b</span><span class="chip chh">supervised</span><span class="chip chh">regression</span><span class="chip chn">single neuron</span></div></div>
+  </div>
+  <div class="dexample"><h5>🧮 Worked Example</h5>
+    <p>Three houses. Pick parameters by hand and compare predictions.</p>
+    <div class="we"><div class="wehd">Three-house mini dataset</div><div class="webd">
+      <div class="werow wegiven"><span class="wetag">Data</span><span class="wecontent">House 1: 1000 sq ft → $200K  &nbsp;|&nbsp;  House 2: 2000 sq ft → $300K  &nbsp;|&nbsp;  House 3: 3000 sq ft → $500K</span></div>
+      <div class="werow westep"><span class="wetag">Try A</span><span class="wecontent">w = 0.10, b = 100  →  predictions: 200, 300, 400</span></div>
+      <div class="werow westep"><span class="wetag">Errors A</span><span class="wecontent">200−200 = 0,  300−300 = 0,  400−500 = −100  →  squared sum = 10,000</span></div>
+      <div class="werow westep"><span class="wetag">Try B</span><span class="wecontent">w = 0.15, b = 50  →  predictions: 200, 350, 500</span></div>
+      <div class="werow westep"><span class="wetag">Errors B</span><span class="wecontent">200−200 = 0,  350−300 = 50,  500−500 = 0  →  squared sum = 2,500</span></div>
+      <div class="werow weresult"><span class="wetag">Insight</span><span class="wecontent">Model B is <span class="hi">4× better</span> than A on this dataset (lower cost). Training = automating this comparison across millions of (w, b) pairs to find the absolute best.</span></div>
+    </div></div>
+  </div>
+</div>
+</div>
+
+<div class="topic" id="t02">
+<div class="thd"><span class="tnum">02</span><div><h2>The Cost Function J(w, b)</h2><div class="tsub">A single number measuring how wrong the line is — averaged squared error</div></div></div>
+<div class="analogy"><div class="ic">🎯</div><p><strong>Plain English:</strong> You drew a line. How wrong is it? For each data point, measure the gap (residual) between the actual price and your line's prediction. Square it (so positive and negative errors don't cancel). Average across all points. That's J(w, b) — your "wrongness score." A perfect line gives J = 0. A bad line gives J = huge. The whole game is now: find w and b that make J as small as possible.</p></div>
+<div class="vb"><div class="vbhd"><span class="pulse"></span><span class="vbt">Cost as the average of squared residuals</span></div>
+  <div class="vbd">
+    <canvas id="cv02" style="height:300px"></canvas>
+    <div class="ctrls">
+      <div class="ctrl"><label>Slope w</label><div class="cr"><input type="range" id="w_02" min="0" max="0.3" step="0.005" value="0.15" oninput="D02()"><span class="val" id="wv02">0.150</span></div></div>
+      <div class="ctrl"><label>Intercept b</label><div class="cr"><input type="range" id="b_02" min="-50" max="200" step="2" value="50" oninput="D02()"><span class="val" id="bv02">50</span></div></div>
+    </div>
+    <div class="xp"><div class="xphd"><span class="pulse"></span><span class="xplbl">Live</span></div>
+    <div class="xpb"><div class="xpc"><h5>Cost decomposition</h5><p id="ei02a">—</p></div><div class="xpc"><h5>Why squared, why /2m?</h5><p id="ei02b">—</p></div></div></div>
+    <div class="tryb"><h5>Build intuition</h5><ul>
+    <li>The total area of all the orange squares = 2m·J. So J is proportional to "average square area."</li>
+    <li>Move the line — squares grow / shrink. Watch J update live.</li>
+    <li>The minimum cost is at the line that <em>balances</em> the residuals — going lower or higher would make at least some squares grow.</li>
+    </ul></div>
+  </div>
+</div>
+<div class="fm">J(w, b) = (1/2m) · Σᵢ₌₁ᵐ (f<sub>w,b</sub>(x⁽ⁱ⁾) − y⁽ⁱ⁾)²<br>= (1/2m) · Σ residual<sub>i</sub>²<br>m = number of training examples<br>The 1/2 makes the gradient cleaner; the 1/m makes the cost not grow with dataset size</div>
+<div class="dive">
+  <div class="divehd"><span style="color:var(--tl)">★</span><h4>AI Deep Dive — The Cost Function</h4><span class="mod">Topic 02</span></div>
+  <div class="dconcept"><h5>📚 The Concept</h5>
+    <p>The cost function J turns a model's quality into a single scalar. For linear regression, the standard choice is <strong>mean squared error</strong> — the average of squared residuals, scaled by 1/(2m). The squaring matters: a residual of +5 and a residual of −5 should each contribute equally (penalty for being wrong, regardless of direction). Squaring also penalises large errors disproportionately — being off by 10 is 4× worse than being off by 5, not 2×. The 1/m makes J independent of dataset size (averaging instead of summing). The factor of 1/2 is purely cosmetic — when you take the derivative for gradient descent, the 2 from the squaring cancels with the 1/2, giving a cleaner update rule. Mathematically, J is a <strong>quadratic function</strong> in (w, b) — and quadratic functions have a single global minimum (the bowl shape we'll see).</p>
+    <div class="dintu">💡 <strong>Intuition:</strong> Imagine each data point as having a rubber band connecting it to the line. The energy stored in each rubber band grows as the square of how stretched it is. Total energy = cost. The line "wants" to settle into a position that minimises total stretching — that's the minimum-cost line.</div>
+  </div>
+  <div class="divepp">
+    <div class="dwhy"><h5>❓ Why AI needs this</h5><p>The cost function defines what "good" means for the model:</p><ul class="wl"><li>Different cost = different model: switch to MAE → robust to outliers; cross-entropy → classification</li><li>Cost J is scalar — only scalars can be minimised by gradient descent</li><li>The cost is the SOLE training signal — the model never "sees" the right answer directly, only the cost gradient</li><li>For squared error, J is convex in (w, b) — guaranteed single global minimum, no local traps</li><li>For neural networks, J is non-convex but the same machinery (gradient descent on the cost) still works</li></ul></div>
+    <div class="dhow"><h5>⚙️ How AI uses it</h5><p>Cost computation in 1 line:</p><div class="cb">def cost(w, b, X, y):
+    m = len(X)
+    predictions = w * X + b
+    errors = predictions - y
+    return (1/(2*m)) * np.sum(errors**2)
+
+# In PyTorch:
+loss = F.mse_loss(predictions, y)   # already includes 1/n averaging
+
+# Train loop:
+for epoch in range(n_epochs):
+    pred = model(X)
+    J = F.mse_loss(pred, y)
+    J.backward()
+    optimizer.step()</div><div class="chips"><span class="chip chh">MSE</span><span class="chip chh">scalar</span><span class="chip chh">convex</span><span class="chip chn">L2 loss</span></div></div>
+  </div>
+  <div class="dexample"><h5>🧮 Worked Example</h5>
+    <p>Compute J(w, b) for two candidate models on the 3-house dataset.</p>
+    <div class="we"><div class="wehd">Cost function — by-hand computation</div><div class="webd">
+      <div class="werow wegiven"><span class="wetag">Data</span><span class="wecontent">m = 3 houses: (1000, 200), (2000, 300), (3000, 500). Note x in sq ft, y in $1000s.</span></div>
+      <div class="werow wegiven"><span class="wetag">Model A</span><span class="wecontent">w = 0.10, b = 100  →  predictions: 200, 300, 400</span></div>
+      <div class="werow westep"><span class="wetag">Residuals A</span><span class="wecontent">(200−200, 300−300, 400−500) = (0, 0, −100)</span></div>
+      <div class="werow westep"><span class="wetag">Squared</span><span class="wecontent">(0, 0, 10000)</span></div>
+      <div class="werow westep"><span class="wetag">J<sub>A</sub></span><span class="wecontent">(1 / (2·3)) · (0 + 0 + 10000) = 10000/6 ≈ <b>1666.7</b></span></div>
+      <div class="werow wegiven"><span class="wetag">Model B</span><span class="wecontent">w = 0.15, b = 50  →  predictions: 200, 350, 500</span></div>
+      <div class="werow westep"><span class="wetag">Residuals B</span><span class="wecontent">(0, 50, 0)</span></div>
+      <div class="werow westep"><span class="wetag">J<sub>B</sub></span><span class="wecontent">(1 / 6) · (0 + 2500 + 0) = <b>416.7</b></span></div>
+      <div class="werow weresult"><span class="wetag">Compare</span><span class="wecontent">J<sub>B</sub> &lt; J<sub>A</sub> by 4×. Model B is the better fit. Training automates this comparison across all possible (w, b).</span></div>
+    </div></div>
+  </div>
+</div>
+</div>
+
+<div class="chd"><h3>The Three Views of the Same Idea</h3></div>
+
+<div class="topic" id="t03">
+<div class="thd"><span class="tnum">03</span><div><h2>1D View — The Cost Curve</h2><div class="tsub">Fix b, vary w — see J as a parabola</div></div></div>
+<div class="analogy"><div class="ic">⛰️</div><p><strong>Plain English:</strong> Let's freeze the intercept b at its optimal value and just slide w around. As w changes, the line tilts, and J — the cost — changes. If we plot J on the y-axis and w on the x-axis, what shape does it make? A <strong>perfect parabola</strong> (a U-shape). That's a key insight: for linear regression with squared error, the cost as a function of any single parameter is always a parabola — and parabolas have exactly one minimum, the bottom.</p></div>
+<div class="vb"><div class="vbhd"><span class="pulse"></span><span class="vbt">Cost as a function of w (b is frozen at the optimum)</span></div>
+  <div class="vbd">
+    <canvas id="cv03" style="height:300px"></canvas>
+    <div class="ctrls">
+      <div class="ctrl"><label>Slope w</label><div class="cr"><input type="range" id="w_03" min="-0.1" max="0.4" step="0.005" value="0.05" oninput="D03()"><span class="val" id="wv03">0.050</span></div></div>
+    </div>
+    <div class="xp"><div class="xphd"><span class="pulse"></span><span class="xplbl">Live</span></div>
+    <div class="xpb"><div class="xpc"><h5>Position on the parabola</h5><p id="ei03a">—</p></div><div class="xpc"><h5>Geometric meaning</h5><p id="ei03b">—</p></div></div></div>
+    <div class="tryb"><h5>Build intuition</h5><ul>
+    <li>Slide w to the very minimum of the curve — the line on the left fits the data tightest.</li>
+    <li>Move w far from optimum — line tilts wrong, residuals grow, parabola climbs steeply.</li>
+    <li>The parabola is symmetric: same w distance from optimum on either side gives the same cost. Squared error doesn't care about direction.</li>
+    </ul></div>
+  </div>
+</div>
+<div class="fm">J(w) = (1/2m) · Σᵢ (w·xᵢ + b* − yᵢ)²  <span class="cm">// b* fixed at optimum</span><br>= A·w² + B·w + C  <span class="cm">// quadratic in w</span><br>Minimum at w* where dJ/dw = 0 → unique global minimum</div>
+<div class="dive">
+  <div class="divehd"><span style="color:var(--tl)">★</span><h4>AI Deep Dive — The 1D Cost Curve</h4><span class="mod">Topic 03</span></div>
+  <div class="dconcept"><h5>📚 The Concept</h5>
+    <p>If you fix all but one parameter and plot the cost as a function of that single parameter, you get a <strong>cross-section</strong> through the cost surface. For squared-error linear regression, this cross-section is always a parabola — a quadratic curve. Why? Expanding J(w, b*) with b* held constant: the residuals (wxᵢ + b* − yᵢ) are linear in w, squaring them gives quadratics in w, and summing quadratics gives another quadratic. The shape — Aw² + Bw + C with A &gt; 0 — has a unique minimum at w* = −B/(2A). This is closed-form solvable: no iteration needed for 1D linear regression. But more importantly, the parabola has a slope (gradient) at every point — and the slope tells gradient descent which direction to move w. Negative slope: increase w. Positive slope: decrease w. At the minimum: slope = 0.</p>
+    <div class="dintu">💡 <strong>Intuition:</strong> Picture a marble dropped onto a U-shaped trough. It rolls down, oscillates a bit, and settles at the bottom. The height above the trough = cost. The marble's horizontal position = current value of w. Gravity = the gradient. Training is just the marble rolling.</div>
+  </div>
+  <div class="divepp">
+    <div class="dwhy"><h5>❓ Why AI needs this</h5><p>The 1D curve is the simplest case where you can SEE optimisation working:</p><ul class="wl"><li>For 1D linear regression, the optimum w* has a closed form — no iteration needed</li><li>But the iterative method (gradient descent) is what scales to billions of parameters</li><li>Studying 1D builds intuition: gradient sign → direction; gradient magnitude → step size</li><li>For neural networks, the cost is non-convex — the curve has multiple local minima — but in 1D each parameter still "feels" a similar pull from its slice of the cost surface</li></ul></div>
+    <div class="dhow"><h5>⚙️ How AI uses it</h5><p>Plot the 1D cost curve to debug training:</p><div class="cb">import numpy as np, matplotlib.pyplot as plt
+ws = np.linspace(-0.1, 0.4, 200)
+Js = [cost(w, b_optimal, X, y) for w in ws]
+plt.plot(ws, Js)
+plt.axvline(w_optimal, color='r', label='optimum')
+plt.xlabel('w'); plt.ylabel('J(w)')
+
+# Sanity check: take derivative numerically
+dJ_dw = np.gradient(Js, ws)
+plt.plot(ws, dJ_dw)   # zero crossing = minimum</div><div class="chips"><span class="chip chh">parabola</span><span class="chip chh">convex</span><span class="chip chh">unique min</span><span class="chip chn">closed form</span></div></div>
+  </div>
+  <div class="dexample"><h5>🧮 Worked Example</h5>
+    <p>Compute J at three values of w (with b = 50 fixed) on the 3-house dataset.</p>
+    <div class="we"><div class="wehd">Three points on the parabola</div><div class="webd">
+      <div class="werow wegiven"><span class="wetag">Data</span><span class="wecontent">(1000, 200), (2000, 300), (3000, 500). b fixed at 50.</span></div>
+      <div class="werow westep"><span class="wetag">w = 0.05</span><span class="wecontent">preds: 100, 150, 200; resids: −100, −150, −300; sq sum = 10000+22500+90000 = 122500; J = <b>20416.7</b></span></div>
+      <div class="werow westep"><span class="wetag">w = 0.15</span><span class="wecontent">preds: 200, 350, 500; resids: 0, 50, 0; sq sum = 2500; J = <b>416.7</b></span></div>
+      <div class="werow westep"><span class="wetag">w = 0.25</span><span class="wecontent">preds: 300, 550, 800; resids: 100, 250, 300; sq sum = 10000+62500+90000 = 162500; J = <b>27083.3</b></span></div>
+      <div class="werow westep"><span class="wetag">Plotting</span><span class="wecontent">Three points: (0.05, 20417), (0.15, 417), (0.25, 27083). Connect them — a U-shape parabola opening upward.</span></div>
+      <div class="werow weresult"><span class="wetag">Optimum</span><span class="wecontent">w ≈ <span class="hi">0.15</span> is near the bottom. Symmetrical: ±0.10 from optimum gives roughly the same large cost.</span></div>
+    </div></div>
+  </div>
+</div>
+</div>
+
+<div class="topic" id="t04">
+<div class="thd"><span class="tnum">04</span><div><h2>2D View — The Contour Plot</h2><div class="tsub">Both w and b vary — concentric rings of equal cost</div></div></div>
+<div class="analogy"><div class="ic">🗺️</div><p><strong>Plain English:</strong> Now we let <em>both</em> w and b move at once. The cost J becomes a function of two variables. We can't draw a 1D parabola anymore — we need a 2D map. Think of a topographic map of a landscape: lines connect points of equal elevation. Here, contour lines connect (w, b) pairs that produce the <strong>same cost</strong>. The rings get smaller as you approach the centre — that's the bowl's bottom, where the optimal line lives. Notice the surprising fact from the lecture: <em>multiple very different (w, b) combinations can give the SAME cost</em> — they sit on the same ring.</p></div>
+<div class="vb"><div class="vbhd"><span class="pulse"></span><span class="vbt">Click on the contour map — try landing on the same ring</span></div>
+  <div class="vbd">
+    <canvas id="cv04" style="height:340px"></canvas>
+    <div class="ctrls">
+      <div class="ctrl"><label>Slope w</label><div class="cr"><input type="range" id="w_04" min="-0.05" max="0.35" step="0.005" value="0.06" oninput="D04()"><span class="val" id="wv04">0.060</span></div></div>
+      <div class="ctrl"><label>Intercept b</label><div class="cr"><input type="range" id="b_04" min="-50" max="250" step="2" value="50" oninput="D04()"><span class="val" id="bv04">50</span></div></div>
+    </div>
+    <div class="xp"><div class="xphd"><span class="pulse"></span><span class="xplbl">Live</span></div>
+    <div class="xpb"><div class="xpc"><h5>Where you are on the contour</h5><p id="ei04a">—</p></div><div class="xpc"><h5>The "same J" insight</h5><p id="ei04b">—</p></div></div></div>
+    <div class="tryb"><h5>Build intuition</h5><ul>
+    <li>Try moving along an ellipse — different w and b combinations, same cost. Both lines fit equally badly (just in different ways).</li>
+    <li>The minimum is at the centre of the smallest visible ring (small green X).</li>
+    <li>Notice the rings are tilted ellipses, not circles — that's because w and b have different scales (slope vs intercept).</li>
+    </ul></div>
+  </div>
+</div>
+<div class="fm">Contour line at level c: { (w, b) : J(w, b) = c }<br>For squared error: contours are ellipses (general form Aw² + Bb² + Cwb + Dw + Eb + F = c)<br>Tilt of ellipse → correlation between w and b in the cost</div>
+<div class="dive">
+  <div class="divehd"><span style="color:var(--tl)">★</span><h4>AI Deep Dive — Contour Plots</h4><span class="mod">Topic 04</span></div>
+  <div class="dconcept"><h5>📚 The Concept</h5>
+    <p>A contour plot is a 2D representation of a 3D surface — exactly like topographic maps in geography. Each contour line is a level set: the locus of (w, b) pairs at which J takes a specific value. For squared-error linear regression, contours are <strong>concentric ellipses</strong> centred at the minimum (w*, b*). The orientation and aspect ratio of these ellipses tells us about the optimisation difficulty: <em>circular</em> contours mean the cost is equally sensitive to w and b — gradient descent works easily. <em>Elongated</em> contours mean the cost is much more sensitive in one direction than the other — gradient descent will zigzag in narrow valleys (this is exactly why feature scaling and adaptive optimisers like Adam matter). The "same J" property — multiple different parameter combinations giving identical cost — is a fundamental feature of any non-trivial cost landscape: there are many ways to be equally wrong, and the optimisation must find the one specific way to be least wrong.</p>
+    <div class="dintu">💡 <strong>Intuition:</strong> Imagine a salt flat with a single deep crater. From above (the contour view), you see concentric ellipses — each one a "ring of constant depth." Walking along a single ring, you stay at the same elevation (same cost), but at different (w, b) positions. To get to the bottom, you have to step <em>across</em> rings, toward the centre.</div>
+  </div>
+  <div class="divepp">
+    <div class="dwhy"><h5>❓ Why AI needs this</h5><p>Contour plots are the standard tool for understanding optimisation landscapes:</p><ul class="wl"><li>Convex problems (linear/logistic regression, SVMs): contours are nice ellipses, single minimum</li><li>Neural networks: contours are wildly irregular, many local minima and saddle points</li><li>The shape of contours predicts which optimiser will work — narrow valleys need momentum or Adam</li><li>Visualising contours is how researchers diagnose new architectures and loss functions</li><li>The "same J" property motivates regularisation: among many parameter combos with similar cost, prefer the simpler ones (smaller weights)</li></ul></div>
+    <div class="dhow"><h5>⚙️ How AI uses it</h5><p>Plot a contour map in matplotlib:</p><div class="cb">import numpy as np, matplotlib.pyplot as plt
+ws = np.linspace(-0.05, 0.35, 80)
+bs = np.linspace(-50,  250,  80)
+W, B = np.meshgrid(ws, bs)
+J = np.zeros_like(W)
+for i in range(W.shape[0]):
+    for j in range(W.shape[1]):
+        J[i,j] = cost(W[i,j], B[i,j], X, y)
+
+plt.contour(W, B, J, levels=20)        # contour lines
+plt.contourf(W, B, J, levels=20, alpha=.4)  # filled
+plt.scatter(w_opt, b_opt, marker='*', s=200, color='red')
+plt.xlabel('w'); plt.ylabel('b')</div><div class="chips"><span class="chip chh">level sets</span><span class="chip chh">ellipses</span><span class="chip chh">conditioning</span><span class="chip chn">topography</span></div></div>
+  </div>
+  <div class="dexample"><h5>🧮 Worked Example</h5>
+    <p>Find three different (w, b) combinations that give the SAME cost on a tiny dataset.</p>
+    <div class="we"><div class="wehd">Three points on the same contour ring</div><div class="webd">
+      <div class="werow wegiven"><span class="wetag">Data</span><span class="wecontent">(1, 3), (2, 5), (3, 7) — perfect fit at w=2, b=1, J=0</span></div>
+      <div class="werow westep"><span class="wetag">Try (w, b) = (2.5, 0)</span><span class="wecontent">preds: 2.5, 5, 7.5  →  resids: −0.5, 0, 0.5  →  sq sum = 0.5  →  J = 0.083</span></div>
+      <div class="werow westep"><span class="wetag">Try (w, b) = (1.5, 2)</span><span class="wecontent">preds: 3.5, 5, 6.5  →  resids: 0.5, 0, −0.5  →  sq sum = 0.5  →  J = 0.083</span></div>
+      <div class="werow westep"><span class="wetag">Try (w, b) = (2, 0.4)</span><span class="wecontent">preds: 2.4, 4.4, 6.4  →  resids: −0.6, −0.6, −0.6  →  sq sum = 1.08  →  J = 0.180 (different ring)</span></div>
+      <div class="werow weresult"><span class="wetag">Same J</span><span class="wecontent">First two have J = <span class="hi">0.083</span> — same cost, very different lines (one steeper through origin, one shallower with positive intercept). They lie on the same elliptical contour ring around the optimum.</span></div>
+    </div></div>
+  </div>
+</div>
+</div>
+
+
+<div class="topic" id="t05">
+<div class="thd"><span class="tnum">05</span><div><h2>3D View — The Bowl</h2><div class="tsub">The cost surface in full — a paraboloid you can rotate and explore</div></div></div>
+<div class="analogy"><div class="ic">🥣</div><p><strong>Plain English:</strong> The contour plot is the <em>view from directly above</em>. But the actual cost function J(w, b) lives in 3D space: w along one axis, b along another, J going up. When you plot the full surface, you see exactly what the contour rings hinted at: a perfect <strong>bowl</strong> (paraboloid). The bottom of the bowl = the minimum cost = the best (w*, b*). The walls of the bowl get steeper as you move away. The <em>contour rings are just horizontal slices through this bowl</em> — like cutting an apple sideways at different heights.</p></div>
+<div class="vb"><div class="vbhd"><span class="pulse"></span><span class="vbt">Drag to rotate the bowl — your model is a ball on the surface</span></div>
+  <div class="vbd">
+    <canvas id="cv05" style="height:380px"></canvas>
+    <div class="ctrls">
+      <div class="ctrl"><label>Slope w</label><div class="cr"><input type="range" id="w_05" min="-0.05" max="0.35" step="0.005" value="0.20" oninput="D05()"><span class="val" id="wv05">0.200</span></div></div>
+      <div class="ctrl"><label>Intercept b</label><div class="cr"><input type="range" id="b_05" min="-50" max="250" step="2" value="180" oninput="D05()"><span class="val" id="bv05">180</span></div></div>
+      <div class="ctrl"><label>Rotate (azimuth)</label><div class="cr"><input type="range" id="az_05" min="0" max="360" step="1" value="35" oninput="D05()"><span class="val" id="azv05">35°</span></div></div>
+      <div class="ctrl"><label>Tilt (elevation)</label><div class="cr"><input type="range" id="el_05" min="5" max="80" step="1" value="35" oninput="D05()"><span class="val" id="elv05">35°</span></div></div>
+    </div>
+    <div class="xp"><div class="xphd"><span class="pulse"></span><span class="xplbl">Live</span></div>
+    <div class="xpb"><div class="xpc"><h5>Where you are on the bowl</h5><p id="ei05a">—</p></div><div class="xpc"><h5>Geometric meaning</h5><p id="ei05b">—</p></div></div></div>
+    <div class="tryb"><h5>Build intuition</h5><ul>
+    <li>Slide the rotation to elevation = 90° (looking straight down) — the bowl <strong>becomes the contour plot</strong>. Same surface, different view angle.</li>
+    <li>Slide w and b far from optimum — the orange ball climbs high up the bowl walls.</li>
+    <li>Slide w and b near the optimum (try w ≈ 0.13, b ≈ 80) — the ball drops into the bowl's pit.</li>
+    <li>The vertical drop lines from the ball show its (w, b) location on the floor and its J height.</li>
+    </ul></div>
+  </div>
+</div>
+<div class="fm">J(w, b) = Aw² + Bb² + Cwb + Dw + Eb + F  <span class="cm">// quadratic in (w, b)</span><br>The graph in 3D is an <strong>elliptic paraboloid</strong> — always opens upward (A &gt; 0)<br>Single minimum at (w*, b*) where ∂J/∂w = 0 AND ∂J/∂b = 0</div>
+<div class="dive">
+  <div class="divehd"><span style="color:var(--tl)">★</span><h4>AI Deep Dive — The 3D Cost Surface</h4><span class="mod">Topic 05</span></div>
+  <div class="dconcept"><h5>📚 The Concept</h5>
+    <p>The cost function J(w, b) is a <strong>scalar function of two variables</strong> — it eats two numbers (a slope and an intercept) and outputs one number (the cost). Such a function defines a 2D surface embedded in 3D space: the height of the surface above each (w, b) point in the plane equals J(w, b). For squared-error linear regression, this surface is a perfect <strong>elliptic paraboloid</strong> — a bowl. Why a bowl and not something more complicated? Because J is a <em>quadratic</em> function of (w, b): expanding the squared residuals gives terms in w², b², wb, w, b, and constants — only quadratic and lower. The graph of any quadratic surface in 2 variables is a paraboloid (if positive-definite), saddle (if indefinite), or trough (if degenerate). For squared error with non-collinear data, it's always a paraboloid that opens upward — meaning <strong>convex</strong>, with a unique global minimum. This is why linear regression has a closed-form solution: ∇J = 0 is two linear equations in two unknowns.</p>
+    <div class="dintu">💡 <strong>Intuition:</strong> The contour plot is the floor plan of the bowl. The 1D parabola is a slice through the bowl at a fixed b. The 3D bowl is the whole thing. Same cost function — three views of the same object. Once you can see the bowl in your head, you understand WHY gradient descent works: just walk downhill, and you'll always end up at the bottom because the surface has only one bottom.</div>
+  </div>
+  <div class="divepp">
+    <div class="dwhy"><h5>❓ Why AI needs this</h5><p>The 3D bowl visualisation is the conceptual foundation of all of deep learning:</p><ul class="wl"><li>Every model has a cost surface — for linear regression it's a clean bowl, for neural networks it's a billion-dimensional landscape</li><li>The "shape" of the surface determines what optimiser to use: gentle bowl → SGD; sharp ravines → Adam; saddles → momentum</li><li>Researchers visualise 2D slices of the loss landscape to study why some networks generalise better (flat minima &gt; sharp minima)</li><li>The bowl shape is what makes squared error special: convex, unique minimum, closed-form solvable</li><li>For non-convex problems (NNs), local optimisation is still the only feasible approach — the bowl intuition still guides us, even if the actual surface is jagged</li></ul></div>
+    <div class="dhow"><h5>⚙️ How AI uses it</h5><p>Render the cost surface to validate model behaviour:</p><div class="cb">import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+
+ws = np.linspace(-0.1, 0.4, 50)
+bs = np.linspace(-100, 250, 50)
+W, B = np.meshgrid(ws, bs)
+J = compute_cost_grid(W, B, X, y)
+
+fig = plt.figure(figsize=(10, 7))
+ax = fig.add_subplot(111, projection='3d')
+ax.plot_surface(W, B, J, cmap='viridis', alpha=.7)
+ax.scatter([w_opt], [b_opt], [j_opt], color='red', s=100)
+ax.set_xlabel('w'); ax.set_ylabel('b'); ax.set_zlabel('J(w,b)')</div><div class="chips"><span class="chip chh">paraboloid</span><span class="chip chh">convex</span><span class="chip chh">unique min</span><span class="chip chn">loss landscape</span></div></div>
+  </div>
+  <div class="dexample"><h5>🧮 Worked Example</h5>
+    <p>Show that the cost surface IS a paraboloid by expanding J algebraically.</p>
+    <div class="we"><div class="wehd">From sum of squares to bowl equation</div><div class="webd">
+      <div class="werow wegiven"><span class="wetag">Data</span><span class="wecontent">m points (x₁, y₁), …, (xₘ, yₘ). Define means: x̄ = Σxᵢ/m, ȳ = Σyᵢ/m.</span></div>
+      <div class="werow westep"><span class="wetag">Expand</span><span class="wecontent">J(w, b) = (1/2m) Σ (wxᵢ + b − yᵢ)²</span></div>
+      <div class="werow westep"><span class="wetag">Square</span><span class="wecontent">(wxᵢ + b − yᵢ)² = w²xᵢ² + b² + yᵢ² + 2wxᵢb − 2wxᵢyᵢ − 2byᵢ</span></div>
+      <div class="werow westep"><span class="wetag">Sum &amp; ÷2m</span><span class="wecontent">J = (Σxᵢ²/2m)·w² + (1/2)·b² + (Σxᵢ/m)·wb + … = <b>Aw² + Bb² + Cwb + Dw + Eb + F</b></span></div>
+      <div class="werow westep"><span class="wetag">Quadratic form</span><span class="wecontent">J(w,b) = ½ [w b]ᵀ H [w b] + linear terms + const,&nbsp; H = (1/m)·[[Σxᵢ², Σxᵢ], [Σxᵢ, m]]</span></div>
+      <div class="werow westep"><span class="wetag">Convex check</span><span class="wecontent">det(H) = (1/m²)·(m·Σxᵢ² − (Σxᵢ)²) = (1/m)·Σ(xᵢ − x̄)² ≥ 0. Strictly &gt; 0 unless all xᵢ identical → H positive-definite → J is strictly convex.</span></div>
+      <div class="werow weresult"><span class="wetag">Conclusion</span><span class="wecontent">For any non-trivial dataset (not all xᵢ the same), J is a <span class="hi">strictly convex paraboloid</span> with a single global minimum. The bowl shape is mathematically guaranteed.</span></div>
+    </div></div>
+  </div>
+</div>
+</div>
+
+<div class="chd"><h3>Optimization on the Bowl</h3></div>
+
+<div class="topic" id="t06">
+<div class="thd"><span class="tnum">06</span><div><h2>Gradient Descent on the Bowl</h2><div class="tsub">Roll downhill — the only training algorithm that scales</div></div></div>
+<div class="analogy"><div class="ic">🎢</div><p><strong>Plain English:</strong> Now we know the cost is a bowl. How do we find the bottom? You can't peek at the whole bowl when you have billions of dimensions — you can only feel the slope at your current location. <strong>Gradient descent</strong>: at every step, look at which way is steepest downhill (the gradient), take a small step in that direction, repeat. With each step, the cost drops a bit. After enough steps, you converge to the minimum. The step size — called the <em>learning rate</em> α — is the only knob you tune.</p></div>
+<div class="vb"><div class="vbhd"><span class="pulse"></span><span class="vbt">Watch gradient descent roll the ball to the bottom</span></div>
+  <div class="vbd">
+    <canvas id="cv06" style="height:380px"></canvas>
+    <div class="ctrls">
+      <div class="ctrl"><label>Starting w</label><div class="cr"><input type="range" id="w0_06" min="-0.05" max="0.35" step="0.005" value="0.30" oninput="D06()"><span class="val" id="w0v06">0.300</span></div></div>
+      <div class="ctrl"><label>Starting b</label><div class="cr"><input type="range" id="b0_06" min="-50" max="250" step="2" value="220" oninput="D06()"><span class="val" id="b0v06">220</span></div></div>
+      <div class="ctrl"><label>Learning rate α (×1e-7)</label><div class="cr"><input type="range" id="lr_06" min="0.5" max="40" step="0.5" value="10" oninput="D06()"><span class="val" id="lrv06">10</span></div></div>
+      <div class="ctrl"><label>Steps taken</label><div class="cr"><input type="range" id="st_06" min="0" max="60" step="1" value="20" oninput="D06()"><span class="val" id="stv06">20</span></div></div>
+      <div class="ctrl"><label>Rotate</label><div class="cr"><input type="range" id="az_06" min="0" max="360" step="1" value="35" oninput="D06()"><span class="val" id="azv06">35°</span></div></div>
+      <div class="ctrl"><label>Tilt</label><div class="cr"><input type="range" id="el_06" min="5" max="80" step="1" value="35" oninput="D06()"><span class="val" id="elv06">35°</span></div></div>
+    </div>
+    <div class="xp"><div class="xphd"><span class="pulse"></span><span class="xplbl">Live</span></div>
+    <div class="xpb"><div class="xpc"><h5>Trajectory</h5><p id="ei06a">—</p></div><div class="xpc"><h5>Convergence</h5><p id="ei06b">—</p></div></div></div>
+    <div class="tryb"><h5>Build intuition</h5><ul>
+    <li>Set α = 10 and steps = 20 — clean convergence, ball settles at the bottom.</li>
+    <li>Crank α up to 35 — ball overshoots the bowl, oscillates wildly, may diverge.</li>
+    <li>Set α = 0.5 — steps so small you barely move in 60 iterations. Still converging, just slowly.</li>
+    <li>Notice the trajectory <em>curves</em> toward the minimum — gradient direction changes every step.</li>
+    </ul></div>
+  </div>
+</div>
+<div class="fm">∂J/∂w = (1/m) Σᵢ (f(xᵢ) − yᵢ) · xᵢ<br>∂J/∂b = (1/m) Σᵢ (f(xᵢ) − yᵢ)<br>w ← w − α · ∂J/∂w<br>b ← b − α · ∂J/∂b   <span class="cm">// repeat until convergence</span></div>
+<div class="dive">
+  <div class="divehd"><span style="color:var(--tl)">★</span><h4>AI Deep Dive — Gradient Descent</h4><span class="mod">Topic 06</span></div>
+  <div class="dconcept"><h5>📚 The Concept</h5>
+    <p>The gradient ∇J = (∂J/∂w, ∂J/∂b) is a vector pointing in the direction of <em>steepest ascent</em> on the cost surface. Moving against the gradient (taking a step of length α in the direction of −∇J) is locally optimal — it produces the largest possible decrease in J for an infinitesimally small step. Repeated, this drives the parameters toward a minimum. For a convex surface like the linear regression bowl, every gradient step gets us closer to the unique global minimum. The learning rate α controls step size: too small → wasted compute (slow convergence); too large → overshoot, oscillate, possibly diverge. There's a clean theoretical result for quadratic bowls: gradient descent converges if α &lt; 2/L, where L is the largest eigenvalue of the Hessian. The condition number κ = L/μ (ratio of largest to smallest eigenvalue) determines speed: well-conditioned (κ ≈ 1, circular contours) → fast; ill-conditioned (κ ≫ 1, narrow valley contours) → slow zigzag.</p>
+    <div class="dintu">💡 <strong>Intuition:</strong> Imagine you're blindfolded on a hillside and want to reach the lowest point. You feel the ground around you, identify the steepest downhill direction, take a step, and repeat. The blindfold matters: you can't see the global picture. But local downhill always works on a bowl, because there are no flat regions, no other minima, no traps — just one bottom that everything drains toward.</div>
+  </div>
+  <div class="divepp">
+    <div class="dwhy"><h5>❓ Why AI needs this</h5><p>Gradient descent is the only learning algorithm that scales to billions of parameters:</p><ul class="wl"><li>Closed-form (normal equations) needs O(n³) for inverting matrices — useless beyond n ≈ 10⁵</li><li>Gradient descent: each step is O(parameters) — perfectly linear scaling</li><li>Combined with backpropagation, gradients are cheap to compute even in deep networks</li><li>SGD (stochastic GD) uses one mini-batch per step — adds noise, helps escape sharp minima</li><li>Adam, RMSProp, AdaGrad: variants that adapt α per parameter — handle ill-conditioned landscapes automatically</li><li>The same algorithm that finds the minimum of a 2D bowl finds the minimum of a 175-billion-parameter LLM</li></ul></div>
+    <div class="dhow"><h5>⚙️ How AI uses it</h5><p>Gradient descent in 7 lines of NumPy:</p><div class="cb">def gradient_descent(X, y, w0, b0, alpha, n_iters):
+    w, b = w0, b0
+    history = [(w, b, cost(w, b, X, y))]
+    m = len(X)
+    for i in range(n_iters):
+        # Forward pass
+        pred = w * X + b
+        err  = pred - y
+        # Gradients
+        dJ_dw = (1/m) * np.dot(err, X)
+        dJ_db = (1/m) * np.sum(err)
+        # Update
+        w -= alpha * dJ_dw
+        b -= alpha * dJ_db
+        history.append((w, b, cost(w, b, X, y)))
+    return w, b, history</div><div class="chips"><span class="chip chh">∇J</span><span class="chip chh">learning rate</span><span class="chip chh">convergence</span><span class="chip chn">SGD</span><span class="chip chn">Adam</span></div></div>
+  </div>
+  <div class="dexample"><h5>🧮 Worked Example</h5>
+    <p>Trace 3 steps of gradient descent on the 3-house dataset, starting from (w, b) = (0, 0).</p>
+    <div class="we"><div class="wehd">Hand-trace gradient descent — see the bowl roll</div><div class="webd">
+      <div class="werow wegiven"><span class="wetag">Data</span><span class="wecontent">(x, y) = (1, 2), (2, 3), (3, 5).  α = 0.1, m = 3.  Goal: find best line.</span></div>
+      <div class="werow westep"><span class="wetag">Init</span><span class="wecontent">w = 0, b = 0.  Predictions: (0, 0, 0).  Errors: (−2, −3, −5).  J = (4 + 9 + 25)/6 = <b>6.33</b></span></div>
+      <div class="werow westep"><span class="wetag">∇J</span><span class="wecontent">∂J/∂w = (1/3)·(−2·1 + −3·2 + −5·3) = (1/3)·(−23) = <b>−7.67</b><br>∂J/∂b = (1/3)·(−2 − 3 − 5) = <b>−3.33</b></span></div>
+      <div class="werow westep"><span class="wetag">Step 1</span><span class="wecontent">w ← 0 − 0.1·(−7.67) = <b>0.767</b>,  b ← 0 − 0.1·(−3.33) = <b>0.333</b></span></div>
+      <div class="werow westep"><span class="wetag">After step 1</span><span class="wecontent">Predictions: (1.10, 1.87, 2.63).  Errors: (−0.90, −1.13, −2.37).  J = <b>1.49</b> ← dropped from 6.33!</span></div>
+      <div class="werow westep"><span class="wetag">Step 2</span><span class="wecontent">∇J: (−2.66, −1.47).  w → 1.034, b → 0.480.  J = <b>0.61</b></span></div>
+      <div class="werow westep"><span class="wetag">Step 3</span><span class="wecontent">w → 1.140, b → 0.521.  J = <b>0.32</b></span></div>
+      <div class="werow weresult"><span class="wetag">Converging</span><span class="wecontent">Cost is dropping each step toward the optimum (w*, b*) ≈ (1.5, 0.33), J* ≈ 0.083. After 50 steps it's basically at the bottom of the bowl.</span></div>
+    </div></div>
+  </div>
+</div>
+</div>
+
+<div class="chd"><h3>Scaling to AI</h3></div>
+
+<div class="topic" id="t07">
+<div class="thd"><span class="tnum">07</span><div><h2>From 2 Params to 175 Billion</h2><div class="tsub">The bowl idea generalises — but the landscape changes shape</div></div></div>
+<div class="analogy"><div class="ic">🌍</div><p><strong>Plain English:</strong> Linear regression has 2 parameters. A small neural network has thousands. ResNet-50 has 25 million. GPT-3 has 175 billion. <strong>The exact same idea</strong> applies — every model has a cost surface in some high-dimensional space, and training = finding its low points. But: as you add parameters and nonlinearities, the bowl stops being a clean bowl. It becomes a billion-dimensional landscape with hills, valleys, plateaus, saddles, and many local minima. Astonishingly, gradient descent <em>still works</em> — modern deep learning is the empirical discovery that this scales beautifully.</p></div>
+<div class="vb"><div class="vbhd"><span class="pulse"></span><span class="vbt">From convex bowl → non-convex landscape</span></div>
+  <div class="vbd">
+    <canvas id="cv07" style="height:340px"></canvas>
+    <div class="ctrls">
+      <div class="ctrl"><label>Model complexity</label><select id="mc_07" onchange="D07()" style="width:100%">
+        <option value="lin">Linear regression (1 bowl)</option>
+        <option value="logreg">Logistic regression (1 valley)</option>
+        <option value="shallow">Small NN (few minima)</option>
+        <option value="deep">Deep NN (many minima)</option>
+        <option value="llm">LLM-scale (jagged manifold)</option>
+      </select></div>
+      <div class="ctrl"><label>Rotate</label><div class="cr"><input type="range" id="az_07" min="0" max="360" step="1" value="35" oninput="D07()"><span class="val" id="azv07">35°</span></div></div>
+      <div class="ctrl"><label>Tilt</label><div class="cr"><input type="range" id="el_07" min="10" max="80" step="1" value="40" oninput="D07()"><span class="val" id="elv07">40°</span></div></div>
+    </div>
+    <div class="xp"><div class="xphd"><span class="pulse"></span><span class="xplbl">Live</span></div>
+    <div class="xpb"><div class="xpc"><h5>Landscape character</h5><p id="ei07a">—</p></div><div class="xpc"><h5>Why training still works</h5><p id="ei07b">—</p></div></div></div>
+    <div class="tryb"><h5>Build intuition</h5><ul>
+    <li>Linear regression: pristine bowl, gradient descent always finds the minimum.</li>
+    <li>Small NN: a few hills appear. Multiple "good enough" solutions exist.</li>
+    <li>Deep NN: terrain becomes wild. But high-dimensional surfaces have a surprising property — most critical points are <em>saddles</em>, not bad local minima. SGD escapes them.</li>
+    <li>LLM-scale: the surface is essentially a "thin manifold" — most directions have huge curvature, only some are flat. The optimisation walks along this manifold.</li>
+    </ul></div>
+  </div>
+</div>
+<div class="fm">Linear regression: J(w, b) — 2 parameters, convex bowl<br>ResNet-50: J(θ₁, ..., θ₂₅ₘ) — 25M parameters, non-convex<br>GPT-3: J(θ₁, ..., θ₁₇₅ᵦ) — 175B parameters, non-convex<br>Same algorithm: θ ← θ − α·∇J(θ). Same idea: walk downhill on the cost surface.</div>
+<div class="dive">
+  <div class="divehd"><span style="color:var(--tl)">★</span><h4>AI Deep Dive — Cost Surfaces at Scale</h4><span class="mod">Topic 07</span></div>
+  <div class="dconcept"><h5>📚 The Concept</h5>
+    <p>For linear regression, the cost J(w, b) is provably convex — there is exactly one minimum, and gradient descent will find it. For neural networks, the cost is highly <strong>non-convex</strong>: there are many local minima, saddle points, plateaus, and pathological regions. By classical optimisation theory, this should be a disaster — gradient descent has no convergence guarantee on non-convex problems. Yet in practice, deep learning works. Several insights resolve this paradox: (1) <em>In high dimensions, most critical points of a random function are saddles, not local minima</em> — and SGD escapes saddles via noise. (2) <em>Most local minima of neural networks have similar quality</em> — finding any reasonable one suffices for good generalisation. (3) <em>Loss landscapes near good solutions are surprisingly flat</em> — wide basins generalise well. (4) <em>The optimisation lives on a thin manifold</em> in parameter space — only a small subspace of directions matters. Researchers visualise these landscapes by taking 2D slices through the high-dimensional surface — the "Visualising the Loss Landscape of Neural Nets" paper (Li et al., 2018) is the canonical reference.</p>
+    <div class="dintu">💡 <strong>Intuition:</strong> The 2D bowl of linear regression is a perfect introduction to the IDEA of loss surfaces — but the actual surfaces of modern neural networks look more like a fractal mountain range than a clean bowl. The miracle of deep learning is that gradient descent works on these wild landscapes anyway. Andrej Karpathy described it as: "neural network training is summoning a function from the void by repeatedly nudging it." That nudging IS gradient descent on the loss landscape.</div>
+  </div>
+  <div class="divepp">
+    <div class="dwhy"><h5>❓ Why AI needs this</h5><p>Understanding cost surfaces guides every design decision in modern AI:</p><ul class="wl"><li>Network architecture choice (residual connections) is partly motivated by smoother loss landscapes</li><li>Batch normalisation flattens the loss surface, enabling larger learning rates</li><li>Adam vs SGD vs Lion: each works best for different landscape geometries</li><li>Learning rate schedules (warmup + cosine) navigate the landscape's changing shape during training</li><li>Sharpness-aware minimisation (SAM) explicitly seeks flat minima for better generalisation</li><li>Mode connectivity research found that good minima are connected by low-loss paths — the landscape isn't as fragmented as we thought</li></ul></div>
+    <div class="dhow"><h5>⚙️ How AI uses it</h5><p>Visualise NN loss landscapes via 2D slices (Li et al. 2018):</p><div class="cb"># Sample two random directions in parameter space
+delta1 = [torch.randn_like(p) for p in model.parameters()]
+delta2 = [torch.randn_like(p) for p in model.parameters()]
+
+# Plot loss along the (alpha, beta) slice
+losses = np.zeros((50, 50))
+for i, a in enumerate(np.linspace(-1, 1, 50)):
+    for j, b in enumerate(np.linspace(-1, 1, 50)):
+        # set parameters: theta = theta_star + a*delta1 + b*delta2
+        with torch.no_grad():
+            for p, d1, d2 in zip(model.parameters(), delta1, delta2):
+                p.copy_(p + a*d1 + b*d2)
+        losses[i,j] = compute_loss(model, X, y)
+        # restore
+        for p, d1, d2 in zip(model.parameters(), delta1, delta2):
+            p.copy_(p - a*d1 - b*d2)
+
+plt.contour(losses)   # 2D slice through the high-dim landscape</div><div class="chips"><span class="chip chh">non-convex</span><span class="chip chh">saddle points</span><span class="chip chh">flat minima</span><span class="chip chn">SAM</span><span class="chip chn">mode connectivity</span></div></div>
+  </div>
+  <div class="dexample"><h5>🧮 Worked Example</h5>
+    <p>Compare the dimensionality of cost surfaces across model families.</p>
+    <div class="we"><div class="wehd">Cost surface dimensions across the AI stack</div><div class="webd">
+      <div class="werow wegiven"><span class="wetag">Linear reg</span><span class="wecontent">2 parameters → cost surface lives in ℝ³ (a 2D surface in 3D space). Visualisable.</span></div>
+      <div class="werow westep"><span class="wetag">Logistic reg</span><span class="wecontent">d+1 parameters (d features + bias) → cost surface in ℝ^(d+2). Convex but not visualisable for d &gt; 1.</span></div>
+      <div class="werow westep"><span class="wetag">Small MLP</span><span class="wecontent">~10K parameters → surface in ℝ^10001. Non-convex. We visualise via 2D slices.</span></div>
+      <div class="werow westep"><span class="wetag">ResNet-50</span><span class="wecontent">25M parameters → surface in ℝ^(25M+1). Wildly non-convex. SGD with momentum + BN navigates it.</span></div>
+      <div class="werow westep"><span class="wetag">GPT-3</span><span class="wecontent">175B parameters → surface in ℝ^(175B+1). Effectively infinite-dimensional. AdamW + cosine schedule + warmup.</span></div>
+      <div class="werow westep"><span class="wetag">GPT-4</span><span class="wecontent">~1.7T parameters (estimated, mixture-of-experts). Optimisation across distributed compute, weeks of training.</span></div>
+      <div class="werow weresult"><span class="wetag">Insight</span><span class="wecontent">The same gradient-descent algorithm — first published for linear regression in the 1840s by Cauchy — runs at all of these scales. The principle is identical: <span class="hi">walk downhill on the cost</span>. The bowl just becomes a much higher-dimensional bowl, with more interesting shape.</span></div>
+    </div></div>
+  </div>
+</div>
+</div>
+
+<div class="chd"><h3>Reference</h3></div>
+
+<div class="topic" id="t08">
+<div class="thd"><span class="tnum">08</span><div><h2>Cheat Sheet</h2><div class="tsub">All the formulas, intuitions, and patterns — in one place</div></div></div>
+
+<div class="chd"><h3>📐 Linear Regression Setup</h3></div>
+<div class="csg">
+  <div class="csi"><div class="csn">Model</div><div class="csf">f<sub>w,b</sub>(x) = w·x + b</div><div class="csd">Straight line in (x, y) plane</div></div>
+  <div class="csi"><div class="csn">Parameters</div><div class="csf">w (slope), b (intercept)</div><div class="csd">2 numbers to learn</div></div>
+  <div class="csi"><div class="csn">Cost</div><div class="csf">J(w, b) = (1/2m) Σ (f(xᵢ) − yᵢ)²</div><div class="csd">Mean squared error</div></div>
+  <div class="csi"><div class="csn">Goal</div><div class="csf">min<sub>w, b</sub> J(w, b)</div><div class="csd">Find best line</div></div>
+  <div class="csi"><div class="csn">Sample size</div><div class="csf">m = number of training pairs</div><div class="csd">Used in averaging</div></div>
+  <div class="csi"><div class="csn">Residual</div><div class="csf">rᵢ = f(xᵢ) − yᵢ</div><div class="csd">Vertical gap from line</div></div>
+</div>
+
+<div class="chd"><h3>🥣 Geometry of J</h3></div>
+<div class="csg">
+  <div class="csi"><div class="csn">1D slice (fix b)</div><div class="csf">J(w) = parabola</div><div class="csd">Symmetric, unique min</div></div>
+  <div class="csi"><div class="csn">2D contour</div><div class="csf">Concentric ellipses</div><div class="csd">Same J = same ring</div></div>
+  <div class="csi"><div class="csn">3D surface</div><div class="csf">Elliptic paraboloid</div><div class="csd">Bowl, opens upward</div></div>
+  <div class="csi"><div class="csn">Convexity</div><div class="csf">Hessian H positive-definite</div><div class="csd">Single global minimum</div></div>
+  <div class="csi"><div class="csn">Tilt of contours</div><div class="csf">Off-diagonal of H non-zero</div><div class="csd">w and b correlated</div></div>
+  <div class="csi"><div class="csn">Same J property</div><div class="csf">Many (w, b) on each ring</div><div class="csd">Equally bad fits, different lines</div></div>
+</div>
+
+<div class="chd"><h3>📉 Gradient Descent</h3></div>
+<div class="csg">
+  <div class="csi"><div class="csn">Gradient w</div><div class="csf">∂J/∂w = (1/m) Σ rᵢ · xᵢ</div><div class="csd">How much line tilts wrong</div></div>
+  <div class="csi"><div class="csn">Gradient b</div><div class="csf">∂J/∂b = (1/m) Σ rᵢ</div><div class="csd">How much line is mis-shifted</div></div>
+  <div class="csi"><div class="csn">Update w</div><div class="csf">w ← w − α · ∂J/∂w</div><div class="csd">α = learning rate</div></div>
+  <div class="csi"><div class="csn">Update b</div><div class="csf">b ← b − α · ∂J/∂b</div><div class="csd">Same step rule</div></div>
+  <div class="csi"><div class="csn">Convergence (quadratic)</div><div class="csf">α &lt; 2/L</div><div class="csd">L = largest Hessian eigenvalue</div></div>
+  <div class="csi"><div class="csn">Speed (quadratic)</div><div class="csf">geometric, rate (1 − α/κ)</div><div class="csd">κ = condition number</div></div>
+</div>
+
+<div class="chd"><h3>🔬 Closed Form (just for linear regression)</h3></div>
+<div class="csg">
+  <div class="csi"><div class="csn">w*</div><div class="csf">Σ(xᵢ − x̄)(yᵢ − ȳ) / Σ(xᵢ − x̄)²</div><div class="csd">Cov(x, y) / Var(x)</div></div>
+  <div class="csi"><div class="csn">b*</div><div class="csf">ȳ − w*·x̄</div><div class="csd">Best line passes through (x̄, ȳ)</div></div>
+  <div class="csi"><div class="csn">Vector form</div><div class="csf">θ* = (XᵀX)⁻¹ Xᵀy</div><div class="csd">Normal equations</div></div>
+  <div class="csi"><div class="csn">When to use</div><div class="csf">small d (≤ 10⁴), exact answer</div><div class="csd">O(d³) inversion cost</div></div>
+  <div class="csi"><div class="csn">Why GD instead</div><div class="csf">Scales to huge d</div><div class="csd">O(d) per step</div></div>
+</div>
+
+<div class="chd"><h3>🌍 Scaling Up</h3></div>
+<div class="csg">
+  <div class="csi"><div class="csn">Linear reg</div><div class="csf">2 params, convex bowl</div><div class="csd">Closed form OR GD</div></div>
+  <div class="csi"><div class="csn">Logistic reg</div><div class="csf">d params, convex valley</div><div class="csd">No closed form, GD only</div></div>
+  <div class="csi"><div class="csn">Shallow NN</div><div class="csf">~10⁴ params, mildly non-convex</div><div class="csd">SGD + momentum</div></div>
+  <div class="csi"><div class="csn">CNN (ResNet-50)</div><div class="csf">25M params, non-convex</div><div class="csd">SGD + BN, 100 epochs</div></div>
+  <div class="csi"><div class="csn">LLM (GPT-3)</div><div class="csf">175B params, non-convex</div><div class="csd">AdamW + cosine + warmup</div></div>
+  <div class="csi"><div class="csn">Frontier (GPT-4)</div><div class="csf">~1.7T params, MoE</div><div class="csd">Distributed AdamW, weeks of training</div></div>
+</div>
+
+<div class="note"><strong>★ The Big Idea:</strong> Every modern AI system reduces to: (1) define a parametric model, (2) define a cost function, (3) compute gradients of cost with respect to parameters, (4) take small steps in the direction that reduces cost. Linear regression is the cleanest possible example of this recipe — and the 3D bowl visualisation is the cleanest possible way to <em>see</em> what's happening. Everything else is more dimensions, more nonlinearity, and more computational scaffolding around the same core idea.</div>
+
+</div>
+
+</main></div>
+<script>
+/* ============= HELPERS ============= */
+function ctx2(id){const c=document.getElementById(id);if(!c)return null;const r=c.getBoundingClientRect();const dpr=window.devicePixelRatio||1;c.width=r.width*dpr;c.height=r.height*dpr;const ctx=c.getContext('2d');ctx.scale(dpr,dpr);return{c,ctx,W:r.width,H:r.height};}
+function val(id){const e=document.getElementById(id);return e?parseFloat(e.value):0;}
+function ival(id){const e=document.getElementById(id);return e?parseInt(e.value):0;}
+function sval(id){const e=document.getElementById(id);return e?e.value:'';}
+function setText(id,t){const e=document.getElementById(id);if(e)e.textContent=t;}
+function setVal(id,v){const e=document.getElementById(id);if(e)e.textContent=v;}
+const COL={tl:'#1D9E75',tld:'#34D399',pu:'#7F77DD',co:'#D85A30',am:'#BA7517',bl:'#378ADD',tx:'#E6EDF3',tx2:'#8B949E',tx3:'#484F58',bdr:'#30363D',bg:'#0D1117',s2:'#21262D',red:'#F87171',ylo:'#FCD34D',blu:'#93C5FD',grn:'#34D399'};
+function clip(v,a,b){return Math.max(a,Math.min(b,v));}
+function mulberry32(seed){let t=seed>>>0;return function(){t+=0x6D2B79F5;let r=t;r=Math.imul(r^(r>>>15),r|1);r^=r+Math.imul(r^(r>>>7),r|61);return((r^(r>>>14))>>>0)/4294967296;};}
+
+/* ============= HOUSING DATA ============= */
+// 30 houses: x = sq ft, y = price in $1000s. Underlying truth: y ≈ 0.13·x + 80 + noise
+const HOUSING=(()=>{const rnd=mulberry32(7);const data=[];for(let i=0;i<30;i++){const x=600+i*80+(rnd()*120-60);const y=0.13*x+80+(rnd()*80-40);data.push([x,y]);}return data;})();
+function cost(w,b,data){let s=0;for(const[x,y]of data){const e=w*x+b-y;s+=e*e;}return s/(2*data.length);}
+function gradJ(w,b,data){let dw=0,db=0;for(const[x,y]of data){const e=w*x+b-y;dw+=e*x;db+=e;}return[dw/data.length,db/data.length];}
+// Optimal (closed form on housing data)
+const _xs=HOUSING.map(d=>d[0]),_ys=HOUSING.map(d=>d[1]);
+const _xb=_xs.reduce((a,b)=>a+b)/30,_yb=_ys.reduce((a,b)=>a+b)/30;
+let _num=0,_den=0;for(let i=0;i<30;i++){_num+=(_xs[i]-_xb)*(_ys[i]-_yb);_den+=(_xs[i]-_xb)*(_xs[i]-_xb);}
+const W_OPT=_num/_den, B_OPT=_yb-W_OPT*_xb, J_OPT=cost(W_OPT,B_OPT,HOUSING);
+
+/* ============= 3D PROJECTION ENGINE ============= */
+// Simple orthographic projection with two-axis rotation
+function project3D(x,y,z,az,el,scale,cx,cy){
+  const ar=az*Math.PI/180, er=el*Math.PI/180;
+  // Rotate around Z (vertical) axis by az
+  const x1=x*Math.cos(ar)-y*Math.sin(ar);
+  const y1=x*Math.sin(ar)+y*Math.cos(ar);
+  const z1=z;
+  // Tilt around horizontal axis by elevation
+  const y2=y1*Math.cos(er)-z1*Math.sin(er);
+  const z2=y1*Math.sin(er)+z1*Math.cos(er);
+  // Orthographic — z2 is depth (larger = further away → smaller? We use z2 for depth sort, x1, y2 for screen)
+  return{px:cx+x1*scale, py:cy-y2*scale, depth:z2};
+}
+
+/* ============= D01: Linear regression line ============= */
+function D01(){
+  const o=ctx2('cv01');if(!o)return;
+  const{ctx,W,H}=o;
+  const w=val('w_01'),b=val('b_01');const rs=sval('rs_01');
+  setVal('wv01',w.toFixed(3));setVal('bv01',Math.round(b));
+  const PAD=42;
+  // axes
+  ctx.fillStyle=COL.bg;ctx.fillRect(0,0,W,H);
+  const xL=400,xR=3500,yB=0,yT=600;
+  const plotL=PAD,plotR=W-12,plotT=12,plotB=H-30;
+  const mx=x=>plotL+(plotR-plotL)*(x-xL)/(xR-xL);
+  const my=y=>plotB-(plotB-plotT)*(y-yB)/(yT-yB);
+  // grid
+  ctx.strokeStyle=COL.bdr;ctx.lineWidth=0.5;
+  for(let i=0;i<=6;i++){const x=plotL+i*(plotR-plotL)/6;ctx.beginPath();ctx.moveTo(x,plotT);ctx.lineTo(x,plotB);ctx.stroke();
+    ctx.fillStyle=COL.tx3;ctx.font='9px ui-monospace,monospace';ctx.textAlign='center';ctx.fillText(Math.round(xL+i*(xR-xL)/6),x,plotB+11);}
+  for(let i=0;i<=5;i++){const y=plotT+i*(plotB-plotT)/5;ctx.beginPath();ctx.moveTo(plotL,y);ctx.lineTo(plotR,y);ctx.stroke();
+    ctx.fillStyle=COL.tx3;ctx.font='9px ui-monospace,monospace';ctx.textAlign='right';ctx.fillText(Math.round(yT-i*(yT-yB)/5),plotL-3,y+3);}
+  // axis labels
+  ctx.fillStyle=COL.tx2;ctx.font='10px -apple-system,sans-serif';ctx.textAlign='center';ctx.fillText('size (sq ft)',(plotL+plotR)/2,H-8);
+  ctx.save();ctx.translate(12,(plotT+plotB)/2);ctx.rotate(-Math.PI/2);ctx.textAlign='center';ctx.fillText('price ($1000s)',0,0);ctx.restore();
+  // squared residuals (drawn first so behind line)
+  if(rs==='sq'){
+    for(const[x,y]of HOUSING){const yp=w*x+b;const dpx=mx(x);const dpy=my(y);const ppy=my(yp);const sz=Math.abs(dpy-ppy);
+      ctx.fillStyle='rgba(216,90,48,0.18)';ctx.fillRect(dpx,Math.min(dpy,ppy),sz,sz);
+      ctx.strokeStyle=COL.co;ctx.lineWidth=0.6;ctx.strokeRect(dpx,Math.min(dpy,ppy),sz,sz);}
+  } else if(rs==='lines'){
+    ctx.strokeStyle=COL.co;ctx.lineWidth=1;
+    for(const[x,y]of HOUSING){const yp=w*x+b;ctx.beginPath();ctx.moveTo(mx(x),my(y));ctx.lineTo(mx(x),my(yp));ctx.stroke();}
+  }
+  // data points
+  ctx.fillStyle=COL.red;
+  for(const[x,y]of HOUSING){ctx.fillStyle=COL.red;ctx.font='bold 12px ui-monospace,monospace';ctx.textAlign='center';ctx.fillText('×',mx(x),my(y)+4);}
+  // regression line
+  ctx.strokeStyle=COL.tld;ctx.lineWidth=2.5;ctx.beginPath();
+  ctx.moveTo(mx(xL),my(w*xL+b));ctx.lineTo(mx(xR),my(w*xR+b));ctx.stroke();
+  // optimum line as reference (faint)
+  ctx.strokeStyle=COL.am;ctx.setLineDash([3,3]);ctx.lineWidth=1;ctx.beginPath();
+  ctx.moveTo(mx(xL),my(W_OPT*xL+B_OPT));ctx.lineTo(mx(xR),my(W_OPT*xR+B_OPT));ctx.stroke();ctx.setLineDash([]);
+  // legend
+  ctx.font='10px -apple-system,sans-serif';ctx.textAlign='left';
+  ctx.fillStyle=COL.tld;ctx.fillRect(W-180,18,12,3);ctx.fillStyle=COL.tx2;ctx.fillText('your line: f(x)='+w.toFixed(3)+'·x+'+Math.round(b),W-164,22);
+  ctx.fillStyle=COL.am;ctx.fillRect(W-180,32,12,1);ctx.fillStyle=COL.tx2;ctx.fillText('best line (for reference)',W-164,36);
+  const J=cost(w,b,HOUSING);
+  setText('ei01a','f(x) = '+w.toFixed(3)+'·x + '+Math.round(b)+'  →  for a 2000 sq ft house, predicts $'+Math.round(w*2000+b)+'K');
+  setText('ei01b','J(w, b) = '+J.toFixed(1)+'  vs.  J*='+J_OPT.toFixed(1)+' (optimum). '+(J<J_OPT*1.2?'Excellent fit — near optimal.':J<J_OPT*3?'Reasonable fit, can improve.':'Poor fit — line is far from data.'));
+}
+
+/* ============= D02: Cost decomposition with squared residuals ============= */
+function D02(){
+  const o=ctx2('cv02');if(!o)return;
+  const{ctx,W,H}=o;
+  const w=val('w_02'),b=val('b_02');
+  setVal('wv02',w.toFixed(3));setVal('bv02',Math.round(b));
+  ctx.fillStyle=COL.bg;ctx.fillRect(0,0,W,H);
+  // Use a tighter sample of 8 points for clarity
+  const SAMP=HOUSING.filter((_,i)=>i%4===0);
+  const PAD=42;
+  const xL=400,xR=3500,yB=0,yT=600;
+  const plotL=PAD,plotR=W-12,plotT=18,plotB=H-30;
+  const mx=x=>plotL+(plotR-plotL)*(x-xL)/(xR-xL);
+  const my=y=>plotB-(plotB-plotT)*(y-yB)/(yT-yB);
+  const sx=(plotR-plotL)/(xR-xL),sy=(plotB-plotT)/(yT-yB);
+  ctx.strokeStyle=COL.bdr;ctx.lineWidth=0.5;
+  for(let i=0;i<=6;i++){const x=plotL+i*(plotR-plotL)/6;ctx.beginPath();ctx.moveTo(x,plotT);ctx.lineTo(x,plotB);ctx.stroke();}
+  for(let i=0;i<=5;i++){const y=plotT+i*(plotB-plotT)/5;ctx.beginPath();ctx.moveTo(plotL,y);ctx.lineTo(plotR,y);ctx.stroke();}
+  // squared residuals first
+  for(const[x,y]of SAMP){const yp=w*x+b;const dpx=mx(x);const dpy=my(y);const ppy=my(yp);
+    const sz=Math.abs(dpy-ppy); // size in pixels = |residual| * sy in data units. To get a real "square" we need same data units in x and y. Approximate by clamping.
+    const top=Math.min(dpy,ppy);
+    ctx.fillStyle='rgba(186,117,23,0.22)';ctx.fillRect(dpx,top,sz,sz);
+    ctx.strokeStyle=COL.am;ctx.lineWidth=0.7;ctx.strokeRect(dpx,top,sz,sz);
+  }
+  // points
+  ctx.fillStyle=COL.red;ctx.font='bold 13px ui-monospace,monospace';ctx.textAlign='center';
+  for(const[x,y]of SAMP)ctx.fillText('×',mx(x),my(y)+4);
+  // line
+  ctx.strokeStyle=COL.tld;ctx.lineWidth=2.5;ctx.beginPath();
+  ctx.moveTo(mx(xL),my(w*xL+b));ctx.lineTo(mx(xR),my(w*xR+b));ctx.stroke();
+  // axis labels
+  ctx.fillStyle=COL.tx2;ctx.font='10px -apple-system,sans-serif';ctx.textAlign='left';
+  ctx.fillText('Each orange square has area = residual². Total area / 2m = cost J.',plotL,plotT-4);
+  // residual list
+  let sumSq=0;for(const[x,y]of SAMP){sumSq+=(w*x+b-y)**2;}
+  const J=sumSq/(2*SAMP.length);
+  setText('ei02a','m = '+SAMP.length+' samples shown.  Σ residual² = '+sumSq.toFixed(0)+'  →  J = '+J.toFixed(1)+' (above scaled to 8-house subset).');
+  setText('ei02b','Squaring: positive and negative errors don\'t cancel. /m: cost is per-sample average, doesn\'t grow with dataset size. /2: makes derivative cleaner (the 2 from squaring cancels with 1/2).');
+}
+
+/* ============= D03: 1D cost curve (parabola) ============= */
+function D03(){
+  const o=ctx2('cv03');if(!o)return;
+  const{ctx,W,H}=o;
+  const wv=val('w_03');setVal('wv03',wv.toFixed(3));
+  ctx.fillStyle=COL.bg;ctx.fillRect(0,0,W,H);
+  // Two side-by-side panels: line on left, J(w) on right
+  const PAD=36,gap=14;
+  const lpW=(W-PAD*2-gap)*0.5,rpW=(W-PAD*2-gap)*0.5;
+  const lpL=PAD,lpR=lpL+lpW,lpT=18,lpB=H-30;
+  const rpL=lpR+gap,rpR=W-12,rpT=18,rpB=H-30;
+  // LEFT: scatter + line
+  const xL=400,xR=3500,yB=0,yT=600;
+  const mxL=x=>lpL+lpW*(x-xL)/(xR-xL),myL=y=>lpB-(lpB-lpT)*(y-yB)/(yT-yB);
+  ctx.strokeStyle=COL.bdr;ctx.lineWidth=0.5;
+  for(let i=0;i<=4;i++){ctx.beginPath();ctx.moveTo(lpL+i*lpW/4,lpT);ctx.lineTo(lpL+i*lpW/4,lpB);ctx.stroke();
+                        ctx.beginPath();ctx.moveTo(lpL,lpT+i*(lpB-lpT)/4);ctx.lineTo(lpR,lpT+i*(lpB-lpT)/4);ctx.stroke();}
+  ctx.fillStyle=COL.red;ctx.font='bold 11px ui-monospace,monospace';ctx.textAlign='center';
+  for(const[x,y]of HOUSING)ctx.fillText('×',mxL(x),myL(y)+3);
+  ctx.strokeStyle=COL.tld;ctx.lineWidth=2;ctx.beginPath();
+  ctx.moveTo(mxL(xL),myL(wv*xL+B_OPT));ctx.lineTo(mxL(xR),myL(wv*xR+B_OPT));ctx.stroke();
+  ctx.fillStyle=COL.tx2;ctx.font='10px -apple-system,sans-serif';ctx.textAlign='left';
+  ctx.fillText('Line: f(x) = '+wv.toFixed(3)+'·x + '+Math.round(B_OPT)+'  (b fixed at b*)',lpL,lpT-4);
+  // axis labels
+  ctx.textAlign='center';ctx.fillStyle=COL.tx3;ctx.fillText('size (sq ft)',(lpL+lpR)/2,H-8);
+  // RIGHT: J(w) parabola
+  const wMin=-0.10,wMax=0.40;
+  // sample J values
+  const samps=120;const Js=[];for(let i=0;i<=samps;i++){const w=wMin+(wMax-wMin)*i/samps;Js.push(cost(w,B_OPT,HOUSING));}
+  const Jmin=Math.min(...Js),Jmax=Math.max(...Js);
+  const yJtop=Jmax*1.05,yJbot=0;
+  const mxR=w=>rpL+(rpR-rpL)*(w-wMin)/(wMax-wMin),myR=J=>rpB-(rpB-rpT)*(J-yJbot)/(yJtop-yJbot);
+  ctx.strokeStyle=COL.bdr;ctx.lineWidth=0.5;
+  for(let i=0;i<=5;i++){ctx.beginPath();ctx.moveTo(rpL+i*(rpR-rpL)/5,rpT);ctx.lineTo(rpL+i*(rpR-rpL)/5,rpB);ctx.stroke();
+                        ctx.beginPath();ctx.moveTo(rpL,rpT+i*(rpB-rpT)/5);ctx.lineTo(rpR,rpT+i*(rpB-rpT)/5);ctx.stroke();
+    const w=wMin+i*(wMax-wMin)/5;ctx.fillStyle=COL.tx3;ctx.font='9px ui-monospace,monospace';ctx.textAlign='center';ctx.fillText(w.toFixed(2),rpL+i*(rpR-rpL)/5,rpB+11);}
+  // parabola
+  ctx.strokeStyle=COL.pu;ctx.lineWidth=2.5;ctx.beginPath();
+  for(let i=0;i<=samps;i++){const w=wMin+(wMax-wMin)*i/samps;const y=Js[i];if(i===0)ctx.moveTo(mxR(w),myR(y));else ctx.lineTo(mxR(w),myR(y));}
+  ctx.stroke();
+  // current point
+  const Jc=cost(wv,B_OPT,HOUSING);
+  ctx.fillStyle=COL.tld;ctx.beginPath();ctx.arc(mxR(wv),myR(Jc),5,0,Math.PI*2);ctx.fill();
+  // optimum marker
+  ctx.fillStyle=COL.am;ctx.beginPath();ctx.arc(mxR(W_OPT),myR(J_OPT),4,0,Math.PI*2);ctx.fill();
+  // labels
+  ctx.fillStyle=COL.tx2;ctx.font='10px -apple-system,sans-serif';ctx.textAlign='left';
+  ctx.fillText('J as a function of w (b = b*)',rpL,rpT-4);
+  ctx.fillStyle=COL.tx3;ctx.textAlign='center';ctx.fillText('w',(rpL+rpR)/2,H-8);
+  setText('ei03a','At w = '+wv.toFixed(3)+', J = '+Jc.toFixed(1)+'.  Optimum is at w* ≈ '+W_OPT.toFixed(3)+' where J* = '+J_OPT.toFixed(1)+'.');
+  setText('ei03b','J(w) is a perfect parabola because residuals are linear in w, and squaring linear gives quadratic. Symmetric: ±Δw from optimum gives same cost.');
+}
+
+/* ============= D04: Contour plot of J(w, b) ============= */
+function D04(){
+  const o=ctx2('cv04');if(!o)return;
+  const{ctx,W,H}=o;
+  const wv=val('w_04'),bv=val('b_04');
+  setVal('wv04',wv.toFixed(3));setVal('bv04',Math.round(bv));
+  ctx.fillStyle=COL.bg;ctx.fillRect(0,0,W,H);
+  // Two panels: line on left, contour on right
+  const PAD=36,gap=14;
+  const lpW=(W-PAD*2-gap)*0.42,rpW=(W-PAD*2-gap)*0.58;
+  const lpL=PAD,lpR=lpL+lpW,lpT=18,lpB=H-30;
+  const rpL=lpR+gap,rpR=W-12,rpT=18,rpB=H-30;
+  // LEFT: scatter + line
+  const xL=400,xR=3500,yB=-50,yT=600;
+  const mxL=x=>lpL+lpW*(x-xL)/(xR-xL),myL=y=>lpB-(lpB-lpT)*(y-yB)/(yT-yB);
+  ctx.strokeStyle=COL.bdr;ctx.lineWidth=0.5;
+  for(let i=0;i<=4;i++){ctx.beginPath();ctx.moveTo(lpL+i*lpW/4,lpT);ctx.lineTo(lpL+i*lpW/4,lpB);ctx.stroke();
+                        ctx.beginPath();ctx.moveTo(lpL,lpT+i*(lpB-lpT)/4);ctx.lineTo(lpR,lpT+i*(lpB-lpT)/4);ctx.stroke();}
+  ctx.fillStyle=COL.red;ctx.font='bold 11px ui-monospace,monospace';ctx.textAlign='center';
+  for(const[x,y]of HOUSING)ctx.fillText('×',mxL(x),myL(y)+3);
+  ctx.strokeStyle=COL.tld;ctx.lineWidth=2;ctx.beginPath();
+  ctx.moveTo(mxL(xL),myL(wv*xL+bv));ctx.lineTo(mxL(xR),myL(wv*xR+bv));ctx.stroke();
+  ctx.fillStyle=COL.tx3;ctx.font='10px -apple-system,sans-serif';ctx.textAlign='center';ctx.fillText('size (sq ft)',(lpL+lpR)/2,H-8);
+  ctx.textAlign='left';ctx.fillText('your line',lpL,lpT-4);
+  // RIGHT: contour
+  const wMin=-0.05,wMax=0.35,bMin=-50,bMax=250;
+  const mxR=w=>rpL+(rpR-rpL)*(w-wMin)/(wMax-wMin),myR=b=>rpB-(rpB-rpT)*(b-bMin)/(bMax-bMin);
+  // sample J on grid
+  const NW=70,NB=70;const Jgrid=[];let Jmax=0;
+  for(let i=0;i<NW;i++){const row=[];for(let j=0;j<NB;j++){const w=wMin+(wMax-wMin)*i/(NW-1);const b=bMin+(bMax-bMin)*j/(NB-1);const J=cost(w,b,HOUSING);row.push(J);if(J>Jmax)Jmax=J;}Jgrid.push(row);}
+  // background fill (low cost = teal, high = dark)
+  for(let i=0;i<NW-1;i++){for(let j=0;j<NB-1;j++){
+    const J=Jgrid[i][j];const t=Math.min(J/Jmax,1);
+    // colormap: low → teal, high → dark blue/purple
+    const r=Math.round(13+t*15);const g=Math.round(70+t*0-30*t);const bb=Math.round(40+t*10);
+    if(t<0.05){ctx.fillStyle='rgb(29, 158, 117)';} // tl green pit
+    else if(t<0.12){ctx.fillStyle='rgb(28, 100, 90)';}
+    else if(t<0.25){ctx.fillStyle='rgb(35, 75, 85)';}
+    else if(t<0.5){ctx.fillStyle='rgb(35, 50, 80)';}
+    else if(t<0.75){ctx.fillStyle='rgb(40, 30, 65)';}
+    else{ctx.fillStyle='rgb(30, 20, 50)';}
+    const w=wMin+(wMax-wMin)*i/(NW-1);const b=bMin+(bMax-bMin)*j/(NB-1);
+    const w2=wMin+(wMax-wMin)*(i+1)/(NW-1);const b2=bMin+(bMax-bMin)*(j+1)/(NB-1);
+    ctx.fillRect(mxR(w),myR(b2),mxR(w2)-mxR(w)+0.5,myR(b)-myR(b2)+0.5);
+  }}
+  // Contour lines via marching squares (simple, level by level)
+  const levels=[J_OPT*1.5,J_OPT*4,J_OPT*10,J_OPT*25,J_OPT*55,J_OPT*100,J_OPT*180];
+  ctx.lineWidth=1;
+  for(const lv of levels){
+    ctx.strokeStyle='rgba(230,237,243,0.3)';
+    for(let i=0;i<NW-1;i++){for(let j=0;j<NB-1;j++){
+      const a=Jgrid[i][j],b1=Jgrid[i+1][j],c=Jgrid[i+1][j+1],d=Jgrid[i][j+1];
+      const x0=wMin+(wMax-wMin)*i/(NW-1),x1=wMin+(wMax-wMin)*(i+1)/(NW-1);
+      const y0=bMin+(bMax-bMin)*j/(NB-1),y1=bMin+(bMax-bMin)*(j+1)/(NB-1);
+      // Check 4 edges; draw segment between intersections
+      const pts=[];
+      if((a-lv)*(b1-lv)<0){const t=(lv-a)/(b1-a);pts.push([x0+t*(x1-x0),y0]);}
+      if((b1-lv)*(c-lv)<0){const t=(lv-b1)/(c-b1);pts.push([x1,y0+t*(y1-y0)]);}
+      if((c-lv)*(d-lv)<0){const t=(lv-c)/(d-c);pts.push([x1+(x0-x1)*t,y1]);}
+      if((d-lv)*(a-lv)<0){const t=(lv-d)/(a-d);pts.push([x0,y1+(y0-y1)*t]);}
+      if(pts.length>=2){ctx.beginPath();ctx.moveTo(mxR(pts[0][0]),myR(pts[0][1]));ctx.lineTo(mxR(pts[1][0]),myR(pts[1][1]));ctx.stroke();}
+    }}
+  }
+  // Optimum marker
+  ctx.fillStyle=COL.am;ctx.font='bold 14px ui-monospace,monospace';ctx.textAlign='center';
+  ctx.fillText('×',mxR(W_OPT),myR(B_OPT)+5);
+  ctx.fillStyle=COL.am;ctx.font='9px -apple-system,sans-serif';ctx.fillText('w*, b*',mxR(W_OPT),myR(B_OPT)-7);
+  // Current point
+  ctx.fillStyle=COL.tld;ctx.beginPath();ctx.arc(mxR(wv),myR(bv),6,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#fff';ctx.lineWidth=1.5;ctx.stroke();
+  // Drop lines (showing w and b coords)
+  ctx.strokeStyle=COL.tld;ctx.setLineDash([3,3]);ctx.lineWidth=0.8;
+  ctx.beginPath();ctx.moveTo(mxR(wv),myR(bv));ctx.lineTo(mxR(wv),rpB);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(mxR(wv),myR(bv));ctx.lineTo(rpL,myR(bv));ctx.stroke();ctx.setLineDash([]);
+  // axes
+  ctx.fillStyle=COL.tx3;ctx.font='9px ui-monospace,monospace';ctx.textAlign='center';
+  for(let i=0;i<=4;i++){const w=wMin+(wMax-wMin)*i/4;ctx.fillText(w.toFixed(2),mxR(w),rpB+11);}
+  ctx.textAlign='right';for(let i=0;i<=4;i++){const b=bMin+(bMax-bMin)*i/4;ctx.fillText(Math.round(b),rpL-3,myR(b)+3);}
+  ctx.fillStyle=COL.tx3;ctx.font='10px -apple-system,sans-serif';ctx.textAlign='center';ctx.fillText('w',(rpL+rpR)/2,H-8);
+  ctx.save();ctx.translate(rpL-22,(rpT+rpB)/2);ctx.rotate(-Math.PI/2);ctx.fillText('b',0,0);ctx.restore();
+  ctx.fillStyle=COL.tx2;ctx.font='10px -apple-system,sans-serif';ctx.textAlign='left';ctx.fillText('contour map of J(w, b)',rpL,rpT-4);
+  const Jc=cost(wv,bv,HOUSING);
+  setText('ei04a','You are at (w='+wv.toFixed(3)+', b='+Math.round(bv)+'). Cost J = '+Jc.toFixed(1)+'. Distance from optimum (w*, b*) = ('+(wv-W_OPT).toFixed(3)+', '+Math.round(bv-B_OPT)+').');
+  setText('ei04b','Try landing on a single contour ring with two different (w, b) — same color, same cost. Many lines are equally bad in different ways.');
+}
+
+/* ============= D05: 3D bowl ============= */
+function D05(){
+  const o=ctx2('cv05');if(!o)return;
+  const{ctx,W,H}=o;
+  const wv=val('w_05'),bv=val('b_05'),az=val('az_05'),el=val('el_05');
+  setVal('wv05',wv.toFixed(3));setVal('bv05',Math.round(bv));setVal('azv05',Math.round(az)+'°');setVal('elv05',Math.round(el)+'°');
+  ctx.fillStyle=COL.bg;ctx.fillRect(0,0,W,H);
+  // 3D scene: w-axis (forward-back), b-axis (left-right), J-axis (up)
+  // Sample J grid, normalise to plot
+  const wMin=-0.05,wMax=0.35,bMin=-50,bMax=250;
+  const N=24; // grid resolution
+  const grid=[];let Jmax=0;
+  for(let i=0;i<=N;i++){const row=[];for(let j=0;j<=N;j++){const w=wMin+(wMax-wMin)*i/N;const b=bMin+(bMax-bMin)*j/N;const J=cost(w,b,HOUSING);row.push({w,b,J});if(J>Jmax)Jmax=J;}grid.push(row);}
+  // Map (w, b, J) → 3D coords roughly in [-1, 1]
+  const cx=W/2,cy=H/2+30;
+  const scale=Math.min(W,H)*0.32;
+  function to3D(w,b,J){
+    // Center w around midrange, normalise; b same. J in [0, Jmax] mapped to [0, 1] then scaled height.
+    const nw=(w-(wMin+wMax)/2)/((wMax-wMin)/2);  // [-1, 1]
+    const nb=(b-(bMin+bMax)/2)/((bMax-bMin)/2);   // [-1, 1]
+    const nz=(J/Jmax)*1.4;                         // 0..1.4 (gives the bowl visible height)
+    return{x:nw,y:nb,z:nz-0.7}; // shift z so bowl bottom is around -0.7
+  }
+  // Project all grid points
+  const proj=[];for(let i=0;i<=N;i++){const row=[];for(let j=0;j<=N;j++){const p3=to3D(grid[i][j].w,grid[i][j].b,grid[i][j].J);row.push({...project3D(p3.x,p3.y,p3.z,az,el,scale,cx,cy),J:grid[i][j].J});}proj.push(row);}
+  // Build cell list with depth
+  const cells=[];
+  for(let i=0;i<N;i++){for(let j=0;j<N;j++){const a=proj[i][j],b=proj[i+1][j],c=proj[i+1][j+1],d=proj[i][j+1];cells.push({a,b,c,d,depth:(a.depth+b.depth+c.depth+d.depth)/4,J:(grid[i][j].J+grid[i+1][j].J+grid[i+1][j+1].J+grid[i][j+1].J)/4});}}
+  cells.sort((a,b)=>a.depth-b.depth); // back to front (smaller depth = further back)
+  // Floor grid (axes/contour ground plane)
+  // First draw the floor rectangle
+  const floorPts=[to3D(wMin,bMin,0),to3D(wMax,bMin,0),to3D(wMax,bMax,0),to3D(wMin,bMax,0)].map(p=>({...project3D(p.x,p.y,p.z-0.7,az,el,scale,cx,cy)}));
+  ctx.fillStyle='rgba(33,38,45,0.4)';ctx.beginPath();ctx.moveTo(floorPts[0].px,floorPts[0].py);for(let k=1;k<4;k++)ctx.lineTo(floorPts[k].px,floorPts[k].py);ctx.closePath();ctx.fill();
+  ctx.strokeStyle=COL.bdr;ctx.lineWidth=0.5;ctx.stroke();
+  // Floor grid lines (10 per axis)
+  ctx.strokeStyle='rgba(72,79,88,0.5)';ctx.lineWidth=0.5;
+  for(let k=0;k<=8;k++){
+    const w=wMin+(wMax-wMin)*k/8;const p1=project3D((w-(wMin+wMax)/2)/((wMax-wMin)/2),-1,-0.7,az,el,scale,cx,cy);const p2=project3D((w-(wMin+wMax)/2)/((wMax-wMin)/2),1,-0.7,az,el,scale,cx,cy);
+    ctx.beginPath();ctx.moveTo(p1.px,p1.py);ctx.lineTo(p2.px,p2.py);ctx.stroke();
+    const b=bMin+(bMax-bMin)*k/8;const q1=project3D(-1,(b-(bMin+bMax)/2)/((bMax-bMin)/2),-0.7,az,el,scale,cx,cy);const q2=project3D(1,(b-(bMin+bMax)/2)/((bMax-bMin)/2),-0.7,az,el,scale,cx,cy);
+    ctx.beginPath();ctx.moveTo(q1.px,q1.py);ctx.lineTo(q2.px,q2.py);ctx.stroke();
+  }
+  // Render bowl cells
+  for(const cell of cells){
+    const t=clip(cell.J/Jmax,0,1);
+    // colormap: low J = warm green/teal, high J = cool purple/blue
+    let r,g,bb;
+    if(t<0.05){r=29;g=158;bb=117;}
+    else if(t<0.12){r=24;g=128;bb=110;}
+    else if(t<0.25){r=35;g=90;bb=120;}
+    else if(t<0.5){r=55;g=80;bb=140;}
+    else if(t<0.75){r=80;g=60;bb=150;}
+    else{r=100;g=50;bb=140;}
+    ctx.fillStyle=`rgb(${r},${g},${bb})`;ctx.globalAlpha=0.92;
+    ctx.beginPath();ctx.moveTo(cell.a.px,cell.a.py);ctx.lineTo(cell.b.px,cell.b.py);ctx.lineTo(cell.c.px,cell.c.py);ctx.lineTo(cell.d.px,cell.d.py);ctx.closePath();ctx.fill();
+    ctx.globalAlpha=1;
+    ctx.strokeStyle='rgba(13,17,23,0.35)';ctx.lineWidth=0.5;ctx.stroke();
+  }
+  // Mark optimum on bowl
+  const optP=project3D((W_OPT-(wMin+wMax)/2)/((wMax-wMin)/2),(B_OPT-(bMin+bMax)/2)/((bMax-bMin)/2),(J_OPT/Jmax)*1.4-0.7,az,el,scale,cx,cy);
+  ctx.fillStyle=COL.am;ctx.beginPath();ctx.arc(optP.px,optP.py,5,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#fff';ctx.lineWidth=1.5;ctx.stroke();
+  // Current ball
+  const Jc=cost(wv,bv,HOUSING);
+  const ballP=project3D((wv-(wMin+wMax)/2)/((wMax-wMin)/2),(bv-(bMin+bMax)/2)/((bMax-bMin)/2),(Jc/Jmax)*1.4-0.7,az,el,scale,cx,cy);
+  // Drop lines from ball to floor and to walls
+  const floorP=project3D((wv-(wMin+wMax)/2)/((wMax-wMin)/2),(bv-(bMin+bMax)/2)/((bMax-bMin)/2),-0.7,az,el,scale,cx,cy);
+  ctx.strokeStyle=COL.co;ctx.setLineDash([4,3]);ctx.lineWidth=1.5;
+  ctx.beginPath();ctx.moveTo(ballP.px,ballP.py);ctx.lineTo(floorP.px,floorP.py);ctx.stroke();
+  ctx.setLineDash([]);
+  // Floor X marker at (w,b)
+  ctx.fillStyle=COL.co;ctx.font='bold 12px ui-monospace,monospace';ctx.textAlign='center';ctx.fillText('×',floorP.px,floorP.py+4);
+  // Ball
+  ctx.fillStyle=COL.co;ctx.beginPath();ctx.arc(ballP.px,ballP.py,7,0,Math.PI*2);ctx.fill();
+  ctx.strokeStyle='#fff';ctx.lineWidth=1.5;ctx.stroke();
+  // Axis labels
+  ctx.fillStyle=COL.tx2;ctx.font='10px -apple-system,sans-serif';
+  // J axis (vertical)
+  const jt=project3D(-1,-1,0.7,az,el,scale,cx,cy);const jb=project3D(-1,-1,-0.7,az,el,scale,cx,cy);
+  ctx.strokeStyle=COL.tx2;ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(jb.px,jb.py);ctx.lineTo(jt.px,jt.py);ctx.stroke();
+  ctx.textAlign='right';ctx.fillText('J(w,b)',jt.px-4,jt.py+4);
+  // w axis
+  const wA=project3D(1,-1,-0.7,az,el,scale,cx,cy);
+  ctx.beginPath();ctx.moveTo(jb.px,jb.py);ctx.lineTo(wA.px,wA.py);ctx.stroke();
+  ctx.textAlign='center';ctx.fillText('w',wA.px+12,wA.py+12);
+  // b axis
+  const bA=project3D(-1,1,-0.7,az,el,scale,cx,cy);
+  ctx.beginPath();ctx.moveTo(jb.px,jb.py);ctx.lineTo(bA.px,bA.py);ctx.stroke();
+  ctx.fillText('b',bA.px-12,bA.py+10);
+  // Legend
+  ctx.fillStyle=COL.co;ctx.beginPath();ctx.arc(W-180,18,5,0,Math.PI*2);ctx.fill();ctx.fillStyle=COL.tx2;ctx.font='10px -apple-system,sans-serif';ctx.textAlign='left';ctx.fillText('your (w, b) → J',W-168,22);
+  ctx.fillStyle=COL.am;ctx.beginPath();ctx.arc(W-180,32,4,0,Math.PI*2);ctx.fill();ctx.fillStyle=COL.tx2;ctx.fillText('global minimum',W-168,36);
+  setText('ei05a','Ball at (w='+wv.toFixed(3)+', b='+Math.round(bv)+'), J = '+Jc.toFixed(1)+'.  Optimum at bottom: J* = '+J_OPT.toFixed(1)+'.  '+(Jc<J_OPT*1.5?'You are near the bottom!':Jc<J_OPT*10?'You are on the gentle slope.':'You are high up the wall.'));
+  setText('ei05b','Set elevation = 80° to look straight down — you\'ll see the contour plot. Set elevation = 5° to see the bowl from the side. Same surface, different angles.');
+}
+
+/* ============= D06: Gradient descent on bowl ============= */
+function D06(){
+  const o=ctx2('cv06');if(!o)return;
+  const{ctx,W,H}=o;
+  const w0=val('w0_06'),b0=val('b0_06'),lr=val('lr_06')*1e-7,steps=ival('st_06'),az=val('az_06'),el=val('el_06');
+  setVal('w0v06',w0.toFixed(3));setVal('b0v06',Math.round(b0));setVal('lrv06',(val('lr_06')).toFixed(1));setVal('stv06',steps);setVal('azv06',Math.round(az)+'°');setVal('elv06',Math.round(el)+'°');
+  ctx.fillStyle=COL.bg;ctx.fillRect(0,0,W,H);
+  // Same bowl setup as D05 but with trajectory
+  const wMin=-0.05,wMax=0.35,bMin=-50,bMax=250;
+  const N=20;
+  const grid=[];let Jmax=0;
+  for(let i=0;i<=N;i++){const row=[];for(let j=0;j<=N;j++){const w=wMin+(wMax-wMin)*i/N;const b=bMin+(bMax-bMin)*j/N;const J=cost(w,b,HOUSING);row.push({w,b,J});if(J>Jmax)Jmax=J;}grid.push(row);}
+  const cx=W/2,cy=H/2+30;
+  const scale=Math.min(W,H)*0.30;
+  function map3(w,b,J){return{x:(w-(wMin+wMax)/2)/((wMax-wMin)/2),y:(b-(bMin+bMax)/2)/((bMax-bMin)/2),z:(J/Jmax)*1.4-0.7};}
+  function projWB(w,b,J){const p=map3(w,b,J);return project3D(p.x,p.y,p.z,az,el,scale,cx,cy);}
+  // Compute trajectory
+  let cw=w0,cb=b0;const traj=[[cw,cb,cost(cw,cb,HOUSING)]];
+  for(let s=0;s<steps;s++){const[gw,gb]=gradJ(cw,cb,HOUSING);cw-=lr*gw;cb-=lr*gb;if(!isFinite(cw)||!isFinite(cb))break;traj.push([cw,cb,cost(cw,cb,HOUSING)]);}
+  // Project bowl cells
+  const proj=[];for(let i=0;i<=N;i++){const row=[];for(let j=0;j<=N;j++){const p=projWB(grid[i][j].w,grid[i][j].b,grid[i][j].J);row.push({...p,J:grid[i][j].J});}proj.push(row);}
+  const cells=[];
+  for(let i=0;i<N;i++){for(let j=0;j<N;j++){const a=proj[i][j],b=proj[i+1][j],c=proj[i+1][j+1],d=proj[i][j+1];cells.push({a,b,c,d,depth:(a.depth+b.depth+c.depth+d.depth)/4,J:(grid[i][j].J+grid[i+1][j].J+grid[i+1][j+1].J+grid[i][j+1].J)/4});}}
+  cells.sort((a,b)=>a.depth-b.depth);
+  // Floor + grid (same as D05)
+  ctx.strokeStyle='rgba(72,79,88,0.5)';ctx.lineWidth=0.5;
+  for(let k=0;k<=8;k++){
+    const w=wMin+(wMax-wMin)*k/8;const p1=projWB(w,bMin,0);const p2=projWB(w,bMax,0);
+    ctx.beginPath();ctx.moveTo(p1.px,p1.py);ctx.lineTo(p2.px,p2.py);ctx.stroke();
+    const b=bMin+(bMax-bMin)*k/8;const q1=projWB(wMin,b,0);const q2=projWB(wMax,b,0);
+    ctx.beginPath();ctx.moveTo(q1.px,q1.py);ctx.lineTo(q2.px,q2.py);ctx.stroke();
+  }
+  // Render bowl
+  for(const cell of cells){
+    const t=clip(cell.J/Jmax,0,1);
+    let r,g,bb;
+    if(t<0.05){r=29;g=158;bb=117;}
+    else if(t<0.12){r=24;g=128;bb=110;}
+    else if(t<0.25){r=35;g=90;bb=120;}
+    else if(t<0.5){r=55;g=80;bb=140;}
+    else if(t<0.75){r=80;g=60;bb=150;}
+    else{r=100;g=50;bb=140;}
+    ctx.fillStyle=`rgb(${r},${g},${bb})`;ctx.globalAlpha=0.78;
+    ctx.beginPath();ctx.moveTo(cell.a.px,cell.a.py);ctx.lineTo(cell.b.px,cell.b.py);ctx.lineTo(cell.c.px,cell.c.py);ctx.lineTo(cell.d.px,cell.d.py);ctx.closePath();ctx.fill();
+    ctx.globalAlpha=1;
+    ctx.strokeStyle='rgba(13,17,23,0.3)';ctx.lineWidth=0.4;ctx.stroke();
+  }
+  // Trajectory on bowl (3D path)
+  ctx.strokeStyle=COL.co;ctx.lineWidth=2.5;ctx.beginPath();
+  for(let k=0;k<traj.length;k++){const p=projWB(traj[k][0],traj[k][1],traj[k][2]);if(k===0)ctx.moveTo(p.px,p.py);else ctx.lineTo(p.px,p.py);}
+  ctx.stroke();
+  // Trajectory shadow on floor
+  ctx.strokeStyle='rgba(216,90,48,0.5)';ctx.setLineDash([3,3]);ctx.lineWidth=1.5;ctx.beginPath();
+  for(let k=0;k<traj.length;k++){const p=projWB(traj[k][0],traj[k][1],0);if(k===0)ctx.moveTo(p.px,p.py);else ctx.lineTo(p.px,p.py);}
+  ctx.stroke();ctx.setLineDash([]);
+  // Trajectory points
+  for(let k=0;k<traj.length;k++){const p=projWB(traj[k][0],traj[k][1],traj[k][2]);ctx.fillStyle=k===0?COL.am:k===traj.length-1?COL.co:'rgba(216,90,48,0.6)';ctx.beginPath();ctx.arc(p.px,p.py,k===0||k===traj.length-1?5:2.5,0,Math.PI*2);ctx.fill();}
+  // Optimum
+  const opt=projWB(W_OPT,B_OPT,J_OPT);
+  ctx.fillStyle=COL.am;ctx.beginPath();ctx.arc(opt.px,opt.py,4,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#fff';ctx.lineWidth=1.5;ctx.stroke();
+  // Axes labels
+  const jt=projWB(wMin,bMin,Jmax);const jb=projWB(wMin,bMin,0);
+  ctx.strokeStyle=COL.tx2;ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(jb.px,jb.py);ctx.lineTo(jt.px,jt.py);ctx.stroke();
+  ctx.fillStyle=COL.tx2;ctx.font='10px -apple-system,sans-serif';ctx.textAlign='right';ctx.fillText('J',jt.px-4,jt.py+4);
+  // Legend
+  ctx.font='10px -apple-system,sans-serif';ctx.textAlign='left';
+  ctx.fillStyle=COL.am;ctx.beginPath();ctx.arc(W-180,16,4,0,Math.PI*2);ctx.fill();ctx.fillStyle=COL.tx2;ctx.fillText('start',W-170,20);
+  ctx.fillStyle=COL.co;ctx.beginPath();ctx.arc(W-180,30,4,0,Math.PI*2);ctx.fill();ctx.fillStyle=COL.tx2;ctx.fillText('after '+steps+' steps',W-170,34);
+  ctx.strokeStyle=COL.co;ctx.setLineDash([3,3]);ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(W-185,46);ctx.lineTo(W-170,46);ctx.stroke();ctx.setLineDash([]);ctx.fillStyle=COL.tx2;ctx.fillText('shadow on floor',W-165,49);
+  const final=traj[traj.length-1];
+  setText('ei06a','Started at J = '+traj[0][2].toFixed(1)+', after '+(traj.length-1)+' steps: J = '+final[2].toFixed(1)+'.  Distance to optimum: '+Math.sqrt((final[0]-W_OPT)**2*1e6+(final[1]-B_OPT)**2).toFixed(1));
+  let conv='';
+  if(!isFinite(final[2]))conv='Diverged! Learning rate too high — overshooting the bowl.';
+  else if(final[2]<J_OPT*1.05)conv='Converged. Cost within 5% of optimum.';
+  else if(final[2]<J_OPT*1.5)conv='Close to convergence. A few more steps would tighten it.';
+  else if(final[2]<traj[0][2]*0.5)conv='Halfway there. Either lr too small or need more steps.';
+  else conv='Barely moving. Increase α or take more steps.';
+  setText('ei06b',conv);
+}
+
+/* ============= D07: Scaling to AI — different landscape characters ============= */
+function D07(){
+  const o=ctx2('cv07');if(!o)return;
+  const{ctx,W,H}=o;
+  const mc=sval('mc_07'),az=val('az_07'),el=val('el_07');
+  setVal('azv07',Math.round(az)+'°');setVal('elv07',Math.round(el)+'°');
+  ctx.fillStyle=COL.bg;ctx.fillRect(0,0,W,H);
+  // Build a synthetic loss surface based on complexity
+  const N=30;const grid=[];let Jmin=Infinity,Jmax=-Infinity;
+  function surf(x,y){
+    if(mc==='lin')return 0.5*(x*x+y*y); // perfect bowl
+    if(mc==='logreg')return 0.6*(x*x+1.4*y*y); // tilted bowl
+    if(mc==='shallow'){ // few minima
+      const a=0.5*(x*x+y*y);const wave=0.3*Math.sin(2*x)*Math.cos(2*y);return a+wave;
+    }
+    if(mc==='deep'){ // many minima
+      let s=0.4*(x*x+y*y);s+=0.5*Math.sin(3*x)*Math.cos(3*y)+0.3*Math.cos(4*x+y)+0.2*Math.sin(5*y-x);return s;
+    }
+    /*llm*/let s=0.3*(x*x+y*y);for(let k=1;k<=4;k++)s+=(0.15/k)*Math.sin(k*1.7*x+k*0.3)*Math.cos(k*1.3*y+k*0.7);return s;
+  }
+  for(let i=0;i<=N;i++){const row=[];for(let j=0;j<=N;j++){const x=-2+4*i/N;const y=-2+4*j/N;const v=surf(x,y);row.push(v);Jmin=Math.min(Jmin,v);Jmax=Math.max(Jmax,v);}grid.push(row);}
+  const cx=W/2,cy=H/2+10;
+  const scale=Math.min(W,H)*0.27;
+  const Jrange=Jmax-Jmin||1;
+  function map3(x,y,J){return{x,y,z:((J-Jmin)/Jrange)*1.6-0.8};}
+  function p(x,y,J){const m=map3(x,y,J);return project3D(m.x,m.y,m.z,az,el,scale,cx,cy);}
+  const proj=[];for(let i=0;i<=N;i++){const row=[];for(let j=0;j<=N;j++){const x=-2+4*i/N;const y=-2+4*j/N;row.push({...p(x,y,grid[i][j]),J:grid[i][j]});}proj.push(row);}
+  const cells=[];
+  for(let i=0;i<N;i++){for(let j=0;j<N;j++){const a=proj[i][j],b=proj[i+1][j],c=proj[i+1][j+1],d=proj[i][j+1];cells.push({a,b,c,d,depth:(a.depth+b.depth+c.depth+d.depth)/4,J:(grid[i][j]+grid[i+1][j]+grid[i+1][j+1]+grid[i][j+1])/4});}}
+  cells.sort((a,b)=>a.depth-b.depth);
+  for(const cell of cells){
+    const t=clip((cell.J-Jmin)/Jrange,0,1);
+    let r,g,bb;
+    if(t<0.10){r=29;g=158;bb=117;}
+    else if(t<0.25){r=30;g=130;bb=130;}
+    else if(t<0.45){r=55;g=100;bb=160;}
+    else if(t<0.7){r=100;g=70;bb=170;}
+    else{r=140;g=60;bb=120;}
+    ctx.fillStyle=`rgb(${r},${g},${bb})`;ctx.globalAlpha=0.86;
+    ctx.beginPath();ctx.moveTo(cell.a.px,cell.a.py);ctx.lineTo(cell.b.px,cell.b.py);ctx.lineTo(cell.c.px,cell.c.py);ctx.lineTo(cell.d.px,cell.d.py);ctx.closePath();ctx.fill();
+    ctx.globalAlpha=1;ctx.strokeStyle='rgba(13,17,23,0.35)';ctx.lineWidth=0.4;ctx.stroke();
+  }
+  // Title
+  const titles={lin:'Linear regression — convex bowl, 2 params',logreg:'Logistic regression — convex valley',shallow:'Small NN — gentle ripples, few minima',deep:'Deep NN — many local minima',llm:'LLM-scale — jagged manifold (2D slice of 175B-D)'};
+  ctx.fillStyle=COL.tx;ctx.font='bold 12px -apple-system,sans-serif';ctx.textAlign='center';ctx.fillText(titles[mc],W/2,18);
+  const desc={lin:'A perfect bowl. Single global minimum. Gradient descent always succeeds. Closed-form available.',logreg:'A tilted bowl. Convex but non-quadratic. GD works, no closed form.',shallow:'Mostly bowl-shaped with a few small ripples. Multiple "good enough" local minima exist.',deep:'Highly non-convex. Many local minima of varying quality. GD finds a good one with proper init + lr schedule.',llm:'Effectively infinite-dimensional, but the optimisation lives on a thin curved manifold. Adam + warmup navigates it.'};
+  const why={lin:'GD provably converges to the global minimum. Linear regression is a "solved problem" theoretically.',logreg:'Still convex → unique solution. Standard library code (sklearn) reliably finds it.',shallow:'Symmetries (e.g., neuron permutations) create equivalent minima; SGD picks one essentially at random — and they\'re mostly equivalent.',deep:'Most "local minima" in high-D NNs are saddle points. SGD\'s noise escapes saddles. Wide flat minima generalise better than sharp ones.',llm:'Most directions in 175B-dim parameter space have huge curvature; only a few flat directions matter. Adam adapts step size per-direction. Result: deep learning works.'};
+  setText('ei07a',desc[mc]);
+  setText('ei07b',why[mc]);
+}
+
+/* ============= INIT ============= */
+function initAll(){
+  for(let i=1;i<=7;i++){const fn=window['D0'+i];if(fn)try{fn();}catch(e){console.warn('D0'+i,e);}}
+}
+window.addEventListener('load',initAll);
+window.addEventListener('resize',()=>{clearTimeout(window._rzd);window._rzd=setTimeout(initAll,150);});
+</script>
+</body>
+</html>
