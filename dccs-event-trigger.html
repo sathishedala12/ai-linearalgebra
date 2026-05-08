@@ -1025,23 +1025,26 @@
                 
                 <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border-color);">
                     <strong style="color: var(--accent-primary);">2. Array Notation [] - Comma-Separated</strong><br>
-                    Use <code>[]</code> in column header + comma-separated values:
-                    <div class="help-example">Column: items[].skuId<br>Value: A001,A002,A003<br>Result: items: [{skuId:"A001"},{skuId:"A002"},{skuId:"A003"}]</div>
-                    <div class="help-example">Column: backInStockSKUs[]<br>Value: A001,A002,A003<br>Result: backInStockSKUs: ["A001","A002","A003"]</div>
+                    <div class="help-example">items[].skuId = A001,A002,A003<br>→ items: [{skuId:"A001"},{skuId:"A002"},{skuId:"A003"}]</div>
                 </div>
 
                 <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border-color);">
                     <strong style="color: var(--accent-primary);">3. Object/Map Notation {} - Dynamic Keys</strong><br>
-                    Use <code>{}</code> in column header + <code>key=value;key=value</code> pairs:
-                    <div class="help-example">Column: priceDropSKUs{}<br>Value: A971531138=214.37|456.67;A416821464=171.85|172.90<br>Result: priceDropSKUs: {"A971531138":"214.37|456.67","A416821464":"171.85|172.90"}</div>
-                    <span style="color: var(--accent-warning);">⚠️ Use <code>=</code> between key/value, <code>;</code> between entries</span>
+                    Use <code>=</code> between key/value, <code>;</code> between entries:
+                    <div class="help-example">priceDropSKUs{} = SKU1=99.99|149.99;SKU2=49.99|89.99<br>→ {SKU1:"99.99|149.99",SKU2:"49.99|89.99"}</div>
                 </div>
 
                 <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border-color);">
-                    <strong style="color: var(--accent-primary);">4. Timestamp Templates</strong><br>
-                    Use <code>{{timestamp}}</code> or <code>{{timestamp+N}}</code>:
+                    <strong style="color: var(--accent-primary);">4. Batch Grouping (NEW) 🆕</strong><br>
+                    Add <code>_meta.batchId</code> column to group events into single API calls:
+                    <div class="help-example">_meta.batchId = "order-batch-1" → Events with same batchId go in ONE curl/Postman request<br>(empty) → Sent as individual events</div>
+                    <span style="color: var(--accent-warning);">Use <code>_meta.sequence</code> for explicit order within a batch (1, 2, 3...)</span>
+                </div>
+
+                <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border-color);">
+                    <strong style="color: var(--accent-primary);">5. Timestamp Templates</strong><br>
+                    Use <code>{{timestamp}}</code> or <code>{{timestamp+N}}</code> in any cell:
                     <div class="help-example">{{timestamp}} | {{timestamp+10}} | {{timestamp+20}}</div>
-                    Auto-increments +10s per event in batch/sequential mode
                 </div>
             </div>
         </div>
@@ -1053,6 +1056,21 @@
         let eventStatuses = {};
         let apiLogs = [];
         let draggedIndex = null;
+
+        // Helper: case-insensitive field value lookup
+        function getField(event, ...fieldNames) {
+            // Try exact matches first
+            for (const name of fieldNames) {
+                if (event[name] !== undefined && event[name] !== '') return event[name];
+            }
+            // Try case-insensitive
+            const keys = Object.keys(event);
+            for (const name of fieldNames) {
+                const found = keys.find(k => k.toLowerCase() === name.toLowerCase());
+                if (found && event[found] !== '') return event[found];
+            }
+            return '';
+        }
 
         function switchTab(e, tabName) {
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -1377,8 +1395,8 @@
             const isoTimestamp = baseTimestamp.toISOString();
 
             const payload = {
-                _id: event._id || generateUUID(),
-                eventType: event.eventtype || event.event_type || 'UNKNOWN',
+                _id: getField(event, '_id') || generateUUID(),
+                eventType: getField(event, 'eventType', 'eventtype', 'event_type') || 'UNKNOWN',
                 timestamp: isoTimestamp,
                 _nordstrom: {
                     systemTime: isoTimestamp,
@@ -1392,6 +1410,11 @@
                 if (!value) return;
 
                 const lowerKey = key.toLowerCase();
+                
+                // Skip meta columns (used only for grouping/sequencing)
+                if (lowerKey.startsWith('_meta.') || lowerKey.startsWith('_meta_')) {
+                    return;
+                }
                 
                 // Skip metadata columns (handled separately)
                 if (lowerKey === 'eventtype' || lowerKey === 'event_type') {
@@ -1783,6 +1806,8 @@ BACK_IN_STOCK,/uri-ref-006,,,,,,NORDSTROM_RACK,APRI14-PRODUCT_TRIGGER_ID_02,A555
 
         function downloadExcelTemplate() {
             const headers = [
+                '_meta.batchId',
+                '_meta.sequence',
                 'eventType',
                 '_id',
                 '_nordstrom.identities.shopperId',
@@ -1802,30 +1827,29 @@ BACK_IN_STOCK,/uri-ref-006,,,,,,NORDSTROM_RACK,APRI14-PRODUCT_TRIGGER_ID_02,A555
             ];
 
             const rows = [
-                // ===== BAG events =====
-                ['BAG', 'a081b598-3671-411d-abbc-3bb3a08758e5', 'SHOPPER-0410-BAG-SINGLE-001', 'NORDSTROM', 'SHOPPING_BAG', 'A0097875', '', '{{timestamp}}', '', '', '', '', '', '', '', '{{timestamp}}'],
-                ['BAG', '/uri-ref-bag-multi', 'SHOPPER-0410-BAG-002', 'NORDSTROM_RACK', 'SAVED_FOR_LATER', 'A0099901,A0099902,A0099903', '', '{{timestamp+10}}', '', '', '', '', '', '', '', '{{timestamp+10}}'],
-                ['BAGtEST', 'NEWAPRI16-TRIGGERS0-abe4-49b0-85e3-516f1e80085c', 'SHOPPER-0410-BAG-MULTI-NOBAG-004', 'NORDSTROM', 'SHOPPING_BAG_Invalid', 'A0097875', '', '{{timestamp+20}}', '', '', '', '', '', '', '', '{{timestamp+20}}'],
-                ['BAG', 'NEWAPRI16-TRIGGERS-7f50-4fb0-8d6d-8b2bbd6a6c34', 'SHOPPER-0410-BAG-MULTI-002_INVALID', 'NORDSTROM_RACK', '', 'A0101123', 'SHOPPING_BAG', '{{timestamp+30}}', '', '', '', '', '', '', '', '{{timestamp+30}}'],
-                ['BAG', 'NEWAPRI16-TRIGGERS-51eb-4026-b1e9-c3e44303cd2b', 'SHOPPER-0410-BAG-MULTI-003', 'NORDSTROM', '', 'A0099901', 'SAVED_FOR_LATER_TEST', '{{timestamp+40}}', '', '', '', '', '', '', '', '{{timestamp+40}}'],
-                ['BAG', 'NEWAPRI16-TRIGGERS-395a-40c7-a39d-3d753d97d1b8', 'SHOPPER-0410-BAG-MULTI-004', 'NORDSTROM_RACK_INVALID', '', 'A0112033', 'SHOPPING_BAG_INVALID', '{{timestamp+50}}', '', '', '', '', '', '', '', '{{timestamp+50}}'],
+                // ===== Batch 1: 4 ORDER_SUBMITTED events grouped together =====
+                ['order-batch-1', '1', 'ORDER_SUBMITTED', '55ea8e87-853f-4d9a-ba1f-3e4d350a14a7', 'SHOPPER-0410-ORD-MULTI-001', 'NORDSTROM', '', 'A0097875', '', '', '', 'ND-0410-001', '808_5395_9001_20260410', '', '', '', '', '{{timestamp}}'],
+                ['order-batch-1', '2', 'ORDER_SUBMITTED', '3eb24e8c-b240-4bcb-807c-7757f0f03dd2', 'SHOPPER-0410-ORD-MULTI-002', 'NORDSTROM_RACK', '', 'A0101123', '', '', '', 'ND-0410-002', '808_5395_9002_20260410', '', '', '', '', '{{timestamp+10}}'],
+                ['order-batch-1', '3', 'ORDER_SUBMITTED', 'fb43bab1-f1e2-4ac9-83ee-81c2cbe5ffc4', 'SHOPPER-0410-ORD-MULTI-003', 'NORDSTROM', '', 'A0099901', '', '', '', 'ND-0410-003', '808_5395_9003_20260410', '', '', '', '', '{{timestamp+20}}'],
+                ['order-batch-1', '4', 'ORDER_SUBMITTED', 'cd5b65d8-9ad0-49a9-a721-3d667c76d335', 'SHOPPER-0410-ORD-MULTI-004', 'NORDSTROM_RACK', '', 'A0112033', '', '', '', 'ND-0410-004', '808_5395_9004_20260410', '', '', '', '', '{{timestamp+30}}'],
                 
-                // ===== BROWSE_SEARCH_RESULTS =====
-                ['BROWSE_SEARCH_RESULTS', '92a8013b-02ec-4272-8308-4deecd706339', 'SHOPPER-0410-BSR-MULTI-002', 'NORDSTROM_RACK', '', '', '', '', '/search?q=jacket', '', '', '', '', '', '', '{{timestamp+60}}'],
+                // ===== Batch 2: 4 BAG variations grouped together =====
+                ['bag-batch-1', '1', 'BAGtEST', 'NEWAPRI16-TRIGGERS0-abe4-49b0-85e3-516f1e80085c', 'SHOPPER-0410-BAG-MULTI-NOBAG-004', 'NORDSTROM', 'SHOPPING_BAG_Invalid', 'A0097875', '', '{{timestamp+40}}', '', '', '', '', '', '', '', '{{timestamp+40}}'],
+                ['bag-batch-1', '2', 'BAG', 'NEWAPRI16-TRIGGERS-7f50-4fb0-8d6d-8b2bbd6a6c34', 'SHOPPER-0410-BAG-MULTI-002_INVALID', 'NORDSTROM_RACK', '', 'A0101123', 'SHOPPING_BAG', '{{timestamp+50}}', '', '', '', '', '', '', '', '{{timestamp+50}}'],
+                ['bag-batch-1', '3', 'BAG', 'NEWAPRI16-TRIGGERS-51eb-4026-b1e9-c3e44303cd2b', 'SHOPPER-0410-BAG-MULTI-003', 'NORDSTROM', '', 'A0099901', 'SAVED_FOR_LATER_TEST', '{{timestamp+60}}', '', '', '', '', '', '', '', '{{timestamp+60}}'],
+                ['bag-batch-1', '4', 'BAG', 'NEWAPRI16-TRIGGERS-395a-40c7-a39d-3d753d97d1b8', 'SHOPPER-0410-BAG-MULTI-004', 'NORDSTROM_RACK_INVALID', '', 'A0112033', 'SHOPPING_BAG_INVALID', '{{timestamp+70}}', '', '', '', '', '', '', '', '{{timestamp+70}}'],
                 
-                // ===== ORDER_SUBMITTED =====
-                ['ORDER_SUBMITTED', '55ea8e87-853f-4d9a-ba1f-3e4d350a14a7', 'SHOPPER-0410-ORD-MULTI-001', 'NORDSTROM', '', 'A0097875', '', '', '', 'ND-0410-001', '808_5395_9001_20260410', '', '', '', '', '{{timestamp+70}}'],
-                ['ORDER_SUBMITTED', '3eb24e8c-b240-4bcb-807c-7757f0f03dd2', 'SHOPPER-0410-ORD-MULTI-002', 'NORDSTROM_RACK', '', 'A0101123', '', '', '', 'ND-0410-002', '808_5395_9002_20260410', '', '', '', '', '{{timestamp+80}}'],
-                ['ORDER_SUBMITTED', 'fb43bab1-f1e2-4ac9-83ee-81c2cbe5ffc4', 'SHOPPER-0410-ORD-MULTI-003', 'NORDSTROM', '', 'A0099901', '', '', '', 'ND-0410-003', '808_5395_9003_20260410', '', '', '', '', '{{timestamp+90}}'],
-                ['ORDER_SUBMITTED', 'cd5b65d8-9ad0-49a9-a721-3d667c76d335', 'SHOPPER-0410-ORD-MULTI-004', 'NORDSTROM_RACK', '', 'A0112033', '', '', '', 'ND-0410-004', '808_5395_9004_20260410', '', '', '', '', '{{timestamp+100}}'],
+                // ===== Single events (no batchId = sent individually) =====
+                ['', '', 'BAG', 'a081b598-3671-411d-abbc-3bb3a08758e5', 'SHOPPER-0410-BAG-SINGLE-001', 'NORDSTROM', 'SHOPPING_BAG', 'A0097875', '', '{{timestamp+80}}', '', '', '', '', '', '', '', '{{timestamp+80}}'],
+                ['', '', 'BROWSE_SEARCH_RESULTS', '92a8013b-02ec-4272-8308-4deecd706339', 'SHOPPER-0410-BSR-MULTI-002', 'NORDSTROM_RACK', '', '', '', '', '/search?q=jacket', '', '', '', '', '', '', '{{timestamp+90}}'],
                 
-                // ===== BACK_IN_STOCK =====
-                ['BACK_IN_STOCK', '/uri-reference/002', '', '', '', '', '', '', '', '', '', 'NORDSTROM_RACK', 'APRI14-012321-PRODUCT_TRIGGER_ID_02', 'A971531138,A416821464,A768091755,A123510618', '', '{{timestamp+110}}'],
-                ['BACK_IN_STOCK', '/uri-reference/004', '', '', '', '', '', '', '', '', '', 'NORDSTROM_RACK', 'APRI14-012321-PRODUCT_TRIGGER_ID_04', 'A555678901', '', '{{timestamp+120}}'],
+                // ===== Batch 3: PRICE_DROP grouped =====
+                ['price-batch-1', '1', 'PRICE_DROP', '/uri-reference/001', '', '', '', '', '', '', '', '', '', 'NORDSTROM', 'APRI14-012321-PRODUCT_TRIGGER_ID_01', '', 'A971531138=214.37|456.67;A416821464=171.85|172.90;A768091755=372.53|587.33;A123510618=352.64|449.39', '{{timestamp+100}}'],
+                ['price-batch-1', '2', 'PRICE_DROP', '/uri-reference/003', '', '', '', '', '', '', '', '', '', 'NORDSTROM', 'APRI14-012321-PRODUCT_TRIGGER_ID_03', '', 'A999123456=99.99|149.99', '{{timestamp+110}}'],
                 
-                // ===== PRICE_DROP =====
-                ['PRICE_DROP', '/uri-reference/001', '', '', '', '', '', '', '', '', '', 'NORDSTROM', 'APRI14-012321-PRODUCT_TRIGGER_ID_01', '', 'A971531138=214.37|456.67;A416821464=171.85|172.90;A768091755=372.53|587.33;A123510618=352.64|449.39', '{{timestamp+130}}'],
-                ['PRICE_DROP', '/uri-reference/003', '', '', '', '', '', '', '', '', '', 'NORDSTROM', 'APRI14-012321-PRODUCT_TRIGGER_ID_03', '', 'A999123456=99.99|149.99', '{{timestamp+140}}']
+                // ===== Batch 4: BACK_IN_STOCK grouped =====
+                ['stock-batch-1', '1', 'BACK_IN_STOCK', '/uri-reference/002', '', '', '', '', '', '', '', '', '', 'NORDSTROM_RACK', 'APRI14-012321-PRODUCT_TRIGGER_ID_02', 'A971531138,A416821464,A768091755,A123510618', '', '{{timestamp+120}}'],
+                ['stock-batch-1', '2', 'BACK_IN_STOCK', '/uri-reference/004', '', '', '', '', '', '', '', '', '', 'NORDSTROM_RACK', 'APRI14-012321-PRODUCT_TRIGGER_ID_04', 'A555678901', '', '{{timestamp+130}}']
             ];
 
             try {
@@ -2017,6 +2041,38 @@ BACK_IN_STOCK,/uri-ref-006,,,,,,NORDSTROM_RACK,APRI14-PRODUCT_TRIGGER_ID_02,A555
             return `curl -X POST "${endpoint}" ${headers} ${data}`;
         }
 
+        function groupEventsByBatch(events) {
+            const groups = [];
+            const batchMap = {};
+            
+            events.forEach((event, idx) => {
+                // Look for _meta.batchId case-insensitively
+                const batchId = getField(event, '_meta.batchId', '_meta.batchid');
+                
+                if (batchId && batchId.trim()) {
+                    if (!batchMap[batchId]) {
+                        batchMap[batchId] = { batchId: batchId.trim(), events: [], sortKey: idx };
+                        groups.push(batchMap[batchId]);
+                    }
+                    batchMap[batchId].events.push(event);
+                } else {
+                    groups.push({ batchId: '', events: [event], sortKey: idx });
+                }
+            });
+            
+            // Sort by sequence within each group
+            groups.forEach(g => {
+                g.events.sort((a, b) => {
+                    const seqA = parseInt(getField(a, '_meta.sequence') || '0');
+                    const seqB = parseInt(getField(b, '_meta.sequence') || '0');
+                    if (seqA && seqB) return seqA - seqB;
+                    return 0;
+                });
+            });
+            
+            return groups;
+        }
+
         function downloadPostmanCollection() {
             if (!eventsData.length) {
                 showToast('No events to export', 'error');
@@ -2033,81 +2089,88 @@ BACK_IN_STOCK,/uri-ref-006,,,,,,NORDSTROM_RACK,APRI14-PRODUCT_TRIGGER_ID_02,A555
                 return;
             }
 
-            // Parse endpoint URL
             const url = new URL(endpoint);
             const pathParts = url.pathname.split('/').filter(p => p);
 
-            // Build Postman Collection v2.1
             const collection = {
                 info: {
                     name: `DCCS Events - ${new Date().toISOString().slice(0, 10)}`,
-                    description: 'Auto-generated DCCS event collection',
+                    description: 'Auto-generated DCCS event collection. Events with same _meta.batchId are grouped into one request.',
                     schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json'
                 },
                 item: []
             };
 
-            // Add individual requests for each event
-            eventsData.forEach((event, idx) => {
-                const payload = buildPayload(event, idx * 10);
-                const eventName = `${idx + 1}. ${payload.eventType}`;
+            const buildHeaders = () => [
+                { key: 'Content-Type', value: 'application/json' },
+                { key: 'Authorization', value: `Bearer ${token || '{{access_token}}'}` },
+                { key: 'sandbox-name', value: sandbox },
+                { key: 'x-adobe-flow-id', value: flowId }
+            ];
+
+            const buildUrl = () => ({
+                raw: endpoint,
+                protocol: url.protocol.replace(':', ''),
+                host: url.hostname.split('.'),
+                path: pathParts
+            });
+
+            // Group events by _meta.batchId
+            const groups = groupEventsByBatch(eventsData);
+
+            // Helper to extract a meaningful identifier from an event
+            const getEventIdentifier = (event) => {
+                const shopperId = getField(event, '_nordstrom.identities.shopperId');
+                const productTriggerId = getField(event, '_nordstrom.productTrigger.productTriggerId');
+                const orderNumber = getField(event, '_nordstrom.event.orderNumber');
+                const id = getField(event, '_id');
+                
+                if (shopperId) return shopperId;
+                if (orderNumber) return orderNumber;
+                if (productTriggerId) return productTriggerId;
+                if (id) {
+                    if (id.includes('/')) return id.split('/').pop();
+                    return id.slice(0, 8);
+                }
+                return '';
+            };
+
+            const getEventType = (event) => getField(event, 'eventType', 'eventtype', 'event_type') || 'Event';
+
+            // Add a request for each group (single events are 1-event groups)
+            groups.forEach((group, groupIdx) => {
+                const eventOffset = groupIdx * 10;
+                const messages = group.events.map((e, i) => buildPayload(e, eventOffset + i * 10));
+                
+                let requestName;
+                if (group.batchId) {
+                    // Batch group - show batchId, count, and event types
+                    const eventTypes = [...new Set(group.events.map(getEventType))].join('+');
+                    requestName = `📦 ${group.batchId} (${group.events.length}× ${eventTypes})`;
+                } else {
+                    // Single event - show eventType + meaningful identifier
+                    const eventType = getEventType(group.events[0]);
+                    const identifier = getEventIdentifier(group.events[0]);
+                    if (identifier) {
+                        requestName = `${groupIdx + 1}. ${eventType} - ${identifier}`;
+                    } else {
+                        requestName = `${groupIdx + 1}. ${eventType}`;
+                    }
+                }
 
                 collection.item.push({
-                    name: eventName,
+                    name: requestName,
                     request: {
                         method: 'POST',
-                        header: [
-                            { key: 'Content-Type', value: 'application/json' },
-                            { key: 'Authorization', value: `Bearer ${token || '{{access_token}}'}` },
-                            { key: 'sandbox-name', value: sandbox },
-                            { key: 'x-adobe-flow-id', value: flowId }
-                        ],
-                        url: {
-                            raw: endpoint,
-                            protocol: url.protocol.replace(':', ''),
-                            host: url.hostname.split('.'),
-                            path: pathParts
-                        },
+                        header: buildHeaders(),
+                        url: buildUrl(),
                         body: {
                             mode: 'raw',
-                            raw: JSON.stringify({ messages: [payload] }, null, 2),
-                            options: {
-                                raw: { language: 'json' }
-                            }
+                            raw: JSON.stringify({ messages }, null, 2),
+                            options: { raw: { language: 'json' } }
                         }
                     }
                 });
-            });
-
-            // Add a batch request with all events
-            const batchPayload = {
-                messages: eventsData.map((e, i) => buildPayload(e, i * 10))
-            };
-
-            collection.item.push({
-                name: `📦 BATCH - All ${eventsData.length} Events`,
-                request: {
-                    method: 'POST',
-                    header: [
-                        { key: 'Content-Type', value: 'application/json' },
-                        { key: 'Authorization', value: `Bearer ${token || '{{access_token}}'}` },
-                        { key: 'sandbox-name', value: sandbox },
-                        { key: 'x-adobe-flow-id', value: flowId }
-                    ],
-                    url: {
-                        raw: endpoint,
-                        protocol: url.protocol.replace(':', ''),
-                        host: url.hostname.split('.'),
-                        path: pathParts
-                    },
-                    body: {
-                        mode: 'raw',
-                        raw: JSON.stringify(batchPayload, null, 2),
-                        options: {
-                            raw: { language: 'json' }
-                        }
-                    }
-                }
             });
 
             const blob = new Blob([JSON.stringify(collection, null, 2)], { type: 'application/json' });
@@ -2117,7 +2180,7 @@ BACK_IN_STOCK,/uri-ref-006,,,,,,NORDSTROM_RACK,APRI14-PRODUCT_TRIGGER_ID_02,A555
             a.download = `postman-collection-${new Date().toISOString().slice(0, 10)}.json`;
             a.click();
             URL.revokeObjectURL(downloadUrl);
-            showToast('✓ Postman Collection downloaded - Import into Postman', 'success');
+            showToast(`✓ Postman Collection: ${groups.length} group(s) exported`, 'success');
         }
 
         function downloadCurlScript() {
@@ -2136,34 +2199,57 @@ BACK_IN_STOCK,/uri-ref-006,,,,,,NORDSTROM_RACK,APRI14-PRODUCT_TRIGGER_ID_02,A555
                 return;
             }
 
+            const groups = groupEventsByBatch(eventsData);
+
+            const getEventIdentifier = (event) => {
+                const shopperId = getField(event, '_nordstrom.identities.shopperId');
+                const productTriggerId = getField(event, '_nordstrom.productTrigger.productTriggerId');
+                const orderNumber = getField(event, '_nordstrom.event.orderNumber');
+                const id = getField(event, '_id');
+                
+                if (shopperId) return shopperId;
+                if (orderNumber) return orderNumber;
+                if (productTriggerId) return productTriggerId;
+                if (id) {
+                    if (id.includes('/')) return id.split('/').pop();
+                    return id.slice(0, 8);
+                }
+                return '';
+            };
+
+            const getEventType = (event) => getField(event, 'eventType', 'eventtype', 'event_type') || 'Event';
+
             let script = '# DCCS Events - cURL Commands\n';
             script += `# Generated: ${new Date().toISOString()}\n`;
-            script += `# Total Events: ${eventsData.length}\n`;
+            script += `# Total Events: ${eventsData.length} | Groups: ${groups.length}\n`;
+            script += '# Use _meta.batchId in Excel to group events into batches\n';
             script += '# ============================================\n\n';
 
-            // Individual curl commands
-            eventsData.forEach((event, idx) => {
-                const payload = buildPayload(event, idx * 10);
-                script += `# ===== Event ${idx + 1}: ${payload.eventType} =====\n`;
+            // Each group becomes one curl command
+            groups.forEach((group, groupIdx) => {
+                const eventOffset = groupIdx * 10;
+                const messages = group.events.map((e, i) => buildPayload(e, eventOffset + i * 10));
+                
+                if (group.batchId) {
+                    const eventTypes = [...new Set(group.events.map(getEventType))].join('+');
+                    script += `# ===== Batch [${group.batchId}]: ${group.events.length}× ${eventTypes} =====\n`;
+                } else {
+                    const eventType = getEventType(group.events[0]);
+                    const identifier = getEventIdentifier(group.events[0]);
+                    if (identifier) {
+                        script += `# ===== ${groupIdx + 1}. ${eventType} - ${identifier} =====\n`;
+                    } else {
+                        script += `# ===== ${groupIdx + 1}. ${eventType} =====\n`;
+                    }
+                }
+                
                 script += `curl -X POST "${endpoint}" \\\n`;
                 script += `  -H "Content-Type: application/json" \\\n`;
                 script += `  -H "Authorization: Bearer ${token}" \\\n`;
                 script += `  -H "sandbox-name: ${sandbox}" \\\n`;
                 script += `  -H "x-adobe-flow-id: ${flowId}" \\\n`;
-                script += `  -d '${JSON.stringify({ messages: [payload] })}'\n\n`;
+                script += `  -d '${JSON.stringify({ messages })}'\n\n`;
             });
-
-            // Batch curl command
-            const batchPayload = {
-                messages: eventsData.map((e, i) => buildPayload(e, i * 10))
-            };
-            script += `# ===== BATCH: All ${eventsData.length} Events in One Call =====\n`;
-            script += `curl -X POST "${endpoint}" \\\n`;
-            script += `  -H "Content-Type: application/json" \\\n`;
-            script += `  -H "Authorization: Bearer ${token}" \\\n`;
-            script += `  -H "sandbox-name: ${sandbox}" \\\n`;
-            script += `  -H "x-adobe-flow-id: ${flowId}" \\\n`;
-            script += `  -d '${JSON.stringify(batchPayload)}'\n`;
 
             const blob = new Blob([script], { type: 'text/plain' });
             const downloadUrl = URL.createObjectURL(blob);
@@ -2172,7 +2258,7 @@ BACK_IN_STOCK,/uri-ref-006,,,,,,NORDSTROM_RACK,APRI14-PRODUCT_TRIGGER_ID_02,A555
             a.download = `dccs-curl-${new Date().toISOString().slice(0, 10)}.txt`;
             a.click();
             URL.revokeObjectURL(downloadUrl);
-            showToast('✓ cURL commands downloaded', 'success');
+            showToast(`✓ cURL: ${groups.length} group(s) exported`, 'success');
         }
 
         function downloadCurlSpreadsheet() {
