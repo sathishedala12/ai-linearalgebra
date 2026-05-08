@@ -959,6 +959,12 @@
                 <button class="btn btn-secondary" onclick="downloadPostmanCollection()">📮 Postman</button>
                 <button class="btn btn-secondary" onclick="downloadCurlScript()">💻 cURL</button>
             </div>
+            <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border-color);">
+                <label class="toggle-label" style="display: inline-flex;">
+                    <input type="checkbox" id="useSequencing" style="cursor: pointer; accent-color: var(--accent-primary);">
+                    Honor batches &amp; sequence (use _meta.batchId / _meta.sequence)
+                </label>
+            </div>
         </div>
 
         <div class="batch-send-section" id="batchSendSection">
@@ -1322,14 +1328,30 @@
 
         function updateSelectionUI() {
             const selected = eventsData.filter(e => e.selected).length;
+            const total = eventsData.length;
             const header = document.getElementById('selectionModeHeader');
             const batch = document.getElementById('batchSendSection');
             const count = document.getElementById('selectedCount');
             const countHeader = document.getElementById('selectedCountHeader');
             const btn = document.getElementById('sendSelectedBtn');
+            const selectAllCheckbox = document.getElementById('selectAllCheckbox');
 
             count.textContent = selected;
             countHeader.textContent = selected;
+
+            // Update Select All checkbox state
+            if (selectAllCheckbox) {
+                if (total === 0 || selected === 0) {
+                    selectAllCheckbox.checked = false;
+                    selectAllCheckbox.indeterminate = false;
+                } else if (selected === total) {
+                    selectAllCheckbox.checked = true;
+                    selectAllCheckbox.indeterminate = false;
+                } else {
+                    selectAllCheckbox.checked = false;
+                    selectAllCheckbox.indeterminate = true;
+                }
+            }
 
             if (selected > 0) {
                 header.classList.add('active');
@@ -1390,19 +1412,11 @@
         }
 
         function buildPayload(event, timestampOffset = 0) {
-            const baseTimestamp = new Date();
-            baseTimestamp.setSeconds(baseTimestamp.getSeconds() + timestampOffset);
-            const isoTimestamp = baseTimestamp.toISOString();
-
+            // Build minimal payload - only _id, eventType are required
+            // All other fields come from spreadsheet columns (no auto-defaults)
             const payload = {
                 _id: getField(event, '_id') || generateUUID(),
-                eventType: getField(event, 'eventType', 'eventtype', 'event_type') || 'UNKNOWN',
-                timestamp: isoTimestamp,
-                _nordstrom: {
-                    systemTime: isoTimestamp,
-                    identities: {},
-                    event: { eventTime: isoTimestamp }
-                }
+                eventType: getField(event, 'eventType', 'eventtype', 'event_type') || 'UNKNOWN'
             };
 
             // Parse all columns and set nested properties dynamically
@@ -1426,6 +1440,7 @@
                     return;
                 }
                 if (lowerKey === 'timestamp') {
+                    // Only add timestamp if user explicitly provided it
                     payload.timestamp = processTimestampTemplate(value, timestampOffset);
                     return;
                 }
@@ -1593,12 +1608,37 @@
             }
 
             const btn = document.getElementById('sendAllBtn');
+            const useSequencing = document.getElementById('useSequencing').checked;
             btn.disabled = true;
 
-            for (let i = 0; i < eventsData.length; i++) {
-                const payload = buildPayload(eventsData[i], i * 10); // 10-second increment
-                await sendAPI(endpoint, token, payload, i);
-                if (i < eventsData.length - 1) await new Promise(r => setTimeout(r, 10000));
+            if (useSequencing) {
+                // Group by _meta.batchId and honor _meta.sequence
+                const groups = groupEventsByBatch(eventsData);
+                showToast(`Sending ${groups.length} group(s) with batching/sequencing`, 'info');
+
+                for (let g = 0; g < groups.length; g++) {
+                    const group = groups[g];
+                    const eventOffset = g * 10;
+                    
+                    if (group.events.length === 1) {
+                        // Single event - send individually
+                        const eventIdx = eventsData.indexOf(group.events[0]);
+                        const payload = buildPayload(group.events[0], eventOffset);
+                        await sendAPI(endpoint, token, payload, eventIdx);
+                    } else {
+                        // Batch - send all events in one API call
+                        await sendBatch(endpoint, token, group.events, group.batchId);
+                    }
+                    
+                    if (g < groups.length - 1) await new Promise(r => setTimeout(r, 10000));
+                }
+            } else {
+                // Simple sequential mode (no batching)
+                for (let i = 0; i < eventsData.length; i++) {
+                    const payload = buildPayload(eventsData[i], i * 10);
+                    await sendAPI(endpoint, token, payload, i);
+                    if (i < eventsData.length - 1) await new Promise(r => setTimeout(r, 10000));
+                }
             }
 
             btn.disabled = false;
@@ -1685,12 +1725,14 @@
             renderTable();
         }
 
-        async function sendBatch(endpoint, token, selected) {
+        async function sendBatch(endpoint, token, selected, batchId = '') {
             try {
                 document.getElementById('apiLogSection').classList.add('active');
 
                 const messages = selected.map((e, i) => buildPayload(e, i * 10)); // 10-second increment per message
-                addLog('request', `Batch: ${selected.length} event(s)`, {
+                const batchLabel = batchId ? `Batch [${batchId}]` : `Batch`;
+                addLog('request', `${batchLabel}: ${selected.length} event(s)`, {
+                    'batch-id': batchId || '(none)',
                     'event-count': selected.length,
                     'event-types': messages.map(m => m.eventType).join(', ')
                 });
@@ -1714,22 +1756,22 @@
                         if (idx !== -1) eventStatuses[idx] = 'sent';
                     });
                     try {
-                        addLog('response', `✓ Batch sent: ${selected.length} events (${res.status})`, JSON.parse(body));
+                        addLog('response', `✓ ${batchLabel} sent: ${selected.length} events (${res.status})`, JSON.parse(body));
                     } catch {
-                        addLog('response', `✓ Batch sent: ${selected.length} events (${res.status})`, { body });
+                        addLog('response', `✓ ${batchLabel} sent: ${selected.length} events (${res.status})`, { body });
                     }
-                    showToast(`✓ Batch sent: ${selected.length} events`, 'success');
+                    showToast(`✓ ${batchLabel} sent: ${selected.length} events`, 'success');
                 } else {
                     selected.forEach(e => {
                         const idx = eventsData.indexOf(e);
                         if (idx !== -1) eventStatuses[idx] = 'error';
                     });
                     try {
-                        addLog('error', `✗ Batch failed (${res.status})`, JSON.parse(body));
+                        addLog('error', `✗ ${batchLabel} failed (${res.status})`, JSON.parse(body));
                     } catch {
-                        addLog('error', `✗ Batch failed (${res.status})`, { body });
+                        addLog('error', `✗ ${batchLabel} failed (${res.status})`, { body });
                     }
-                    showToast(`✗ Batch failed: ${res.status}`, 'error');
+                    showToast(`✗ ${batchLabel} failed: ${res.status}`, 'error');
                 }
             } catch (err) {
                 document.getElementById('apiLogSection').classList.add('active');
@@ -1810,7 +1852,9 @@ BACK_IN_STOCK,/uri-ref-006,,,,,,NORDSTROM_RACK,APRI14-PRODUCT_TRIGGER_ID_02,A555
                 '_meta.sequence',
                 'eventType',
                 '_id',
+                '_nordstrom.systemTime',
                 '_nordstrom.identities.shopperId',
+                '_nordstrom.event.eventTime',
                 '_nordstrom.event.channelBrand',
                 '_nordstrom.event.bagType',
                 '_nordstrom.event.items[].skuId',
@@ -1826,30 +1870,33 @@ BACK_IN_STOCK,/uri-ref-006,,,,,,NORDSTROM_RACK,APRI14-PRODUCT_TRIGGER_ID_02,A555
                 'timestamp'
             ];
 
+            // NOTE: Empty cells = NOT included in payload
+            // BAG/ORDER/BROWSE: use systemTime + eventTime (no root timestamp)
+            // PRICE_DROP/BACK_IN_STOCK: use root timestamp (no systemTime/eventTime)
             const rows = [
-                // ===== Batch 1: 4 ORDER_SUBMITTED events grouped together =====
-                ['order-batch-1', '1', 'ORDER_SUBMITTED', '55ea8e87-853f-4d9a-ba1f-3e4d350a14a7', 'SHOPPER-0410-ORD-MULTI-001', 'NORDSTROM', '', 'A0097875', '', '', '', 'ND-0410-001', '808_5395_9001_20260410', '', '', '', '', '{{timestamp}}'],
-                ['order-batch-1', '2', 'ORDER_SUBMITTED', '3eb24e8c-b240-4bcb-807c-7757f0f03dd2', 'SHOPPER-0410-ORD-MULTI-002', 'NORDSTROM_RACK', '', 'A0101123', '', '', '', 'ND-0410-002', '808_5395_9002_20260410', '', '', '', '', '{{timestamp+10}}'],
-                ['order-batch-1', '3', 'ORDER_SUBMITTED', 'fb43bab1-f1e2-4ac9-83ee-81c2cbe5ffc4', 'SHOPPER-0410-ORD-MULTI-003', 'NORDSTROM', '', 'A0099901', '', '', '', 'ND-0410-003', '808_5395_9003_20260410', '', '', '', '', '{{timestamp+20}}'],
-                ['order-batch-1', '4', 'ORDER_SUBMITTED', 'cd5b65d8-9ad0-49a9-a721-3d667c76d335', 'SHOPPER-0410-ORD-MULTI-004', 'NORDSTROM_RACK', '', 'A0112033', '', '', '', 'ND-0410-004', '808_5395_9004_20260410', '', '', '', '', '{{timestamp+30}}'],
+                // ===== Batch 1: 4 ORDER_SUBMITTED events (use systemTime + eventTime) =====
+                ['order-batch-1', '1', 'ORDER_SUBMITTED', '55ea8e87-853f-4d9a-ba1f-3e4d350a14a7', '{{timestamp}}', 'SHOPPER-0410-ORD-MULTI-001', '{{timestamp}}', 'NORDSTROM', '', 'A0097875', '', '', '', 'ND-0410-001', '808_5395_9001_20260410', '', '', '', '', ''],
+                ['order-batch-1', '2', 'ORDER_SUBMITTED', '3eb24e8c-b240-4bcb-807c-7757f0f03dd2', '{{timestamp+10}}', 'SHOPPER-0410-ORD-MULTI-002', '{{timestamp+10}}', 'NORDSTROM_RACK', '', 'A0101123', '', '', '', 'ND-0410-002', '808_5395_9002_20260410', '', '', '', '', ''],
+                ['order-batch-1', '3', 'ORDER_SUBMITTED', 'fb43bab1-f1e2-4ac9-83ee-81c2cbe5ffc4', '{{timestamp+20}}', 'SHOPPER-0410-ORD-MULTI-003', '{{timestamp+20}}', 'NORDSTROM', '', 'A0099901', '', '', '', 'ND-0410-003', '808_5395_9003_20260410', '', '', '', '', ''],
+                ['order-batch-1', '4', 'ORDER_SUBMITTED', 'cd5b65d8-9ad0-49a9-a721-3d667c76d335', '{{timestamp+30}}', 'SHOPPER-0410-ORD-MULTI-004', '{{timestamp+30}}', 'NORDSTROM_RACK', '', 'A0112033', '', '', '', 'ND-0410-004', '808_5395_9004_20260410', '', '', '', '', ''],
                 
-                // ===== Batch 2: 4 BAG variations grouped together =====
-                ['bag-batch-1', '1', 'BAGtEST', 'NEWAPRI16-TRIGGERS0-abe4-49b0-85e3-516f1e80085c', 'SHOPPER-0410-BAG-MULTI-NOBAG-004', 'NORDSTROM', 'SHOPPING_BAG_Invalid', 'A0097875', '', '{{timestamp+40}}', '', '', '', '', '', '', '', '{{timestamp+40}}'],
-                ['bag-batch-1', '2', 'BAG', 'NEWAPRI16-TRIGGERS-7f50-4fb0-8d6d-8b2bbd6a6c34', 'SHOPPER-0410-BAG-MULTI-002_INVALID', 'NORDSTROM_RACK', '', 'A0101123', 'SHOPPING_BAG', '{{timestamp+50}}', '', '', '', '', '', '', '', '{{timestamp+50}}'],
-                ['bag-batch-1', '3', 'BAG', 'NEWAPRI16-TRIGGERS-51eb-4026-b1e9-c3e44303cd2b', 'SHOPPER-0410-BAG-MULTI-003', 'NORDSTROM', '', 'A0099901', 'SAVED_FOR_LATER_TEST', '{{timestamp+60}}', '', '', '', '', '', '', '', '{{timestamp+60}}'],
-                ['bag-batch-1', '4', 'BAG', 'NEWAPRI16-TRIGGERS-395a-40c7-a39d-3d753d97d1b8', 'SHOPPER-0410-BAG-MULTI-004', 'NORDSTROM_RACK_INVALID', '', 'A0112033', 'SHOPPING_BAG_INVALID', '{{timestamp+70}}', '', '', '', '', '', '', '', '{{timestamp+70}}'],
+                // ===== Batch 2: 4 BAG variations (use systemTime + eventTime) =====
+                ['bag-batch-1', '1', 'BAGtEST', 'NEWAPRI16-TRIGGERS0-abe4-49b0-85e3-516f1e80085c', '{{timestamp+40}}', 'SHOPPER-0410-BAG-MULTI-NOBAG-004', '{{timestamp+40}}', 'NORDSTROM', 'SHOPPING_BAG_Invalid', 'A0097875', '', '{{timestamp+40}}', '', '', '', '', '', '', '', ''],
+                ['bag-batch-1', '2', 'BAG', 'NEWAPRI16-TRIGGERS-7f50-4fb0-8d6d-8b2bbd6a6c34', '{{timestamp+50}}', 'SHOPPER-0410-BAG-MULTI-002_INVALID', '{{timestamp+50}}', 'NORDSTROM_RACK', '', 'A0101123', 'SHOPPING_BAG', '{{timestamp+50}}', '', '', '', '', '', '', '', ''],
+                ['bag-batch-1', '3', 'BAG', 'NEWAPRI16-TRIGGERS-51eb-4026-b1e9-c3e44303cd2b', '{{timestamp+60}}', 'SHOPPER-0410-BAG-MULTI-003', '{{timestamp+60}}', 'NORDSTROM', '', 'A0099901', 'SAVED_FOR_LATER_TEST', '{{timestamp+60}}', '', '', '', '', '', '', '', ''],
+                ['bag-batch-1', '4', 'BAG', 'NEWAPRI16-TRIGGERS-395a-40c7-a39d-3d753d97d1b8', '{{timestamp+70}}', 'SHOPPER-0410-BAG-MULTI-004', '{{timestamp+70}}', 'NORDSTROM_RACK_INVALID', '', 'A0112033', 'SHOPPING_BAG_INVALID', '{{timestamp+70}}', '', '', '', '', '', '', '', ''],
                 
                 // ===== Single events (no batchId = sent individually) =====
-                ['', '', 'BAG', 'a081b598-3671-411d-abbc-3bb3a08758e5', 'SHOPPER-0410-BAG-SINGLE-001', 'NORDSTROM', 'SHOPPING_BAG', 'A0097875', '', '{{timestamp+80}}', '', '', '', '', '', '', '', '{{timestamp+80}}'],
-                ['', '', 'BROWSE_SEARCH_RESULTS', '92a8013b-02ec-4272-8308-4deecd706339', 'SHOPPER-0410-BSR-MULTI-002', 'NORDSTROM_RACK', '', '', '', '', '/search?q=jacket', '', '', '', '', '', '', '{{timestamp+90}}'],
+                ['', '', 'BAG', 'a081b598-3671-411d-abbc-3bb3a08758e5', '{{timestamp+80}}', 'SHOPPER-0410-BAG-SINGLE-001', '{{timestamp+80}}', 'NORDSTROM', 'SHOPPING_BAG', 'A0097875', '', '{{timestamp+80}}', '', '', '', '', '', '', '', ''],
+                ['', '', 'BROWSE_SEARCH_RESULTS', '92a8013b-02ec-4272-8308-4deecd706339', '{{timestamp+90}}', 'SHOPPER-0410-BSR-MULTI-002', '{{timestamp+90}}', 'NORDSTROM_RACK', '', '', '', '', '/search?q=jacket', '', '', '', '', '', '', ''],
                 
-                // ===== Batch 3: PRICE_DROP grouped =====
-                ['price-batch-1', '1', 'PRICE_DROP', '/uri-reference/001', '', '', '', '', '', '', '', '', '', 'NORDSTROM', 'APRI14-012321-PRODUCT_TRIGGER_ID_01', '', 'A971531138=214.37|456.67;A416821464=171.85|172.90;A768091755=372.53|587.33;A123510618=352.64|449.39', '{{timestamp+100}}'],
-                ['price-batch-1', '2', 'PRICE_DROP', '/uri-reference/003', '', '', '', '', '', '', '', '', '', 'NORDSTROM', 'APRI14-012321-PRODUCT_TRIGGER_ID_03', '', 'A999123456=99.99|149.99', '{{timestamp+110}}'],
+                // ===== Batch 3: PRICE_DROP (use ROOT timestamp, no systemTime/eventTime) =====
+                ['price-batch-1', '1', 'PRICE_DROP', '/uri-reference/001', '', '', '', '', '', '', '', '', '', '', '', 'NORDSTROM', 'APRI14-012321-PRODUCT_TRIGGER_ID_01', '', 'A971531138=214.37|456.67;A416821464=171.85|172.90;A768091755=372.53|587.33;A123510618=352.64|449.39', '{{timestamp+100}}'],
+                ['price-batch-1', '2', 'PRICE_DROP', '/uri-reference/003', '', '', '', '', '', '', '', '', '', '', '', 'NORDSTROM', 'APRI14-012321-PRODUCT_TRIGGER_ID_03', '', 'A999123456=99.99|149.99', '{{timestamp+110}}'],
                 
-                // ===== Batch 4: BACK_IN_STOCK grouped =====
-                ['stock-batch-1', '1', 'BACK_IN_STOCK', '/uri-reference/002', '', '', '', '', '', '', '', '', '', 'NORDSTROM_RACK', 'APRI14-012321-PRODUCT_TRIGGER_ID_02', 'A971531138,A416821464,A768091755,A123510618', '', '{{timestamp+120}}'],
-                ['stock-batch-1', '2', 'BACK_IN_STOCK', '/uri-reference/004', '', '', '', '', '', '', '', '', '', 'NORDSTROM_RACK', 'APRI14-012321-PRODUCT_TRIGGER_ID_04', 'A555678901', '', '{{timestamp+130}}']
+                // ===== Batch 4: BACK_IN_STOCK (use ROOT timestamp, no systemTime/eventTime) =====
+                ['stock-batch-1', '1', 'BACK_IN_STOCK', '/uri-reference/002', '', '', '', '', '', '', '', '', '', '', '', 'NORDSTROM_RACK', 'APRI14-012321-PRODUCT_TRIGGER_ID_02', 'A971531138,A416821464,A768091755,A123510618', '', '{{timestamp+120}}'],
+                ['stock-batch-1', '2', 'BACK_IN_STOCK', '/uri-reference/004', '', '', '', '', '', '', '', '', '', '', '', 'NORDSTROM_RACK', 'APRI14-012321-PRODUCT_TRIGGER_ID_04', 'A555678901', '', '{{timestamp+130}}']
             ];
 
             try {
