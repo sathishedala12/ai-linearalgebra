@@ -1,0 +1,1477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DCCS Event Trigger</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #0a0e27;
+            --bg-secondary: #141829;
+            --bg-tertiary: #1e2139;
+            --accent-primary: #00d4ff;
+            --accent-secondary: #ff006e;
+            --accent-success: #00f77d;
+            --accent-warning: #ffd60a;
+            --accent-error: #ff4757;
+            --text-primary: #e8f0ff;
+            --text-secondary: #a8b8d8;
+            --text-tertiary: #6b7a98;
+            --border-color: rgba(0, 212, 255, 0.1);
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+            --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.4);
+            --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--bg-primary) 0%, #0f1230 100%);
+            color: var(--text-primary);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.5;
+            overflow-x: hidden;
+            font-size: 12px;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 20% 50%, rgba(0, 212, 255, 0.03) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 80%, rgba(255, 0, 110, 0.02) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 24px 16px;
+            min-height: 100vh;
+        }
+
+        .header {
+            margin-bottom: 24px;
+            display: flex;
+            align-items: baseline;
+            gap: 12px;
+        }
+
+        .title {
+            font-size: 24px;
+            font-weight: 700;
+            background: linear-gradient(90deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.5px;
+        }
+
+        .subtitle {
+            color: var(--text-tertiary);
+            font-size: 11px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .config-section {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+            backdrop-filter: blur(10px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .config-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--accent-primary);
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .config-title::before {
+            content: '';
+            width: 3px;
+            height: 14px;
+            background: var(--accent-primary);
+            border-radius: 2px;
+        }
+
+        .config-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-label {
+            font-size: 10px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-input, .form-textarea {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 8px 10px;
+            color: var(--text-primary);
+            font-size: 11px;
+            font-family: inherit;
+            transition: all 0.3s ease;
+        }
+
+        .form-input::placeholder, .form-textarea::placeholder {
+            color: var(--text-tertiary);
+        }
+
+        .form-input:focus, .form-textarea:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 8px rgba(0, 212, 255, 0.2);
+            background: var(--bg-primary);
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 80px;
+            font-family: 'Courier New', monospace;
+            font-size: 10px;
+        }
+
+        .file-upload-area {
+            border: 2px dashed var(--accent-primary);
+            border-radius: 6px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+            background: rgba(0, 212, 255, 0.02);
+            cursor: pointer;
+            position: relative;
+        }
+
+        .file-upload-area:hover {
+            background: rgba(0, 212, 255, 0.05);
+        }
+
+        .file-upload-area.dragover {
+            background: rgba(0, 212, 255, 0.1);
+            border-color: var(--accent-success);
+            transform: scale(1.02);
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .file-upload-content {
+            pointer-events: none;
+        }
+
+        .file-upload-icon {
+            font-size: 24px;
+            margin-bottom: 6px;
+            display: block;
+        }
+
+        .file-upload-text {
+            font-size: 11px;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+            font-weight: 500;
+        }
+
+        .file-upload-link {
+            color: var(--accent-primary);
+            font-weight: 600;
+        }
+
+        .file-upload-hint {
+            font-size: 9px;
+            color: var(--text-tertiary);
+            margin-top: 4px;
+        }
+
+        .uploaded-file-info {
+            margin-top: 6px;
+            color: var(--accent-success);
+            font-size: 10px;
+            font-weight: 500;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 8px 14px;
+            border: none;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+        }
+
+        .btn-primary {
+            background: linear-gradient(90deg, var(--accent-primary) 0%, #00a8cc 100%);
+            color: var(--bg-primary);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 212, 255, 0.3);
+        }
+
+        .btn-secondary {
+            background: var(--bg-tertiary);
+            color: var(--accent-primary);
+            border: 1px solid var(--accent-primary);
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg-primary);
+        }
+
+        .btn-success {
+            background: linear-gradient(90deg, var(--accent-success) 0%, #00d46d 100%);
+            color: var(--bg-primary);
+        }
+
+        .btn-success:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 247, 125, 0.3);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 12px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 8px;
+        }
+
+        .tab {
+            padding: 6px 12px;
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .tab.active {
+            color: var(--accent-primary);
+        }
+
+        .tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -9px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--accent-primary);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(6px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .data-input-section.collapsed .data-input-content {
+            display: none;
+        }
+
+        .data-input-section.collapsed {
+            padding: 8px 12px;
+        }
+
+        .data-input-toggle {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            padding: 4px 0;
+        }
+
+        .data-input-toggle-icon {
+            color: var(--accent-primary);
+            font-size: 12px;
+            transition: transform 0.3s ease;
+        }
+
+        .data-input-section.collapsed .data-input-toggle-icon {
+            transform: rotate(-90deg);
+        }
+
+        .events-section {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: var(--shadow-md);
+            backdrop-filter: blur(10px);
+        }
+
+        .events-header {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .events-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--accent-primary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .events-title::before {
+            content: '';
+            width: 3px;
+            height: 14px;
+            background: var(--accent-primary);
+            border-radius: 2px;
+        }
+
+        .events-count {
+            font-size: 10px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 11px;
+        }
+
+        thead {
+            background: var(--bg-tertiary);
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+        }
+
+        th {
+            padding: 8px;
+            text-align: left;
+            font-weight: 600;
+            color: var(--accent-primary);
+            text-transform: uppercase;
+            font-size: 9px;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 8px;
+            border-bottom: 1px solid rgba(0, 212, 255, 0.05);
+            color: var(--text-primary);
+        }
+
+        tbody tr {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        tbody tr:hover {
+            background: rgba(0, 212, 255, 0.05);
+            transform: translateX(2px);
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 9px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-pending {
+            background: rgba(255, 214, 10, 0.2);
+            color: var(--accent-warning);
+        }
+
+        .status-sent {
+            background: rgba(0, 247, 125, 0.2);
+            color: var(--accent-success);
+        }
+
+        .status-error {
+            background: rgba(255, 71, 87, 0.2);
+            color: var(--accent-error);
+        }
+
+        .btn-sm {
+            padding: 4px 8px;
+            font-size: 9px;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-send-sm {
+            background: var(--accent-primary);
+            color: var(--bg-primary);
+        }
+
+        .btn-send-sm:hover {
+            transform: scale(1.05);
+        }
+
+        .cell-mono {
+            font-family: 'Courier New', monospace;
+            font-size: 9px;
+            color: var(--accent-primary);
+        }
+
+        .empty-state {
+            padding: 30px 16px;
+            text-align: center;
+            color: var(--text-tertiary);
+            font-size: 11px;
+        }
+
+        .empty-state-icon {
+            font-size: 32px;
+            margin-bottom: 8px;
+            opacity: 0.6;
+        }
+
+        .api-log-section {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 0;
+            margin-bottom: 16px;
+            overflow: hidden;
+            box-shadow: var(--shadow-md);
+            display: none;
+        }
+
+        .api-log-section.active {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+
+        .log-header {
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--bg-tertiary);
+        }
+
+        .log-title {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--accent-primary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .log-title::before {
+            content: '';
+            width: 3px;
+            height: 14px;
+            background: var(--accent-primary);
+            border-radius: 2px;
+        }
+
+        .log-actions {
+            display: flex;
+            gap: 6px;
+        }
+
+        .log-actions .btn {
+            padding: 4px 10px;
+            font-size: 9px;
+        }
+
+        .log-content {
+            max-height: 300px;
+            overflow-y: auto;
+            padding: 10px;
+            background: var(--bg-primary);
+            font-family: 'Courier New', monospace;
+            font-size: 9px;
+            line-height: 1.4;
+            color: var(--text-secondary);
+        }
+
+        .log-entry {
+            margin-bottom: 8px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(0, 212, 255, 0.1);
+        }
+
+        .log-entry:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .log-timestamp {
+            color: var(--accent-primary);
+            font-weight: 600;
+            margin-bottom: 2px;
+            font-size: 8px;
+        }
+
+        .log-request, .log-response, .log-error {
+            padding: 6px;
+            border-radius: 3px;
+            margin-bottom: 6px;
+            font-size: 8px;
+        }
+
+        .log-request {
+            background: rgba(0, 212, 255, 0.05);
+            border-left: 2px solid var(--accent-primary);
+        }
+
+        .log-response {
+            background: rgba(0, 247, 125, 0.05);
+            border-left: 2px solid var(--accent-success);
+        }
+
+        .log-error {
+            background: rgba(255, 71, 87, 0.05);
+            border-left: 2px solid var(--accent-error);
+        }
+
+        .log-label {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 2px;
+            font-size: 9px;
+        }
+
+        .selection-mode-header {
+            background: rgba(0, 212, 255, 0.1);
+            border-bottom: 1px solid var(--accent-primary);
+            padding: 10px 12px;
+            display: none;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .selection-mode-header.active {
+            display: flex;
+        }
+
+        .selection-info {
+            font-size: 11px;
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        .batch-send-section {
+            background: rgba(0, 212, 255, 0.05);
+            border: 1px solid var(--accent-primary);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 16px;
+            display: none;
+        }
+
+        .batch-send-section.active {
+            display: block;
+        }
+
+        .batch-send-title {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--accent-primary);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .batch-send-info {
+            font-size: 10px;
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+        }
+
+        .batch-mode-toggle {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .toggle-label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 10px;
+            cursor: pointer;
+            padding: 6px 10px;
+            border-radius: 4px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        .toggle-label input[type="radio"] {
+            cursor: pointer;
+            accent-color: var(--accent-primary);
+        }
+
+        .batch-sequence-info {
+            background: var(--bg-tertiary);
+            border-left: 2px solid var(--accent-primary);
+            padding: 8px;
+            border-radius: 3px;
+            margin-bottom: 10px;
+            font-size: 9px;
+        }
+
+        .event-checkbox {
+            width: 14px;
+            height: 14px;
+            cursor: pointer;
+            accent-color: var(--accent-primary);
+        }
+
+        tbody tr.draggable {
+            cursor: grab;
+        }
+
+        tbody tr.dragging {
+            opacity: 0.5;
+            background: rgba(255, 0, 110, 0.1);
+        }
+
+        tbody tr.drag-over {
+            background: rgba(0, 212, 255, 0.15);
+            border-top: 1px solid var(--accent-primary);
+        }
+
+        .drag-handle {
+            cursor: grab;
+            color: var(--accent-primary);
+            font-weight: bold;
+            user-select: none;
+            font-size: 10px;
+        }
+
+        .toast-container {
+            position: fixed;
+            top: 12px;
+            right: 12px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-width: 300px;
+        }
+
+        .toast {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 10px 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: var(--shadow-lg);
+            animation: toastSlideIn 0.3s ease;
+            font-size: 10px;
+        }
+
+        @keyframes toastSlideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .toast-success {
+            border-left: 3px solid var(--accent-success);
+        }
+
+        .toast-error {
+            border-left: 3px solid var(--accent-error);
+        }
+
+        .toast-info {
+            border-left: 3px solid var(--accent-primary);
+        }
+
+        .spinner {
+            width: 12px;
+            height: 12px;
+            border: 1.5px solid rgba(0, 212, 255, 0.2);
+            border-top-color: var(--accent-primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 12px 8px;
+            }
+
+            .config-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .table-wrapper {
+                max-height: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="title">⚡ DCCS Event Trigger</h1>
+            <span class="subtitle">v2.0</span>
+        </div>
+
+        <div class="config-section">
+            <div class="config-title">Configuration</div>
+            <div class="config-grid">
+                <div class="form-group">
+                    <label class="form-label">DCCS Endpoint</label>
+                    <input type="text" id="dccsEndpoint" class="form-input" placeholder="https://dcs.adobedc.net/collection/batch/..." value="https://dcs.adobedc.net/collection/batch/9d22a45b1ba47414970cc99a2956a2641fb986cd98db88ba6744dd1d97">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Access Token</label>
+                    <input type="password" id="accessToken" class="form-input" placeholder="Bearer token">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Sandbox</label>
+                    <input type="text" id="sandboxName" class="form-input" value="dev" disabled style="opacity: 0.7; cursor: not-allowed;">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Flow ID</label>
+                    <input type="text" id="flowId" class="form-input" placeholder="flow-id" value="a6b548e4-60ca-438b-801d-18de9e747e7f">
+                </div>
+            </div>
+        </div>
+
+        <div class="config-section data-input-section" id="dataInputSection">
+            <div class="data-input-toggle" onclick="toggleDataInput()">
+                <div class="config-title" style="margin-bottom: 0;">Event Data</div>
+                <div class="data-input-toggle-icon">▶</div>
+            </div>
+            <div class="data-input-content">
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab(event, 'upload')">Upload CSV/Excel</button>
+                    <button class="tab" onclick="switchTab(event, 'paste')">Paste CSV</button>
+                </div>
+
+                <div id="upload" class="tab-content active">
+                    <div class="form-group">
+                        <label class="form-label">Upload File</label>
+                        <div class="file-upload-area" id="fileUploadArea" ondrop="handleFileDrop(event)" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" onclick="document.getElementById('csvFile').click()">
+                            <input type="file" id="csvFile" class="file-input" accept=".csv,.xlsx,.xls" onchange="handleFileSelect(event)">
+                            <div class="file-upload-content">
+                                <span class="file-upload-icon">📁</span>
+                                <div class="file-upload-text">Drop CSV or Excel file here or click to browse</div>
+                                <div class="file-upload-hint">Supports .csv, .xlsx, .xls</div>
+                            </div>
+                        </div>
+                        <div id="uploadedFileName" class="uploaded-file-info" style="display: none;"></div>
+                    </div>
+                </div>
+
+                <div id="paste" class="tab-content">
+                    <div class="form-group">
+                        <label class="form-label">Paste CSV</label>
+                        <textarea id="csvInput" class="form-textarea" placeholder="eventType,identity,channelBrand,bagType,skuId"></textarea>
+                    </div>
+                    <div class="button-group">
+                        <button class="btn btn-primary" onclick="parseCSVInput()">📥 Load Events</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="api-log-section" id="apiLogSection">
+            <div class="log-header">
+                <div class="log-title">API Log</div>
+                <div class="log-actions">
+                    <button class="btn btn-secondary" onclick="downloadLog()">📥 Download</button>
+                    <button class="btn btn-secondary" onclick="clearLog()">Clear</button>
+                </div>
+            </div>
+            <div class="log-content" id="logContent"></div>
+        </div>
+
+        <div class="config-section">
+            <div class="config-title">Actions</div>
+            <div class="button-group">
+                <button class="btn btn-success" id="sendAllBtn" onclick="sendAllEvents()" disabled>🚀 Send All</button>
+                <button class="btn btn-secondary" onclick="clearTable()">🗑️ Clear</button>
+                <button class="btn btn-secondary" onclick="downloadTemplate()">📥 Template</button>
+            </div>
+        </div>
+
+        <div class="batch-send-section" id="batchSendSection">
+            <div class="batch-send-title">📦 Selected Events</div>
+            <div class="batch-send-info"><strong id="selectedCount">0</strong> event(s) selected</div>
+            <div class="batch-mode-toggle">
+                <label class="toggle-label">
+                    <input type="radio" name="batchMode" value="single" checked onchange="updateBatchMode()">
+                    Sequential (10s apart)
+                </label>
+                <label class="toggle-label">
+                    <input type="radio" name="batchMode" value="batch" onchange="updateBatchMode()">
+                    Batch (One API Call)
+                </label>
+            </div>
+            <div class="batch-sequence-info" id="batchModeInfo" style="display: none;">
+                ✓ All selected events will be sent in one API request
+            </div>
+            <div class="button-group">
+                <button class="btn btn-success" id="sendSelectedBtn" onclick="sendSelectedEvents()" disabled>
+                    <span class="spinner" style="display:none;"></span>
+                    🚀 Send Selected
+                </button>
+                <button class="btn btn-secondary" onclick="clearSelection()">✕ Deselect</button>
+            </div>
+        </div>
+
+        <div class="events-section">
+            <div class="selection-mode-header" id="selectionModeHeader">
+                <div class="selection-info"><span id="selectedCountHeader">0</span> selected</div>
+                <button class="btn btn-secondary" onclick="clearSelection()" style="padding: 4px 10px; font-size: 9px;">Deselect All</button>
+            </div>
+            <div class="events-header">
+                <div class="events-title">Events</div>
+                <div class="events-count"><span id="eventCount">0</span> loaded</div>
+            </div>
+            <div class="table-wrapper">
+                <table id="eventsTable">
+                    <thead>
+                        <tr>
+                            <th style="width: 30px;"><input type="checkbox" id="selectAllCheckbox" class="event-checkbox" onchange="toggleSelectAll(this)"></th>
+                            <th style="width: 24px;"></th>
+                            <th>Event Type</th>
+                            <th>Identity</th>
+                            <th>Channel</th>
+                            <th>Bag Type</th>
+                            <th>SKU</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="eventsTableBody">
+                        <tr><td colspan="9" class="empty-state">📋 No events. Upload CSV or paste data above.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script>
+        let eventsData = [];
+        let eventStatuses = {};
+        let apiLogs = [];
+        let draggedIndex = null;
+
+        function switchTab(e, tabName) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            e.target.classList.add('active');
+            document.getElementById(tabName).classList.add('active');
+        }
+
+        function toggleDataInput() {
+            document.getElementById('dataInputSection').classList.toggle('collapsed');
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            document.getElementById('fileUploadArea').classList.add('dragover');
+        }
+
+        function handleDragLeave(e) {
+            document.getElementById('fileUploadArea').classList.remove('dragover');
+        }
+
+        function handleFileDrop(e) {
+            e.preventDefault();
+            document.getElementById('fileUploadArea').classList.remove('dragover');
+            if (e.dataTransfer.files.length > 0) {
+                handleFile(e.dataTransfer.files[0]);
+            }
+        }
+
+        function handleFileSelect(e) {
+            if (e.target.files.length > 0) {
+                handleFile(e.target.files[0]);
+            }
+        }
+
+        function handleFile(file) {
+            const ext = file.name.split('.').pop().toLowerCase();
+            if (!['csv', 'xlsx', 'xls'].includes(ext)) {
+                showToast('Only CSV and Excel files supported', 'error');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    if (ext === 'csv') {
+                        Papa.parse(e.target.result, {
+                            complete: (r) => processEvents(r.data)
+                        });
+                    } else {
+                        const wb = XLSX.read(new Uint8Array(e.target.result), { type: 'array' });
+                        const csv = XLSX.utils.sheet_to_csv(wb.Sheets[wb.SheetNames[0]]);
+                        Papa.parse(csv, {
+                            complete: (r) => processEvents(r.data)
+                        });
+                    }
+                    document.getElementById('uploadedFileName').textContent = '✓ ' + file.name;
+                    document.getElementById('uploadedFileName').style.display = 'block';
+                } catch (err) {
+                    showToast('Error reading file: ' + err.message, 'error');
+                }
+            };
+            if (ext === 'csv') {
+                reader.readAsText(file);
+            } else {
+                reader.readAsArrayBuffer(file);
+            }
+        }
+
+        function parseCSVInput() {
+            const csv = document.getElementById('csvInput').value.trim();
+            if (!csv) {
+                showToast('Paste CSV data', 'error');
+                return;
+            }
+            Papa.parse(csv, {
+                complete: (r) => processEvents(r.data)
+            });
+        }
+
+        function processEvents(rows) {
+            if (!rows.length) {
+                showToast('No data found', 'error');
+                return;
+            }
+
+            const headers = rows[0].map(h => h.toLowerCase().trim());
+            eventsData = [];
+            eventStatuses = {};
+
+            rows.slice(1).forEach((row, idx) => {
+                if (row.every(c => !c)) return;
+                const event = {};
+                headers.forEach((h, i) => {
+                    if (h) event[h] = row[i] || '';
+                });
+                if (event.eventtype || event.event_type) {
+                    eventsData.push(event);
+                    eventStatuses[idx] = 'pending';
+                }
+            });
+
+            if (!eventsData.length) {
+                showToast('No valid events', 'error');
+                return;
+            }
+
+            document.getElementById('dataInputSection').classList.add('collapsed');
+            renderTable();
+            showToast(`✓ Loaded ${eventsData.length} events`, 'success');
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('eventsTableBody');
+            const count = document.getElementById('eventCount');
+
+            if (!eventsData.length) {
+                tbody.innerHTML = '<tr><td colspan="9" class="empty-state">📋 No events loaded</td></tr>';
+                count.textContent = '0';
+                document.getElementById('sendAllBtn').disabled = true;
+                return;
+            }
+
+            tbody.innerHTML = eventsData.map((event, idx) => {
+                const type = event.eventtype || event.event_type || 'UNKNOWN';
+                const identity = event.identity || event.shopper_id || event.shopperid || '';
+                const channel = event.channelbrand || event.channel_brand || '';
+                const bag = event.bagtype || event.bag_type || '';
+                const sku = event.skuid || event.sku_id || '';
+                const status = eventStatuses[idx] || 'pending';
+                const selected = event.selected || false;
+
+                return `<tr class="draggable" draggable="true" data-index="${idx}" ondragstart="dragStart(event)" ondragover="dragOver(event)" ondrop="drop(event)" ondragend="dragEnd(event)">
+                    <td><input type="checkbox" class="event-checkbox" ${selected ? 'checked' : ''} onchange="handleCheck(${idx}, this)"></td>
+                    <td><span class="drag-handle">⋮</span></td>
+                    <td class="cell-mono">${type}</td>
+                    <td>${identity}</td>
+                    <td>${channel}</td>
+                    <td>${bag}</td>
+                    <td class="cell-mono">${sku}</td>
+                    <td><span class="status-badge status-${status}">${status}</span></td>
+                    <td><button class="btn-sm btn-send-sm" onclick="sendSingle(${idx})">Send</button></td>
+                </tr>`;
+            }).join('');
+
+            count.textContent = eventsData.length;
+            document.getElementById('sendAllBtn').disabled = false;
+            updateSelectionUI();
+        }
+
+        function handleCheck(idx, checkbox) {
+            eventsData[idx].selected = checkbox.checked;
+            updateSelectionUI();
+        }
+
+        function toggleSelectAll(checkbox) {
+            eventsData.forEach(e => e.selected = checkbox.checked);
+            renderTable();
+        }
+
+        function updateSelectionUI() {
+            const selected = eventsData.filter(e => e.selected).length;
+            const header = document.getElementById('selectionModeHeader');
+            const batch = document.getElementById('batchSendSection');
+            const count = document.getElementById('selectedCount');
+            const countHeader = document.getElementById('selectedCountHeader');
+            const btn = document.getElementById('sendSelectedBtn');
+
+            count.textContent = selected;
+            countHeader.textContent = selected;
+
+            if (selected > 0) {
+                header.classList.add('active');
+                batch.classList.add('active');
+                btn.disabled = false;
+            } else {
+                header.classList.remove('active');
+                batch.classList.remove('active');
+                btn.disabled = true;
+            }
+        }
+
+        function clearSelection() {
+            eventsData.forEach(e => e.selected = false);
+            renderTable();
+        }
+
+        function dragStart(e) {
+            draggedIndex = parseInt(e.currentTarget.dataset.index);
+            e.currentTarget.classList.add('dragging');
+        }
+
+        function dragOver(e) {
+            e.preventDefault();
+            if (e.currentTarget.tagName === 'TR') e.currentTarget.classList.add('drag-over');
+        }
+
+        function dragEnd(e) {
+            e.currentTarget.classList.remove('dragging');
+            document.querySelectorAll('tbody tr').forEach(r => r.classList.remove('drag-over'));
+        }
+
+        function drop(e) {
+            e.preventDefault();
+            const target = e.currentTarget;
+            if (target.tagName !== 'TR' || draggedIndex === null) return;
+
+            target.classList.remove('drag-over');
+            const targetIdx = parseInt(target.dataset.index);
+
+            if (draggedIndex !== targetIdx) {
+                const drag = eventsData[draggedIndex];
+                eventsData.splice(draggedIndex, 1);
+                const newIdx = draggedIndex < targetIdx ? targetIdx - 1 : targetIdx;
+                eventsData.splice(newIdx, 0, drag);
+                renderTable();
+            }
+        }
+
+        function updateBatchMode() {
+            const mode = document.querySelector('input[name="batchMode"]:checked').value;
+            const info = document.getElementById('batchModeInfo');
+            if (mode === 'batch') {
+                info.style.display = 'block';
+            } else {
+                info.style.display = 'none';
+            }
+        }
+
+        function buildPayload(event) {
+            const type = event.eventtype || event.event_type || 'BAG';
+            const identity = event.identity || event.shopper_id || event.shopperid || 'UNKNOWN';
+            const channel = event.channelbrand || event.channel_brand || 'NORDSTROM';
+            const bag = event.bagtype || event.bag_type || '';
+            const sku = event.skuid || event.sku_id || '';
+            const now = new Date().toISOString();
+
+            const payload = {
+                _id: generateUUID(),
+                eventType: type,
+                _nordstrom: {
+                    systemTime: now,
+                    identities: { shopperId: identity },
+                    event: { channelBrand: channel, eventTime: now }
+                }
+            };
+
+            if (type === 'BAG' && (sku || bag)) {
+                payload._nordstrom.event.bagType = bag || 'SHOPPING_BAG';
+                payload._nordstrom.event.items = [{ skuId: sku, lastModifiedTime: now }];
+            }
+            return payload;
+        }
+
+        function generateUUID() {
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+                const r = Math.random() * 16 | 0;
+                return (c === 'x' ? r : r & 0x3 | 0x8).toString(16);
+            });
+        }
+
+        async function sendSingle(idx) {
+            const endpoint = document.getElementById('dccsEndpoint').value.trim();
+            const token = document.getElementById('accessToken').value.trim();
+            if (!endpoint || !token) {
+                showToast('Configure endpoint and token', 'error');
+                return;
+            }
+            const payload = buildPayload(eventsData[idx]);
+            await sendAPI(endpoint, token, payload, idx);
+        }
+
+        async function sendAllEvents() {
+            const endpoint = document.getElementById('dccsEndpoint').value.trim();
+            const token = document.getElementById('accessToken').value.trim();
+            if (!endpoint || !token) {
+                showToast('Configure endpoint and token', 'error');
+                return;
+            }
+
+            const btn = document.getElementById('sendAllBtn');
+            btn.disabled = true;
+
+            for (let i = 0; i < eventsData.length; i++) {
+                const payload = buildPayload(eventsData[i]);
+                await sendAPI(endpoint, token, payload, i);
+                if (i < eventsData.length - 1) await new Promise(r => setTimeout(r, 10000));
+            }
+
+            btn.disabled = false;
+        }
+
+        async function sendSelectedEvents() {
+            const selected = eventsData.filter(e => e.selected);
+            if (!selected.length) {
+                showToast('No events selected', 'error');
+                return;
+            }
+
+            const endpoint = document.getElementById('dccsEndpoint').value.trim();
+            const token = document.getElementById('accessToken').value.trim();
+            if (!endpoint || !token) {
+                showToast('Configure endpoint and token', 'error');
+                return;
+            }
+
+            const mode = document.querySelector('input[name="batchMode"]:checked').value;
+            const btn = document.getElementById('sendSelectedBtn');
+            btn.disabled = true;
+
+            if (mode === 'batch') {
+                await sendBatch(endpoint, token, selected);
+            } else {
+                for (let i = 0; i < selected.length; i++) {
+                    const idx = eventsData.indexOf(selected[i]);
+                    await sendAPI(endpoint, token, buildPayload(selected[i]), idx);
+                    if (i < selected.length - 1) await new Promise(r => setTimeout(r, 10000));
+                }
+            }
+
+            btn.disabled = false;
+            renderTable();
+        }
+
+        async function sendAPI(endpoint, token, payload, idx) {
+            try {
+                document.getElementById('apiLogSection').classList.add('active');
+
+                addLog('request', `Event ${idx + 1} (${payload.eventType})`, {
+                    'event-id': payload._id,
+                    'event-type': payload.eventType
+                });
+
+                const res = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`,
+                        'sandbox-name': document.getElementById('sandboxName').value,
+                        'x-adobe-flow-id': document.getElementById('flowId').value
+                    },
+                    body: JSON.stringify({ messages: [payload] })
+                });
+
+                const body = await res.text();
+
+                if (res.ok) {
+                    eventStatuses[idx] = 'sent';
+                    try {
+                        addLog('response', `✓ Event ${idx + 1} sent (${res.status})`, JSON.parse(body));
+                    } catch {
+                        addLog('response', `✓ Event ${idx + 1} sent (${res.status})`, { body });
+                    }
+                    showToast(`✓ Event ${idx + 1} sent`, 'success');
+                } else {
+                    eventStatuses[idx] = 'error';
+                    try {
+                        addLog('error', `✗ Event ${idx + 1} failed (${res.status})`, JSON.parse(body));
+                    } catch {
+                        addLog('error', `✗ Event ${idx + 1} failed (${res.status})`, { body });
+                    }
+                    showToast(`✗ Event ${idx + 1}: ${res.status}`, 'error');
+                }
+            } catch (err) {
+                eventStatuses[idx] = 'error';
+                document.getElementById('apiLogSection').classList.add('active');
+                addLog('error', `✗ Event ${idx + 1} error: ${err.message}`, null);
+                showToast(`✗ Event ${idx + 1}: ${err.message}`, 'error');
+            }
+
+            renderTable();
+        }
+
+        async function sendBatch(endpoint, token, selected) {
+            try {
+                document.getElementById('apiLogSection').classList.add('active');
+
+                const messages = selected.map(e => buildPayload(e));
+                addLog('request', `Batch: ${selected.length} event(s)`, {
+                    'event-count': selected.length,
+                    'event-types': messages.map(m => m.eventType).join(', ')
+                });
+
+                const res = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`,
+                        'sandbox-name': document.getElementById('sandboxName').value,
+                        'x-adobe-flow-id': document.getElementById('flowId').value
+                    },
+                    body: JSON.stringify({ messages })
+                });
+
+                const body = await res.text();
+
+                if (res.ok) {
+                    selected.forEach(e => {
+                        const idx = eventsData.indexOf(e);
+                        if (idx !== -1) eventStatuses[idx] = 'sent';
+                    });
+                    try {
+                        addLog('response', `✓ Batch sent: ${selected.length} events (${res.status})`, JSON.parse(body));
+                    } catch {
+                        addLog('response', `✓ Batch sent: ${selected.length} events (${res.status})`, { body });
+                    }
+                    showToast(`✓ Batch sent: ${selected.length} events`, 'success');
+                } else {
+                    selected.forEach(e => {
+                        const idx = eventsData.indexOf(e);
+                        if (idx !== -1) eventStatuses[idx] = 'error';
+                    });
+                    try {
+                        addLog('error', `✗ Batch failed (${res.status})`, JSON.parse(body));
+                    } catch {
+                        addLog('error', `✗ Batch failed (${res.status})`, { body });
+                    }
+                    showToast(`✗ Batch failed: ${res.status}`, 'error');
+                }
+            } catch (err) {
+                document.getElementById('apiLogSection').classList.add('active');
+                addLog('error', `✗ Batch error: ${err.message}`, null);
+                showToast(`✗ Batch error: ${err.message}`, 'error');
+            }
+        }
+
+        function addLog(type, msg, details) {
+            const ts = new Date().toLocaleTimeString();
+            apiLogs.push({ ts, type, msg, details });
+
+            const div = document.createElement('div');
+            div.className = 'log-entry';
+
+            let detailsHtml = '';
+            if (details) {
+                const jsonStr = JSON.stringify(details, null, 2).replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                detailsHtml = `<pre style="margin: 3px 0; overflow-x: auto; font-size: 8px;">${jsonStr}</pre>`;
+            }
+
+            div.innerHTML = `<div class="log-timestamp">[${ts}]</div><div class="log-${type}">${msg}${detailsHtml}</div>`;
+            document.getElementById('logContent').appendChild(div);
+            document.getElementById('logContent').scrollTop = document.getElementById('logContent').scrollHeight;
+        }
+
+        function downloadLog() {
+            if (!apiLogs.length) {
+                showToast('No logs', 'error');
+                return;
+            }
+            const text = apiLogs.map(l => `[${l.ts}] ${l.type}: ${l.msg}\n${l.details ? JSON.stringify(l.details, null, 2) : ''}`).join('\n\n');
+            const blob = new Blob([text], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `dccs-log-${new Date().toISOString().replace(/[:.]/g, '-')}.txt`;
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast('✓ Log downloaded', 'success');
+        }
+
+        function clearLog() {
+            apiLogs = [];
+            document.getElementById('logContent').innerHTML = '';
+            document.getElementById('apiLogSection').classList.remove('active');
+        }
+
+        function clearTable() {
+            eventsData = [];
+            eventStatuses = {};
+            document.getElementById('csvFile').value = '';
+            document.getElementById('uploadedFileName').style.display = 'none';
+            document.getElementById('csvInput').value = '';
+            renderTable();
+            clearSelection();
+        }
+
+        function downloadTemplate() {
+            const csv = `eventType,identity,channelBrand,bagType,skuId
+BAG,SHOPPER-001,NORDSTROM,SHOPPING_BAG,A0097875
+BAG,SHOPPER-002,NORDSTROM_RACK,SAVED_FOR_LATER,A0099901
+BROWSE_SEARCH_RESULTS,SHOPPER-003,NORDSTROM,,,
+PURCHASE,SHOPPER-004,NORDSTROM,,A0101123`;
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'dccs-template.csv';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function showToast(msg, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.innerHTML = `<span>${msg}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 4000);
+        }
+
+        window.addEventListener('load', () => {
+            showToast('Ready', 'info');
+        });
+    </script>
+</body>
+</html>
