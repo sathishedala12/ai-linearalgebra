@@ -1393,36 +1393,28 @@
 
                 const lowerKey = key.toLowerCase();
                 
-                // Skip metadata columns
-                if (lowerKey === 'eventtype' || lowerKey === 'event_type' || lowerKey === '_id' || lowerKey === 'timestamp') {
-                    if (lowerKey === 'eventtype' || lowerKey === 'event_type') {
-                        payload.eventType = value;
-                    }
+                // Skip metadata columns (handled separately)
+                if (lowerKey === 'eventtype' || lowerKey === 'event_type') {
+                    payload.eventType = value;
+                    return;
+                }
+                if (lowerKey === '_id') {
+                    payload._id = processTimestampTemplate(value, timestampOffset);
+                    return;
+                }
+                if (lowerKey === 'timestamp') {
+                    payload.timestamp = processTimestampTemplate(value, timestampOffset);
                     return;
                 }
                 
-                // Process timestamp templates
-                if (key.toLowerCase().includes('timestamp')) {
-                    const processed = processTimestampTemplate(value, timestampOffset);
-                    if (key.includes('.')) {
-                        setNestedProperty(payload, key, processed);
-                    } else if (key.toLowerCase() === 'timestamp') {
-                        payload.timestamp = processed;
-                    }
-                    return;
+                // Process timestamp templates in ANY value
+                let processedValue = value;
+                if (typeof value === 'string' && value.includes('{{timestamp')) {
+                    processedValue = processTimestampTemplate(value, timestampOffset);
                 }
                 
-                // Handle nested paths
+                // Handle nested paths (any column with dots)
                 if (key.includes('.')) {
-                    // Handle complex value types (JSON objects/arrays)
-                    let processedValue = value;
-                    try {
-                        if (typeof value === 'string' && (value.startsWith('{') || value.startsWith('['))) {
-                            processedValue = JSON.parse(value);
-                        }
-                    } catch (e) {
-                        // Keep as string if not valid JSON
-                    }
                     setNestedProperty(payload, key, processedValue);
                 }
             });
@@ -1433,24 +1425,17 @@
         function processTimestampTemplate(value, baseOffsetSeconds = 0) {
             if (typeof value !== 'string') return value;
 
-            // Handle {{timestamp}} and {{timestamp+N}} format
-            const templateMatch = value.match(/\{\{timestamp\s*(\+|-)\s*(\d+)\s*(s|sec|second)?s?\}\}/i);
-            const simpleTemplate = value.match(/\{\{timestamp\}\}/);
-
-            if (templateMatch) {
-                const operator = templateMatch[1];
-                const amount = parseInt(templateMatch[2]);
-                const offset = operator === '+' ? amount : -amount;
+            // Replace all {{timestamp}} and {{timestamp+N}} occurrences in the string
+            return value.replace(/\{\{timestamp\s*([+-])\s*(\d+)\s*(?:s|sec|seconds?)?\}\}/gi, (match, operator, amount) => {
+                const offset = operator === '+' ? parseInt(amount) : -parseInt(amount);
                 const now = new Date();
                 now.setSeconds(now.getSeconds() + baseOffsetSeconds + offset);
                 return now.toISOString();
-            } else if (simpleTemplate) {
+            }).replace(/\{\{timestamp\}\}/gi, () => {
                 const now = new Date();
                 now.setSeconds(now.getSeconds() + baseOffsetSeconds);
                 return now.toISOString();
-            }
-
-            return value;
+            });
         }
 
         function setNestedProperty(obj, path, value) {
@@ -1480,26 +1465,18 @@
                 return;
             }
 
-            // Detect comma-separated values for array notation
-            const hasArrayNotation = path.includes('[]') || /\[\d+\]/.test(path);
-            const isCommaList = typeof value === 'string' && value.includes(',');
+            // Handle [] notation: split comma-values OR single value
+            // Multiple columns with same items[] path will MERGE into same array items
+            if (path.includes('[]')) {
+                const isCommaList = typeof value === 'string' && value.includes(',');
+                const values = isCommaList 
+                    ? value.split(',').map(v => v.trim()).filter(v => v)
+                    : [value];
 
-            if (hasArrayNotation && isCommaList) {
-                // Split comma-separated values
-                const values = value.split(',').map(v => v.trim()).filter(v => v);
-
-                // Find the array part - support both [] and [0] notation
-                let beforeArray, afterArray;
-                if (path.includes('[]')) {
-                    const idx = path.indexOf('[]');
-                    beforeArray = path.substring(0, idx);
-                    afterArray = path.substring(idx + 2).replace(/^\./, '');
-                } else {
-                    const match = path.match(/\[\d+\]/);
-                    const idx = path.indexOf(match[0]);
-                    beforeArray = path.substring(0, idx);
-                    afterArray = path.substring(idx + match[0].length).replace(/^\./, '');
-                }
+                // Find the array part
+                const idx = path.indexOf('[]');
+                const beforeArray = path.substring(0, idx);
+                const afterArray = path.substring(idx + 2).replace(/^\./, '');
 
                 // Navigate to/create the parent object
                 const parentParts = beforeArray.split('.');
@@ -1511,38 +1488,25 @@
                 const arrayKey = parentParts[parentParts.length - 1];
                 if (!Array.isArray(parent[arrayKey])) parent[arrayKey] = [];
 
-                // Add each value as array element
-                values.forEach((val, idx) => {
+                // Add/merge each value into array
+                values.forEach((val, vIdx) => {
                     if (afterArray) {
-                        // Array of objects: items[].skuId or items[0].skuId
-                        if (!parent[arrayKey][idx] || typeof parent[arrayKey][idx] !== 'object') {
-                            parent[arrayKey][idx] = {};
+                        // Array of objects - MERGE into existing item at index vIdx
+                        if (!parent[arrayKey][vIdx] || typeof parent[arrayKey][vIdx] !== 'object') {
+                            parent[arrayKey][vIdx] = {};
                         }
-                        setNestedSimple(parent[arrayKey][idx], afterArray, val);
+                        setNestedSimple(parent[arrayKey][vIdx], afterArray, val);
                     } else {
-                        // Simple array: items[]
-                        parent[arrayKey][idx] = val;
+                        // Simple array: items[] - append if not exists at idx
+                        if (parent[arrayKey][vIdx] === undefined) {
+                            parent[arrayKey][vIdx] = val;
+                        }
                     }
                 });
                 return;
             }
 
-            // Handle simple array notation with empty brackets and single value
-            if (path.endsWith('[]') && typeof value === 'string') {
-                const cleanPath = path.slice(0, -2);
-                const parentParts = cleanPath.split('.');
-                let parent = obj;
-                for (let i = 0; i < parentParts.length - 1; i++) {
-                    if (!parent[parentParts[i]]) parent[parentParts[i]] = {};
-                    parent = parent[parentParts[i]];
-                }
-                const arrayKey = parentParts[parentParts.length - 1];
-                if (!Array.isArray(parent[arrayKey])) parent[arrayKey] = [];
-                parent[arrayKey].push(value);
-                return;
-            }
-
-            // Single value with index notation - use existing logic
+            // Single value with [N] indexed notation - use existing logic
             setNestedSimple(obj, path, value);
         }
 
@@ -1825,7 +1789,11 @@ BACK_IN_STOCK,/uri-ref-006,,,,,,NORDSTROM_RACK,APRI14-PRODUCT_TRIGGER_ID_02,A555
                 '_nordstrom.event.channelBrand',
                 '_nordstrom.event.bagType',
                 '_nordstrom.event.items[].skuId',
+                '_nordstrom.event.items[].bagType',
+                '_nordstrom.event.items[].lastModifiedTime',
                 '_nordstrom.event.browsePath',
+                '_nordstrom.event.orderNumber',
+                '_nordstrom.event.purchaseId',
                 '_nordstrom.productTrigger.channelBrand',
                 '_nordstrom.productTrigger.productTriggerId',
                 '_nordstrom.productTrigger.backInStockSKUs[]',
@@ -1834,73 +1802,213 @@ BACK_IN_STOCK,/uri-ref-006,,,,,,NORDSTROM_RACK,APRI14-PRODUCT_TRIGGER_ID_02,A555
             ];
 
             const rows = [
-                ['BAG', '/uri-ref-001', 'SHOPPER-0410-BAG-001', 'NORDSTROM', 'SHOPPING_BAG', 'A0097875', '', '', '', '', '', '{{timestamp}}'],
-                ['BAG', '/uri-ref-002', 'SHOPPER-0410-BAG-002', 'NORDSTROM_RACK', 'SAVED_FOR_LATER', 'A0099901,A0099902,A0099903', '', '', '', '', '', '{{timestamp+10}}'],
-                ['BROWSE_SEARCH_RESULTS', '/uri-ref-003', 'SHOPPER-0410-BSR-001', 'NORDSTROM_RACK', '', '', '/search?q=jacket', '', '', '', '', '{{timestamp+20}}'],
-                ['PURCHASE', '/uri-ref-004', 'SHOPPER-0410-PUR-001', 'NORDSTROM', '', 'A0101123,A0101124', '', '', '', '', '', '{{timestamp+30}}'],
-                ['BACK_IN_STOCK', '/uri-ref-005', '', '', '', '', '', 'NORDSTROM', 'APRI14-PRODUCT_TRIGGER_ID_01', 'A971531138,A416821464,A768091755', '', '{{timestamp+40}}'],
-                ['BACK_IN_STOCK', '/uri-ref-006', '', '', '', '', '', 'NORDSTROM_RACK', 'APRI14-PRODUCT_TRIGGER_ID_02', 'A555678901', '', '{{timestamp+50}}'],
-                ['PRICE_DROP', '/uri-ref-007', '', '', '', '', '', 'NORDSTROM', 'APRI14-PRICE_DROP_01', '', 'A971531138=214.37|456.67;A416821464=171.85|172.90;A768091755=372.53|587.33', '{{timestamp+60}}'],
-                ['PRICE_DROP', '/uri-ref-008', '', '', '', '', '', 'NORDSTROM_RACK', 'APRI14-PRICE_DROP_02', '', 'A999123456=99.99|149.99', '{{timestamp+70}}']
+                // ===== BAG events =====
+                ['BAG', 'a081b598-3671-411d-abbc-3bb3a08758e5', 'SHOPPER-0410-BAG-SINGLE-001', 'NORDSTROM', 'SHOPPING_BAG', 'A0097875', '', '{{timestamp}}', '', '', '', '', '', '', '', '{{timestamp}}'],
+                ['BAG', '/uri-ref-bag-multi', 'SHOPPER-0410-BAG-002', 'NORDSTROM_RACK', 'SAVED_FOR_LATER', 'A0099901,A0099902,A0099903', '', '{{timestamp+10}}', '', '', '', '', '', '', '', '{{timestamp+10}}'],
+                ['BAGtEST', 'NEWAPRI16-TRIGGERS0-abe4-49b0-85e3-516f1e80085c', 'SHOPPER-0410-BAG-MULTI-NOBAG-004', 'NORDSTROM', 'SHOPPING_BAG_Invalid', 'A0097875', '', '{{timestamp+20}}', '', '', '', '', '', '', '', '{{timestamp+20}}'],
+                ['BAG', 'NEWAPRI16-TRIGGERS-7f50-4fb0-8d6d-8b2bbd6a6c34', 'SHOPPER-0410-BAG-MULTI-002_INVALID', 'NORDSTROM_RACK', '', 'A0101123', 'SHOPPING_BAG', '{{timestamp+30}}', '', '', '', '', '', '', '', '{{timestamp+30}}'],
+                ['BAG', 'NEWAPRI16-TRIGGERS-51eb-4026-b1e9-c3e44303cd2b', 'SHOPPER-0410-BAG-MULTI-003', 'NORDSTROM', '', 'A0099901', 'SAVED_FOR_LATER_TEST', '{{timestamp+40}}', '', '', '', '', '', '', '', '{{timestamp+40}}'],
+                ['BAG', 'NEWAPRI16-TRIGGERS-395a-40c7-a39d-3d753d97d1b8', 'SHOPPER-0410-BAG-MULTI-004', 'NORDSTROM_RACK_INVALID', '', 'A0112033', 'SHOPPING_BAG_INVALID', '{{timestamp+50}}', '', '', '', '', '', '', '', '{{timestamp+50}}'],
+                
+                // ===== BROWSE_SEARCH_RESULTS =====
+                ['BROWSE_SEARCH_RESULTS', '92a8013b-02ec-4272-8308-4deecd706339', 'SHOPPER-0410-BSR-MULTI-002', 'NORDSTROM_RACK', '', '', '', '', '/search?q=jacket', '', '', '', '', '', '', '{{timestamp+60}}'],
+                
+                // ===== ORDER_SUBMITTED =====
+                ['ORDER_SUBMITTED', '55ea8e87-853f-4d9a-ba1f-3e4d350a14a7', 'SHOPPER-0410-ORD-MULTI-001', 'NORDSTROM', '', 'A0097875', '', '', '', 'ND-0410-001', '808_5395_9001_20260410', '', '', '', '', '{{timestamp+70}}'],
+                ['ORDER_SUBMITTED', '3eb24e8c-b240-4bcb-807c-7757f0f03dd2', 'SHOPPER-0410-ORD-MULTI-002', 'NORDSTROM_RACK', '', 'A0101123', '', '', '', 'ND-0410-002', '808_5395_9002_20260410', '', '', '', '', '{{timestamp+80}}'],
+                ['ORDER_SUBMITTED', 'fb43bab1-f1e2-4ac9-83ee-81c2cbe5ffc4', 'SHOPPER-0410-ORD-MULTI-003', 'NORDSTROM', '', 'A0099901', '', '', '', 'ND-0410-003', '808_5395_9003_20260410', '', '', '', '', '{{timestamp+90}}'],
+                ['ORDER_SUBMITTED', 'cd5b65d8-9ad0-49a9-a721-3d667c76d335', 'SHOPPER-0410-ORD-MULTI-004', 'NORDSTROM_RACK', '', 'A0112033', '', '', '', 'ND-0410-004', '808_5395_9004_20260410', '', '', '', '', '{{timestamp+100}}'],
+                
+                // ===== BACK_IN_STOCK =====
+                ['BACK_IN_STOCK', '/uri-reference/002', '', '', '', '', '', '', '', '', '', 'NORDSTROM_RACK', 'APRI14-012321-PRODUCT_TRIGGER_ID_02', 'A971531138,A416821464,A768091755,A123510618', '', '{{timestamp+110}}'],
+                ['BACK_IN_STOCK', '/uri-reference/004', '', '', '', '', '', '', '', '', '', 'NORDSTROM_RACK', 'APRI14-012321-PRODUCT_TRIGGER_ID_04', 'A555678901', '', '{{timestamp+120}}'],
+                
+                // ===== PRICE_DROP =====
+                ['PRICE_DROP', '/uri-reference/001', '', '', '', '', '', '', '', '', '', 'NORDSTROM', 'APRI14-012321-PRODUCT_TRIGGER_ID_01', '', 'A971531138=214.37|456.67;A416821464=171.85|172.90;A768091755=372.53|587.33;A123510618=352.64|449.39', '{{timestamp+130}}'],
+                ['PRICE_DROP', '/uri-reference/003', '', '', '', '', '', '', '', '', '', 'NORDSTROM', 'APRI14-012321-PRODUCT_TRIGGER_ID_03', '', 'A999123456=99.99|149.99', '{{timestamp+140}}']
             ];
 
-            // Generate Excel XML 2003 format - works WITHOUT any library
-            const escapeXml = (str) => {
-                if (str === null || str === undefined) return '';
-                return String(str)
-                    .replace(/&/g, '&amp;')
-                    .replace(/</g, '&lt;')
-                    .replace(/>/g, '&gt;')
-                    .replace(/"/g, '&quot;')
-                    .replace(/'/g, '&apos;');
-            };
-
-            let xml = '<?xml version="1.0"?>\n';
-            xml += '<?mso-application progid="Excel.Sheet"?>\n';
-            xml += '<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"\n';
-            xml += ' xmlns:o="urn:schemas-microsoft-com:office:office"\n';
-            xml += ' xmlns:x="urn:schemas-microsoft-com:office:excel"\n';
-            xml += ' xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"\n';
-            xml += ' xmlns:html="http://www.w3.org/TR/REC-html40">\n';
-            xml += ' <Styles>\n';
-            xml += '  <Style ss:ID="header">\n';
-            xml += '   <Font ss:Bold="1" ss:Color="#FFFFFF"/>\n';
-            xml += '   <Interior ss:Color="#1E2139" ss:Pattern="Solid"/>\n';
-            xml += '  </Style>\n';
-            xml += ' </Styles>\n';
-            xml += ' <Worksheet ss:Name="DCCS Events">\n';
-            xml += '  <Table>\n';
-            
-            for (let i = 0; i < headers.length; i++) {
-                xml += '   <Column ss:Width="200"/>\n';
+            try {
+                const xlsxData = generateXlsx(headers, rows);
+                const blob = new Blob([xlsxData], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'dccs-template.xlsx';
+                a.click();
+                URL.revokeObjectURL(url);
+                showToast('✓ Excel template downloaded', 'success');
+            } catch (err) {
+                showToast(`Error: ${err.message}`, 'error');
+                console.error(err);
             }
-            
-            xml += '   <Row>\n';
-            headers.forEach(h => {
-                xml += '    <Cell ss:StyleID="header"><Data ss:Type="String">' + escapeXml(h) + '</Data></Cell>\n';
-            });
-            xml += '   </Row>\n';
-            
-            rows.forEach(row => {
-                xml += '   <Row>\n';
-                row.forEach(cell => {
-                    xml += '    <Cell><Data ss:Type="String">' + escapeXml(cell) + '</Data></Cell>\n';
-                });
-                xml += '   </Row>\n';
-            });
-            
-            xml += '  </Table>\n';
-            xml += ' </Worksheet>\n';
-            xml += '</Workbook>\n';
+        }
 
-            const blob = new Blob([xml], { type: 'application/vnd.ms-excel' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'dccs-template.xls';
-            a.click();
-            URL.revokeObjectURL(url);
-            showToast('✓ Excel template downloaded', 'success');
+        // Minimal XLSX file generator (no library required)
+        function generateXlsx(headers, rows) {
+            const sheetXml = generateSheetXml(headers, rows);
+            
+            const files = {
+                '[Content_Types].xml': '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/></Types>',
+                '_rels/.rels': '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>',
+                'xl/workbook.xml': '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="DCCS Events" sheetId="1" r:id="rId1"/></sheets></workbook>',
+                'xl/_rels/workbook.xml.rels': '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/></Relationships>',
+                'xl/worksheets/sheet1.xml': sheetXml
+            };
+            
+            return createZip(files);
+        }
+
+        function generateSheetXml(headers, rows) {
+            const allRows = [headers, ...rows];
+            const escapeXml = (str) => String(str || '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;');
+
+            let xml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n';
+            xml += '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">';
+            xml += '<sheetData>';
+            
+            allRows.forEach((row, rIdx) => {
+                xml += `<row r="${rIdx + 1}">`;
+                row.forEach((cell, cIdx) => {
+                    const cellRef = colLetter(cIdx) + (rIdx + 1);
+                    xml += `<c r="${cellRef}" t="inlineStr"><is><t>${escapeXml(cell)}</t></is></c>`;
+                });
+                xml += '</row>';
+            });
+            
+            xml += '</sheetData></worksheet>';
+            return xml;
+        }
+
+        function colLetter(n) {
+            let result = '';
+            while (n >= 0) {
+                result = String.fromCharCode(65 + n % 26) + result;
+                n = Math.floor(n / 26) - 1;
+            }
+            return result;
+        }
+
+        // CRC-32 implementation for ZIP
+        const crc32Table = (() => {
+            const table = new Uint32Array(256);
+            for (let i = 0; i < 256; i++) {
+                let c = i;
+                for (let j = 0; j < 8; j++) {
+                    c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
+                }
+                table[i] = c;
+            }
+            return table;
+        })();
+
+        function crc32(data) {
+            let crc = 0xFFFFFFFF;
+            for (let i = 0; i < data.length; i++) {
+                crc = crc32Table[(crc ^ data[i]) & 0xFF] ^ (crc >>> 8);
+            }
+            return (crc ^ 0xFFFFFFFF) >>> 0;
+        }
+
+        // Create ZIP file (uncompressed/STORE method)
+        function createZip(files) {
+            const encoder = new TextEncoder();
+            const localBlocks = [];
+            const centralBlocks = [];
+            let offset = 0;
+
+            for (const [filename, content] of Object.entries(files)) {
+                const data = encoder.encode(content);
+                const filenameBytes = encoder.encode(filename);
+                const crc = crc32(data);
+
+                // Local file header (30 bytes + filename + data)
+                const localHeader = new Uint8Array(30 + filenameBytes.length);
+                const lhView = new DataView(localHeader.buffer);
+                lhView.setUint32(0, 0x04034b50, true);
+                lhView.setUint16(4, 20, true);
+                lhView.setUint16(6, 0, true);
+                lhView.setUint16(8, 0, true);
+                lhView.setUint16(10, 0, true);
+                lhView.setUint16(12, 0, true);
+                lhView.setUint32(14, crc, true);
+                lhView.setUint32(18, data.length, true);
+                lhView.setUint32(22, data.length, true);
+                lhView.setUint16(26, filenameBytes.length, true);
+                lhView.setUint16(28, 0, true);
+                localHeader.set(filenameBytes, 30);
+
+                const localFile = new Uint8Array(localHeader.length + data.length);
+                localFile.set(localHeader, 0);
+                localFile.set(data, localHeader.length);
+                localBlocks.push(localFile);
+
+                // Central directory entry (46 bytes + filename)
+                const centralEntry = new Uint8Array(46 + filenameBytes.length);
+                const ceView = new DataView(centralEntry.buffer);
+                ceView.setUint32(0, 0x02014b50, true);
+                ceView.setUint16(4, 20, true);
+                ceView.setUint16(6, 20, true);
+                ceView.setUint16(8, 0, true);
+                ceView.setUint16(10, 0, true);
+                ceView.setUint16(12, 0, true);
+                ceView.setUint16(14, 0, true);
+                ceView.setUint32(16, crc, true);
+                ceView.setUint32(20, data.length, true);
+                ceView.setUint32(24, data.length, true);
+                ceView.setUint16(28, filenameBytes.length, true);
+                ceView.setUint16(30, 0, true);
+                ceView.setUint16(32, 0, true);
+                ceView.setUint16(34, 0, true);
+                ceView.setUint16(36, 0, true);
+                ceView.setUint32(38, 0, true);
+                ceView.setUint32(42, offset, true);
+                centralEntry.set(filenameBytes, 46);
+                centralBlocks.push(centralEntry);
+
+                offset += localFile.length;
+            }
+
+            // Combine local files
+            const localTotal = localBlocks.reduce((sum, b) => sum + b.length, 0);
+            const allLocal = new Uint8Array(localTotal);
+            let pos = 0;
+            for (const b of localBlocks) {
+                allLocal.set(b, pos);
+                pos += b.length;
+            }
+
+            // Combine central directory
+            const centralTotal = centralBlocks.reduce((sum, b) => sum + b.length, 0);
+            const allCentral = new Uint8Array(centralTotal);
+            pos = 0;
+            for (const b of centralBlocks) {
+                allCentral.set(b, pos);
+                pos += b.length;
+            }
+
+            // End of central directory record (22 bytes)
+            const eocd = new Uint8Array(22);
+            const eocdView = new DataView(eocd.buffer);
+            eocdView.setUint32(0, 0x06054b50, true);
+            eocdView.setUint16(4, 0, true);
+            eocdView.setUint16(6, 0, true);
+            eocdView.setUint16(8, centralBlocks.length, true);
+            eocdView.setUint16(10, centralBlocks.length, true);
+            eocdView.setUint32(12, centralTotal, true);
+            eocdView.setUint32(16, allLocal.length, true);
+            eocdView.setUint16(20, 0, true);
+
+            // Combine everything
+            const total = new Uint8Array(allLocal.length + centralTotal + eocd.length);
+            total.set(allLocal, 0);
+            total.set(allCentral, allLocal.length);
+            total.set(eocd, allLocal.length + centralTotal);
+
+            return total;
         }
 
         function generateCurlCommand(payload, endpoint, token, sandbox, flowId) {
