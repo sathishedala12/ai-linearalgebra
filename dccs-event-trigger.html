@@ -6,6 +6,14 @@
     <title>DCCS Event Trigger</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.min.js"></script>
+    <script>
+        // Fallback: load XLSX from alternate CDN if primary fails
+        if (typeof XLSX === 'undefined') {
+            const fallback = document.createElement('script');
+            fallback.src = 'https://unpkg.com/xlsx@0.18.5/dist/xlsx.full.min.js';
+            document.head.appendChild(fallback);
+        }
+    </script>
     <style>
         * {
             margin: 0;
@@ -418,9 +426,11 @@
         }
 
         table {
-            width: 100%;
+            width: auto;
             border-collapse: collapse;
             font-size: 11px;
+            table-layout: fixed;
+            min-width: 100%;
         }
 
         thead {
@@ -428,23 +438,39 @@
             border-bottom: 1px solid var(--border-color);
             position: sticky;
             top: 0;
+            z-index: 10;
         }
 
         th {
-            padding: 8px;
+            padding: 8px 6px;
             text-align: left;
             font-weight: 600;
             color: var(--accent-primary);
-            text-transform: uppercase;
+            text-transform: none;
             font-size: 9px;
-            letter-spacing: 0.5px;
+            letter-spacing: 0;
             white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            min-width: 100px;
+            max-width: 150px;
+            border-right: 1px solid rgba(0, 212, 255, 0.1);
+        }
+
+        th:last-child, td:last-child {
+            border-right: none;
         }
 
         td {
-            padding: 8px;
+            padding: 8px 6px;
             border-bottom: 1px solid rgba(0, 212, 255, 0.05);
             color: var(--text-primary);
+            white-space: nowrap;
+            min-width: 100px;
+            max-width: 150px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            border-right: 1px solid rgba(0, 212, 255, 0.05);
         }
 
         tbody tr {
@@ -803,6 +829,49 @@
             to { transform: rotate(360deg); }
         }
 
+        .help-section {
+            background: rgba(0, 212, 255, 0.05);
+            border: 1px solid var(--accent-primary);
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 16px;
+            font-size: 9px;
+        }
+
+        .help-title {
+            font-weight: 600;
+            color: var(--accent-primary);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .help-content {
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .help-example {
+            background: var(--bg-tertiary);
+            border-left: 2px solid var(--accent-primary);
+            padding: 6px 8px;
+            margin: 6px 0;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+            font-size: 8px;
+        }
+
+        .help-list {
+            margin: 6px 0;
+            padding-left: 16px;
+        }
+
+        .help-list li {
+            margin: 3px 0;
+            color: var(--text-secondary);
+        }
+
         @media (max-width: 768px) {
             .container {
                 padding: 12px 8px;
@@ -830,7 +899,7 @@
             <div class="config-grid">
                 <div class="form-group">
                     <label class="form-label">DCCS Endpoint</label>
-                    <input type="text" id="dccsEndpoint" class="form-input" placeholder="https://dcs.adobedc.net/collection/batch/..." value="https://dcs.adobedc.net/collection/batch/">
+                    <input type="text" id="dccsEndpoint" class="form-input" placeholder="https://dcs.adobedc.net/collection/batch/..." value="https://dcs.adobedc.net/collection/batch/9d22a45b1ba47414970cc99a2956a2641fb986cd98db88ba6744dd1d97">
                 </div>
                 <div class="form-group">
                     <label class="form-label">Access Token</label>
@@ -842,7 +911,7 @@
                 </div>
                 <div class="form-group">
                     <label class="form-label">Flow ID</label>
-                    <input type="text" id="flowId" class="form-input" placeholder="flow-id" value="">
+                    <input type="text" id="flowId" class="form-input" placeholder="flow-id" value="a6b548e4-60ca-438b-801d-18de9e747e7f">
                 </div>
             </div>
         </div>
@@ -853,33 +922,18 @@
                 <div class="data-input-toggle-icon">▶</div>
             </div>
             <div class="data-input-content">
-                <div class="tabs">
-                    <button class="tab active" onclick="switchTab(event, 'upload')">Upload CSV/Excel</button>
-                    <button class="tab" onclick="switchTab(event, 'paste')">Paste CSV</button>
-                </div>
-
                 <div id="upload" class="tab-content active">
                     <div class="form-group">
-                        <label class="form-label">Upload File</label>
+                        <label class="form-label">Upload Excel File</label>
                         <div class="file-upload-area" id="fileUploadArea" ondrop="handleFileDrop(event)" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" onclick="document.getElementById('csvFile').click()">
-                            <input type="file" id="csvFile" class="file-input" accept=".csv,.xlsx,.xls" onchange="handleFileSelect(event)">
+                            <input type="file" id="csvFile" class="file-input" accept=".xlsx,.xls" onchange="handleFileSelect(event)">
                             <div class="file-upload-content">
-                                <span class="file-upload-icon">📁</span>
-                                <div class="file-upload-text">Drop CSV or Excel file here or click to browse</div>
-                                <div class="file-upload-hint">Supports .csv, .xlsx, .xls</div>
+                                <span class="file-upload-icon">📊</span>
+                                <div class="file-upload-text">Drop Excel file here or click to browse</div>
+                                <div class="file-upload-hint">Supports .xlsx, .xls</div>
                             </div>
                         </div>
                         <div id="uploadedFileName" class="uploaded-file-info" style="display: none;"></div>
-                    </div>
-                </div>
-
-                <div id="paste" class="tab-content">
-                    <div class="form-group">
-                        <label class="form-label">Paste CSV</label>
-                        <textarea id="csvInput" class="form-textarea" placeholder="eventType,identity,channelBrand,bagType,skuId"></textarea>
-                    </div>
-                    <div class="button-group">
-                        <button class="btn btn-primary" onclick="parseCSVInput()">📥 Load Events</button>
                     </div>
                 </div>
             </div>
@@ -901,7 +955,9 @@
             <div class="button-group">
                 <button class="btn btn-success" id="sendAllBtn" onclick="sendAllEvents()" disabled>🚀 Send All</button>
                 <button class="btn btn-secondary" onclick="clearTable()">🗑️ Clear</button>
-                <button class="btn btn-secondary" onclick="downloadTemplate()">📥 Template</button>
+                <button class="btn btn-secondary" onclick="downloadExcelTemplate()">📊 Excel Template</button>
+                <button class="btn btn-secondary" onclick="downloadPostmanCollection()">📮 Postman</button>
+                <button class="btn btn-secondary" onclick="downloadCurlScript()">💻 cURL</button>
             </div>
         </div>
 
@@ -960,7 +1016,35 @@
                 </table>
             </div>
         </div>
-    </div>
+
+        <div class="help-section">
+            <div class="help-title">📚 Advanced Features</div>
+            <div class="help-content">
+                <strong style="color: var(--accent-primary);">1. Flexible Field Paths</strong><br>
+                Use nested paths as column headers: <code>_nordstrom.event.channelBrand</code>
+                
+                <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border-color);">
+                    <strong style="color: var(--accent-primary);">2. Array Notation [] - Comma-Separated</strong><br>
+                    Use <code>[]</code> in column header + comma-separated values:
+                    <div class="help-example">Column: items[].skuId<br>Value: A001,A002,A003<br>Result: items: [{skuId:"A001"},{skuId:"A002"},{skuId:"A003"}]</div>
+                    <div class="help-example">Column: backInStockSKUs[]<br>Value: A001,A002,A003<br>Result: backInStockSKUs: ["A001","A002","A003"]</div>
+                </div>
+
+                <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border-color);">
+                    <strong style="color: var(--accent-primary);">3. Object/Map Notation {} - Dynamic Keys</strong><br>
+                    Use <code>{}</code> in column header + <code>key=value;key=value</code> pairs:
+                    <div class="help-example">Column: priceDropSKUs{}<br>Value: A971531138=214.37|456.67;A416821464=171.85|172.90<br>Result: priceDropSKUs: {"A971531138":"214.37|456.67","A416821464":"171.85|172.90"}</div>
+                    <span style="color: var(--accent-warning);">⚠️ Use <code>=</code> between key/value, <code>;</code> between entries</span>
+                </div>
+
+                <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border-color);">
+                    <strong style="color: var(--accent-primary);">4. Timestamp Templates</strong><br>
+                    Use <code>{{timestamp}}</code> or <code>{{timestamp+N}}</code>:
+                    <div class="help-example">{{timestamp}} | {{timestamp+10}} | {{timestamp+20}}</div>
+                    Auto-increments +10s per event in batch/sequential mode
+                </div>
+            </div>
+        </div>
 
     <div class="toast-container" id="toastContainer"></div>
 
@@ -1006,36 +1090,31 @@
 
         function handleFile(file) {
             const ext = file.name.split('.').pop().toLowerCase();
-            if (!['csv', 'xlsx', 'xls'].includes(ext)) {
-                showToast('Only CSV and Excel files supported', 'error');
+            if (!['xlsx', 'xls'].includes(ext)) {
+                showToast('Only Excel files (.xlsx, .xls) are supported', 'error');
+                return;
+            }
+
+            if (typeof XLSX === 'undefined') {
+                showToast('Excel library not loaded - host on web server (GitHub Pages) for full functionality', 'error');
                 return;
             }
 
             const reader = new FileReader();
             reader.onload = (e) => {
                 try {
-                    if (ext === 'csv') {
-                        Papa.parse(e.target.result, {
-                            complete: (r) => processEvents(r.data)
-                        });
-                    } else {
-                        const wb = XLSX.read(new Uint8Array(e.target.result), { type: 'array' });
-                        const csv = XLSX.utils.sheet_to_csv(wb.Sheets[wb.SheetNames[0]]);
-                        Papa.parse(csv, {
-                            complete: (r) => processEvents(r.data)
-                        });
-                    }
+                    const wb = XLSX.read(new Uint8Array(e.target.result), { type: 'array' });
+                    const csv = XLSX.utils.sheet_to_csv(wb.Sheets[wb.SheetNames[0]]);
+                    Papa.parse(csv, {
+                        complete: (r) => processEvents(r.data)
+                    });
                     document.getElementById('uploadedFileName').textContent = '✓ ' + file.name;
                     document.getElementById('uploadedFileName').style.display = 'block';
                 } catch (err) {
                     showToast('Error reading file: ' + err.message, 'error');
                 }
             };
-            if (ext === 'csv') {
-                reader.readAsText(file);
-            } else {
-                reader.readAsArrayBuffer(file);
-            }
+            reader.readAsArrayBuffer(file);
         }
 
         function parseCSVInput() {
@@ -1055,17 +1134,24 @@
                 return;
             }
 
-            const headers = rows[0].map(h => h.toLowerCase().trim());
+            const headers = rows[0].map(h => h.trim()); // Preserve original case for column names
             eventsData = [];
             eventStatuses = {};
 
             rows.slice(1).forEach((row, idx) => {
                 if (row.every(c => !c)) return;
                 const event = {};
-                headers.forEach((h, i) => {
-                    if (h) event[h] = row[i] || '';
+                headers.forEach((header, i) => {
+                    if (header) event[header] = row[i] || '';
                 });
-                if (event.eventtype || event.event_type) {
+                
+                // Check if event has eventType (case-insensitive check)
+                const hasEventType = headers.some((h, i) => {
+                    const lowerH = h.toLowerCase();
+                    return (lowerH === 'eventtype' || lowerH === 'event_type') && row[i];
+                });
+                
+                if (hasEventType) {
                     eventsData.push(event);
                     eventStatuses[idx] = 'pending';
                 }
@@ -1081,8 +1167,45 @@
             showToast(`✓ Loaded ${eventsData.length} events`, 'success');
         }
 
+        function getNestedValue(obj, path) {
+            const parts = path.split('.');
+            let current = obj;
+            for (let part of parts) {
+                const arrayMatch = part.match(/^(\w+)\[(\d+)\]$/);
+                if (arrayMatch) {
+                    const key = arrayMatch[1];
+                    const index = parseInt(arrayMatch[2]);
+                    current = current[key] ? current[key][index] : undefined;
+                } else {
+                    current = current[part];
+                }
+                if (!current) return '';
+            }
+            return current || '';
+        }
+
+        function getColumnDisplayName(columnPath) {
+            // Shorten column name for display
+            // _nordstrom.event.channelBrand → channelBrand
+            // _nordstrom.identities.shopperId → shopperId
+            // _nordstrom.event.items[].skuId → items[].skuId
+            // _nordstrom.productTrigger.backInStockSKUs[] → backInStockSKUs[]
+            
+            // Remove _nordstrom prefix if present
+            let displayPath = columnPath.replace(/^_nordstrom\./, '');
+            
+            // Take only the last part for very deep paths
+            const parts = displayPath.split('.');
+            if (parts.length >= 2) {
+                // Show last 1-2 meaningful parts
+                return parts.slice(-1).join('.');
+            }
+            return displayPath;
+        }
+
         function renderTable() {
             const tbody = document.getElementById('eventsTableBody');
+            const thead = document.querySelector('#eventsTable thead tr');
             const count = document.getElementById('eventCount');
 
             if (!eventsData.length) {
@@ -1092,26 +1215,76 @@
                 return;
             }
 
+            // Get all unique columns from all events (excluding internal/empty columns)
+            const allColumns = new Set();
+            eventsData.forEach(event => {
+                Object.keys(event).forEach(key => {
+                    if (key !== 'selected' && key !== '_internalIndex') {
+                        allColumns.add(key);
+                    }
+                });
+            });
+
+            // Sort columns - eventType first, timestamp last, others alphabetical
+            const dataColumns = Array.from(allColumns).sort((a, b) => {
+                const aIsType = a.toLowerCase() === 'eventtype' || a.toLowerCase() === 'event_type';
+                const bIsType = b.toLowerCase() === 'eventtype' || b.toLowerCase() === 'event_type';
+                if (aIsType) return -1;
+                if (bIsType) return 1;
+                
+                const aIsTime = a.toLowerCase() === 'timestamp';
+                const bIsTime = b.toLowerCase() === 'timestamp';
+                if (aIsTime) return 1;
+                if (bIsTime) return -1;
+                
+                const aIsId = a.toLowerCase() === '_id';
+                const bIsId = b.toLowerCase() === '_id';
+                if (aIsId) return -1;
+                if (bIsId) return 1;
+                
+                return a.localeCompare(b);
+            });
+
+            // Update table header dynamically
+            let headerHtml = `<th style="width: 30px; min-width: 30px;"><input type="checkbox" id="selectAllCheckbox" class="event-checkbox" onchange="toggleSelectAll(this)"></th>`;
+            headerHtml += `<th style="width: 24px; min-width: 24px;"></th>`;
+            
+            dataColumns.forEach(col => {
+                const displayName = getColumnDisplayName(col);
+                headerHtml += `<th style="width: 130px; min-width: 130px;" title="${col}">${displayName}</th>`;
+            });
+            
+            headerHtml += `<th style="width: 70px; min-width: 70px;">Status</th>`;
+            headerHtml += `<th style="width: 60px; min-width: 60px;">Action</th>`;
+            thead.innerHTML = headerHtml;
+
+            // Render rows dynamically
             tbody.innerHTML = eventsData.map((event, idx) => {
-                const type = event.eventtype || event.event_type || 'UNKNOWN';
-                const identity = event.identity || event.shopper_id || event.shopperid || '';
-                const channel = event.channelbrand || event.channel_brand || '';
-                const bag = event.bagtype || event.bag_type || '';
-                const sku = event.skuid || event.sku_id || '';
                 const status = eventStatuses[idx] || 'pending';
                 const selected = event.selected || false;
 
-                return `<tr class="draggable" draggable="true" data-index="${idx}" ondragstart="dragStart(event)" ondragover="dragOver(event)" ondrop="drop(event)" ondragend="dragEnd(event)">
-                    <td><input type="checkbox" class="event-checkbox" ${selected ? 'checked' : ''} onchange="handleCheck(${idx}, this)"></td>
-                    <td><span class="drag-handle">⋮</span></td>
-                    <td class="cell-mono">${type}</td>
-                    <td>${identity}</td>
-                    <td>${channel}</td>
-                    <td>${bag}</td>
-                    <td class="cell-mono">${sku}</td>
-                    <td><span class="status-badge status-${status}">${status}</span></td>
-                    <td><button class="btn-sm btn-send-sm" onclick="sendSingle(${idx})">Send</button></td>
-                </tr>`;
+                let rowHtml = `<tr class="draggable" draggable="true" data-index="${idx}" ondragstart="dragStart(event)" ondragover="dragOver(event)" ondrop="drop(event)" ondragend="dragEnd(event)">`;
+                rowHtml += `<td style="width: 30px; min-width: 30px;"><input type="checkbox" class="event-checkbox" ${selected ? 'checked' : ''} onchange="handleCheck(${idx}, this)"></td>`;
+                rowHtml += `<td style="width: 24px; min-width: 24px;"><span class="drag-handle">⋮</span></td>`;
+                
+                dataColumns.forEach(col => {
+                    let value = event[col] || '';
+                    let displayValue = value;
+                    if (typeof value === 'string' && value.length > 25) {
+                        displayValue = value.substring(0, 22) + '...';
+                    }
+                    
+                    const isMono = col.includes('skuId') || col.includes('_id') || col.toLowerCase() === 'eventtype' || col.toLowerCase() === 'event_type';
+                    const cellClass = isMono ? 'cell-mono' : '';
+                    const safeValue = String(value).replace(/"/g, '&quot;');
+                    rowHtml += `<td class="${cellClass}" style="width: 130px; min-width: 130px; font-size: 10px;" title="${safeValue}">${displayValue}</td>`;
+                });
+                
+                rowHtml += `<td style="width: 70px; min-width: 70px;"><span class="status-badge status-${status}">${status}</span></td>`;
+                rowHtml += `<td style="width: 60px; min-width: 60px;"><button class="btn-sm btn-send-sm" onclick="sendSingle(${idx})">Send</button></td>`;
+                rowHtml += `</tr>`;
+                
+                return rowHtml;
             }).join('');
 
             count.textContent = eventsData.length;
@@ -1198,29 +1371,212 @@
             }
         }
 
-        function buildPayload(event) {
-            const type = event.eventtype || event.event_type || 'BAG';
-            const identity = event.identity || event.shopper_id || event.shopperid || 'UNKNOWN';
-            const channel = event.channelbrand || event.channel_brand || 'NORDSTROM';
-            const bag = event.bagtype || event.bag_type || '';
-            const sku = event.skuid || event.sku_id || '';
-            const now = new Date().toISOString();
+        function buildPayload(event, timestampOffset = 0) {
+            const baseTimestamp = new Date();
+            baseTimestamp.setSeconds(baseTimestamp.getSeconds() + timestampOffset);
+            const isoTimestamp = baseTimestamp.toISOString();
 
             const payload = {
-                _id: generateUUID(),
-                eventType: type,
+                _id: event._id || generateUUID(),
+                eventType: event.eventtype || event.event_type || 'UNKNOWN',
+                timestamp: isoTimestamp,
                 _nordstrom: {
-                    systemTime: now,
-                    identities: { shopperId: identity },
-                    event: { channelBrand: channel, eventTime: now }
+                    systemTime: isoTimestamp,
+                    identities: {},
+                    event: { eventTime: isoTimestamp }
                 }
             };
 
-            if (type === 'BAG' && (sku || bag)) {
-                payload._nordstrom.event.bagType = bag || 'SHOPPING_BAG';
-                payload._nordstrom.event.items = [{ skuId: sku, lastModifiedTime: now }];
-            }
+            // Parse all columns and set nested properties dynamically
+            Object.entries(event).forEach(([key, value]) => {
+                if (!value) return;
+
+                const lowerKey = key.toLowerCase();
+                
+                // Skip metadata columns
+                if (lowerKey === 'eventtype' || lowerKey === 'event_type' || lowerKey === '_id' || lowerKey === 'timestamp') {
+                    if (lowerKey === 'eventtype' || lowerKey === 'event_type') {
+                        payload.eventType = value;
+                    }
+                    return;
+                }
+                
+                // Process timestamp templates
+                if (key.toLowerCase().includes('timestamp')) {
+                    const processed = processTimestampTemplate(value, timestampOffset);
+                    if (key.includes('.')) {
+                        setNestedProperty(payload, key, processed);
+                    } else if (key.toLowerCase() === 'timestamp') {
+                        payload.timestamp = processed;
+                    }
+                    return;
+                }
+                
+                // Handle nested paths
+                if (key.includes('.')) {
+                    // Handle complex value types (JSON objects/arrays)
+                    let processedValue = value;
+                    try {
+                        if (typeof value === 'string' && (value.startsWith('{') || value.startsWith('['))) {
+                            processedValue = JSON.parse(value);
+                        }
+                    } catch (e) {
+                        // Keep as string if not valid JSON
+                    }
+                    setNestedProperty(payload, key, processedValue);
+                }
+            });
+
             return payload;
+        }
+
+        function processTimestampTemplate(value, baseOffsetSeconds = 0) {
+            if (typeof value !== 'string') return value;
+
+            // Handle {{timestamp}} and {{timestamp+N}} format
+            const templateMatch = value.match(/\{\{timestamp\s*(\+|-)\s*(\d+)\s*(s|sec|second)?s?\}\}/i);
+            const simpleTemplate = value.match(/\{\{timestamp\}\}/);
+
+            if (templateMatch) {
+                const operator = templateMatch[1];
+                const amount = parseInt(templateMatch[2]);
+                const offset = operator === '+' ? amount : -amount;
+                const now = new Date();
+                now.setSeconds(now.getSeconds() + baseOffsetSeconds + offset);
+                return now.toISOString();
+            } else if (simpleTemplate) {
+                const now = new Date();
+                now.setSeconds(now.getSeconds() + baseOffsetSeconds);
+                return now.toISOString();
+            }
+
+            return value;
+        }
+
+        function setNestedProperty(obj, path, value) {
+            // Detect object/map notation: field{}
+            // Value format: key1=value1;key2=value2;key3=value3
+            if (path.includes('{}') && typeof value === 'string') {
+                const cleanPath = path.replace('{}', '');
+                const parentParts = cleanPath.split('.');
+                let parent = obj;
+                for (let i = 0; i < parentParts.length - 1; i++) {
+                    if (!parent[parentParts[i]]) parent[parentParts[i]] = {};
+                    parent = parent[parentParts[i]];
+                }
+                const objKey = parentParts[parentParts.length - 1];
+                if (!parent[objKey]) parent[objKey] = {};
+
+                // Parse key=value pairs separated by ;
+                const entries = value.split(';').map(e => e.trim()).filter(e => e);
+                entries.forEach(entry => {
+                    const eqIdx = entry.indexOf('=');
+                    if (eqIdx > 0) {
+                        const key = entry.substring(0, eqIdx).trim();
+                        const val = entry.substring(eqIdx + 1).trim();
+                        parent[objKey][key] = val;
+                    }
+                });
+                return;
+            }
+
+            // Detect comma-separated values for array notation
+            const hasArrayNotation = path.includes('[]') || /\[\d+\]/.test(path);
+            const isCommaList = typeof value === 'string' && value.includes(',');
+
+            if (hasArrayNotation && isCommaList) {
+                // Split comma-separated values
+                const values = value.split(',').map(v => v.trim()).filter(v => v);
+
+                // Find the array part - support both [] and [0] notation
+                let beforeArray, afterArray;
+                if (path.includes('[]')) {
+                    const idx = path.indexOf('[]');
+                    beforeArray = path.substring(0, idx);
+                    afterArray = path.substring(idx + 2).replace(/^\./, '');
+                } else {
+                    const match = path.match(/\[\d+\]/);
+                    const idx = path.indexOf(match[0]);
+                    beforeArray = path.substring(0, idx);
+                    afterArray = path.substring(idx + match[0].length).replace(/^\./, '');
+                }
+
+                // Navigate to/create the parent object
+                const parentParts = beforeArray.split('.');
+                let parent = obj;
+                for (let i = 0; i < parentParts.length - 1; i++) {
+                    if (!parent[parentParts[i]]) parent[parentParts[i]] = {};
+                    parent = parent[parentParts[i]];
+                }
+                const arrayKey = parentParts[parentParts.length - 1];
+                if (!Array.isArray(parent[arrayKey])) parent[arrayKey] = [];
+
+                // Add each value as array element
+                values.forEach((val, idx) => {
+                    if (afterArray) {
+                        // Array of objects: items[].skuId or items[0].skuId
+                        if (!parent[arrayKey][idx] || typeof parent[arrayKey][idx] !== 'object') {
+                            parent[arrayKey][idx] = {};
+                        }
+                        setNestedSimple(parent[arrayKey][idx], afterArray, val);
+                    } else {
+                        // Simple array: items[]
+                        parent[arrayKey][idx] = val;
+                    }
+                });
+                return;
+            }
+
+            // Handle simple array notation with empty brackets and single value
+            if (path.endsWith('[]') && typeof value === 'string') {
+                const cleanPath = path.slice(0, -2);
+                const parentParts = cleanPath.split('.');
+                let parent = obj;
+                for (let i = 0; i < parentParts.length - 1; i++) {
+                    if (!parent[parentParts[i]]) parent[parentParts[i]] = {};
+                    parent = parent[parentParts[i]];
+                }
+                const arrayKey = parentParts[parentParts.length - 1];
+                if (!Array.isArray(parent[arrayKey])) parent[arrayKey] = [];
+                parent[arrayKey].push(value);
+                return;
+            }
+
+            // Single value with index notation - use existing logic
+            setNestedSimple(obj, path, value);
+        }
+
+        function setNestedSimple(obj, path, value) {
+            const parts = path.split('.');
+            let current = obj;
+
+            for (let i = 0; i < parts.length - 1; i++) {
+                const part = parts[i];
+                const arrayMatch = part.match(/^(\w+)\[(\d+)\]$/);
+                
+                if (arrayMatch) {
+                    const key = arrayMatch[1];
+                    const index = parseInt(arrayMatch[2]);
+                    if (!current[key]) current[key] = [];
+                    if (!current[key][index]) current[key][index] = {};
+                    current = current[key][index];
+                } else {
+                    if (!current[part]) current[part] = {};
+                    current = current[part];
+                }
+            }
+
+            const lastPart = parts[parts.length - 1];
+            const arrayMatch = lastPart.match(/^(\w+)\[(\d+)\]$/);
+            
+            if (arrayMatch) {
+                const key = arrayMatch[1];
+                const index = parseInt(arrayMatch[2]);
+                if (!current[key]) current[key] = [];
+                current[key][index] = value;
+            } else {
+                current[lastPart] = value;
+            }
         }
 
         function generateUUID() {
@@ -1237,7 +1593,7 @@
                 showToast('Configure endpoint and token', 'error');
                 return;
             }
-            const payload = buildPayload(eventsData[idx]);
+            const payload = buildPayload(eventsData[idx], 0);
             await sendAPI(endpoint, token, payload, idx);
         }
 
@@ -1253,7 +1609,7 @@
             btn.disabled = true;
 
             for (let i = 0; i < eventsData.length; i++) {
-                const payload = buildPayload(eventsData[i]);
+                const payload = buildPayload(eventsData[i], i * 10); // 10-second increment
                 await sendAPI(endpoint, token, payload, i);
                 if (i < eventsData.length - 1) await new Promise(r => setTimeout(r, 10000));
             }
@@ -1284,7 +1640,7 @@
             } else {
                 for (let i = 0; i < selected.length; i++) {
                     const idx = eventsData.indexOf(selected[i]);
-                    await sendAPI(endpoint, token, buildPayload(selected[i]), idx);
+                    await sendAPI(endpoint, token, buildPayload(selected[i], i * 10), idx);
                     if (i < selected.length - 1) await new Promise(r => setTimeout(r, 10000));
                 }
             }
@@ -1346,7 +1702,7 @@
             try {
                 document.getElementById('apiLogSection').classList.add('active');
 
-                const messages = selected.map(e => buildPayload(e));
+                const messages = selected.map((e, i) => buildPayload(e, i * 10)); // 10-second increment per message
                 addLog('request', `Batch: ${selected.length} event(s)`, {
                     'event-count': selected.length,
                     'event-types': messages.map(m => m.eventType).join(', ')
@@ -1440,17 +1796,18 @@
             eventStatuses = {};
             document.getElementById('csvFile').value = '';
             document.getElementById('uploadedFileName').style.display = 'none';
-            document.getElementById('csvInput').value = '';
             renderTable();
             clearSelection();
         }
 
         function downloadTemplate() {
-            const csv = `eventType,identity,channelBrand,bagType,skuId
-BAG,SHOPPER-001,NORDSTROM,SHOPPING_BAG,A0097875
-BAG,SHOPPER-002,NORDSTROM_RACK,SAVED_FOR_LATER,A0099901
-BROWSE_SEARCH_RESULTS,SHOPPER-003,NORDSTROM,,,
-PURCHASE,SHOPPER-004,NORDSTROM,,A0101123`;
+            const csv = `eventType,_id,_nordstrom.identities.shopperId,_nordstrom.event.channelBrand,_nordstrom.event.bagType,_nordstrom.event.items[].skuId,_nordstrom.event.browsePath,_nordstrom.productTrigger.channelBrand,_nordstrom.productTrigger.productTriggerId,_nordstrom.productTrigger.backInStockSKUs[],timestamp
+BAG,/uri-ref-001,SHOPPER-0410-BAG-001,NORDSTROM,SHOPPING_BAG,A0097875,,,,,{{timestamp}}
+BAG,/uri-ref-002,SHOPPER-0410-BAG-002,NORDSTROM_RACK,SAVED_FOR_LATER,"A0099901,A0099902,A0099903",,,,,{{timestamp+10}}
+BROWSE_SEARCH_RESULTS,/uri-ref-003,SHOPPER-0410-BSR-001,NORDSTROM_RACK,,,/search?q=jacket,,,,{{timestamp+20}}
+PURCHASE,/uri-ref-004,SHOPPER-0410-PUR-001,NORDSTROM,,"A0101123,A0101124",,,,,{{timestamp+30}}
+BACK_IN_STOCK,/uri-ref-005,,,,,,NORDSTROM,APRI14-PRODUCT_TRIGGER_ID_01,"A971531138,A416821464,A768091755",{{timestamp+40}}
+BACK_IN_STOCK,/uri-ref-006,,,,,,NORDSTROM_RACK,APRI14-PRODUCT_TRIGGER_ID_02,A555678901,{{timestamp+50}}`;
             const blob = new Blob([csv], { type: 'text/csv' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -1458,6 +1815,261 @@ PURCHASE,SHOPPER-004,NORDSTROM,,A0101123`;
             a.download = 'dccs-template.csv';
             a.click();
             URL.revokeObjectURL(url);
+        }
+
+        function downloadExcelTemplate() {
+            const headers = [
+                'eventType',
+                '_id',
+                '_nordstrom.identities.shopperId',
+                '_nordstrom.event.channelBrand',
+                '_nordstrom.event.bagType',
+                '_nordstrom.event.items[].skuId',
+                '_nordstrom.event.browsePath',
+                '_nordstrom.productTrigger.channelBrand',
+                '_nordstrom.productTrigger.productTriggerId',
+                '_nordstrom.productTrigger.backInStockSKUs[]',
+                '_nordstrom.productTrigger.priceDropSKUs{}',
+                'timestamp'
+            ];
+
+            const rows = [
+                ['BAG', '/uri-ref-001', 'SHOPPER-0410-BAG-001', 'NORDSTROM', 'SHOPPING_BAG', 'A0097875', '', '', '', '', '', '{{timestamp}}'],
+                ['BAG', '/uri-ref-002', 'SHOPPER-0410-BAG-002', 'NORDSTROM_RACK', 'SAVED_FOR_LATER', 'A0099901,A0099902,A0099903', '', '', '', '', '', '{{timestamp+10}}'],
+                ['BROWSE_SEARCH_RESULTS', '/uri-ref-003', 'SHOPPER-0410-BSR-001', 'NORDSTROM_RACK', '', '', '/search?q=jacket', '', '', '', '', '{{timestamp+20}}'],
+                ['PURCHASE', '/uri-ref-004', 'SHOPPER-0410-PUR-001', 'NORDSTROM', '', 'A0101123,A0101124', '', '', '', '', '', '{{timestamp+30}}'],
+                ['BACK_IN_STOCK', '/uri-ref-005', '', '', '', '', '', 'NORDSTROM', 'APRI14-PRODUCT_TRIGGER_ID_01', 'A971531138,A416821464,A768091755', '', '{{timestamp+40}}'],
+                ['BACK_IN_STOCK', '/uri-ref-006', '', '', '', '', '', 'NORDSTROM_RACK', 'APRI14-PRODUCT_TRIGGER_ID_02', 'A555678901', '', '{{timestamp+50}}'],
+                ['PRICE_DROP', '/uri-ref-007', '', '', '', '', '', 'NORDSTROM', 'APRI14-PRICE_DROP_01', '', 'A971531138=214.37|456.67;A416821464=171.85|172.90;A768091755=372.53|587.33', '{{timestamp+60}}'],
+                ['PRICE_DROP', '/uri-ref-008', '', '', '', '', '', 'NORDSTROM_RACK', 'APRI14-PRICE_DROP_02', '', 'A999123456=99.99|149.99', '{{timestamp+70}}']
+            ];
+
+            // Generate Excel XML 2003 format - works WITHOUT any library
+            const escapeXml = (str) => {
+                if (str === null || str === undefined) return '';
+                return String(str)
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;')
+                    .replace(/'/g, '&apos;');
+            };
+
+            let xml = '<?xml version="1.0"?>\n';
+            xml += '<?mso-application progid="Excel.Sheet"?>\n';
+            xml += '<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"\n';
+            xml += ' xmlns:o="urn:schemas-microsoft-com:office:office"\n';
+            xml += ' xmlns:x="urn:schemas-microsoft-com:office:excel"\n';
+            xml += ' xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"\n';
+            xml += ' xmlns:html="http://www.w3.org/TR/REC-html40">\n';
+            xml += ' <Styles>\n';
+            xml += '  <Style ss:ID="header">\n';
+            xml += '   <Font ss:Bold="1" ss:Color="#FFFFFF"/>\n';
+            xml += '   <Interior ss:Color="#1E2139" ss:Pattern="Solid"/>\n';
+            xml += '  </Style>\n';
+            xml += ' </Styles>\n';
+            xml += ' <Worksheet ss:Name="DCCS Events">\n';
+            xml += '  <Table>\n';
+            
+            for (let i = 0; i < headers.length; i++) {
+                xml += '   <Column ss:Width="200"/>\n';
+            }
+            
+            xml += '   <Row>\n';
+            headers.forEach(h => {
+                xml += '    <Cell ss:StyleID="header"><Data ss:Type="String">' + escapeXml(h) + '</Data></Cell>\n';
+            });
+            xml += '   </Row>\n';
+            
+            rows.forEach(row => {
+                xml += '   <Row>\n';
+                row.forEach(cell => {
+                    xml += '    <Cell><Data ss:Type="String">' + escapeXml(cell) + '</Data></Cell>\n';
+                });
+                xml += '   </Row>\n';
+            });
+            
+            xml += '  </Table>\n';
+            xml += ' </Worksheet>\n';
+            xml += '</Workbook>\n';
+
+            const blob = new Blob([xml], { type: 'application/vnd.ms-excel' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'dccs-template.xls';
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast('✓ Excel template downloaded', 'success');
+        }
+
+        function generateCurlCommand(payload, endpoint, token, sandbox, flowId) {
+            const headers = `-H "Content-Type: application/json" -H "Authorization: Bearer ${token}" -H "sandbox-name: ${sandbox}" -H "x-adobe-flow-id: ${flowId}"`;
+            const data = `-d '${JSON.stringify({ messages: [payload] })}'`;
+            return `curl -X POST "${endpoint}" ${headers} ${data}`;
+        }
+
+        function downloadPostmanCollection() {
+            if (!eventsData.length) {
+                showToast('No events to export', 'error');
+                return;
+            }
+
+            const endpoint = document.getElementById('dccsEndpoint').value.trim();
+            const token = document.getElementById('accessToken').value.trim();
+            const sandbox = document.getElementById('sandboxName').value.trim();
+            const flowId = document.getElementById('flowId').value.trim();
+
+            if (!endpoint) {
+                showToast('Configure endpoint', 'error');
+                return;
+            }
+
+            // Parse endpoint URL
+            const url = new URL(endpoint);
+            const pathParts = url.pathname.split('/').filter(p => p);
+
+            // Build Postman Collection v2.1
+            const collection = {
+                info: {
+                    name: `DCCS Events - ${new Date().toISOString().slice(0, 10)}`,
+                    description: 'Auto-generated DCCS event collection',
+                    schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json'
+                },
+                item: []
+            };
+
+            // Add individual requests for each event
+            eventsData.forEach((event, idx) => {
+                const payload = buildPayload(event, idx * 10);
+                const eventName = `${idx + 1}. ${payload.eventType}`;
+
+                collection.item.push({
+                    name: eventName,
+                    request: {
+                        method: 'POST',
+                        header: [
+                            { key: 'Content-Type', value: 'application/json' },
+                            { key: 'Authorization', value: `Bearer ${token || '{{access_token}}'}` },
+                            { key: 'sandbox-name', value: sandbox },
+                            { key: 'x-adobe-flow-id', value: flowId }
+                        ],
+                        url: {
+                            raw: endpoint,
+                            protocol: url.protocol.replace(':', ''),
+                            host: url.hostname.split('.'),
+                            path: pathParts
+                        },
+                        body: {
+                            mode: 'raw',
+                            raw: JSON.stringify({ messages: [payload] }, null, 2),
+                            options: {
+                                raw: { language: 'json' }
+                            }
+                        }
+                    }
+                });
+            });
+
+            // Add a batch request with all events
+            const batchPayload = {
+                messages: eventsData.map((e, i) => buildPayload(e, i * 10))
+            };
+
+            collection.item.push({
+                name: `📦 BATCH - All ${eventsData.length} Events`,
+                request: {
+                    method: 'POST',
+                    header: [
+                        { key: 'Content-Type', value: 'application/json' },
+                        { key: 'Authorization', value: `Bearer ${token || '{{access_token}}'}` },
+                        { key: 'sandbox-name', value: sandbox },
+                        { key: 'x-adobe-flow-id', value: flowId }
+                    ],
+                    url: {
+                        raw: endpoint,
+                        protocol: url.protocol.replace(':', ''),
+                        host: url.hostname.split('.'),
+                        path: pathParts
+                    },
+                    body: {
+                        mode: 'raw',
+                        raw: JSON.stringify(batchPayload, null, 2),
+                        options: {
+                            raw: { language: 'json' }
+                        }
+                    }
+                }
+            });
+
+            const blob = new Blob([JSON.stringify(collection, null, 2)], { type: 'application/json' });
+            const downloadUrl = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = downloadUrl;
+            a.download = `postman-collection-${new Date().toISOString().slice(0, 10)}.json`;
+            a.click();
+            URL.revokeObjectURL(downloadUrl);
+            showToast('✓ Postman Collection downloaded - Import into Postman', 'success');
+        }
+
+        function downloadCurlScript() {
+            if (!eventsData.length) {
+                showToast('No events to export', 'error');
+                return;
+            }
+
+            const endpoint = document.getElementById('dccsEndpoint').value.trim();
+            const token = document.getElementById('accessToken').value.trim();
+            const sandbox = document.getElementById('sandboxName').value.trim();
+            const flowId = document.getElementById('flowId').value.trim();
+
+            if (!endpoint || !token) {
+                showToast('Configure endpoint and token', 'error');
+                return;
+            }
+
+            let script = '# DCCS Events - cURL Commands\n';
+            script += `# Generated: ${new Date().toISOString()}\n`;
+            script += `# Total Events: ${eventsData.length}\n`;
+            script += '# ============================================\n\n';
+
+            // Individual curl commands
+            eventsData.forEach((event, idx) => {
+                const payload = buildPayload(event, idx * 10);
+                script += `# ===== Event ${idx + 1}: ${payload.eventType} =====\n`;
+                script += `curl -X POST "${endpoint}" \\\n`;
+                script += `  -H "Content-Type: application/json" \\\n`;
+                script += `  -H "Authorization: Bearer ${token}" \\\n`;
+                script += `  -H "sandbox-name: ${sandbox}" \\\n`;
+                script += `  -H "x-adobe-flow-id: ${flowId}" \\\n`;
+                script += `  -d '${JSON.stringify({ messages: [payload] })}'\n\n`;
+            });
+
+            // Batch curl command
+            const batchPayload = {
+                messages: eventsData.map((e, i) => buildPayload(e, i * 10))
+            };
+            script += `# ===== BATCH: All ${eventsData.length} Events in One Call =====\n`;
+            script += `curl -X POST "${endpoint}" \\\n`;
+            script += `  -H "Content-Type: application/json" \\\n`;
+            script += `  -H "Authorization: Bearer ${token}" \\\n`;
+            script += `  -H "sandbox-name: ${sandbox}" \\\n`;
+            script += `  -H "x-adobe-flow-id: ${flowId}" \\\n`;
+            script += `  -d '${JSON.stringify(batchPayload)}'\n`;
+
+            const blob = new Blob([script], { type: 'text/plain' });
+            const downloadUrl = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = downloadUrl;
+            a.download = `dccs-curl-${new Date().toISOString().slice(0, 10)}.txt`;
+            a.click();
+            URL.revokeObjectURL(downloadUrl);
+            showToast('✓ cURL commands downloaded', 'success');
+        }
+
+        function downloadCurlSpreadsheet() {
+            // Keep this for backward compatibility but redirect to Postman export
+            downloadPostmanCollection();
         }
 
         function showToast(msg, type = 'info') {
