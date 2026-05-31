@@ -1,0 +1,1559 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>scikit-learn · the complete learner's guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0b0d12; --bg-2:#11151c; --surface:#161b24; --surface-2:#1c222c;
+  --border:#262d3a; --border-soft:#1f2530;
+  --text:#e6e9ef; --text-dim:#9aa3b2; --text-mute:#6b7385;
+  --teal:#1D9E75; --teal-2:#28c595;
+  --purple:#7F77DD; --purple-2:#9d96e6;
+  --coral:#D85A30; --coral-2:#ec7548;
+  --amber:#BA7517; --amber-2:#e0a64a;
+  --code-bg:#0e1218;
+  --code-key:#7F77DD; --code-fn:#28c595; --code-str:#e0a64a;
+  --code-num:#D85A30; --code-com:#5b6477;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;scroll-behavior:smooth}
+body{
+  background:
+    radial-gradient(1200px 700px at 5% -5%, rgba(127,119,221,.10), transparent 60%),
+    radial-gradient(1000px 600px at 110% 5%, rgba(29,158,117,.08), transparent 60%),
+    var(--bg);
+  color:var(--text);
+  font-family:'Manrope',sans-serif;
+  font-size:15px; line-height:1.7;
+  -webkit-font-smoothing:antialiased;
+  letter-spacing:.005em;
+}
+.wrap{max-width:1100px;margin:0 auto;padding:48px 28px 96px}
+
+/* ----- header ----- */
+header.top{
+  padding-bottom:36px;margin-bottom:48px;
+  border-bottom:1px solid var(--border-soft);
+}
+.eyebrow{
+  font-family:'JetBrains Mono',monospace;font-size:11px;
+  text-transform:uppercase;letter-spacing:.18em;
+  color:var(--teal-2);margin-bottom:10px;
+}
+h1.title{
+  font-family:'Instrument Serif',serif;font-style:italic;font-weight:400;
+  font-size:72px;line-height:1.02;letter-spacing:-.02em;
+  margin:0 0 14px;
+  background:linear-gradient(180deg,#fff 0%,#a9b3c4 100%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.lede{
+  color:var(--text-dim);font-size:17px;max-width:680px;
+  margin:0 0 24px;
+}
+
+/* level badges */
+.level-row{
+  display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;
+}
+.level{
+  display:inline-flex;align-items:center;gap:8px;
+  font-family:'JetBrains Mono',monospace;font-size:11px;
+  padding:6px 12px;border-radius:999px;
+  border:1px solid var(--border-soft);background:var(--surface);
+  color:var(--text-mute);
+}
+.level .dot{width:8px;height:8px;border-radius:50%;background:var(--text-mute)}
+.level.beginner .dot{background:var(--teal-2)}
+.level.intermediate .dot{background:var(--amber-2)}
+.level.advanced .dot{background:var(--coral)}
+.level.active{
+  color:var(--text);border-color:var(--purple);
+  background:rgba(127,119,221,.08);
+}
+
+/* ----- ToC ----- */
+.toc-wrap{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:24px 28px;margin-bottom:56px;
+}
+.toc-wrap h3{
+  margin:0 0 14px;font-family:'JetBrains Mono',monospace;
+  font-size:11px;color:var(--text-mute);text-transform:uppercase;letter-spacing:.12em;
+  font-weight:500;
+}
+.toc{
+  display:grid;grid-template-columns:repeat(2,1fr);gap:4px 28px;
+}
+.toc a{
+  display:flex;justify-content:space-between;align-items:baseline;gap:12px;
+  padding:6px 0;text-decoration:none;color:var(--text-dim);
+  font-size:14px;
+  border-bottom:1px dashed transparent;
+}
+.toc a:hover{color:var(--teal-2);border-bottom-color:var(--border-soft)}
+.toc .n{
+  font-family:'JetBrains Mono',monospace;font-size:11px;
+  color:var(--coral);min-width:28px;flex-shrink:0;
+}
+.toc .ttl{flex:1}
+
+/* ----- sections ----- */
+section.chapter{
+  margin:88px 0 0;padding-top:8px;
+  scroll-margin-top:24px;
+}
+.ch-head{
+  display:flex;align-items:baseline;gap:18px;margin-bottom:20px;
+  padding-bottom:16px;border-bottom:1px solid var(--border-soft);
+}
+.ch-num{
+  font-family:'JetBrains Mono',monospace;font-size:13px;
+  color:var(--coral);font-weight:600;letter-spacing:.04em;
+}
+.ch-head h2{
+  margin:0;font-family:'Instrument Serif',serif;font-style:italic;
+  font-size:42px;font-weight:400;letter-spacing:-.015em;line-height:1.1;
+  color:var(--text);
+}
+
+.intro{
+  color:var(--text-dim);font-size:15.5px;
+  margin-bottom:28px;max-width:760px;
+}
+
+h3.topic{
+  margin:36px 0 10px;font-size:20px;font-weight:600;
+  letter-spacing:-.01em;color:var(--text);
+  display:flex;align-items:center;gap:10px;
+}
+h3.topic::before{
+  content:"";width:6px;height:18px;border-radius:2px;
+  background:var(--accent,var(--teal-2));flex-shrink:0;
+}
+
+h4.sub{
+  margin:22px 0 6px;font-size:14px;font-weight:600;
+  color:var(--text);
+}
+
+p{margin:0 0 12px;color:var(--text-dim)}
+ul,ol{margin:0 0 16px;padding-left:22px;color:var(--text-dim)}
+ul li,ol li{margin-bottom:4px}
+b,strong{color:var(--text);font-weight:600}
+
+/* code */
+pre{
+  background:var(--code-bg);
+  border:1px solid var(--border-soft);
+  border-radius:8px;
+  padding:14px 16px;
+  font-family:'JetBrains Mono',monospace;
+  font-size:12.5px; line-height:1.65;
+  overflow-x:auto;
+  margin:0 0 16px;
+  color:#cdd4e0;
+}
+code{font-family:'JetBrains Mono',monospace}
+:not(pre) > code{
+  background:rgba(224,166,74,.07);
+  padding:1px 6px;border-radius:4px;
+  border:1px solid rgba(224,166,74,.15);
+  color:var(--amber-2);
+  font-size:12.5px;
+}
+.k{color:var(--code-key)}
+.f{color:var(--code-fn)}
+.s{color:var(--code-str)}
+.n{color:var(--code-num)}
+.c{color:var(--code-com);font-style:italic}
+.p{color:var(--text-mute)}
+
+/* callouts */
+.note{
+  display:flex;gap:14px;margin:14px 0 18px;
+  padding:14px 18px;border-radius:10px;
+  background:var(--surface);
+  border-left:3px solid var(--accent,var(--purple));
+  font-size:14px;
+}
+.note .lbl{
+  font-family:'JetBrains Mono',monospace;font-size:10.5px;
+  text-transform:uppercase;letter-spacing:.12em;
+  color:var(--accent,var(--purple-2));
+  font-weight:600;flex-shrink:0;min-width:90px;
+  padding-top:2px;
+}
+.note p{margin:0;color:var(--text-dim)}
+.note.warn{--accent:var(--coral-2)}
+.note.warn .lbl{color:var(--coral-2)}
+.note.tip{--accent:var(--teal-2)}
+.note.tip .lbl{color:var(--teal-2)}
+.note.intuition{--accent:var(--amber-2)}
+.note.intuition .lbl{color:var(--amber-2)}
+
+/* accent by chapter */
+.acc-teal{--accent:var(--teal-2)}
+.acc-purple{--accent:var(--purple-2)}
+.acc-coral{--accent:var(--coral-2)}
+.acc-amber{--accent:var(--amber-2)}
+
+/* table */
+table.tbl{
+  width:100%;border-collapse:collapse;
+  font-size:13px;margin:0 0 18px;
+  background:var(--surface);border-radius:8px;overflow:hidden;
+  border:1px solid var(--border-soft);
+}
+table.tbl th,table.tbl td{
+  text-align:left;padding:9px 12px;
+  border-bottom:1px solid var(--border-soft);
+  vertical-align:top;
+}
+table.tbl th{
+  color:var(--text-mute);font-weight:500;
+  font-family:'JetBrains Mono',monospace;font-size:10.5px;
+  text-transform:uppercase;letter-spacing:.07em;
+  background:var(--bg-2);
+}
+table.tbl td:first-child{color:var(--text);font-weight:500}
+table.tbl tr:last-child td{border-bottom:none}
+
+/* compare two */
+.split{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:0 0 18px}
+.split .col{
+  padding:14px 16px;border-radius:10px;
+  background:var(--surface);border:1px solid var(--border-soft);
+}
+.split .col h5{
+  margin:0 0 8px;font-family:'JetBrains Mono',monospace;
+  font-size:11px;color:var(--text-mute);text-transform:uppercase;letter-spacing:.08em;
+  font-weight:600;
+}
+.split .col h5.good{color:var(--teal-2)}
+.split .col h5.bad{color:var(--coral-2)}
+.split .col p{font-size:13.5px;margin:0;color:var(--text-dim)}
+
+/* roadmap */
+.roadmap{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:14px;
+  margin:0 0 8px;
+}
+.stage{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:12px;padding:18px;position:relative;
+}
+.stage::before{
+  content:"";position:absolute;top:0;left:0;right:0;height:2px;
+  border-radius:12px 12px 0 0;
+}
+.stage.b::before{background:var(--teal-2)}
+.stage.i::before{background:var(--amber-2)}
+.stage.a::before{background:var(--coral)}
+.stage h4{
+  margin:0 0 4px;font-size:14px;font-weight:600;color:var(--text);
+  display:flex;align-items:center;gap:8px;
+}
+.stage h4 .dot{width:8px;height:8px;border-radius:50%}
+.stage.b h4 .dot{background:var(--teal-2)}
+.stage.i h4 .dot{background:var(--amber-2)}
+.stage.a h4 .dot{background:var(--coral)}
+.stage .where{
+  font-family:'JetBrains Mono',monospace;font-size:10px;
+  color:var(--text-mute);text-transform:uppercase;letter-spacing:.08em;
+  margin-bottom:10px;
+}
+.stage ul{margin:0;padding-left:18px;font-size:13px}
+.stage ul li{margin-bottom:2px}
+
+footer.foot{
+  margin-top:80px;padding-top:24px;
+  border-top:1px solid var(--border-soft);
+  font-family:'JetBrains Mono',monospace;font-size:11px;
+  color:var(--text-mute);
+  display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;
+}
+
+@media (max-width:780px){
+  h1.title{font-size:48px}
+  .toc{grid-template-columns:1fr}
+  .ch-head h2{font-size:30px}
+  .split,.roadmap{grid-template-columns:1fr}
+  .wrap{padding:32px 18px 60px}
+}
+@media print{
+  body{background:#fff;color:#111}
+  .wrap{max-width:none;padding:18px}
+  pre{background:#f7f7f9;color:#111;border-color:#ddd}
+  .stage,.note,.toc-wrap,.split .col,table.tbl{background:#fff;border-color:#ddd;break-inside:avoid}
+  h1.title{color:#111;-webkit-text-fill-color:#111}
+  .k{color:#7c3aed}.f{color:#0d8a5b}.s{color:#a5650a}.n{color:#b14a26}.c{color:#888}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <div class="eyebrow">scikit-learn · the complete learner's guide</div>
+  <h1 class="title">From <em>fit</em> &amp; <em>predict</em> to production pipelines.</h1>
+  <p class="lede">Every concept you need to actually <em>use</em> scikit-learn fluently — explained with intuition, code, and the mistakes everyone makes the first time.</p>
+  <div class="level-row">
+    <span class="level beginner active"><span class="dot"></span>Beginner</span>
+    <span class="level intermediate active"><span class="dot"></span>Intermediate</span>
+    <span class="level advanced active"><span class="dot"></span>Advanced (selected topics)</span>
+  </div>
+</header>
+
+<!-- ============================================================ -->
+<!-- Where this guide sits                                         -->
+<!-- ============================================================ -->
+<section class="chapter acc-purple" id="map" style="margin-top:0">
+  <div class="ch-head">
+    <span class="ch-num">00</span>
+    <h2>Where you are in the journey</h2>
+  </div>
+  <p class="intro">Before diving in, calibrate. The previous cheat sheet was an intermediate <em>reference</em> — quick lookup for someone who already knows the territory. This guide is the territory itself.</p>
+
+  <div class="roadmap">
+    <div class="stage b">
+      <h4><span class="dot"></span>Beginner</h4>
+      <div class="where">Chapters 1–4</div>
+      <ul>
+        <li>The estimator API</li>
+        <li>Loading datasets</li>
+        <li>Train/test split</li>
+        <li>One classifier, one regressor</li>
+        <li>Accuracy, MSE</li>
+      </ul>
+    </div>
+    <div class="stage i">
+      <h4><span class="dot"></span>Intermediate</h4>
+      <div class="where">Chapters 5–11</div>
+      <ul>
+        <li>All preprocessing tools</li>
+        <li>10+ models &amp; when to use them</li>
+        <li>Cross-validation strategies</li>
+        <li>Hyperparameter search</li>
+        <li>Pipelines &amp; ColumnTransformer</li>
+        <li>The right metric per problem</li>
+      </ul>
+    </div>
+    <div class="stage a">
+      <h4><span class="dot"></span>Advanced</h4>
+      <div class="where">Chapters 12–17</div>
+      <ul>
+        <li>Feature selection strategies</li>
+        <li>Model inspection &amp; PDP</li>
+        <li>Calibration, class imbalance</li>
+        <li>Custom transformers/estimators</li>
+        <li>Online learning, partial_fit</li>
+        <li>Anomaly detection</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- ToC                                                           -->
+<!-- ============================================================ -->
+<div class="toc-wrap">
+  <h3>Table of contents</h3>
+  <div class="toc">
+    <a href="#c1"><span class="n">01</span><span class="ttl">Foundations &amp; the estimator API</span></a>
+    <a href="#c2"><span class="n">02</span><span class="ttl">Getting data: built-in datasets</span></a>
+    <a href="#c3"><span class="n">03</span><span class="ttl">Train / test split &amp; cross-validation</span></a>
+    <a href="#c4"><span class="n">04</span><span class="ttl">Preprocessing: scaling, encoding, imputing</span></a>
+    <a href="#c5"><span class="n">05</span><span class="ttl">Classification — every major algorithm</span></a>
+    <a href="#c6"><span class="n">06</span><span class="ttl">Regression — every major algorithm</span></a>
+    <a href="#c7"><span class="n">07</span><span class="ttl">Clustering (unsupervised)</span></a>
+    <a href="#c8"><span class="n">08</span><span class="ttl">Dimensionality reduction</span></a>
+    <a href="#c9"><span class="n">09</span><span class="ttl">Evaluation metrics</span></a>
+    <a href="#c10"><span class="n">10</span><span class="ttl">Hyperparameter tuning</span></a>
+    <a href="#c11"><span class="n">11</span><span class="ttl">Pipelines &amp; ColumnTransformer</span></a>
+    <a href="#c12"><span class="n">12</span><span class="ttl">Feature selection</span></a>
+    <a href="#c13"><span class="n">13</span><span class="ttl">Model inspection &amp; interpretation</span></a>
+    <a href="#c14"><span class="n">14</span><span class="ttl">Text vectorization</span></a>
+    <a href="#c15"><span class="n">15</span><span class="ttl">Anomaly &amp; outlier detection</span></a>
+    <a href="#c16"><span class="n">16</span><span class="ttl">Calibration, imbalance, persistence</span></a>
+    <a href="#c17"><span class="n">17</span><span class="ttl">Advanced: custom estimators &amp; online learning</span></a>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- 1. FOUNDATIONS                                                -->
+<!-- ============================================================ -->
+<section class="chapter acc-teal" id="c1">
+  <div class="ch-head"><span class="ch-num">01</span><h2>Foundations &amp; the estimator API</h2></div>
+  <p class="intro">scikit-learn's secret weapon is consistency. Once you understand the <b>estimator API</b>, every model in the library — from linear regression to gradient boosting to PCA — behaves the same way.</p>
+
+  <h3 class="topic">The three contracts every object follows</h3>
+  <p>An <b>estimator</b> is any object that learns from data. It always has a <code>.fit()</code> method. Then depending on what it does, it implements one or more of these:</p>
+  <table class="tbl">
+    <thead><tr><th>Method</th><th>Who has it</th><th>What it does</th></tr></thead>
+    <tbody>
+      <tr><td><code>.fit(X, y)</code></td><td>everything</td><td>learn parameters from data; modifies the object in-place and returns <code>self</code></td></tr>
+      <tr><td><code>.predict(X)</code></td><td>classifiers, regressors</td><td>produce labels or numbers for new data</td></tr>
+      <tr><td><code>.predict_proba(X)</code></td><td>most classifiers</td><td>probability estimates per class</td></tr>
+      <tr><td><code>.transform(X)</code></td><td>preprocessors, reducers</td><td>turn X into something new (scaled, encoded, projected)</td></tr>
+      <tr><td><code>.fit_transform(X)</code></td><td>transformers</td><td>shortcut: fit then transform — <em>only use on training data</em></td></tr>
+      <tr><td><code>.score(X, y)</code></td><td>most models</td><td>built-in metric (R² for regressors, accuracy for classifiers)</td></tr>
+    </tbody>
+  </table>
+
+  <h4 class="sub">The canonical workflow — memorize this shape</h4>
+<pre><span class="k">from</span> sklearn.linear_model    <span class="k">import</span> LogisticRegression
+<span class="k">from</span> sklearn.preprocessing   <span class="k">import</span> StandardScaler
+<span class="k">from</span> sklearn.model_selection <span class="k">import</span> train_test_split
+<span class="k">from</span> sklearn.datasets        <span class="k">import</span> load_breast_cancer
+
+<span class="c"># 1. Load data</span>
+X, y = <span class="f">load_breast_cancer</span>(return_X_y=<span class="k">True</span>)
+
+<span class="c"># 2. Split BEFORE doing anything else (this is the rule)</span>
+X_tr, X_te, y_tr, y_te = <span class="f">train_test_split</span>(X, y, test_size=<span class="n">0.2</span>, stratify=y, random_state=<span class="n">42</span>)
+
+<span class="c"># 3. Fit a transformer on TRAIN only, then apply to both</span>
+scaler = <span class="f">StandardScaler</span>().fit(X_tr)
+X_tr_s = scaler.transform(X_tr)
+X_te_s = scaler.transform(X_te)
+
+<span class="c"># 4. Fit the model on TRAIN, evaluate on TEST</span>
+model = <span class="f">LogisticRegression</span>(max_iter=<span class="n">1000</span>).fit(X_tr_s, y_tr)
+<span class="f">print</span>(model.score(X_te_s, y_te))   <span class="c"># accuracy by default</span></pre>
+
+  <div class="note tip">
+    <span class="lbl">why split first</span>
+    <p>If you scale the whole X before splitting, the mean and std are computed using test-set rows. That's data leakage — your test score will be optimistically biased. <b>Fit transformers on train only.</b> A <code>Pipeline</code> (Chapter 11) does this automatically.</p>
+  </div>
+
+  <h3 class="topic">Attributes you'll constantly inspect</h3>
+  <p>After <code>.fit()</code>, every estimator stores what it learned in attributes ending with an underscore (sklearn convention: <code>name_</code> means "learned from data"):</p>
+<pre>model.coef_              <span class="c"># LogisticRegression weights</span>
+model.intercept_         <span class="c"># bias term</span>
+model.classes_           <span class="c"># label order in predict_proba columns</span>
+model.feature_names_in_  <span class="c"># names if X was a DataFrame</span>
+model.n_features_in_     <span class="c"># expected input width</span>
+
+scaler.mean_, scaler.scale_    <span class="c"># StandardScaler's learned stats</span>
+pca.components_, pca.explained_variance_ratio_</pre>
+
+  <div class="note intuition">
+    <span class="lbl">mental model</span>
+    <p>Think of every sklearn object as a tiny stateful program. Before <code>.fit()</code> it knows nothing. After <code>.fit()</code> it carries the learned state. <code>.predict()</code> and <code>.transform()</code> just apply that state.</p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 2. DATASETS                                                   -->
+<!-- ============================================================ -->
+<section class="chapter acc-amber" id="c2">
+  <div class="ch-head"><span class="ch-num">02</span><h2>Getting data: built-in datasets</h2></div>
+  <p class="intro">Before plumbing in real data, sklearn ships toy and synthetic datasets perfect for learning and prototyping. There are three families: <b>loaders</b> (toy, bundled), <b>fetchers</b> (download once, cache), and <b>generators</b> (synthetic, parameterized).</p>
+
+  <h3 class="topic">Toy loaders — built into the package</h3>
+<pre><span class="k">from</span> sklearn.datasets <span class="k">import</span> (
+    load_iris,            <span class="c"># 150 flowers, 3 classes — classic classification</span>
+    load_breast_cancer,   <span class="c"># 569 tumors, binary — best toy for medical-style</span>
+    load_wine,            <span class="c"># 178 wines, 3 classes</span>
+    load_digits,          <span class="c"># 1797 8×8 handwritten digits</span>
+    load_diabetes,        <span class="c"># 442 patients — regression</span>
+    load_linnerud,        <span class="c"># multi-output regression</span>
+)
+data = <span class="f">load_iris</span>()
+X, y = data.data, data.target            <span class="c"># numpy arrays</span>
+<span class="f">print</span>(data.feature_names, data.target_names)
+<span class="f">print</span>(data.DESCR)                       <span class="c"># every loader has a description</span>
+
+<span class="c"># Or get just the arrays:</span>
+X, y = <span class="f">load_iris</span>(return_X_y=<span class="k">True</span>)
+<span class="c"># Or as a pandas DataFrame:</span>
+df  = <span class="f">load_iris</span>(as_frame=<span class="k">True</span>).frame</pre>
+
+  <h3 class="topic">Fetchers — bigger, real-world data</h3>
+<pre><span class="k">from</span> sklearn.datasets <span class="k">import</span> (
+    fetch_california_housing,  <span class="c"># ~20k rows, regression</span>
+    fetch_20newsgroups,        <span class="c"># text classification</span>
+    fetch_openml,              <span class="c"># thousands of datasets by name/id</span>
+    fetch_lfw_people,          <span class="c"># face images</span>
+)
+
+<span class="c"># Famous MNIST via OpenML:</span>
+mnist = <span class="f">fetch_openml</span>(<span class="s">"mnist_784"</span>, version=<span class="n">1</span>, as_frame=<span class="k">False</span>)
+X, y = mnist.data, mnist.target.astype(<span class="s">"int8"</span>)</pre>
+
+  <h3 class="topic">Generators — synthetic data you control</h3>
+  <p>Generators are how you debug and test. Want to know if your model handles class imbalance, noisy features, or 50 useless columns? Generate the exact problem.</p>
+<pre><span class="k">from</span> sklearn.datasets <span class="k">import</span> (
+    make_classification,  <span class="c"># the workhorse</span>
+    make_regression,
+    make_blobs,           <span class="c"># nice round clusters</span>
+    make_moons,           <span class="c"># two interleaved half-circles (non-linear)</span>
+    make_circles,         <span class="c"># concentric circles (very non-linear)</span>
+    make_friedman1,       <span class="c"># classic regression benchmark</span>
+)
+
+X, y = <span class="f">make_classification</span>(
+    n_samples=<span class="n">5000</span>,
+    n_features=<span class="n">20</span>,
+    n_informative=<span class="n">8</span>,     <span class="c"># 8 features actually carry signal</span>
+    n_redundant=<span class="n">4</span>,       <span class="c"># 4 are linear combos of the informative ones</span>
+    n_classes=<span class="n">3</span>,
+    weights=[<span class="n">0.7</span>, <span class="n">0.2</span>, <span class="n">0.1</span>],     <span class="c"># imbalanced</span>
+    flip_y=<span class="n">0.02</span>,         <span class="c"># 2% label noise</span>
+    random_state=<span class="n">42</span>,
+)</pre>
+
+  <div class="note tip">
+    <span class="lbl">use it for</span>
+    <p>Reproducing problems on Stack Overflow, sanity-checking a pipeline before throwing real data at it, and benchmarking new ideas in a controlled environment.</p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 3. TRAIN/TEST + CV                                            -->
+<!-- ============================================================ -->
+<section class="chapter acc-coral" id="c3">
+  <div class="ch-head"><span class="ch-num">03</span><h2>Train/test split &amp; cross-validation</h2></div>
+  <p class="intro">A single train/test split gives you <em>one</em> noisy estimate of model performance. Cross-validation gives you <em>k</em> of them, drastically reducing variance and surfacing whether your model is consistent.</p>
+
+  <h3 class="topic">train_test_split — the basics</h3>
+<pre>X_tr, X_te, y_tr, y_te = <span class="f">train_test_split</span>(
+    X, y,
+    test_size    = <span class="n">0.2</span>,        <span class="c"># 20% held out, or pass an integer for absolute count</span>
+    train_size   = <span class="k">None</span>,       <span class="c"># inferred from test_size</span>
+    stratify     = y,          <span class="c"># preserve class proportions (ALWAYS for classification)</span>
+    random_state = <span class="n">42</span>,         <span class="c"># reproducibility</span>
+    shuffle      = <span class="k">True</span>,       <span class="c"># DO NOT shuffle time-series</span>
+)</pre>
+
+  <div class="note warn">
+    <span class="lbl">stratify</span>
+    <p>Without <code>stratify=y</code> on a classification problem, especially an imbalanced one, your test set might end up with very different class proportions than train — making metrics meaningless. Just always use it for classification.</p>
+  </div>
+
+  <h3 class="topic">Cross-validation: the splitters</h3>
+  <p>A splitter is just an iterator that yields <code>(train_idx, test_idx)</code> pairs. sklearn picks one of these for you when you call <code>cross_val_score</code>, but you can pass any of them explicitly.</p>
+
+  <h4 class="sub">KFold — the vanilla one</h4>
+<pre><span class="k">from</span> sklearn.model_selection <span class="k">import</span> KFold
+kf = <span class="f">KFold</span>(n_splits=<span class="n">5</span>, shuffle=<span class="k">True</span>, random_state=<span class="n">42</span>)
+<span class="k">for</span> tr_idx, te_idx <span class="k">in</span> kf.split(X):
+    X_tr, X_te = X[tr_idx], X[te_idx]</pre>
+
+  <h4 class="sub">StratifiedKFold — for classification</h4>
+  <p>Same as KFold but preserves class ratios in each fold. Use this any time the target is categorical.</p>
+<pre><span class="k">from</span> sklearn.model_selection <span class="k">import</span> StratifiedKFold
+skf = <span class="f">StratifiedKFold</span>(n_splits=<span class="n">5</span>, shuffle=<span class="k">True</span>, random_state=<span class="n">42</span>)</pre>
+
+  <h4 class="sub">GroupKFold — when rows aren't independent</h4>
+  <p>Imagine medical data with multiple visits per patient. If patient X has rows in both train and test, your model can cheat by memorizing patient-level patterns. Pass <code>groups=patient_id</code> to keep each patient entirely in one fold.</p>
+<pre><span class="k">from</span> sklearn.model_selection <span class="k">import</span> GroupKFold
+gkf = <span class="f">GroupKFold</span>(n_splits=<span class="n">5</span>)
+<span class="k">for</span> tr_idx, te_idx <span class="k">in</span> gkf.split(X, y, groups=patient_id):
+    ...</pre>
+
+  <h4 class="sub">TimeSeriesSplit — never train on the future</h4>
+  <p>For temporal data. Each fold's training set is a prefix of time; test is the next chunk. Mimics how the model will be used in production.</p>
+<pre><span class="k">from</span> sklearn.model_selection <span class="k">import</span> TimeSeriesSplit
+tscv = <span class="f">TimeSeriesSplit</span>(n_splits=<span class="n">5</span>, test_size=<span class="n">200</span>, gap=<span class="n">10</span>)
+<span class="c"># gap=10 leaves a 10-step buffer between train and test (anti-leakage)</span></pre>
+
+  <h4 class="sub">Others worth knowing</h4>
+  <ul>
+    <li><b>RepeatedKFold / RepeatedStratifiedKFold</b> — run k-fold N times with different seeds; reduces variance further.</li>
+    <li><b>LeaveOneOut</b> — k = n. Only for tiny datasets; slow.</li>
+    <li><b>ShuffleSplit / StratifiedShuffleSplit</b> — random repeated holdouts (test sets can overlap).</li>
+  </ul>
+
+  <h3 class="topic">Running cross-validation</h3>
+<pre><span class="k">from</span> sklearn.model_selection <span class="k">import</span> cross_val_score, cross_validate, cross_val_predict
+
+<span class="c"># 1. Single metric, fast</span>
+scores = <span class="f">cross_val_score</span>(model, X, y, cv=<span class="n">5</span>, scoring=<span class="s">"f1_macro"</span>, n_jobs=-<span class="n">1</span>)
+<span class="f">print</span>(f<span class="s">"{scores.mean():.3f} ± {scores.std():.3f}"</span>)
+
+<span class="c"># 2. Multiple metrics + timing + train scores</span>
+result = <span class="f">cross_validate</span>(
+    model, X, y, cv=<span class="n">5</span>,
+    scoring=[<span class="s">"accuracy"</span>, <span class="s">"f1_macro"</span>, <span class="s">"roc_auc_ovr"</span>],
+    return_train_score=<span class="k">True</span>,
+    return_estimator=<span class="k">True</span>,    <span class="c"># keep each fold's fitted model</span>
+    n_jobs=-<span class="n">1</span>,
+)
+
+<span class="c"># 3. Out-of-fold predictions (useful for stacking, error analysis)</span>
+y_oof = <span class="f">cross_val_predict</span>(model, X, y, cv=<span class="n">5</span>, method=<span class="s">"predict_proba"</span>)</pre>
+</section>
+
+<!-- ============================================================ -->
+<!-- 4. PREPROCESSING                                              -->
+<!-- ============================================================ -->
+<section class="chapter acc-purple" id="c4">
+  <div class="ch-head"><span class="ch-num">04</span><h2>Preprocessing: scaling, encoding, imputing</h2></div>
+  <p class="intro">Most ML wins come from preprocessing, not from picking a fancier model. Each transformer here learns parameters from training data and applies them consistently to test data.</p>
+
+  <h3 class="topic">Scaling numeric features</h3>
+  <p>Many models (linear, SVM, KNN, neural nets, PCA) are scale-sensitive — a feature with values in millions will dominate a feature with values in 0-1. Tree-based models (Random Forest, Gradient Boosting) are scale-invariant; don't bother scaling for them.</p>
+
+  <table class="tbl">
+    <thead><tr><th>Scaler</th><th>What it does</th><th>Use when</th></tr></thead>
+    <tbody>
+      <tr><td><code>StandardScaler</code></td><td>subtract mean, divide by std → mean 0, std 1</td><td>default for most things</td></tr>
+      <tr><td><code>MinMaxScaler</code></td><td>squish to [0, 1] linearly</td><td>neural nets, image-like data, when you need bounded values</td></tr>
+      <tr><td><code>RobustScaler</code></td><td>uses median &amp; IQR instead of mean &amp; std</td><td>heavy outliers you can't remove</td></tr>
+      <tr><td><code>MaxAbsScaler</code></td><td>divide by max absolute value → [-1, 1]</td><td>sparse data (preserves zeros)</td></tr>
+      <tr><td><code>Normalizer</code></td><td>scales each <em>row</em> to unit norm</td><td>text vectors, cosine-similarity workflows</td></tr>
+      <tr><td><code>PowerTransformer</code></td><td>Yeo-Johnson or Box-Cox transform → make distribution more Gaussian</td><td>skewed features feeding linear models</td></tr>
+      <tr><td><code>QuantileTransformer</code></td><td>map values onto uniform or normal distribution via quantiles</td><td>highly non-linear distributions, heavy tails</td></tr>
+    </tbody>
+  </table>
+
+<pre><span class="k">from</span> sklearn.preprocessing <span class="k">import</span> StandardScaler, PowerTransformer
+
+sc = <span class="f">StandardScaler</span>()
+X_tr_s = sc.fit_transform(X_tr)      <span class="c"># fit + apply in one call</span>
+X_te_s = sc.transform(X_te)           <span class="c"># reuse learned mean/std</span>
+
+pt = <span class="f">PowerTransformer</span>(method=<span class="s">"yeo-johnson"</span>, standardize=<span class="k">True</span>)
+X_pt = pt.fit_transform(X_tr)</pre>
+
+  <h3 class="topic">Encoding categorical features</h3>
+  <p>Models speak numbers. Categories like <code>"red", "blue", "green"</code> have to become numeric — but <em>how</em> matters.</p>
+
+  <h4 class="sub">OneHotEncoder — the default for nominal categories</h4>
+<pre><span class="k">from</span> sklearn.preprocessing <span class="k">import</span> OneHotEncoder
+
+ohe = <span class="f">OneHotEncoder</span>(
+    handle_unknown=<span class="s">"ignore"</span>,    <span class="c"># test-time unseen category → all zeros</span>
+    sparse_output=<span class="k">False</span>,        <span class="c"># dense numpy array (easier to inspect)</span>
+    drop=<span class="s">"first"</span>,                <span class="c"># drop one column to avoid dummy trap (linear models)</span>
+    min_frequency=<span class="n">10</span>,             <span class="c"># lump rare categories into an "infrequent" bucket</span>
+)
+X_ohe = ohe.fit_transform(X_cat)</pre>
+
+  <h4 class="sub">OrdinalEncoder — when categories have a real order</h4>
+<pre><span class="k">from</span> sklearn.preprocessing <span class="k">import</span> OrdinalEncoder
+oe = <span class="f">OrdinalEncoder</span>(
+    categories=[[<span class="s">"low"</span>,<span class="s">"medium"</span>,<span class="s">"high"</span>]],   <span class="c"># explicit order</span>
+    handle_unknown=<span class="s">"use_encoded_value"</span>,
+    unknown_value=-<span class="n">1</span>,
+)</pre>
+
+  <h4 class="sub">TargetEncoder — for high-cardinality categoricals (1.3+)</h4>
+  <p>Replace each category by a smoothed mean of the target. Powerful for things like <code>zip_code</code> with thousands of unique values — one-hot would explode dimensionality.</p>
+<pre><span class="k">from</span> sklearn.preprocessing <span class="k">import</span> TargetEncoder
+te = <span class="f">TargetEncoder</span>(smooth=<span class="s">"auto"</span>, target_type=<span class="s">"binary"</span>)
+X_te_enc = te.fit_transform(X_cat, y)</pre>
+
+  <h4 class="sub">LabelEncoder — only for the target y</h4>
+  <p>Common mistake: people use <code>LabelEncoder</code> on features. Don't — it's strictly for the <code>y</code> vector. Use <code>OrdinalEncoder</code> for feature columns.</p>
+
+  <h3 class="topic">Imputing missing values</h3>
+  <p>Most sklearn models reject NaN. (Exceptions: HistGradientBoosting* handle NaN natively.) Three imputers:</p>
+<pre><span class="k">from</span> sklearn.impute <span class="k">import</span> SimpleImputer, KNNImputer
+<span class="k">from</span> sklearn.experimental <span class="k">import</span> enable_iterative_imputer  <span class="c"># noqa</span>
+<span class="k">from</span> sklearn.impute <span class="k">import</span> IterativeImputer
+
+<span class="c"># Simple: constant strategy per column</span>
+imp = <span class="f">SimpleImputer</span>(strategy=<span class="s">"median"</span>)     <span class="c"># or "mean", "most_frequent", "constant"</span>
+
+<span class="c"># KNN: fill each missing value using the k nearest rows</span>
+imp = <span class="f">KNNImputer</span>(n_neighbors=<span class="n">5</span>, weights=<span class="s">"distance"</span>)
+
+<span class="c"># Iterative (MICE-style): model each feature as a function of the others</span>
+imp = <span class="f">IterativeImputer</span>(max_iter=<span class="n">10</span>, random_state=<span class="n">42</span>)</pre>
+
+  <div class="note tip">
+    <span class="lbl">add a flag</span>
+    <p>Missingness is often informative. <code>SimpleImputer(add_indicator=True)</code> appends a binary "was-missing" column for each imputed feature — your model can learn from the missingness itself.</p>
+  </div>
+
+  <h3 class="topic">Other transformers worth knowing</h3>
+<pre><span class="k">from</span> sklearn.preprocessing <span class="k">import</span> (
+    PolynomialFeatures,   <span class="c"># add x^2, x1*x2, etc.</span>
+    KBinsDiscretizer,     <span class="c"># turn continuous → categorical bins</span>
+    Binarizer,            <span class="c"># 0/1 above a threshold</span>
+    FunctionTransformer,  <span class="c"># wrap any function as a transformer</span>
+    SplineTransformer,    <span class="c"># non-linear basis expansion for linear models</span>
+)
+
+<span class="c"># Add interaction terms</span>
+poly = <span class="f">PolynomialFeatures</span>(degree=<span class="n">2</span>, interaction_only=<span class="k">True</span>, include_bias=<span class="k">False</span>)
+
+<span class="c"># Bin a feature into quartiles (encodes as one-hot)</span>
+bins = <span class="f">KBinsDiscretizer</span>(n_bins=<span class="n">4</span>, encode=<span class="s">"onehot-dense"</span>, strategy=<span class="s">"quantile"</span>)
+
+<span class="c"># Apply log1p as a transformer (so it fits inside a Pipeline)</span>
+<span class="k">import</span> numpy <span class="k">as</span> np
+log = <span class="f">FunctionTransformer</span>(np.log1p, inverse_func=np.expm1, validate=<span class="k">True</span>)</pre>
+</section>
+
+<!-- ============================================================ -->
+<!-- 5. CLASSIFICATION                                             -->
+<!-- ============================================================ -->
+<section class="chapter acc-teal" id="c5">
+  <div class="ch-head"><span class="ch-num">05</span><h2>Classification — every major algorithm</h2></div>
+  <p class="intro">For each algorithm: the intuition, when to use it, and a working example. Knowing <em>which</em> model fits a problem is more valuable than knowing all the hyperparameters of one.</p>
+
+  <h3 class="topic">Logistic Regression — the workhorse baseline</h3>
+  <p><b>Intuition:</b> draw a (possibly hyperdimensional) line that separates classes; output a probability via the sigmoid. Despite the name, it's a classifier. Fast, interpretable, well-calibrated.</p>
+  <p><b>Reach for it when:</b> you want a sanity-check baseline, need interpretable coefficients, or have a roughly linearly separable problem with calibrated probabilities.</p>
+<pre><span class="k">from</span> sklearn.linear_model <span class="k">import</span> LogisticRegression
+m = <span class="f">LogisticRegression</span>(
+    penalty=<span class="s">"l2"</span>,         <span class="c"># also "l1", "elasticnet", or None</span>
+    C=<span class="n">1.0</span>,                <span class="c"># inverse regularization — smaller C = more regularization</span>
+    solver=<span class="s">"lbfgs"</span>,        <span class="c"># "liblinear" for L1 small data, "saga" for L1/EN big data</span>
+    class_weight=<span class="s">"balanced"</span>,<span class="c"># auto-weight rare classes</span>
+    max_iter=<span class="n">1000</span>,
+    random_state=<span class="n">42</span>,
+).fit(X_tr_s, y_tr)
+
+m.coef_, m.intercept_             <span class="c"># feature weights — interpretable</span>
+m.predict_proba(X_te_s)            <span class="c"># columns ordered by m.classes_</span></pre>
+  <div class="note warn"><span class="lbl">scale first</span><p>Logistic regression with regularization is scale-sensitive. Always scale.</p></div>
+
+  <h3 class="topic">K-Nearest Neighbors — memorize, don't generalize</h3>
+  <p><b>Intuition:</b> to classify a new point, look at the k closest training points and take a vote. No training really happens; everything is at predict time.</p>
+  <p><b>Reach for it when:</b> low dimensionality (≤ ~20 features), enough labeled data, local structure matters. Avoid for high-dimensional data (curse of dimensionality kills distance metrics).</p>
+<pre><span class="k">from</span> sklearn.neighbors <span class="k">import</span> KNeighborsClassifier
+m = <span class="f">KNeighborsClassifier</span>(
+    n_neighbors=<span class="n">5</span>,
+    weights=<span class="s">"distance"</span>,  <span class="c"># closer neighbors vote louder than farther ones</span>
+    metric=<span class="s">"minkowski"</span>, p=<span class="n">2</span>,   <span class="c"># Euclidean (p=2) or Manhattan (p=1)</span>
+    n_jobs=-<span class="n">1</span>,
+).fit(X_tr_s, y_tr)</pre>
+
+  <h3 class="topic">Naive Bayes — fast, probabilistic, text-friendly</h3>
+  <p><b>Intuition:</b> apply Bayes' theorem assuming features are conditionally independent given the class. The assumption is usually false, yet it works astonishingly well — especially for text.</p>
+<pre><span class="k">from</span> sklearn.naive_bayes <span class="k">import</span> GaussianNB, MultinomialNB, BernoulliNB, ComplementNB
+
+<span class="c"># GaussianNB: continuous features ~ normal per class</span>
+GaussianNB().fit(X_tr, y_tr)
+
+<span class="c"># MultinomialNB: count features (bag-of-words)</span>
+MultinomialNB(alpha=<span class="n">1.0</span>).fit(X_counts, y)   <span class="c"># alpha = Laplace smoothing</span>
+
+<span class="c"># BernoulliNB: binary features</span>
+<span class="c"># ComplementNB: better than MultinomialNB on imbalanced text</span></pre>
+
+  <h3 class="topic">Decision Tree — interpretable, prone to overfit</h3>
+  <p><b>Intuition:</b> ask a sequence of yes/no questions on features, ending at a leaf that votes. Captures non-linear interactions; needs no scaling.</p>
+  <p><b>Reach for it when:</b> you need a single interpretable model, or as a building block for forests/boosting.</p>
+<pre><span class="k">from</span> sklearn.tree <span class="k">import</span> DecisionTreeClassifier, plot_tree
+m = <span class="f">DecisionTreeClassifier</span>(
+    criterion=<span class="s">"gini"</span>,      <span class="c"># or "entropy"</span>
+    max_depth=<span class="n">8</span>,           <span class="c"># #1 anti-overfit knob</span>
+    min_samples_leaf=<span class="n">20</span>,   <span class="c"># refuse leaves smaller than this</span>
+    class_weight=<span class="s">"balanced"</span>,
+    random_state=<span class="n">42</span>,
+).fit(X_tr, y_tr)
+
+<span class="k">import</span> matplotlib.pyplot <span class="k">as</span> plt
+<span class="f">plot_tree</span>(m, feature_names=names, class_names=[<span class="s">"neg"</span>,<span class="s">"pos"</span>], filled=<span class="k">True</span>)</pre>
+
+  <h3 class="topic">Random Forest — the tabular default</h3>
+  <p><b>Intuition:</b> train hundreds of decorrelated decision trees on bootstrap samples with random feature subsets; average their votes. Reduces variance dramatically.</p>
+  <p><b>Reach for it when:</b> you need a strong, low-tuning baseline on tabular data. Handles mixed types, missing-ish values, and gives you free feature importances.</p>
+<pre><span class="k">from</span> sklearn.ensemble <span class="k">import</span> RandomForestClassifier
+m = <span class="f">RandomForestClassifier</span>(
+    n_estimators=<span class="n">500</span>,
+    max_depth=<span class="k">None</span>,         <span class="c"># let trees go deep; the averaging controls overfit</span>
+    max_features=<span class="s">"sqrt"</span>,     <span class="c"># √n features per split — key to decorrelation</span>
+    min_samples_leaf=<span class="n">2</span>,
+    n_jobs=-<span class="n">1</span>,
+    random_state=<span class="n">42</span>,
+    class_weight=<span class="s">"balanced_subsample"</span>,
+).fit(X_tr, y_tr)
+
+m.feature_importances_       <span class="c"># biased toward high-cardinality features</span></pre>
+
+  <h3 class="topic">Gradient Boosting — sequential tree wizardry</h3>
+  <p><b>Intuition:</b> build trees one at a time, each fitting the residual errors of the ensemble so far. Slower to train than a forest, but often higher ceiling.</p>
+<pre><span class="k">from</span> sklearn.ensemble <span class="k">import</span> GradientBoostingClassifier, HistGradientBoostingClassifier
+
+<span class="c"># Classic — exact, slower</span>
+gbc = <span class="f">GradientBoostingClassifier</span>(
+    n_estimators=<span class="n">300</span>, learning_rate=<span class="n">0.05</span>, max_depth=<span class="n">3</span>, random_state=<span class="n">42</span>,
+)
+
+<span class="c"># Histogram-based — fast like LightGBM, handles NaN natively, scales to millions</span>
+hgb = <span class="f">HistGradientBoostingClassifier</span>(
+    learning_rate=<span class="n">0.05</span>,
+    max_iter=<span class="n">500</span>,
+    max_leaf_nodes=<span class="n">31</span>,
+    l2_regularization=<span class="n">0.0</span>,
+    early_stopping=<span class="k">True</span>,
+    validation_fraction=<span class="n">0.1</span>,
+    random_state=<span class="n">42</span>,
+).fit(X_tr, y_tr)</pre>
+  <div class="note tip"><span class="lbl">modern default</span><p>For tabular data above ~10k rows, <b>HistGradientBoosting</b> is usually the strongest single model in sklearn. It rivals XGBoost/LightGBM while staying inside the sklearn API.</p></div>
+
+  <h3 class="topic">AdaBoost — the original boosting</h3>
+  <p>Re-weights misclassified samples each round. Mostly historical interest now; HistGB outperforms it almost everywhere.</p>
+<pre><span class="k">from</span> sklearn.ensemble <span class="k">import</span> AdaBoostClassifier
+<span class="f">AdaBoostClassifier</span>(n_estimators=<span class="n">200</span>, learning_rate=<span class="n">0.5</span>, random_state=<span class="n">42</span>)</pre>
+
+  <h3 class="topic">Support Vector Machines</h3>
+  <p><b>Intuition:</b> find the hyperplane that maximizes the margin between classes; with the kernel trick, project into higher dimensions to handle non-linear boundaries.</p>
+  <p><b>Reach for it when:</b> small-to-medium datasets (≤ ~50k rows), high-dimensional features, clear margin between classes.</p>
+<pre><span class="k">from</span> sklearn.svm <span class="k">import</span> SVC, LinearSVC
+
+<span class="c"># Non-linear (RBF kernel — default and good)</span>
+svc = <span class="f">SVC</span>(C=<span class="n">1.0</span>, kernel=<span class="s">"rbf"</span>, gamma=<span class="s">"scale"</span>, probability=<span class="k">True</span>).fit(X_tr_s, y_tr)
+
+<span class="c"># Linear, scales to large data</span>
+lsvc = <span class="f">LinearSVC</span>(C=<span class="n">1.0</span>, max_iter=<span class="n">5000</span>, dual=<span class="s">"auto"</span>).fit(X_tr_s, y_tr)</pre>
+  <div class="note warn"><span class="lbl">scale + slow</span><p>SVMs are very scale-sensitive and scale poorly (training is roughly O(n²) for non-linear kernels). Always scale; don't use on > ~100k rows.</p></div>
+
+  <h3 class="topic">Discriminant Analysis — LDA &amp; QDA</h3>
+  <p>Generative models that assume each class is Gaussian. <b>LDA</b> assumes shared covariance (linear boundary); <b>QDA</b> allows per-class covariance (quadratic boundary). Surprisingly strong baselines, especially with limited data.</p>
+<pre><span class="k">from</span> sklearn.discriminant_analysis <span class="k">import</span> LinearDiscriminantAnalysis, QuadraticDiscriminantAnalysis
+LinearDiscriminantAnalysis().fit(X_tr, y_tr)</pre>
+
+  <h3 class="topic">MLPClassifier — neural network in sklearn</h3>
+  <p>A simple fully-connected net. Fine for learning concepts; for real work use PyTorch/TensorFlow/Keras.</p>
+<pre><span class="k">from</span> sklearn.neural_network <span class="k">import</span> MLPClassifier
+m = <span class="f">MLPClassifier</span>(
+    hidden_layer_sizes=(<span class="n">128</span>, <span class="n">64</span>),
+    activation=<span class="s">"relu"</span>,
+    solver=<span class="s">"adam"</span>,
+    alpha=<span class="n">1e-4</span>,
+    learning_rate_init=<span class="n">1e-3</span>,
+    max_iter=<span class="n">200</span>,
+    early_stopping=<span class="k">True</span>,
+    random_state=<span class="n">42</span>,
+).fit(X_tr_s, y_tr)</pre>
+
+  <h3 class="topic">Ensembles of estimators — Voting &amp; Stacking</h3>
+  <p>Combine models that make different kinds of errors. Stacking is usually stronger than voting.</p>
+<pre><span class="k">from</span> sklearn.ensemble <span class="k">import</span> VotingClassifier, StackingClassifier
+<span class="k">from</span> sklearn.linear_model <span class="k">import</span> LogisticRegression
+<span class="k">from</span> sklearn.ensemble <span class="k">import</span> RandomForestClassifier, HistGradientBoostingClassifier
+
+vote = <span class="f">VotingClassifier</span>(
+    estimators=[(<span class="s">"lr"</span>, <span class="f">LogisticRegression</span>()), (<span class="s">"rf"</span>, <span class="f">RandomForestClassifier</span>()), (<span class="s">"hgb"</span>, <span class="f">HistGradientBoostingClassifier</span>())],
+    voting=<span class="s">"soft"</span>,   <span class="c"># average probabilities — usually better than "hard"</span>
+    weights=[<span class="n">1</span>, <span class="n">2</span>, <span class="n">3</span>],
+)
+
+stack = <span class="f">StackingClassifier</span>(
+    estimators=[(<span class="s">"rf"</span>, <span class="f">RandomForestClassifier</span>()), (<span class="s">"hgb"</span>, <span class="f">HistGradientBoostingClassifier</span>())],
+    final_estimator=<span class="f">LogisticRegression</span>(),
+    cv=<span class="n">5</span>,                  <span class="c"># OOF predictions feed the meta-learner</span>
+    passthrough=<span class="k">False</span>,
+)</pre>
+</section>
+
+<!-- ============================================================ -->
+<!-- 6. REGRESSION                                                 -->
+<!-- ============================================================ -->
+<section class="chapter acc-coral" id="c6">
+  <div class="ch-head"><span class="ch-num">06</span><h2>Regression — every major algorithm</h2></div>
+  <p class="intro">Same playbook as classification: each model has a regression cousin (<code>*Regressor</code> instead of <code>*Classifier</code>). The patterns below cover what's distinct.</p>
+
+  <h3 class="topic">Linear regression family</h3>
+  <p>All four below fit <b>y = β·X + intercept</b>; they differ in <em>how</em> they penalize the coefficients.</p>
+  <table class="tbl">
+    <thead><tr><th>Model</th><th>Penalty</th><th>Effect</th></tr></thead>
+    <tbody>
+      <tr><td><code>LinearRegression</code></td><td>none</td><td>plain OLS — overfits easily on collinear features</td></tr>
+      <tr><td><code>Ridge</code></td><td>L2 (sum of squared coefs)</td><td>shrinks all coefs toward 0; handles collinearity</td></tr>
+      <tr><td><code>Lasso</code></td><td>L1 (sum of |coefs|)</td><td>drives some coefs to exactly 0 → feature selection</td></tr>
+      <tr><td><code>ElasticNet</code></td><td>L1 + L2 mix</td><td>middle ground; <code>l1_ratio</code> controls balance</td></tr>
+    </tbody>
+  </table>
+<pre><span class="k">from</span> sklearn.linear_model <span class="k">import</span> LinearRegression, Ridge, Lasso, ElasticNet, RidgeCV, LassoCV, ElasticNetCV
+
+<span class="c"># Auto-tune alpha with built-in CV — usually what you want</span>
+r = <span class="f">RidgeCV</span>(alphas=[<span class="n">0.01</span>, <span class="n">0.1</span>, <span class="n">1</span>, <span class="n">10</span>, <span class="n">100</span>]).fit(X_tr_s, y_tr)
+<span class="f">print</span>(r.alpha_, r.coef_)
+
+l = <span class="f">LassoCV</span>(cv=<span class="n">5</span>, n_alphas=<span class="n">100</span>, random_state=<span class="n">42</span>).fit(X_tr_s, y_tr)
+<span class="f">print</span>(f<span class="s">"{(l.coef_ != 0).sum()} of {len(l.coef_)} features survived"</span>)</pre>
+
+  <h3 class="topic">Robust regression — when outliers ruin OLS</h3>
+<pre><span class="k">from</span> sklearn.linear_model <span class="k">import</span> HuberRegressor, RANSACRegressor, TheilSenRegressor
+<span class="f">HuberRegressor</span>(epsilon=<span class="n">1.35</span>)        <span class="c"># quadratic loss inside, linear outside</span>
+<span class="f">RANSACRegressor</span>(min_samples=<span class="n">0.5</span>)      <span class="c"># fits to random inlier subsets, ignores outliers</span>
+<span class="f">TheilSenRegressor</span>()                    <span class="c"># median-of-slopes, very robust</span></pre>
+
+  <h3 class="topic">Tree-based regressors</h3>
+  <p>Same models as classification, but predicting continuous values. Same defaults apply.</p>
+<pre><span class="k">from</span> sklearn.ensemble <span class="k">import</span> RandomForestRegressor, GradientBoostingRegressor, HistGradientBoostingRegressor
+<span class="k">from</span> sklearn.tree     <span class="k">import</span> DecisionTreeRegressor
+
+hgb = <span class="f">HistGradientBoostingRegressor</span>(
+    loss=<span class="s">"squared_error"</span>,    <span class="c"># or "absolute_error" (MAE) for outlier-robust</span>
+    max_iter=<span class="n">500</span>,
+    learning_rate=<span class="n">0.05</span>,
+    early_stopping=<span class="k">True</span>,
+).fit(X_tr, y_tr)</pre>
+
+  <h3 class="topic">Polynomial regression — without a fancy library</h3>
+  <p>Polynomial regression isn't its own model — it's <code>PolynomialFeatures</code> piped into <code>LinearRegression</code> (or <code>Ridge</code>).</p>
+<pre><span class="k">from</span> sklearn.pipeline <span class="k">import</span> make_pipeline
+<span class="k">from</span> sklearn.preprocessing <span class="k">import</span> PolynomialFeatures
+<span class="k">from</span> sklearn.linear_model <span class="k">import</span> Ridge
+
+poly = <span class="f">make_pipeline</span>(
+    <span class="f">PolynomialFeatures</span>(degree=<span class="n">3</span>, include_bias=<span class="k">False</span>),
+    <span class="f">Ridge</span>(alpha=<span class="n">1.0</span>),
+).fit(X_tr, y_tr)</pre>
+
+  <h3 class="topic">SVR &amp; KNN regressors</h3>
+<pre><span class="k">from</span> sklearn.svm <span class="k">import</span> SVR
+<span class="k">from</span> sklearn.neighbors <span class="k">import</span> KNeighborsRegressor
+
+<span class="f">SVR</span>(kernel=<span class="s">"rbf"</span>, C=<span class="n">1.0</span>, epsilon=<span class="n">0.1</span>)
+<span class="f">KNeighborsRegressor</span>(n_neighbors=<span class="n">10</span>, weights=<span class="s">"distance"</span>)</pre>
+
+  <h3 class="topic">When the target needs transforming</h3>
+  <p>If <code>y</code> is heavily skewed (income, sales, prices), models predict the mean better when you fit on <code>log(y)</code>. <code>TransformedTargetRegressor</code> handles the log/expm1 round-trip automatically.</p>
+<pre><span class="k">from</span> sklearn.compose <span class="k">import</span> TransformedTargetRegressor
+<span class="k">import</span> numpy <span class="k">as</span> np
+
+reg = <span class="f">TransformedTargetRegressor</span>(
+    regressor=<span class="f">HistGradientBoostingRegressor</span>(),
+    func=np.log1p,
+    inverse_func=np.expm1,
+).fit(X_tr, y_tr)
+<span class="c"># reg.predict(X_te) returns values in the original scale</span></pre>
+</section>
+
+<!-- ============================================================ -->
+<!-- 7. CLUSTERING                                                 -->
+<!-- ============================================================ -->
+<section class="chapter acc-purple" id="c7">
+  <div class="ch-head"><span class="ch-num">07</span><h2>Clustering (unsupervised)</h2></div>
+  <p class="intro">No labels, just patterns. The big question is whether you know <b>how many</b> clusters there are.</p>
+
+  <h3 class="topic">KMeans — when k is known and clusters are roundish</h3>
+<pre><span class="k">from</span> sklearn.cluster <span class="k">import</span> KMeans, MiniBatchKMeans
+
+km = <span class="f">KMeans</span>(
+    n_clusters=<span class="n">5</span>,
+    init=<span class="s">"k-means++"</span>,    <span class="c"># smart seeding</span>
+    n_init=<span class="s">"auto"</span>,        <span class="c"># try multiple seeds, keep best (default 10)</span>
+    max_iter=<span class="n">300</span>,
+    random_state=<span class="n">42</span>,
+).fit(X_scaled)
+
+km.labels_, km.cluster_centers_, km.inertia_   <span class="c"># inertia = within-cluster SSE</span>
+
+<span class="c"># For huge data, MiniBatchKMeans is ~10–100× faster, slightly worse</span>
+<span class="f">MiniBatchKMeans</span>(n_clusters=<span class="n">50</span>, batch_size=<span class="n">1024</span>).fit(X)</pre>
+
+  <h4 class="sub">Choosing k: elbow + silhouette</h4>
+<pre><span class="k">from</span> sklearn.metrics <span class="k">import</span> silhouette_score
+<span class="k">for</span> k <span class="k">in</span> <span class="f">range</span>(<span class="n">2</span>, <span class="n">11</span>):
+    km = <span class="f">KMeans</span>(n_clusters=k, n_init=<span class="s">"auto"</span>, random_state=<span class="n">42</span>).fit(X_scaled)
+    <span class="f">print</span>(k, km.inertia_, <span class="f">silhouette_score</span>(X_scaled, km.labels_))</pre>
+
+  <h3 class="topic">DBSCAN &amp; HDBSCAN — density-based, find outliers</h3>
+  <p><b>Intuition:</b> a cluster is a dense region; sparse points are noise (label <code>-1</code>). You don't pre-specify k.</p>
+<pre><span class="k">from</span> sklearn.cluster <span class="k">import</span> DBSCAN, HDBSCAN
+
+db = <span class="f">DBSCAN</span>(eps=<span class="n">0.3</span>, min_samples=<span class="n">10</span>).fit(X_scaled)
+<span class="c"># eps = neighborhood radius; min_samples = density threshold</span>
+
+hdb = <span class="f">HDBSCAN</span>(min_cluster_size=<span class="n">20</span>).fit(X_scaled)   <span class="c"># handles varying densities, no eps</span></pre>
+  <div class="note tip"><span class="lbl">use HDBSCAN</span><p>If clusters have wildly different densities (which is common in real data), HDBSCAN almost always beats DBSCAN with less tuning.</p></div>
+
+  <h3 class="topic">Agglomerative — hierarchical clusters &amp; dendrograms</h3>
+<pre><span class="k">from</span> sklearn.cluster <span class="k">import</span> AgglomerativeClustering
+ac = <span class="f">AgglomerativeClustering</span>(
+    n_clusters=<span class="n">5</span>,
+    linkage=<span class="s">"ward"</span>,       <span class="c"># or "average", "complete", "single"</span>
+    metric=<span class="s">"euclidean"</span>,
+).fit(X_scaled)</pre>
+
+  <h3 class="topic">Gaussian Mixture Models — soft clustering</h3>
+  <p>Each point gets a probability of belonging to each component. Lets you do anomaly detection (low probability under all components = anomaly).</p>
+<pre><span class="k">from</span> sklearn.mixture <span class="k">import</span> GaussianMixture
+gm = <span class="f">GaussianMixture</span>(n_components=<span class="n">5</span>, covariance_type=<span class="s">"full"</span>, random_state=<span class="n">42</span>).fit(X)
+labels = gm.predict(X)
+probs  = gm.predict_proba(X)        <span class="c"># soft assignments</span>
+<span class="f">print</span>(gm.bic(X), gm.aic(X))         <span class="c"># model selection criteria — pick n_components by lowest BIC</span></pre>
+
+  <h3 class="topic">Other clusterers worth knowing</h3>
+  <ul>
+    <li><b>SpectralClustering</b> — great for non-convex shapes (uses graph Laplacian).</li>
+    <li><b>MeanShift</b> — no k, finds modes of the density. Slow on big data.</li>
+    <li><b>Birch</b> — hierarchical, scales to huge data via tree summaries.</li>
+    <li><b>AffinityPropagation</b> — picks exemplars; no k needed; sensitive to <code>damping</code>.</li>
+  </ul>
+</section>
+
+<!-- ============================================================ -->
+<!-- 8. DIMENSIONALITY REDUCTION                                   -->
+<!-- ============================================================ -->
+<section class="chapter acc-amber" id="c8">
+  <div class="ch-head"><span class="ch-num">08</span><h2>Dimensionality reduction</h2></div>
+  <p class="intro">Reduce feature count for speed, denoising, visualization, or feeding into downstream models. The big split: <b>linear</b> (PCA, NMF, SVD) vs <b>non-linear / manifold</b> (t-SNE, UMAP, Isomap).</p>
+
+  <h3 class="topic">PCA — the always-try-first one</h3>
+  <p><b>Intuition:</b> find the orthogonal directions of maximum variance; project onto the top few. Equivalent to an SVD of the centered data.</p>
+<pre><span class="k">from</span> sklearn.decomposition <span class="k">import</span> PCA
+
+<span class="c"># Pass a float to keep that fraction of variance:</span>
+pca = <span class="f">PCA</span>(n_components=<span class="n">0.95</span>, random_state=<span class="n">42</span>).fit(X_scaled)
+X_pca = pca.transform(X_scaled)
+<span class="f">print</span>(pca.n_components_, pca.explained_variance_ratio_.sum())
+
+<span class="c"># Or pick an integer count for visualization:</span>
+pca2 = <span class="f">PCA</span>(n_components=<span class="n">2</span>).fit_transform(X_scaled)</pre>
+  <div class="note warn"><span class="lbl">scale first</span><p>PCA is variance-based. Without scaling, a feature with naturally large variance (income vs age) dominates everything. Always <code>StandardScaler</code> before PCA.</p></div>
+
+  <h3 class="topic">TruncatedSVD — PCA's sparse cousin</h3>
+  <p>Same idea, but doesn't center the data — so it works on sparse matrices (tf-idf). Use it after vectorizing text; people call this LSA (Latent Semantic Analysis).</p>
+<pre><span class="k">from</span> sklearn.decomposition <span class="k">import</span> TruncatedSVD
+svd = <span class="f">TruncatedSVD</span>(n_components=<span class="n">200</span>, random_state=<span class="n">42</span>).fit(X_tfidf)</pre>
+
+  <h3 class="topic">Other linear options</h3>
+<pre><span class="k">from</span> sklearn.decomposition <span class="k">import</span> NMF, FastICA, KernelPCA, FactorAnalysis
+
+<span class="f">NMF</span>(n_components=<span class="n">10</span>)            <span class="c"># non-negative — interpretable parts (topics)</span>
+<span class="f">FastICA</span>(n_components=<span class="n">10</span>)         <span class="c"># independent (not just uncorrelated) components</span>
+<span class="f">KernelPCA</span>(kernel=<span class="s">"rbf"</span>, n_components=<span class="n">2</span>)   <span class="c"># non-linear PCA via kernel trick</span></pre>
+
+  <h3 class="topic">t-SNE &amp; manifold learners — 2-D visualization only</h3>
+  <p><b>Intuition:</b> place points in 2-D so that local neighborhoods are preserved. Beautiful for inspecting clusters; <em>not</em> a general feature reducer.</p>
+<pre><span class="k">from</span> sklearn.manifold <span class="k">import</span> TSNE, Isomap, LocallyLinearEmbedding, MDS, SpectralEmbedding
+
+ts = <span class="f">TSNE</span>(
+    n_components=<span class="n">2</span>,
+    perplexity=<span class="n">30</span>,          <span class="c"># roughly: expected #neighbors per cluster (5–50)</span>
+    learning_rate=<span class="s">"auto"</span>,
+    init=<span class="s">"pca"</span>,
+    random_state=<span class="n">42</span>,
+).fit_transform(X_scaled)</pre>
+  <div class="note warn">
+    <span class="lbl">three rules</span>
+    <p><b>1)</b> Distances between clusters in a t-SNE plot are meaningless. <b>2)</b> Cluster sizes are meaningless. <b>3)</b> Never feed t-SNE output to a downstream model — it has no <code>.transform()</code> for new points.</p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 9. METRICS                                                    -->
+<!-- ============================================================ -->
+<section class="chapter acc-teal" id="c9">
+  <div class="ch-head"><span class="ch-num">09</span><h2>Evaluation metrics</h2></div>
+  <p class="intro">Picking the right metric is half the problem. Optimizing the wrong one is the silent killer of ML projects — the model looks great in dev and useless in production.</p>
+
+  <h3 class="topic">Classification metrics</h3>
+  <h4 class="sub">The confusion matrix is the source of truth</h4>
+<pre><span class="k">from</span> sklearn.metrics <span class="k">import</span> confusion_matrix, ConfusionMatrixDisplay, classification_report
+
+cm = <span class="f">confusion_matrix</span>(y_te, y_pred)
+<span class="c">#               predicted_0  predicted_1</span>
+<span class="c"># actual_0       TN           FP</span>
+<span class="c"># actual_1       FN           TP</span>
+
+<span class="f">ConfusionMatrixDisplay</span>.from_predictions(y_te, y_pred, cmap=<span class="s">"Blues"</span>)
+<span class="f">print</span>(<span class="f">classification_report</span>(y_te, y_pred, digits=<span class="n">3</span>))</pre>
+
+  <table class="tbl">
+    <thead><tr><th>Metric</th><th>Formula intuition</th><th>Best for</th></tr></thead>
+    <tbody>
+      <tr><td><code>accuracy_score</code></td><td>(TP+TN)/all</td><td>balanced data only</td></tr>
+      <tr><td><code>precision_score</code></td><td>TP/(TP+FP)</td><td>cost of false positives is high (spam filters)</td></tr>
+      <tr><td><code>recall_score</code></td><td>TP/(TP+FN)</td><td>cost of false negatives is high (cancer screening)</td></tr>
+      <tr><td><code>f1_score</code></td><td>harmonic mean of P &amp; R</td><td>balanced precision/recall need</td></tr>
+      <tr><td><code>roc_auc_score</code></td><td>area under TPR vs FPR</td><td>ranking, threshold-free, balanced</td></tr>
+      <tr><td><code>average_precision_score</code></td><td>area under PR curve</td><td>imbalanced — better than ROC-AUC</td></tr>
+      <tr><td><code>log_loss</code></td><td>−mean log p(true class)</td><td>well-calibrated probabilities</td></tr>
+      <tr><td><code>matthews_corrcoef</code></td><td>balanced correlation</td><td>single-number for imbalance</td></tr>
+      <tr><td><code>cohen_kappa_score</code></td><td>agreement vs chance</td><td>inter-rater / multiclass</td></tr>
+      <tr><td><code>brier_score_loss</code></td><td>MSE of probability vs label</td><td>probability calibration</td></tr>
+    </tbody>
+  </table>
+
+  <h4 class="sub">Averaging in multi-class</h4>
+<pre><span class="f">f1_score</span>(y, y_pred, average=<span class="s">"macro"</span>)     <span class="c"># unweighted mean — every class counts equally</span>
+<span class="f">f1_score</span>(y, y_pred, average=<span class="s">"weighted"</span>)  <span class="c"># weighted by class support</span>
+<span class="f">f1_score</span>(y, y_pred, average=<span class="s">"micro"</span>)     <span class="c"># aggregate TP/FP/FN globally</span>
+<span class="f">f1_score</span>(y, y_pred, average=<span class="k">None</span>)         <span class="c"># per-class array</span></pre>
+
+  <h4 class="sub">ROC and PR curves</h4>
+<pre><span class="k">from</span> sklearn.metrics <span class="k">import</span> RocCurveDisplay, PrecisionRecallDisplay
+<span class="f">RocCurveDisplay</span>.from_estimator(model, X_te, y_te)
+<span class="f">PrecisionRecallDisplay</span>.from_estimator(model, X_te, y_te)</pre>
+
+  <h3 class="topic">Regression metrics</h3>
+  <table class="tbl">
+    <thead><tr><th>Metric</th><th>What it tells you</th></tr></thead>
+    <tbody>
+      <tr><td><code>mean_absolute_error</code></td><td>avg absolute error in y's units — robust to outliers</td></tr>
+      <tr><td><code>mean_squared_error</code></td><td>avg squared error — penalizes large errors more</td></tr>
+      <tr><td><code>root_mean_squared_error</code></td><td>square root of MSE — same units as y</td></tr>
+      <tr><td><code>mean_absolute_percentage_error</code></td><td>scale-free; explodes near zero</td></tr>
+      <tr><td><code>r2_score</code></td><td>fraction of variance explained; 1=perfect, 0=predicts mean, &lt;0=worse than mean</td></tr>
+      <tr><td><code>median_absolute_error</code></td><td>maximally outlier-robust</td></tr>
+      <tr><td><code>explained_variance_score</code></td><td>like R² but tolerates biased predictions</td></tr>
+      <tr><td><code>max_error</code></td><td>worst single prediction — for SLAs</td></tr>
+    </tbody>
+  </table>
+
+  <h3 class="topic">Clustering metrics</h3>
+  <p>Split into <b>internal</b> (no labels needed) and <b>external</b> (need ground-truth labels).</p>
+<pre><span class="k">from</span> sklearn.metrics <span class="k">import</span> (
+    silhouette_score,         <span class="c"># internal: −1 to 1, higher = better separated</span>
+    davies_bouldin_score,     <span class="c"># internal: lower = better</span>
+    calinski_harabasz_score,  <span class="c"># internal: higher = better</span>
+    adjusted_rand_score,      <span class="c"># external: corrected-for-chance similarity to true labels</span>
+    normalized_mutual_info_score,
+    homogeneity_score, completeness_score, v_measure_score,
+)</pre>
+
+  <h3 class="topic">Custom scorers</h3>
+  <p>To use a custom metric inside <code>cross_val_score</code> or <code>GridSearchCV</code>, wrap it with <code>make_scorer</code>:</p>
+<pre><span class="k">from</span> sklearn.metrics <span class="k">import</span> make_scorer, fbeta_score
+f2 = <span class="f">make_scorer</span>(fbeta_score, beta=<span class="n">2</span>, average=<span class="s">"macro"</span>)
+<span class="f">cross_val_score</span>(model, X, y, cv=<span class="n">5</span>, scoring=f2)</pre>
+</section>
+
+<!-- ============================================================ -->
+<!-- 10. HYPERPARAMETER TUNING                                     -->
+<!-- ============================================================ -->
+<section class="chapter acc-coral" id="c10">
+  <div class="ch-head"><span class="ch-num">10</span><h2>Hyperparameter tuning</h2></div>
+  <p class="intro">Models have two kinds of parameters: those learned from data (<code>coef_</code>, <code>tree_</code>, …) and those <em>you</em> set (<code>C</code>, <code>max_depth</code>, …). Tuning the second kind is what these tools do.</p>
+
+  <h3 class="topic">GridSearchCV — exhaustive</h3>
+<pre><span class="k">from</span> sklearn.model_selection <span class="k">import</span> GridSearchCV
+
+param_grid = {
+    <span class="s">"n_estimators"</span>: [<span class="n">100</span>, <span class="n">300</span>, <span class="n">600</span>],
+    <span class="s">"max_depth"</span>:    [<span class="k">None</span>, <span class="n">10</span>, <span class="n">20</span>],
+    <span class="s">"min_samples_leaf"</span>: [<span class="n">1</span>, <span class="n">5</span>, <span class="n">20</span>],
+}
+gs = <span class="f">GridSearchCV</span>(
+    estimator=<span class="f">RandomForestClassifier</span>(random_state=<span class="n">42</span>),
+    param_grid=param_grid,
+    cv=<span class="n">5</span>,
+    scoring=<span class="s">"f1_macro"</span>,
+    n_jobs=-<span class="n">1</span>,
+    refit=<span class="k">True</span>,      <span class="c"># after CV, refit best params on full training data</span>
+    verbose=<span class="n">1</span>,
+).fit(X_tr, y_tr)
+
+gs.best_params_, gs.best_score_, gs.best_estimator_
+<span class="k">import</span> pandas <span class="k">as</span> pd
+pd.<span class="f">DataFrame</span>(gs.cv_results_).sort_values(<span class="s">"rank_test_score"</span>).head()</pre>
+
+  <h3 class="topic">RandomizedSearchCV — sample, don't enumerate</h3>
+  <p>For more than ~3 hyperparameters, random search beats grid search at the same compute budget. (Famous result by Bergstra &amp; Bengio.) Pass distributions instead of lists.</p>
+<pre><span class="k">from</span> sklearn.model_selection <span class="k">import</span> RandomizedSearchCV
+<span class="k">from</span> scipy.stats <span class="k">import</span> loguniform, randint
+
+param_dist = {
+    <span class="s">"learning_rate"</span>: <span class="f">loguniform</span>(<span class="n">1e-3</span>, <span class="n">1</span>),     <span class="c"># continuous, log-spaced</span>
+    <span class="s">"max_iter"</span>:      <span class="f">randint</span>(<span class="n">100</span>, <span class="n">1000</span>),         <span class="c"># integer uniform</span>
+    <span class="s">"max_leaf_nodes"</span>: [<span class="n">15</span>, <span class="n">31</span>, <span class="n">63</span>, <span class="n">127</span>],
+    <span class="s">"l2_regularization"</span>: <span class="f">loguniform</span>(<span class="n">1e-4</span>, <span class="n">1</span>),
+}
+rs = <span class="f">RandomizedSearchCV</span>(
+    <span class="f">HistGradientBoostingClassifier</span>(random_state=<span class="n">42</span>),
+    param_dist, n_iter=<span class="n">60</span>, cv=<span class="n">5</span>, scoring=<span class="s">"f1_macro"</span>,
+    n_jobs=-<span class="n">1</span>, random_state=<span class="n">42</span>,
+).fit(X_tr, y_tr)</pre>
+
+  <h3 class="topic">HalvingGridSearchCV — successive halving</h3>
+  <p>Start with many configs on a small data subset, kill the bad ones each round, give survivors more data. Often 5–10× faster than grid search at similar quality.</p>
+<pre><span class="k">from</span> sklearn.experimental <span class="k">import</span> enable_halving_search_cv   <span class="c"># required</span>
+<span class="k">from</span> sklearn.model_selection <span class="k">import</span> HalvingRandomSearchCV
+hs = <span class="f">HalvingRandomSearchCV</span>(estimator, param_dist, factor=<span class="n">3</span>, random_state=<span class="n">42</span>).fit(X_tr, y_tr)</pre>
+
+  <h3 class="topic">Learning &amp; validation curves — diagnose first, tune second</h3>
+<pre><span class="k">from</span> sklearn.model_selection <span class="k">import</span> learning_curve, validation_curve
+
+<span class="c"># Are we under-fitting or over-fitting?</span>
+sizes, train_sc, val_sc = <span class="f">learning_curve</span>(
+    model, X, y, cv=<span class="n">5</span>,
+    train_sizes=np.<span class="f">linspace</span>(<span class="n">0.1</span>, <span class="n">1.0</span>, <span class="n">10</span>),
+    scoring=<span class="s">"f1_macro"</span>, n_jobs=-<span class="n">1</span>,
+)
+
+<span class="c"># How does score change with one hyperparameter?</span>
+train_sc, val_sc = <span class="f">validation_curve</span>(
+    model, X, y,
+    param_name=<span class="s">"max_depth"</span>, param_range=[<span class="n">2</span>,<span class="n">4</span>,<span class="n">8</span>,<span class="n">16</span>,<span class="n">32</span>],
+    cv=<span class="n">5</span>, scoring=<span class="s">"f1_macro"</span>,
+)</pre>
+  <div class="note tip">
+    <span class="lbl">read the curves</span>
+    <p>Train and val both low and close → <b>underfit</b> (model too simple). Train high, val much lower → <b>overfit</b>. Both high and close → done. Gap closes as you add data → more data will help; flat → it won't.</p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 11. PIPELINES                                                 -->
+<!-- ============================================================ -->
+<section class="chapter acc-purple" id="c11">
+  <div class="ch-head"><span class="ch-num">11</span><h2>Pipelines &amp; ColumnTransformer</h2></div>
+  <p class="intro">The single most underused tool in sklearn. A Pipeline turns "preprocess + model" into one object that does the right thing inside cross-validation, can be grid-searched end-to-end, and can be saved to disk as one artifact.</p>
+
+  <h3 class="topic">Why pipelines exist</h3>
+  <div class="split">
+    <div class="col">
+      <h5 class="bad">Manual — leaks &amp; bugs</h5>
+      <p>Fit a scaler on full X, split, fit a model. The CV scores are now biased because the scaler saw the validation rows. Plus your "deploy" code has to remember every step in the same order.</p>
+    </div>
+    <div class="col">
+      <h5 class="good">Pipeline — correct &amp; clean</h5>
+      <p>Each CV fold fits the scaler on <em>that fold's</em> train rows only. One object holds preprocessing + model. Save it, load it, predict — done.</p>
+    </div>
+  </div>
+
+  <h3 class="topic">A complete real-world pipeline</h3>
+<pre><span class="k">from</span> sklearn.pipeline       <span class="k">import</span> Pipeline
+<span class="k">from</span> sklearn.compose        <span class="k">import</span> ColumnTransformer, make_column_selector
+<span class="k">from</span> sklearn.preprocessing  <span class="k">import</span> StandardScaler, OneHotEncoder
+<span class="k">from</span> sklearn.impute         <span class="k">import</span> SimpleImputer
+<span class="k">from</span> sklearn.ensemble       <span class="k">import</span> HistGradientBoostingClassifier
+
+num_pipe = <span class="f">Pipeline</span>([
+    (<span class="s">"impute"</span>, <span class="f">SimpleImputer</span>(strategy=<span class="s">"median"</span>, add_indicator=<span class="k">True</span>)),
+    (<span class="s">"scale"</span>,  <span class="f">StandardScaler</span>()),
+])
+cat_pipe = <span class="f">Pipeline</span>([
+    (<span class="s">"impute"</span>, <span class="f">SimpleImputer</span>(strategy=<span class="s">"most_frequent"</span>)),
+    (<span class="s">"ohe"</span>,    <span class="f">OneHotEncoder</span>(handle_unknown=<span class="s">"ignore"</span>, min_frequency=<span class="n">10</span>, sparse_output=<span class="k">False</span>)),
+])
+
+<span class="c"># Auto-pick columns by dtype — no hard-coded column lists</span>
+pre = <span class="f">ColumnTransformer</span>([
+    (<span class="s">"num"</span>, num_pipe, <span class="f">make_column_selector</span>(dtype_include=<span class="s">"number"</span>)),
+    (<span class="s">"cat"</span>, cat_pipe, <span class="f">make_column_selector</span>(dtype_include=<span class="s">"object"</span>)),
+], remainder=<span class="s">"drop"</span>, verbose_feature_names_out=<span class="k">False</span>)
+
+clf = <span class="f">Pipeline</span>([
+    (<span class="s">"pre"</span>,   pre),
+    (<span class="s">"model"</span>, <span class="f">HistGradientBoostingClassifier</span>(random_state=<span class="n">42</span>)),
+])
+
+clf.fit(X_tr, y_tr)
+clf.score(X_te, y_te)
+clf.predict_proba(X_te)</pre>
+
+  <h3 class="topic">Tuning preprocessing &amp; model together</h3>
+  <p>Pipelines name their steps. To address a step's hyperparameter use <code>step__param</code>. To address a nested step: <code>step__substep__param</code>.</p>
+<pre>grid = {
+    <span class="s">"pre__num__impute__strategy"</span>:    [<span class="s">"median"</span>, <span class="s">"mean"</span>],
+    <span class="s">"pre__cat__ohe__min_frequency"</span>:   [<span class="n">5</span>, <span class="n">10</span>, <span class="n">50</span>],
+    <span class="s">"model__learning_rate"</span>:           [<span class="n">0.05</span>, <span class="n">0.1</span>, <span class="n">0.2</span>],
+    <span class="s">"model__max_leaf_nodes"</span>:          [<span class="n">31</span>, <span class="n">63</span>, <span class="n">127</span>],
+}
+gs = <span class="f">GridSearchCV</span>(clf, grid, cv=<span class="n">5</span>, scoring=<span class="s">"f1_macro"</span>, n_jobs=-<span class="n">1</span>).fit(X_tr, y_tr)</pre>
+
+  <h3 class="topic">FeatureUnion — parallel transformers, concatenated</h3>
+  <p><code>ColumnTransformer</code> routes <em>different columns</em> to different transformers. <code>FeatureUnion</code> runs <em>several transformers on the same data</em> and concatenates their outputs (e.g. PCA features alongside raw scaled features).</p>
+<pre><span class="k">from</span> sklearn.pipeline <span class="k">import</span> FeatureUnion
+<span class="k">from</span> sklearn.decomposition <span class="k">import</span> PCA
+combined = <span class="f">FeatureUnion</span>([(<span class="s">"raw"</span>, <span class="f">StandardScaler</span>()), (<span class="s">"pca"</span>, <span class="f">PCA</span>(n_components=<span class="n">5</span>))])</pre>
+</section>
+
+<!-- ============================================================ -->
+<!-- 12. FEATURE SELECTION                                         -->
+<!-- ============================================================ -->
+<section class="chapter acc-amber" id="c12">
+  <div class="ch-head"><span class="ch-num">12</span><h2>Feature selection</h2></div>
+  <p class="intro">Three reasons to drop features: <b>speed</b> (fewer columns = faster), <b>generalization</b> (less noise to memorize), and <b>interpretability</b> (fewer things to explain). Four families of selectors:</p>
+
+  <h3 class="topic">1 · Filter — score features individually</h3>
+<pre><span class="k">from</span> sklearn.feature_selection <span class="k">import</span> (
+    VarianceThreshold,
+    SelectKBest, SelectPercentile,
+    f_classif, mutual_info_classif, chi2,
+)
+<span class="c"># Drop near-constant features</span>
+<span class="f">VarianceThreshold</span>(threshold=<span class="n">0.01</span>).fit_transform(X)
+
+<span class="c"># Top-K by ANOVA F-test (linear) or mutual info (non-linear)</span>
+<span class="f">SelectKBest</span>(score_func=mutual_info_classif, k=<span class="n">30</span>).fit_transform(X, y)</pre>
+
+  <h3 class="topic">2 · Wrapper — score by retraining the model</h3>
+<pre><span class="k">from</span> sklearn.feature_selection <span class="k">import</span> RFE, RFECV, SequentialFeatureSelector
+
+<span class="c"># Recursive feature elimination — fit, drop weakest, repeat</span>
+rfe = <span class="f">RFE</span>(estimator=<span class="f">LogisticRegression</span>(), n_features_to_select=<span class="n">20</span>, step=<span class="n">1</span>)
+
+<span class="c"># With CV — auto-pick the optimal feature count</span>
+rfecv = <span class="f">RFECV</span>(estimator=<span class="f">LogisticRegression</span>(), cv=<span class="n">5</span>, scoring=<span class="s">"f1_macro"</span>)
+
+<span class="c"># Forward / backward greedy</span>
+sfs = <span class="f">SequentialFeatureSelector</span>(<span class="f">LogisticRegression</span>(), n_features_to_select=<span class="n">15</span>, direction=<span class="s">"forward"</span>)</pre>
+
+  <h3 class="topic">3 · Embedded — model picks during training</h3>
+<pre><span class="k">from</span> sklearn.feature_selection <span class="k">import</span> SelectFromModel
+<span class="k">from</span> sklearn.linear_model     <span class="k">import</span> LassoCV
+<span class="k">from</span> sklearn.ensemble         <span class="k">import</span> RandomForestClassifier
+
+<span class="c"># Use Lasso's non-zero coefficients</span>
+sfm = <span class="f">SelectFromModel</span>(estimator=<span class="f">LassoCV</span>(), threshold=<span class="s">"median"</span>).fit(X, y)
+
+<span class="c"># Or a forest's importances</span>
+sfm = <span class="f">SelectFromModel</span>(estimator=<span class="f">RandomForestClassifier</span>(), threshold=<span class="s">"1.25*mean"</span>).fit(X, y)</pre>
+
+  <h3 class="topic">4 · Permutation importance — what to drop based on what hurts when removed</h3>
+  <p>(Lives in <code>sklearn.inspection</code>, covered in next chapter.) The most trustworthy importance signal, because it's defined by behaviour rather than internal model details.</p>
+</section>
+
+<!-- ============================================================ -->
+<!-- 13. INSPECTION                                                -->
+<!-- ============================================================ -->
+<section class="chapter acc-teal" id="c13">
+  <div class="ch-head"><span class="ch-num">13</span><h2>Model inspection &amp; interpretation</h2></div>
+  <p class="intro">A black box that scores well isn't trustworthy yet. Inspection tools tell you <em>why</em> the model predicts what it predicts.</p>
+
+  <h3 class="topic">Permutation importance</h3>
+  <p><b>Idea:</b> after fitting, shuffle one feature's values and see how much performance drops. Big drop = important feature. Model-agnostic, more reliable than <code>.feature_importances_</code>.</p>
+<pre><span class="k">from</span> sklearn.inspection <span class="k">import</span> permutation_importance
+r = <span class="f">permutation_importance</span>(
+    model, X_te, y_te,
+    n_repeats=<span class="n">10</span>,
+    scoring=<span class="s">"f1_macro"</span>,
+    random_state=<span class="n">42</span>,
+    n_jobs=-<span class="n">1</span>,
+)
+<span class="k">import</span> pandas <span class="k">as</span> pd
+pd.<span class="f">Series</span>(r.importances_mean, index=feature_names).sort_values()</pre>
+  <div class="note warn"><span class="lbl">correlated features</span><p>Permutation importance can split credit oddly across correlated features. If two features carry the same signal, shuffling either one alone barely hurts — so both look unimportant. Cluster correlated features and permute together, or look at SHAP for that case.</p></div>
+
+  <h3 class="topic">Partial dependence &amp; ICE plots</h3>
+  <p>Shows the average predicted outcome as a function of one (or two) features. Essential for explaining models to stakeholders.</p>
+<pre><span class="k">from</span> sklearn.inspection <span class="k">import</span> PartialDependenceDisplay, partial_dependence
+
+<span class="f">PartialDependenceDisplay</span>.from_estimator(
+    model, X_te,
+    features=[<span class="s">"age"</span>, <span class="s">"income"</span>, (<span class="s">"age"</span>, <span class="s">"income"</span>)],   <span class="c"># tuple = 2-D interaction</span>
+    kind=<span class="s">"both"</span>,        <span class="c"># "average" (PD) + "individual" (ICE)</span>
+)</pre>
+
+  <h3 class="topic">Inspecting linear coefficients</h3>
+<pre><span class="k">import</span> pandas <span class="k">as</span> pd
+coef = pd.<span class="f">Series</span>(model.coef_[<span class="n">0</span>], index=feature_names).sort_values()
+<span class="c"># For a regularized logistic regression on SCALED features,</span>
+<span class="c"># coefficient magnitude is a clean importance score.</span></pre>
+
+  <h3 class="topic">Inspecting a single tree</h3>
+<pre><span class="k">from</span> sklearn.tree <span class="k">import</span> plot_tree, export_text
+<span class="f">plot_tree</span>(tree_model, feature_names=names, class_names=classes, filled=<span class="k">True</span>, max_depth=<span class="n">3</span>)
+<span class="f">print</span>(<span class="f">export_text</span>(tree_model, feature_names=names))</pre>
+</section>
+
+<!-- ============================================================ -->
+<!-- 14. TEXT                                                      -->
+<!-- ============================================================ -->
+<section class="chapter acc-purple" id="c14">
+  <div class="ch-head"><span class="ch-num">14</span><h2>Text vectorization</h2></div>
+  <p class="intro">Before any model can see text, you turn strings into numeric vectors. sklearn ships three classic vectorizers; for modern embeddings you'd pair sklearn with a transformer model.</p>
+
+  <h3 class="topic">CountVectorizer — bag of words</h3>
+<pre><span class="k">from</span> sklearn.feature_extraction.text <span class="k">import</span> CountVectorizer
+cv = <span class="f">CountVectorizer</span>(
+    lowercase=<span class="k">True</span>,
+    ngram_range=(<span class="n">1</span>, <span class="n">2</span>),       <span class="c"># unigrams + bigrams</span>
+    min_df=<span class="n">5</span>,                  <span class="c"># ignore terms in &lt; 5 docs</span>
+    max_df=<span class="n">0.9</span>,                <span class="c"># ignore terms in &gt; 90% of docs (stopwords-ish)</span>
+    stop_words=<span class="s">"english"</span>,
+    max_features=<span class="n">50000</span>,
+)
+X = cv.fit_transform(docs)         <span class="c"># sparse matrix</span>
+cv.get_feature_names_out()</pre>
+
+  <h3 class="topic">TfidfVectorizer — weighted by inverse doc frequency</h3>
+  <p>Down-weights words that appear everywhere ("the"). Usually beats raw counts for classification.</p>
+<pre><span class="k">from</span> sklearn.feature_extraction.text <span class="k">import</span> TfidfVectorizer
+tf = <span class="f">TfidfVectorizer</span>(ngram_range=(<span class="n">1</span>, <span class="n">2</span>), min_df=<span class="n">5</span>, sublinear_tf=<span class="k">True</span>)
+X = tf.fit_transform(docs)</pre>
+
+  <h3 class="topic">HashingVectorizer — streaming &amp; stateless</h3>
+  <p>No vocabulary to learn — uses the hash of each token as the feature index. Works with <code>partial_fit</code> models for online learning on huge text streams.</p>
+<pre><span class="k">from</span> sklearn.feature_extraction.text <span class="k">import</span> HashingVectorizer
+hv = <span class="f">HashingVectorizer</span>(n_features=<span class="n">2</span>**<span class="n">18</span>, alternate_sign=<span class="k">False</span>)</pre>
+
+  <h4 class="sub">A complete text-classification pipeline</h4>
+<pre><span class="k">from</span> sklearn.pipeline <span class="k">import</span> Pipeline
+<span class="k">from</span> sklearn.linear_model <span class="k">import</span> LogisticRegression
+
+txt = <span class="f">Pipeline</span>([
+    (<span class="s">"tfidf"</span>, <span class="f">TfidfVectorizer</span>(ngram_range=(<span class="n">1</span>, <span class="n">2</span>), min_df=<span class="n">5</span>)),
+    (<span class="s">"clf"</span>,   <span class="f">LogisticRegression</span>(max_iter=<span class="n">1000</span>, C=<span class="n">1.0</span>)),
+]).fit(train_docs, train_y)
+txt.predict([<span class="s">"this product is amazing"</span>])</pre>
+</section>
+
+<!-- ============================================================ -->
+<!-- 15. ANOMALY                                                   -->
+<!-- ============================================================ -->
+<section class="chapter acc-coral" id="c15">
+  <div class="ch-head"><span class="ch-num">15</span><h2>Anomaly &amp; outlier detection</h2></div>
+  <p class="intro">Two related problems: <b>outlier detection</b> (find the weird rows in the data you already have) and <b>novelty detection</b> (flag weird rows arriving later, after fitting on clean data). All four estimators below expose a <code>.predict()</code> that returns +1 (inlier) or −1 (outlier).</p>
+
+  <h3 class="topic">IsolationForest — the workhorse</h3>
+  <p><b>Intuition:</b> outliers are easier to isolate via random partitions than normal points. Fast, handles high dimensions, almost zero tuning.</p>
+<pre><span class="k">from</span> sklearn.ensemble <span class="k">import</span> IsolationForest
+iso = <span class="f">IsolationForest</span>(
+    n_estimators=<span class="n">200</span>,
+    contamination=<span class="s">"auto"</span>,   <span class="c"># or a float like 0.05 for "5% are anomalies"</span>
+    random_state=<span class="n">42</span>,
+    n_jobs=-<span class="n">1</span>,
+).fit(X)
+y_out = iso.predict(X)            <span class="c"># +1 inlier, -1 outlier</span>
+scores = iso.score_samples(X)     <span class="c"># lower = more anomalous</span></pre>
+
+  <h3 class="topic">LocalOutlierFactor — density-based</h3>
+  <p>Compares each point's local density to its neighbors. Great when anomalies are locally sparse but globally normal.</p>
+<pre><span class="k">from</span> sklearn.neighbors <span class="k">import</span> LocalOutlierFactor
+lof = <span class="f">LocalOutlierFactor</span>(n_neighbors=<span class="n">20</span>, contamination=<span class="n">0.05</span>, novelty=<span class="k">False</span>)
+y_out = lof.fit_predict(X)
+<span class="c"># novelty=True if you want to fit on clean data and predict() new data</span></pre>
+
+  <h3 class="topic">OneClassSVM — boundary around normal data</h3>
+<pre><span class="k">from</span> sklearn.svm <span class="k">import</span> OneClassSVM
+oc = <span class="f">OneClassSVM</span>(kernel=<span class="s">"rbf"</span>, gamma=<span class="s">"scale"</span>, nu=<span class="n">0.05</span>).fit(X_clean)</pre>
+
+  <h3 class="topic">EllipticEnvelope — Gaussian boundary</h3>
+  <p>Assumes inliers are Gaussian. Cheap and good when that assumption roughly holds.</p>
+<pre><span class="k">from</span> sklearn.covariance <span class="k">import</span> EllipticEnvelope
+EllipticEnvelope(contamination=<span class="n">0.05</span>).fit(X_clean)</pre>
+</section>
+
+<!-- ============================================================ -->
+<!-- 16. CALIBRATION + IMBALANCE + PERSISTENCE                    -->
+<!-- ============================================================ -->
+<section class="chapter acc-amber" id="c16">
+  <div class="ch-head"><span class="ch-num">16</span><h2>Calibration, imbalance, persistence</h2></div>
+  <p class="intro">Three production-grade topics most tutorials skip but that you'll hit on day one of real work.</p>
+
+  <h3 class="topic">Probability calibration</h3>
+  <p>Many classifiers (SVMs, Naive Bayes, tree ensembles) output scores that look like probabilities but aren't. A model that says "0.9 confidence" might be right 70% of the time. Calibration fixes this.</p>
+<pre><span class="k">from</span> sklearn.calibration <span class="k">import</span> CalibratedClassifierCV, calibration_curve
+
+<span class="c"># Two methods: isotonic (non-parametric, needs ≥ 1k samples) or sigmoid (Platt scaling)</span>
+cal = <span class="f">CalibratedClassifierCV</span>(base_model, method=<span class="s">"isotonic"</span>, cv=<span class="n">5</span>).fit(X_tr, y_tr)
+
+<span class="c"># Diagnose with a reliability curve</span>
+prob_true, prob_pred = <span class="f">calibration_curve</span>(y_te, cal.predict_proba(X_te)[:, <span class="n">1</span>], n_bins=<span class="n">10</span>)</pre>
+
+  <h3 class="topic">Class imbalance — the toolbox</h3>
+  <p>When one class is 1% and another is 99%, accuracy is useless and most models lazily predict the majority class.</p>
+  <ol>
+    <li><b>Pick the right metric</b> — F1, PR-AUC, MCC. <em>Not</em> accuracy.</li>
+    <li><b>Use <code>class_weight="balanced"</code></b> on the estimator. Many sklearn models support this for free.</li>
+    <li><b>Use <code>stratify=y</code></b> on the split and <code>StratifiedKFold</code> for CV.</li>
+    <li><b>Resample inside the pipeline</b> with <code>imbalanced-learn</code>'s <code>SMOTE</code> or <code>RandomUnderSampler</code> — never before the split.</li>
+    <li><b>Tune the threshold</b>. <code>predict()</code> hard-codes 0.5; manually pick a threshold that optimizes your real metric.</li>
+  </ol>
+<pre><span class="c"># Move the threshold to optimize F1</span>
+<span class="k">from</span> sklearn.metrics <span class="k">import</span> precision_recall_curve
+prob = model.predict_proba(X_te)[:, <span class="n">1</span>]
+p, r, t = <span class="f">precision_recall_curve</span>(y_te, prob)
+f1 = <span class="n">2</span>*p*r / (p + r + <span class="n">1e-12</span>)
+best_t = t[f1[:-<span class="n">1</span>].argmax()]
+y_pred = (prob &gt;= best_t).astype(<span class="k">int</span>)</pre>
+
+  <h3 class="topic">Saving and loading models</h3>
+<pre><span class="k">import</span> joblib
+joblib.dump(pipeline, <span class="s">"model.joblib"</span>, compress=<span class="n">3</span>)
+loaded = joblib.<span class="f">load</span>(<span class="s">"model.joblib"</span>)
+loaded.predict(new_X)</pre>
+  <div class="note warn"><span class="lbl">version match</span><p>A pickled sklearn model is portable only across compatible sklearn versions. Pin <code>scikit-learn==x.y.z</code> in your serving environment, and store the version inside the artifact (or use <code>skops</code> for a safer serialization format).</p></div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 17. ADVANCED                                                  -->
+<!-- ============================================================ -->
+<section class="chapter acc-purple" id="c17">
+  <div class="ch-head"><span class="ch-num">17</span><h2>Advanced: custom estimators &amp; online learning</h2></div>
+  <p class="intro">Two topics that move you from <em>using</em> sklearn to <em>extending</em> it.</p>
+
+  <h3 class="topic">Writing a custom transformer</h3>
+  <p>Inherit from <code>BaseEstimator</code> and <code>TransformerMixin</code>. The mixin gives you <code>fit_transform()</code> for free; the base class makes the object grid-searchable and clone-able.</p>
+<pre><span class="k">from</span> sklearn.base <span class="k">import</span> BaseEstimator, TransformerMixin
+<span class="k">import</span> numpy <span class="k">as</span> np
+
+<span class="k">class</span> <span class="f">ClipOutliers</span>(BaseEstimator, TransformerMixin):
+    <span class="s">"""Clip each feature to [q_low, q_high] quantiles learned from train."""</span>
+    <span class="k">def</span> <span class="f">__init__</span>(self, q_low=<span class="n">0.01</span>, q_high=<span class="n">0.99</span>):
+        self.q_low = q_low
+        self.q_high = q_high
+
+    <span class="k">def</span> <span class="f">fit</span>(self, X, y=<span class="k">None</span>):
+        X = np.<span class="f">asarray</span>(X)
+        self.low_  = np.<span class="f">quantile</span>(X, self.q_low,  axis=<span class="n">0</span>)
+        self.high_ = np.<span class="f">quantile</span>(X, self.q_high, axis=<span class="n">0</span>)
+        <span class="k">return</span> self
+
+    <span class="k">def</span> <span class="f">transform</span>(self, X):
+        <span class="k">return</span> np.<span class="f">clip</span>(X, self.low_, self.high_)
+
+<span class="c"># Drop into any Pipeline — works with GridSearchCV, joblib, everything</span>
+pipe = <span class="f">Pipeline</span>([(<span class="s">"clip"</span>, <span class="f">ClipOutliers</span>()), (<span class="s">"sc"</span>, <span class="f">StandardScaler</span>()), (<span class="s">"m"</span>, <span class="f">LogisticRegression</span>())])</pre>
+
+  <div class="note tip"><span class="lbl">three rules</span><p><b>1)</b> All <code>__init__</code> arguments must be stored verbatim on <code>self</code>. <b>2)</b> Anything learned in <code>fit</code> must end with an underscore (<code>low_</code>, <code>scale_</code>). <b>3)</b> <code>fit</code> must return <code>self</code>.</p></div>
+
+  <h3 class="topic">Online / incremental learning with partial_fit</h3>
+  <p>For data that doesn't fit in memory, or that arrives in a stream. A subset of estimators support <code>partial_fit(X_chunk, y_chunk, classes=...)</code>.</p>
+<pre><span class="k">from</span> sklearn.linear_model <span class="k">import</span> SGDClassifier
+<span class="k">import</span> numpy <span class="k">as</span> np
+
+m = <span class="f">SGDClassifier</span>(loss=<span class="s">"log_loss"</span>, random_state=<span class="n">42</span>)
+classes = np.<span class="f">unique</span>(y_full)        <span class="c"># MUST be passed every partial_fit call</span>
+
+<span class="k">for</span> X_chunk, y_chunk <span class="k">in</span> <span class="f">stream_batches</span>():
+    m.<span class="f">partial_fit</span>(X_chunk, y_chunk, classes=classes)</pre>
+  <p>Models that support <code>partial_fit</code>: <code>SGDClassifier/Regressor</code>, <code>PassiveAggressive*</code>, <code>MultinomialNB</code>, <code>BernoulliNB</code>, <code>MiniBatchKMeans</code>, <code>MLPClassifier</code>, <code>IncrementalPCA</code>.</p>
+
+  <h3 class="topic">Sample &amp; class weights — push the loss around</h3>
+<pre><span class="c"># Per-sample weights, accepted by most fit() methods:</span>
+model.fit(X, y, sample_weight=w)
+
+<span class="c"># Per-class weights (or "balanced" to auto-compute):</span>
+RandomForestClassifier(class_weight={<span class="n">0</span>: <span class="n">1</span>, <span class="n">1</span>: <span class="n">10</span>})
+LogisticRegression(class_weight=<span class="s">"balanced"</span>)</pre>
+
+  <h3 class="topic">Parallelism &amp; reproducibility — production hygiene</h3>
+<pre>m = <span class="f">RandomForestClassifier</span>(
+    n_estimators=<span class="n">500</span>,
+    n_jobs=-<span class="n">1</span>,         <span class="c"># use every core</span>
+    random_state=<span class="n">42</span>,   <span class="c"># reproducible runs</span>
+    warm_start=<span class="k">True</span>,    <span class="c"># add trees on subsequent fits without restarting</span>
+)
+m.fit(X, y)
+m.n_estimators += <span class="n">200</span>
+m.fit(X, y)            <span class="c"># trains the extra 200 only</span></pre>
+</section>
+
+<!-- ============================================================ -->
+<!-- closing                                                       -->
+<!-- ============================================================ -->
+<section class="chapter acc-teal">
+  <div class="ch-head"><span class="ch-num">⌘</span><h2>How to actually study this</h2></div>
+  <ol style="font-size:15px">
+    <li><b>Read chapters 1–4 once.</b> Then build something tiny: load Iris, scale, split, fit a LogisticRegression, score. Don't move on until that workflow feels boring.</li>
+    <li><b>Cycle through chapters 5–7.</b> For each model: read the intuition, run it on <code>make_classification</code>, look at one hyperparameter via <code>validation_curve</code>. You're building a mental gallery of "which knob does what."</li>
+    <li><b>Chapter 11 (Pipelines) is the unlock.</b> Once you wrap every workflow in a <code>Pipeline</code>, you'll never go back. From here on, everything else slots into the pipeline as a step.</li>
+    <li><b>Chapters 9–10</b> teach you to <em>evaluate</em> and <em>improve</em> rigorously. This is where most learners plateau — they pick a metric on autopilot and miss the real problem.</li>
+    <li><b>Chapters 12–17</b> are where intermediate becomes advanced. You don't need them on day one, but you'll reach for them more than you'd expect.</li>
+  </ol>
+  <p>The goal isn't to memorize APIs. It's to develop taste: knowing which tool to reach for, which gotcha to anticipate, and which baseline to beat.</p>
+</section>
+
+<footer class="foot">
+  <span>fit · transform · predict · score — everything is an estimator</span>
+  <span>scikit-learn.org/stable</span>
+</footer>
+
+</div>
+</body>
+</html>

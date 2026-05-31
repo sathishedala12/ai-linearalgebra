@@ -1,0 +1,700 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>scikit-learn · cheat sheet</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0b0d12;
+  --bg-2:#11151c;
+  --surface:#161b24;
+  --surface-2:#1c222c;
+  --border:#262d3a;
+  --border-soft:#1f2530;
+  --text:#e6e9ef;
+  --text-dim:#9aa3b2;
+  --text-mute:#6b7385;
+  --teal:#1D9E75;
+  --teal-2:#28c595;
+  --purple:#7F77DD;
+  --coral:#D85A30;
+  --amber:#BA7517;
+  --amber-2:#e0a64a;
+  --code-bg:#0e1218;
+  --code-key:#7F77DD;     /* keywords */
+  --code-fn:#28c595;      /* function / class names */
+  --code-str:#e0a64a;     /* strings */
+  --code-num:#D85A30;     /* numbers */
+  --code-com:#5b6477;     /* comments */
+}
+
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:
+    radial-gradient(1200px 600px at 10% -10%, rgba(127,119,221,.10), transparent 60%),
+    radial-gradient(900px 500px at 110% 10%, rgba(29,158,117,.08), transparent 60%),
+    var(--bg);
+  color:var(--text);
+  font-family:'Manrope',sans-serif;
+  font-size:14px;
+  line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+  letter-spacing:.005em;
+}
+
+.wrap{max-width:1280px;margin:0 auto;padding:48px 28px 80px}
+
+/* ---------- header ---------- */
+header.top{
+  display:flex;align-items:flex-end;justify-content:space-between;
+  gap:24px;flex-wrap:wrap;
+  padding-bottom:28px;margin-bottom:36px;
+  border-bottom:1px solid var(--border-soft);
+}
+.brand{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
+.brand .mark{
+  font-family:'Instrument Serif',serif;
+  font-style:italic;font-weight:400;
+  font-size:64px;line-height:1;letter-spacing:-.02em;
+  background:linear-gradient(180deg,#fff 0%,#a9b3c4 100%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.brand .lib{
+  font-family:'JetBrains Mono',monospace;
+  font-size:14px;color:var(--teal-2);
+  padding:4px 10px;border:1px solid rgba(40,197,149,.25);
+  border-radius:999px;background:rgba(40,197,149,.06);
+}
+.subtitle{
+  color:var(--text-dim);font-size:13px;max-width:520px;
+  margin-top:6px;
+}
+.meta{
+  font-family:'JetBrains Mono',monospace;font-size:11px;
+  color:var(--text-mute);text-align:right;line-height:1.7;
+}
+.meta b{color:var(--text-dim);font-weight:500}
+
+/* ---------- TOC ---------- */
+.toc{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:8px;
+  margin-bottom:36px;
+}
+.toc a{
+  display:flex;align-items:center;gap:8px;
+  padding:10px 12px;
+  font-family:'JetBrains Mono',monospace;font-size:11px;
+  color:var(--text-dim);text-decoration:none;
+  border:1px solid var(--border-soft);border-radius:8px;
+  background:var(--surface);
+  transition:all .15s ease;
+}
+.toc a:hover{color:var(--teal-2);border-color:var(--teal);background:var(--surface-2)}
+.toc a .n{color:var(--coral);font-weight:600}
+
+/* ---------- grid ---------- */
+.grid{
+  display:grid;
+  grid-template-columns:repeat(12,1fr);
+  gap:18px;
+}
+.card{
+  grid-column:span 6;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:22px 22px 20px;
+  position:relative;
+  overflow:hidden;
+}
+.card.span-4{grid-column:span 4}
+.card.span-8{grid-column:span 8}
+.card.span-12{grid-column:span 12}
+
+.card::before{
+  content:"";position:absolute;left:0;right:0;top:0;height:2px;
+  background:linear-gradient(90deg,var(--accent,var(--teal)) 0%,transparent 70%);
+  opacity:.7;
+}
+
+.card-head{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:14px;gap:12px;
+}
+.card-head .ttl{
+  display:flex;align-items:baseline;gap:10px;
+}
+.card-head .num{
+  font-family:'JetBrains Mono',monospace;font-size:11px;
+  color:var(--accent,var(--teal));font-weight:600;
+}
+.card-head h2{
+  margin:0;font-size:17px;font-weight:600;letter-spacing:-.01em;
+  color:var(--text);
+}
+.card-head .tag{
+  font-family:'JetBrains Mono',monospace;font-size:10px;
+  padding:2px 8px;border-radius:999px;
+  background:rgba(255,255,255,.04);color:var(--text-mute);
+  border:1px solid var(--border-soft);
+}
+
+h3{
+  font-size:12px;font-weight:600;
+  text-transform:uppercase;letter-spacing:.08em;
+  color:var(--text-dim);
+  margin:18px 0 8px;
+}
+h3:first-of-type{margin-top:4px}
+
+p,ul{margin:0 0 10px;color:var(--text-dim)}
+ul{padding-left:18px}
+li{margin-bottom:3px}
+li code{font-size:12px}
+
+/* ---------- code ---------- */
+pre{
+  background:var(--code-bg);
+  border:1px solid var(--border-soft);
+  border-radius:8px;
+  padding:12px 14px;
+  font-family:'JetBrains Mono',monospace;
+  font-size:12px;
+  line-height:1.6;
+  overflow-x:auto;
+  margin:0 0 10px;
+  color:#cdd4e0;
+}
+code{font-family:'JetBrains Mono',monospace;font-size:12.5px;color:var(--amber-2)}
+:not(pre) > code{
+  background:rgba(224,166,74,.08);
+  padding:1px 6px;border-radius:4px;
+  border:1px solid rgba(224,166,74,.15);
+  color:var(--amber-2);
+  font-size:11.5px;
+}
+.k{color:var(--code-key)}      /* keyword */
+.f{color:var(--code-fn)}       /* class/fn */
+.s{color:var(--code-str)}      /* string */
+.n{color:var(--code-num)}      /* number */
+.c{color:var(--code-com);font-style:italic} /* comment */
+.p{color:var(--text-mute)}     /* punctuation/dim */
+
+/* ---------- accents per card ---------- */
+.acc-teal{--accent:var(--teal-2)}
+.acc-purple{--accent:var(--purple)}
+.acc-coral{--accent:var(--coral)}
+.acc-amber{--accent:var(--amber-2)}
+
+/* ---------- mini table ---------- */
+table.metrics{
+  width:100%;border-collapse:collapse;
+  font-size:12px;margin-bottom:8px;
+}
+table.metrics th,table.metrics td{
+  text-align:left;padding:6px 8px;
+  border-bottom:1px solid var(--border-soft);
+}
+table.metrics th{
+  color:var(--text-mute);font-weight:500;
+  font-family:'JetBrains Mono',monospace;font-size:10.5px;
+  text-transform:uppercase;letter-spacing:.06em;
+}
+table.metrics td:first-child{color:var(--text);font-weight:500}
+table.metrics td code{font-size:11.5px}
+
+/* ---------- pro tips footer ---------- */
+.tips{
+  margin-top:28px;padding:24px;
+  background:linear-gradient(180deg,rgba(127,119,221,.07),rgba(29,158,117,.04));
+  border:1px solid var(--border);border-radius:14px;
+}
+.tips h2{
+  margin:0 0 14px;font-family:'Instrument Serif',serif;font-style:italic;
+  font-size:28px;font-weight:400;color:var(--text);
+}
+.tips-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:18px;
+}
+.tip .lbl{
+  font-family:'JetBrains Mono',monospace;font-size:10.5px;
+  color:var(--coral);text-transform:uppercase;letter-spacing:.08em;
+  margin-bottom:4px;
+}
+.tip p{margin:0;color:var(--text-dim);font-size:13px}
+
+footer.foot{
+  margin-top:40px;padding-top:20px;
+  border-top:1px solid var(--border-soft);
+  display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;
+  font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-mute);
+}
+footer.foot a{color:var(--teal-2);text-decoration:none}
+
+/* ---------- responsive ---------- */
+@media (max-width:1000px){
+  .grid{grid-template-columns:repeat(6,1fr)}
+  .card,.card.span-4,.card.span-8{grid-column:span 6}
+  .toc{grid-template-columns:repeat(2,1fr)}
+  .tips-grid{grid-template-columns:1fr}
+}
+@media (max-width:560px){
+  .brand .mark{font-size:44px}
+  .wrap{padding:28px 16px 60px}
+}
+
+/* ---------- print ---------- */
+@media print{
+  body{background:#fff;color:#111}
+  .wrap{max-width:none;padding:18px}
+  .card,.tips{background:#fff;border:1px solid #ddd;break-inside:avoid;box-shadow:none}
+  pre{background:#f7f7f9;color:#111;border-color:#ddd}
+  .brand .mark{color:#111;-webkit-text-fill-color:#111}
+  .toc,.meta,footer.foot{display:none}
+  .card::before{display:none}
+  h3{color:#444}
+  .k{color:#7c3aed}.f{color:#0d8a5b}.s{color:#a5650a}.n{color:#b14a26}.c{color:#888}
+  code,.tag{color:#444}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <div>
+    <div class="brand">
+      <span class="mark">scikit-learn</span>
+      <span class="lib">v1.x · cheat sheet</span>
+    </div>
+    <div class="subtitle">The essential primitives, organized the way you actually use them — load data, preprocess, model, evaluate, tune, ship.</div>
+  </div>
+  <div class="meta">
+    <div><b>import</b> sklearn</div>
+    <div>fit() · predict() · score()</div>
+    <div>everything is an estimator</div>
+  </div>
+</header>
+
+<nav class="toc">
+  <a href="#s1"><span class="n">01</span> Setup &amp; workflow</a>
+  <a href="#s2"><span class="n">02</span> Preprocessing</a>
+  <a href="#s3"><span class="n">03</span> Train / test split</a>
+  <a href="#s4"><span class="n">04</span> Classification</a>
+  <a href="#s5"><span class="n">05</span> Regression</a>
+  <a href="#s6"><span class="n">06</span> Clustering</a>
+  <a href="#s7"><span class="n">07</span> Dim. reduction</a>
+  <a href="#s8"><span class="n">08</span> Model selection</a>
+  <a href="#s9"><span class="n">09</span> Classification metrics</a>
+  <a href="#s10"><span class="n">10</span> Regression metrics</a>
+  <a href="#s11"><span class="n">11</span> Pipelines</a>
+  <a href="#s12"><span class="n">12</span> Feature selection</a>
+</nav>
+
+<div class="grid">
+
+<!-- 01 -->
+<section id="s1" class="card span-12 acc-teal">
+  <div class="card-head">
+    <div class="ttl"><span class="num">01</span><h2>The estimator API &amp; canonical workflow</h2></div>
+    <span class="tag">every model speaks the same dialect</span>
+  </div>
+  <p>Almost every object in sklearn is an <b>estimator</b>: it has <code>.fit()</code>. Predictive models add <code>.predict()</code>, transformers add <code>.transform()</code>, and many have <code>.score()</code>. Learning this contract is the single biggest unlock.</p>
+<pre><span class="k">from</span> sklearn.model_selection <span class="k">import</span> train_test_split
+<span class="k">from</span> sklearn.preprocessing  <span class="k">import</span> StandardScaler
+<span class="k">from</span> sklearn.ensemble       <span class="k">import</span> RandomForestClassifier
+<span class="k">from</span> sklearn.metrics        <span class="k">import</span> classification_report
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=<span class="n">0.2</span>, stratify=y, random_state=<span class="n">42</span>)
+
+scaler = <span class="f">StandardScaler</span>().fit(X_train)        <span class="c"># learn on TRAIN only</span>
+X_train_s = scaler.transform(X_train)
+X_test_s  = scaler.transform(X_test)               <span class="c"># reuse the fitted scaler</span>
+
+model = <span class="f">RandomForestClassifier</span>(n_estimators=<span class="n">300</span>, random_state=<span class="n">42</span>).fit(X_train_s, y_train)
+y_pred = model.predict(X_test_s)
+<span class="f">print</span>(<span class="f">classification_report</span>(y_test, y_pred))</pre>
+  <h3>The three verbs</h3>
+  <ul>
+    <li><code>fit(X, y)</code> — learn parameters from training data.</li>
+    <li><code>predict(X)</code> / <code>predict_proba(X)</code> — apply to new data.</li>
+    <li><code>transform(X)</code> — for preprocessors; <code>fit_transform()</code> combines both on train.</li>
+  </ul>
+</section>
+
+<!-- 02 -->
+<section id="s2" class="card acc-purple">
+  <div class="card-head">
+    <div class="ttl"><span class="num">02</span><h2>Preprocessing</h2></div>
+    <span class="tag">sklearn.preprocessing · impute</span>
+  </div>
+  <h3>Scaling numeric features</h3>
+<pre><span class="k">from</span> sklearn.preprocessing <span class="k">import</span> (
+    StandardScaler,   <span class="c"># mean=0, std=1   (default choice)</span>
+    MinMaxScaler,     <span class="c"># scale to [0,1]   (bounded models, NN)</span>
+    RobustScaler,     <span class="c"># median / IQR    (heavy outliers)</span>
+    PowerTransformer, <span class="c"># Yeo-Johnson     (gaussian-ify)</span>
+)
+X_scaled = <span class="f">StandardScaler</span>().fit_transform(X)</pre>
+  <h3>Encoding categoricals</h3>
+<pre><span class="k">from</span> sklearn.preprocessing <span class="k">import</span> OneHotEncoder, OrdinalEncoder
+
+ohe = <span class="f">OneHotEncoder</span>(handle_unknown=<span class="s">"ignore"</span>, sparse_output=<span class="k">False</span>)
+X_ohe = ohe.fit_transform(X_cat)
+
+<span class="c"># ordinal: only when categories have a real order</span>
+oe  = <span class="f">OrdinalEncoder</span>(categories=[[<span class="s">"low"</span>,<span class="s">"med"</span>,<span class="s">"high"</span>]])</pre>
+  <h3>Imputing missing values</h3>
+<pre><span class="k">from</span> sklearn.impute <span class="k">import</span> SimpleImputer, KNNImputer
+
+num_imp = <span class="f">SimpleImputer</span>(strategy=<span class="s">"median"</span>)
+cat_imp = <span class="f">SimpleImputer</span>(strategy=<span class="s">"most_frequent"</span>)
+knn_imp = <span class="f">KNNImputer</span>(n_neighbors=<span class="n">5</span>)</pre>
+</section>
+
+<!-- 03 -->
+<section id="s3" class="card acc-amber">
+  <div class="card-head">
+    <div class="ttl"><span class="num">03</span><h2>Splitting data</h2></div>
+    <span class="tag">model_selection</span>
+  </div>
+  <h3>Train / test</h3>
+<pre><span class="k">from</span> sklearn.model_selection <span class="k">import</span> train_test_split
+
+X_tr, X_te, y_tr, y_te = <span class="f">train_test_split</span>(
+    X, y,
+    test_size   = <span class="n">0.2</span>,
+    stratify    = y,        <span class="c"># keep class balance (classification)</span>
+    random_state= <span class="n">42</span>,
+    shuffle     = <span class="k">True</span>,
+)</pre>
+  <h3>Cross-validation splitters</h3>
+<pre><span class="k">from</span> sklearn.model_selection <span class="k">import</span> (
+    KFold,             <span class="c"># vanilla k-fold</span>
+    StratifiedKFold,   <span class="c"># classification — preserve class ratios</span>
+    GroupKFold,        <span class="c"># prevent leakage across groups (e.g. user_id)</span>
+    TimeSeriesSplit,   <span class="c"># walk-forward, no future leakage</span>
+    RepeatedKFold,
+)
+cv = <span class="f">StratifiedKFold</span>(n_splits=<span class="n">5</span>, shuffle=<span class="k">True</span>, random_state=<span class="n">42</span>)</pre>
+  <p style="font-size:12px"><b style="color:var(--coral)">Rule:</b> never fit on the test set, never leak future into past, never split <i>after</i> SMOTE-ing.</p>
+</section>
+
+<!-- 04 -->
+<section id="s4" class="card span-8 acc-teal">
+  <div class="card-head">
+    <div class="ttl"><span class="num">04</span><h2>Classification models</h2></div>
+    <span class="tag">supervised · discrete labels</span>
+  </div>
+<pre><span class="k">from</span> sklearn.linear_model    <span class="k">import</span> LogisticRegression, RidgeClassifier
+<span class="k">from</span> sklearn.tree            <span class="k">import</span> DecisionTreeClassifier
+<span class="k">from</span> sklearn.ensemble        <span class="k">import</span> RandomForestClassifier, GradientBoostingClassifier, HistGradientBoostingClassifier
+<span class="k">from</span> sklearn.svm             <span class="k">import</span> SVC, LinearSVC
+<span class="k">from</span> sklearn.neighbors       <span class="k">import</span> KNeighborsClassifier
+<span class="k">from</span> sklearn.naive_bayes     <span class="k">import</span> GaussianNB, MultinomialNB
+<span class="k">from</span> sklearn.neural_network  <span class="k">import</span> MLPClassifier</pre>
+  <table class="metrics">
+    <thead><tr><th>Model</th><th>Reach for it when…</th><th>Key knob</th></tr></thead>
+    <tbody>
+      <tr><td>LogisticRegression</td><td>linear baseline, calibrated probabilities, interpretable</td><td><code>C</code>, <code>penalty</code></td></tr>
+      <tr><td>RandomForestClassifier</td><td>tabular default, low-tuning, handles mixed types</td><td><code>n_estimators</code>, <code>max_depth</code></td></tr>
+      <tr><td>HistGradientBoosting…</td><td>large tabular, native NaN, often best in class</td><td><code>learning_rate</code>, <code>max_iter</code></td></tr>
+      <tr><td>SVC</td><td>small/medium, clear margin, non-linear via <code>kernel</code></td><td><code>C</code>, <code>kernel</code>, <code>gamma</code></td></tr>
+      <tr><td>KNeighborsClassifier</td><td>local structure, low-d, lazy learner</td><td><code>n_neighbors</code></td></tr>
+      <tr><td>MultinomialNB</td><td>text counts / tf-idf — fast, strong baseline</td><td><code>alpha</code></td></tr>
+    </tbody>
+  </table>
+  <h3>Probabilities &amp; calibration</h3>
+<pre>probs = model.predict_proba(X_test)            <span class="c"># shape (n, n_classes)</span>
+
+<span class="k">from</span> sklearn.calibration <span class="k">import</span> CalibratedClassifierCV
+cal = <span class="f">CalibratedClassifierCV</span>(model, method=<span class="s">"isotonic"</span>, cv=<span class="n">5</span>).fit(X_tr, y_tr)</pre>
+</section>
+
+<!-- 05 -->
+<section id="s5" class="card span-4 acc-coral">
+  <div class="card-head">
+    <div class="ttl"><span class="num">05</span><h2>Regression models</h2></div>
+    <span class="tag">continuous target</span>
+  </div>
+<pre><span class="k">from</span> sklearn.linear_model <span class="k">import</span> (
+    LinearRegression,
+    Ridge,        <span class="c"># L2</span>
+    Lasso,        <span class="c"># L1 (feature selection)</span>
+    ElasticNet,   <span class="c"># L1+L2</span>
+    HuberRegressor, <span class="c"># robust</span>
+)
+<span class="k">from</span> sklearn.ensemble <span class="k">import</span> (
+    RandomForestRegressor,
+    GradientBoostingRegressor,
+    HistGradientBoostingRegressor,
+)
+<span class="k">from</span> sklearn.svm       <span class="k">import</span> SVR
+<span class="k">from</span> sklearn.neighbors <span class="k">import</span> KNeighborsRegressor</pre>
+  <h3>Quick picks</h3>
+  <ul>
+    <li><b>Linear baseline</b>: <code>Ridge</code> > <code>LinearRegression</code> (regularize by default).</li>
+    <li><b>Tabular workhorse</b>: <code>HistGradientBoostingRegressor</code>.</li>
+    <li><b>Sparse features matter</b>: <code>Lasso</code> / <code>ElasticNet</code>.</li>
+    <li><b>Outliers</b>: <code>HuberRegressor</code>, <code>RANSACRegressor</code>.</li>
+  </ul>
+</section>
+
+<!-- 06 -->
+<section id="s6" class="card acc-purple">
+  <div class="card-head">
+    <div class="ttl"><span class="num">06</span><h2>Clustering</h2></div>
+    <span class="tag">unsupervised · no labels</span>
+  </div>
+<pre><span class="k">from</span> sklearn.cluster <span class="k">import</span> (
+    KMeans,                  <span class="c"># k known, spherical clusters</span>
+    MiniBatchKMeans,         <span class="c"># same, scales to millions</span>
+    DBSCAN,                  <span class="c"># density, finds outliers, no k</span>
+    HDBSCAN,                 <span class="c"># varying densities</span>
+    AgglomerativeClustering, <span class="c"># dendrograms / hierarchies</span>
+    SpectralClustering,
+)
+<span class="k">from</span> sklearn.mixture <span class="k">import</span> GaussianMixture  <span class="c"># soft assignments</span>
+
+km = <span class="f">KMeans</span>(n_clusters=<span class="n">5</span>, n_init=<span class="s">"auto"</span>, random_state=<span class="n">42</span>).fit(X)
+labels = km.labels_
+centers = km.cluster_centers_</pre>
+  <h3>How many clusters?</h3>
+<pre><span class="k">from</span> sklearn.metrics <span class="k">import</span> silhouette_score
+<span class="f">silhouette_score</span>(X, labels)     <span class="c"># higher = better separated, [-1, 1]</span>
+km.inertia_                      <span class="c"># elbow method (within-cluster SSE)</span></pre>
+</section>
+
+<!-- 07 -->
+<section id="s7" class="card acc-amber">
+  <div class="card-head">
+    <div class="ttl"><span class="num">07</span><h2>Dimensionality reduction</h2></div>
+    <span class="tag">decomposition · manifold</span>
+  </div>
+<pre><span class="k">from</span> sklearn.decomposition <span class="k">import</span> PCA, TruncatedSVD, NMF
+<span class="k">from</span> sklearn.manifold      <span class="k">import</span> TSNE, Isomap
+
+pca = <span class="f">PCA</span>(n_components=<span class="n">0.95</span>).fit(X_scaled)   <span class="c"># keep 95% variance</span>
+X_pca = pca.transform(X_scaled)
+pca.explained_variance_ratio_.cumsum()</pre>
+  <h3>Choosing the tool</h3>
+  <ul>
+    <li><code>PCA</code> — linear, fast, for compression &amp; decorrelation.</li>
+    <li><code>TruncatedSVD</code> — like PCA but for sparse matrices (tf-idf).</li>
+    <li><code>TSNE</code> / <code>UMAP</code> — 2-D visualization only, never for downstream models.</li>
+  </ul>
+  <p style="font-size:12px;color:var(--text-mute)"><b style="color:var(--amber-2)">Always scale</b> before PCA.</p>
+</section>
+
+<!-- 08 -->
+<section id="s8" class="card span-12 acc-teal">
+  <div class="card-head">
+    <div class="ttl"><span class="num">08</span><h2>Model selection &amp; hyperparameter tuning</h2></div>
+    <span class="tag">cross-validate · search · don't peek at test</span>
+  </div>
+  <h3>Cross-validated scoring</h3>
+<pre><span class="k">from</span> sklearn.model_selection <span class="k">import</span> cross_val_score, cross_validate
+
+scores = <span class="f">cross_val_score</span>(model, X, y, cv=<span class="n">5</span>, scoring=<span class="s">"f1_macro"</span>, n_jobs=-<span class="n">1</span>)
+scores.mean(), scores.std()
+
+<span class="c"># multiple metrics + train scores in one pass</span>
+result = <span class="f">cross_validate</span>(model, X, y, cv=<span class="n">5</span>,
+                        scoring=[<span class="s">"accuracy"</span>,<span class="s">"f1_macro"</span>,<span class="s">"roc_auc_ovr"</span>],
+                        return_train_score=<span class="k">True</span>, n_jobs=-<span class="n">1</span>)</pre>
+  <h3>Grid / random / halving search</h3>
+<pre><span class="k">from</span> sklearn.model_selection <span class="k">import</span> GridSearchCV, RandomizedSearchCV
+<span class="k">from</span> sklearn.experimental    <span class="k">import</span> enable_halving_search_cv  <span class="c"># noqa</span>
+<span class="k">from</span> sklearn.model_selection <span class="k">import</span> HalvingRandomSearchCV
+
+param_grid = {
+    <span class="s">"n_estimators"</span>: [<span class="n">100</span>, <span class="n">300</span>, <span class="n">600</span>],
+    <span class="s">"max_depth"</span>:    [<span class="k">None</span>, <span class="n">8</span>, <span class="n">16</span>],
+    <span class="s">"min_samples_leaf"</span>: [<span class="n">1</span>, <span class="n">4</span>, <span class="n">16</span>],
+}
+gs = <span class="f">GridSearchCV</span>(model, param_grid,
+                  cv=<span class="n">5</span>, scoring=<span class="s">"f1_macro"</span>,
+                  n_jobs=-<span class="n">1</span>, refit=<span class="k">True</span>, verbose=<span class="n">1</span>).fit(X_tr, y_tr)
+
+gs.best_params_, gs.best_score_, gs.best_estimator_</pre>
+  <h3>Learning &amp; validation curves</h3>
+<pre><span class="k">from</span> sklearn.model_selection <span class="k">import</span> learning_curve, validation_curve
+<span class="c"># diagnose: under-fit (high train+val error) vs over-fit (low train, high val)</span></pre>
+</section>
+
+<!-- 09 -->
+<section id="s9" class="card acc-coral">
+  <div class="card-head">
+    <div class="ttl"><span class="num">09</span><h2>Classification metrics</h2></div>
+    <span class="tag">sklearn.metrics</span>
+  </div>
+  <table class="metrics">
+    <thead><tr><th>Function</th><th>What it tells you</th></tr></thead>
+    <tbody>
+      <tr><td><code>accuracy_score</code></td><td>raw % correct — misleading on imbalance</td></tr>
+      <tr><td><code>precision_score</code></td><td>of predicted positives, how many were right</td></tr>
+      <tr><td><code>recall_score</code></td><td>of actual positives, how many were caught</td></tr>
+      <tr><td><code>f1_score</code></td><td>harmonic mean of precision &amp; recall</td></tr>
+      <tr><td><code>roc_auc_score</code></td><td>ranking quality, threshold-free</td></tr>
+      <tr><td><code>average_precision_score</code></td><td>area under PR curve — best for rare-class</td></tr>
+      <tr><td><code>log_loss</code></td><td>punishes confident wrong predictions</td></tr>
+      <tr><td><code>matthews_corrcoef</code></td><td>balanced single number, good on imbalance</td></tr>
+    </tbody>
+  </table>
+<pre><span class="k">from</span> sklearn.metrics <span class="k">import</span> classification_report, confusion_matrix, ConfusionMatrixDisplay
+
+<span class="f">print</span>(<span class="f">classification_report</span>(y_te, y_pred, digits=<span class="n">3</span>))
+<span class="f">ConfusionMatrixDisplay</span>.from_predictions(y_te, y_pred)
+
+<span class="c"># multi-class: pass average=</span>
+<span class="f">f1_score</span>(y_te, y_pred, average=<span class="s">"macro"</span>)   <span class="c"># equal weight per class</span>
+<span class="f">f1_score</span>(y_te, y_pred, average=<span class="s">"weighted"</span>)<span class="c"># weight by support</span></pre>
+</section>
+
+<!-- 10 -->
+<section id="s10" class="card acc-amber">
+  <div class="card-head">
+    <div class="ttl"><span class="num">10</span><h2>Regression metrics</h2></div>
+    <span class="tag">errors &amp; R²</span>
+  </div>
+  <table class="metrics">
+    <thead><tr><th>Function</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td><code>mean_absolute_error</code></td><td>same units as y, robust to outliers</td></tr>
+      <tr><td><code>mean_squared_error</code></td><td>penalizes big errors quadratically</td></tr>
+      <tr><td><code>root_mean_squared_error</code></td><td>same units as y, the common report metric</td></tr>
+      <tr><td><code>mean_absolute_percentage_error</code></td><td>scale-free, breaks near zero</td></tr>
+      <tr><td><code>r2_score</code></td><td>1 = perfect, 0 = predicts the mean, &lt;0 = worse</td></tr>
+      <tr><td><code>median_absolute_error</code></td><td>maximally robust to outliers</td></tr>
+    </tbody>
+  </table>
+<pre><span class="k">from</span> sklearn.metrics <span class="k">import</span> mean_absolute_error, r2_score, root_mean_squared_error
+
+<span class="f">root_mean_squared_error</span>(y_te, y_pred)   <span class="c"># RMSE in y units</span>
+<span class="f">r2_score</span>(y_te, y_pred)                  <span class="c"># goodness-of-fit</span></pre>
+  <p style="font-size:12px"><b style="color:var(--amber-2)">Tip:</b> log-transform skewed targets and report metrics in original units.</p>
+</section>
+
+<!-- 11 -->
+<section id="s11" class="card span-12 acc-purple">
+  <div class="card-head">
+    <div class="ttl"><span class="num">11</span><h2>Pipelines &amp; ColumnTransformer</h2></div>
+    <span class="tag">the cleanest way to ship a model</span>
+  </div>
+  <p>A <code>Pipeline</code> chains transformers and an estimator into <i>one</i> object. It prevents leakage (the scaler is fit on each CV fold's train split, not the whole data), and makes <code>GridSearchCV</code> tune preprocessing parameters too.</p>
+<pre><span class="k">from</span> sklearn.pipeline       <span class="k">import</span> Pipeline
+<span class="k">from</span> sklearn.compose        <span class="k">import</span> ColumnTransformer
+<span class="k">from</span> sklearn.preprocessing  <span class="k">import</span> StandardScaler, OneHotEncoder
+<span class="k">from</span> sklearn.impute         <span class="k">import</span> SimpleImputer
+<span class="k">from</span> sklearn.ensemble       <span class="k">import</span> HistGradientBoostingClassifier
+
+num_cols = [<span class="s">"age"</span>, <span class="s">"income"</span>, <span class="s">"tenure"</span>]
+cat_cols = [<span class="s">"country"</span>, <span class="s">"plan"</span>]
+
+num_pipe = <span class="f">Pipeline</span>([
+    (<span class="s">"impute"</span>, <span class="f">SimpleImputer</span>(strategy=<span class="s">"median"</span>)),
+    (<span class="s">"scale"</span>,  <span class="f">StandardScaler</span>()),
+])
+cat_pipe = <span class="f">Pipeline</span>([
+    (<span class="s">"impute"</span>, <span class="f">SimpleImputer</span>(strategy=<span class="s">"most_frequent"</span>)),
+    (<span class="s">"ohe"</span>,    <span class="f">OneHotEncoder</span>(handle_unknown=<span class="s">"ignore"</span>, sparse_output=<span class="k">False</span>)),
+])
+
+pre = <span class="f">ColumnTransformer</span>([
+    (<span class="s">"num"</span>, num_pipe, num_cols),
+    (<span class="s">"cat"</span>, cat_pipe, cat_cols),
+])
+
+clf = <span class="f">Pipeline</span>([
+    (<span class="s">"pre"</span>,   pre),
+    (<span class="s">"model"</span>, <span class="f">HistGradientBoostingClassifier</span>(random_state=<span class="n">42</span>)),
+]).fit(X_tr, y_tr)
+
+<span class="c"># Grid-search across preprocessing AND model</span>
+<span class="k">from</span> sklearn.model_selection <span class="k">import</span> GridSearchCV
+grid = {
+    <span class="s">"pre__num__impute__strategy"</span>: [<span class="s">"median"</span>, <span class="s">"mean"</span>],
+    <span class="s">"model__learning_rate"</span>:       [<span class="n">0.05</span>, <span class="n">0.1</span>, <span class="n">0.2</span>],
+    <span class="s">"model__max_iter"</span>:            [<span class="n">200</span>, <span class="n">400</span>],
+}
+gs = <span class="f">GridSearchCV</span>(clf, grid, cv=<span class="n">5</span>, scoring=<span class="s">"f1_macro"</span>, n_jobs=-<span class="n">1</span>).fit(X_tr, y_tr)
+
+<span class="c"># Persist the whole pipeline — preprocessing + model — as one artifact</span>
+<span class="k">import</span> joblib
+joblib.dump(gs.best_estimator_, <span class="s">"model.joblib"</span>)</pre>
+</section>
+
+<!-- 12 -->
+<section id="s12" class="card span-12 acc-teal">
+  <div class="card-head">
+    <div class="ttl"><span class="num">12</span><h2>Feature selection &amp; importance</h2></div>
+    <span class="tag">fewer features, less noise</span>
+  </div>
+<pre><span class="k">from</span> sklearn.feature_selection <span class="k">import</span> (
+    SelectKBest, f_classif, mutual_info_classif,  <span class="c"># univariate</span>
+    VarianceThreshold,                            <span class="c"># drop near-constant</span>
+    RFE, RFECV,                                   <span class="c"># recursive elimination</span>
+    SelectFromModel,                              <span class="c"># keep top features from a model</span>
+)
+<span class="k">from</span> sklearn.inspection <span class="k">import</span> permutation_importance
+
+<span class="c"># 1. Drop low-variance noise</span>
+X2 = <span class="f">VarianceThreshold</span>(threshold=<span class="n">0.01</span>).fit_transform(X)
+
+<span class="c"># 2. Univariate top-k</span>
+sel = <span class="f">SelectKBest</span>(score_func=mutual_info_classif, k=<span class="n">20</span>).fit(X, y)
+
+<span class="c"># 3. Use a model's own importances</span>
+<span class="k">from</span> sklearn.linear_model <span class="k">import</span> LassoCV
+sfm = <span class="f">SelectFromModel</span>(<span class="f">LassoCV</span>()).fit(X, y)
+
+<span class="c"># 4. Permutation importance — model-agnostic, more reliable than .feature_importances_</span>
+result = <span class="f">permutation_importance</span>(model, X_te, y_te, n_repeats=<span class="n">10</span>, random_state=<span class="n">42</span>)</pre>
+</section>
+
+</div>
+
+<!-- pro tips -->
+<aside class="tips">
+  <h2>Things people learn the hard way</h2>
+  <div class="tips-grid">
+    <div class="tip">
+      <div class="lbl">leakage</div>
+      <p>Fit scalers, imputers, encoders, feature selectors <b>inside</b> a <code>Pipeline</code>. If you call <code>fit_transform</code> on the full dataset before splitting, your CV scores are lying.</p>
+    </div>
+    <div class="tip">
+      <div class="lbl">imbalance</div>
+      <p>Accuracy is a trap when one class is rare. Use <code>stratify=y</code>, <code>class_weight="balanced"</code>, PR-AUC, and <code>StratifiedKFold</code>. Resample only inside the pipeline (imbalanced-learn).</p>
+    </div>
+    <div class="tip">
+      <div class="lbl">randomness</div>
+      <p>Set <code>random_state=42</code> on splits, models, and CV. Without it, you can't tell whether your improvement is real or just a luckier seed.</p>
+    </div>
+    <div class="tip">
+      <div class="lbl">scaling rules</div>
+      <p>Linear models, SVMs, KNN, PCA, NN — <b>scale</b>. Trees / forests / gradient boosting — don't bother. HistGBM even handles NaN natively.</p>
+    </div>
+    <div class="tip">
+      <div class="lbl">starting point</div>
+      <p>Always run a dumb baseline first: <code>DummyClassifier(strategy="most_frequent")</code> or <code>DummyRegressor(strategy="median")</code>. If your fancy model can't beat it, stop and debug.</p>
+    </div>
+    <div class="tip">
+      <div class="lbl">interpret</div>
+      <p>Reach for <code>sklearn.inspection</code>: <code>permutation_importance</code>, <code>partial_dependence</code>, <code>PartialDependenceDisplay</code>. They reveal what your model actually learned.</p>
+    </div>
+  </div>
+</aside>
+
+<footer class="foot">
+  <span>fit · transform · predict · score</span>
+  <span><a href="https://scikit-learn.org/stable/" target="_blank" rel="noopener">scikit-learn.org/stable</a></span>
+</footer>
+
+</div>
+</body>
+</html>

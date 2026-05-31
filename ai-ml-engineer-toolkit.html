@@ -1,0 +1,1062 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Beyond sklearn · the AI/ML Engineer's toolkit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0b0d12; --bg-2:#11151c; --surface:#161b24; --surface-2:#1c222c;
+  --border:#262d3a; --border-soft:#1f2530;
+  --text:#e6e9ef; --text-dim:#9aa3b2; --text-mute:#6b7385;
+  --teal:#1D9E75; --teal-2:#28c595;
+  --purple:#7F77DD; --purple-2:#9d96e6;
+  --coral:#D85A30; --coral-2:#ec7548;
+  --amber:#BA7517; --amber-2:#e0a64a;
+  --code-bg:#0e1218;
+  --code-key:#7F77DD; --code-fn:#28c595; --code-str:#e0a64a;
+  --code-num:#D85A30; --code-com:#5b6477;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;scroll-behavior:smooth}
+body{
+  background:
+    radial-gradient(1200px 700px at 5% -5%, rgba(127,119,221,.10), transparent 60%),
+    radial-gradient(1000px 600px at 110% 5%, rgba(29,158,117,.08), transparent 60%),
+    var(--bg);
+  color:var(--text);
+  font-family:'Manrope',sans-serif;
+  font-size:14.5px; line-height:1.65;
+  -webkit-font-smoothing:antialiased;
+  letter-spacing:.005em;
+}
+.wrap{max-width:1240px;margin:0 auto;padding:48px 28px 96px}
+
+/* ---------- header ---------- */
+header.top{
+  padding-bottom:36px;margin-bottom:40px;
+  border-bottom:1px solid var(--border-soft);
+}
+.eyebrow{
+  font-family:'JetBrains Mono',monospace;font-size:11px;
+  text-transform:uppercase;letter-spacing:.18em;
+  color:var(--teal-2);margin-bottom:10px;
+}
+h1.title{
+  font-family:'Instrument Serif',serif;font-style:italic;font-weight:400;
+  font-size:68px;line-height:1.02;letter-spacing:-.02em;
+  margin:0 0 14px;
+  background:linear-gradient(180deg,#fff 0%,#a9b3c4 100%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.lede{
+  color:var(--text-dim);font-size:16.5px;max-width:720px;margin:0;
+}
+
+/* ---------- role panel ---------- */
+.role{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:14px;
+  margin:36px 0;
+}
+.role .pillar{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:12px;padding:18px;
+  position:relative;
+}
+.role .pillar::before{
+  content:"";position:absolute;top:0;left:0;right:0;height:2px;
+  border-radius:12px 12px 0 0;
+}
+.role .pillar.p1::before{background:var(--teal-2)}
+.role .pillar.p2::before{background:var(--purple-2)}
+.role .pillar.p3::before{background:var(--coral-2)}
+.role .pillar.p4::before{background:var(--amber-2)}
+.role .step{
+  font-family:'JetBrains Mono',monospace;font-size:10px;
+  color:var(--text-mute);text-transform:uppercase;letter-spacing:.1em;
+  margin-bottom:6px;
+}
+.role h4{
+  margin:0 0 6px;font-size:15px;font-weight:600;
+  letter-spacing:-.01em;
+}
+.role p{margin:0;font-size:12.5px;color:var(--text-dim);line-height:1.55}
+
+/* ---------- ToC ---------- */
+.toc-wrap{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:22px 26px;margin-bottom:56px;
+}
+.toc-wrap h3{
+  margin:0 0 12px;font-family:'JetBrains Mono',monospace;
+  font-size:11px;color:var(--text-mute);text-transform:uppercase;letter-spacing:.12em;
+  font-weight:500;
+}
+.toc{display:grid;grid-template-columns:repeat(3,1fr);gap:4px 28px}
+.toc a{
+  display:flex;justify-content:space-between;align-items:baseline;gap:12px;
+  padding:6px 0;text-decoration:none;color:var(--text-dim);
+  font-size:13.5px;
+}
+.toc a:hover{color:var(--teal-2)}
+.toc .n{
+  font-family:'JetBrains Mono',monospace;font-size:11px;
+  color:var(--coral);min-width:26px;flex-shrink:0;
+}
+
+/* ---------- tiers ---------- */
+.tier{margin:64px 0 0;scroll-margin-top:24px}
+.tier-head{
+  display:flex;align-items:flex-end;gap:18px;flex-wrap:wrap;
+  padding-bottom:14px;margin-bottom:22px;
+  border-bottom:1px solid var(--border-soft);
+}
+.tier-num{
+  font-family:'JetBrains Mono',monospace;font-size:13px;
+  color:var(--accent,var(--teal-2));font-weight:600;letter-spacing:.04em;
+}
+.tier-head h2{
+  margin:0;font-family:'Instrument Serif',serif;font-style:italic;
+  font-size:36px;font-weight:400;letter-spacing:-.015em;line-height:1.1;
+  color:var(--text);flex:1 1 auto;
+}
+.tier-badge{
+  font-family:'JetBrains Mono',monospace;font-size:10.5px;
+  color:var(--text-mute);text-transform:uppercase;letter-spacing:.1em;
+  padding:5px 10px;border:1px solid var(--border-soft);border-radius:999px;
+  background:var(--surface);
+}
+.tier-badge.must{color:var(--teal-2);border-color:rgba(40,197,149,.25);background:rgba(40,197,149,.06)}
+.tier-badge.core{color:var(--purple-2);border-color:rgba(127,119,221,.25);background:rgba(127,119,221,.06)}
+.tier-badge.hot{color:var(--coral-2);border-color:rgba(216,90,48,.25);background:rgba(216,90,48,.06)}
+.tier-badge.ops{color:var(--amber-2);border-color:rgba(224,166,74,.25);background:rgba(224,166,74,.06)}
+.tier-intro{
+  color:var(--text-dim);font-size:14.5px;
+  margin:0 0 22px;max-width:780px;
+}
+
+/* ---------- library cards ---------- */
+.cards{
+  display:grid;grid-template-columns:repeat(2,1fr);gap:16px;
+}
+.cards.three{grid-template-columns:repeat(3,1fr)}
+.card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:20px 20px 18px;
+  position:relative;
+  overflow:hidden;
+  display:flex;flex-direction:column;
+}
+.card::before{
+  content:"";position:absolute;top:0;left:0;right:0;height:2px;
+  background:var(--accent,var(--teal-2));opacity:.7;
+}
+.card .head{
+  display:flex;align-items:baseline;justify-content:space-between;gap:10px;
+  margin-bottom:4px;
+}
+.card .name{
+  font-size:18px;font-weight:600;color:var(--text);
+  letter-spacing:-.005em;
+  font-family:'JetBrains Mono',monospace;
+}
+.card .stat{
+  font-family:'JetBrains Mono',monospace;font-size:10px;
+  color:var(--text-mute);text-transform:uppercase;letter-spacing:.08em;
+}
+.card .tag{
+  font-family:'JetBrains Mono',monospace;font-size:10.5px;
+  color:var(--accent,var(--teal-2));margin-bottom:10px;font-weight:500;
+}
+.card .what{
+  font-size:13.5px;color:var(--text-dim);margin:0 0 10px;
+}
+.card .when{
+  font-size:12.5px;color:var(--text-mute);margin:8px 0 12px;
+  padding:8px 10px;background:var(--bg-2);border-radius:6px;
+  border-left:2px solid var(--accent,var(--teal-2));
+}
+.card .when b{color:var(--text);font-weight:600}
+.card pre{
+  background:var(--code-bg);
+  border:1px solid var(--border-soft);
+  border-radius:6px;
+  padding:10px 12px;
+  font-family:'JetBrains Mono',monospace;
+  font-size:11.5px; line-height:1.55;
+  overflow-x:auto;
+  margin:auto 0 0;
+  color:#cdd4e0;
+}
+.card .pair{
+  font-size:11.5px;color:var(--text-mute);
+  margin-top:8px;font-family:'JetBrains Mono',monospace;
+}
+.card .pair b{color:var(--accent,var(--teal-2));font-weight:500}
+
+/* full-width card variant */
+.card.wide{grid-column:1/-1}
+
+/* accents */
+.acc-teal{--accent:var(--teal-2)}
+.acc-purple{--accent:var(--purple-2)}
+.acc-coral{--accent:var(--coral-2)}
+.acc-amber{--accent:var(--amber-2)}
+
+/* code colors */
+code{font-family:'JetBrains Mono',monospace}
+:not(pre) > code{
+  background:rgba(224,166,74,.07);
+  padding:1px 6px;border-radius:4px;
+  border:1px solid rgba(224,166,74,.15);
+  color:var(--amber-2);
+  font-size:12px;
+}
+.k{color:var(--code-key)}
+.f{color:var(--code-fn)}
+.s{color:var(--code-str)}
+.n{color:var(--code-num)}
+.c{color:var(--code-com);font-style:italic}
+
+/* ---------- roadmap ---------- */
+.roadmap-wrap{
+  margin-top:80px;padding:32px;
+  background:linear-gradient(180deg,rgba(127,119,221,.07),rgba(29,158,117,.04));
+  border:1px solid var(--border);border-radius:16px;
+}
+.roadmap-wrap h2{
+  margin:0 0 8px;font-family:'Instrument Serif',serif;font-style:italic;
+  font-size:34px;font-weight:400;line-height:1.1;
+}
+.roadmap-wrap .sub{color:var(--text-dim);margin:0 0 24px;font-size:14.5px}
+.weeks{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:14px;
+}
+.week{
+  background:var(--surface);border:1px solid var(--border-soft);
+  border-radius:10px;padding:16px;
+}
+.week .lbl{
+  font-family:'JetBrains Mono',monospace;font-size:10px;
+  color:var(--coral);text-transform:uppercase;letter-spacing:.1em;
+  margin-bottom:4px;
+}
+.week h4{
+  margin:0 0 8px;font-size:14px;font-weight:600;letter-spacing:-.005em;
+}
+.week ul{margin:0;padding-left:18px;font-size:12.5px;color:var(--text-dim)}
+.week ul li{margin-bottom:2px}
+
+/* ---------- closing tips ---------- */
+.tips{
+  margin-top:48px;display:grid;grid-template-columns:repeat(3,1fr);gap:14px;
+}
+.tip{
+  background:var(--surface);border:1px solid var(--border-soft);
+  border-radius:10px;padding:18px;
+}
+.tip .lbl{
+  font-family:'JetBrains Mono',monospace;font-size:10px;
+  color:var(--teal-2);text-transform:uppercase;letter-spacing:.1em;
+  margin-bottom:6px;
+}
+.tip p{margin:0;font-size:13px;color:var(--text-dim)}
+
+footer.foot{
+  margin-top:60px;padding-top:20px;
+  border-top:1px solid var(--border-soft);
+  font-family:'JetBrains Mono',monospace;font-size:11px;
+  color:var(--text-mute);
+  display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;
+}
+
+/* ---------- responsive ---------- */
+@media (max-width:980px){
+  h1.title{font-size:48px}
+  .role,.cards.three,.weeks,.tips{grid-template-columns:repeat(2,1fr)}
+  .toc{grid-template-columns:repeat(2,1fr)}
+}
+@media (max-width:620px){
+  .role,.cards,.cards.three,.weeks,.tips,.toc{grid-template-columns:1fr}
+  .wrap{padding:32px 18px 60px}
+  .tier-head h2{font-size:28px}
+}
+@media print{
+  body{background:#fff;color:#111}
+  .wrap{max-width:none;padding:18px}
+  pre,.role .pillar,.card,.tip,.week,.toc-wrap,.roadmap-wrap{
+    background:#fff;border-color:#ddd;break-inside:avoid;box-shadow:none
+  }
+  pre{background:#f7f7f9;color:#111}
+  h1.title{color:#111;-webkit-text-fill-color:#111}
+  .k{color:#7c3aed}.f{color:#0d8a5b}.s{color:#a5650a}.n{color:#b14a26}.c{color:#888}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <div class="eyebrow">beyond scikit-learn · the AI/ML engineer's toolkit (2026)</div>
+  <h1 class="title">Twenty libraries, one career.</h1>
+  <p class="lede">The complete map of what an AI/ML Engineer actually uses day-to-day — grouped by the four pillars of the job, with an honest take on what matters now versus what's just noise.</p>
+</header>
+
+<!-- ROLE PANEL -->
+<section>
+  <div class="role">
+    <div class="pillar p1">
+      <div class="step">Pillar 1</div>
+      <h4>Wrangle the data</h4>
+      <p>Load, clean, transform, visualize. 60% of the job lives here. NumPy, Pandas, Polars, viz tools.</p>
+    </div>
+    <div class="pillar p2">
+      <div class="step">Pillar 2</div>
+      <h4>Model the problem</h4>
+      <p>Classical ML, gradient boosting, deep learning. sklearn handles the easy half; the rest needs PyTorch, XGBoost, transformers.</p>
+    </div>
+    <div class="pillar p3">
+      <div class="step">Pillar 3</div>
+      <h4>Ship to production</h4>
+      <p>APIs, containers, monitoring. A model that lives in a notebook isn't a product. FastAPI, Docker, ONNX.</p>
+    </div>
+    <div class="pillar p4">
+      <div class="step">Pillar 4</div>
+      <h4>Operate &amp; iterate</h4>
+      <p>Track experiments, version data, orchestrate retraining, detect drift. MLflow, W&amp;B, Airflow, DVC.</p>
+    </div>
+  </div>
+</section>
+
+<!-- TOC -->
+<div class="toc-wrap">
+  <h3>Tiers — learn roughly in this order</h3>
+  <div class="toc">
+    <a href="#t1"><span class="n">01</span><span>Data foundations (NumPy, Pandas, Polars, Viz)</span></a>
+    <a href="#t2"><span class="n">02</span><span>Tabular ML beyond sklearn (XGBoost, LightGBM, Optuna, SHAP)</span></a>
+    <a href="#t3"><span class="n">03</span><span>Deep learning (PyTorch, Lightning, JAX)</span></a>
+    <a href="#t4"><span class="n">04</span><span>LLMs &amp; modern AI (Transformers, LangChain, Embeddings)</span></a>
+    <a href="#t5"><span class="n">05</span><span>Retrieval &amp; vector search (FAISS, Chroma, pgvector)</span></a>
+    <a href="#t6"><span class="n">06</span><span>Serving &amp; deployment (FastAPI, Docker, ONNX)</span></a>
+    <a href="#t7"><span class="n">07</span><span>MLOps (MLflow, W&amp;B, Airflow, DVC)</span></a>
+    <a href="#t8"><span class="n">08</span><span>Specialized domains (NLP, CV, time series, big data)</span></a>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- TIER 1: DATA FOUNDATIONS                                      -->
+<!-- ============================================================ -->
+<section class="tier acc-teal" id="t1">
+  <div class="tier-head">
+    <span class="tier-num">01</span>
+    <h2>Data foundations</h2>
+    <span class="tier-badge must">non-negotiable</span>
+  </div>
+  <p class="tier-intro">Every ML problem starts with messy data. You'll spend more time here than on modeling — and the bottleneck is rarely scikit-learn, it's pandas. Master these four first.</p>
+
+  <div class="cards">
+    <article class="card acc-teal">
+      <div class="head">
+        <div class="name">NumPy</div>
+        <div class="stat">★ 28k</div>
+      </div>
+      <div class="tag">N-dimensional arrays · the bedrock</div>
+      <p class="what">The mathematical foundation under pandas, sklearn, PyTorch, and every other library here. Vectorized operations on arrays are 50–100× faster than Python loops.</p>
+      <div class="when"><b>Master:</b> broadcasting, fancy indexing, axis-aware reductions, <code>np.where</code>, <code>einsum</code>.</div>
+<pre><span class="k">import</span> numpy <span class="k">as</span> np
+X = np.<span class="f">random.randn</span>(<span class="n">1000</span>, <span class="n">20</span>)         <span class="c"># 1000×20 matrix</span>
+mean = X.<span class="f">mean</span>(axis=<span class="n">0</span>)                  <span class="c"># per-column mean</span>
+Z = (X - mean) / X.<span class="f">std</span>(axis=<span class="n">0</span>)        <span class="c"># standardize — no loops</span></pre>
+      <div class="pair">→ everything builds on this</div>
+    </article>
+
+    <article class="card acc-teal">
+      <div class="head">
+        <div class="name">Pandas</div>
+        <div class="stat">★ 44k</div>
+      </div>
+      <div class="tag">Tabular data, the universal currency</div>
+      <p class="what">DataFrames for loading, cleaning, joining, grouping, reshaping data. If your data comes in CSV/Parquet/SQL/Excel/JSON, pandas reads it. The skill that separates juniors from seniors.</p>
+      <div class="when"><b>Master:</b> <code>groupby</code> + agg, <code>merge</code>/<code>join</code>, <code>pivot_table</code>, <code>melt</code>, <code>apply</code> vs vectorized, <code>.loc</code> vs <code>.iloc</code>, MultiIndex.</div>
+<pre><span class="k">import</span> pandas <span class="k">as</span> pd
+df = pd.<span class="f">read_parquet</span>(<span class="s">"events.parquet"</span>)
+(df.<span class="f">query</span>(<span class="s">"country == 'US'"</span>)
+   .<span class="f">groupby</span>([<span class="s">"segment"</span>, <span class="s">"month"</span>])
+   .agg(revenue=(<span class="s">"amount"</span>, <span class="s">"sum"</span>),
+        users=(<span class="s">"user_id"</span>, <span class="s">"nunique"</span>)))</pre>
+      <div class="pair">→ next: <b>Polars</b> for speed</div>
+    </article>
+
+    <article class="card acc-teal">
+      <div class="head">
+        <div class="name">Polars</div>
+        <div class="stat">★ 29k · fast-growing</div>
+      </div>
+      <div class="tag">Pandas, rewritten in Rust</div>
+      <p class="what">Same conceptual model as pandas but 5–30× faster, lower memory, with a lazy query optimizer. Increasingly the production choice for anything &gt; 1 GB. The pandas API stays for analysis; Polars takes over for pipelines.</p>
+      <div class="when"><b>Reach for it when:</b> pandas is slow, you're hitting memory limits, or you're building a recurring data pipeline.</div>
+<pre><span class="k">import</span> polars <span class="k">as</span> pl
+df = pl.<span class="f">scan_parquet</span>(<span class="s">"events.parquet"</span>)        <span class="c"># lazy</span>
+(df.<span class="f">filter</span>(pl.col(<span class="s">"country"</span>) == <span class="s">"US"</span>)
+   .<span class="f">group_by</span>([<span class="s">"segment"</span>, <span class="s">"month"</span>])
+   .<span class="f">agg</span>(pl.col(<span class="s">"amount"</span>).<span class="f">sum</span>())
+   .<span class="f">collect</span>())                              <span class="c"># execute</span></pre>
+      <div class="pair">→ familiar after pandas; learn in a weekend</div>
+    </article>
+
+    <article class="card acc-teal">
+      <div class="head">
+        <div class="name">Matplotlib + Seaborn + Plotly</div>
+        <div class="stat">visualization stack</div>
+      </div>
+      <div class="tag">Three plotting libraries, three jobs</div>
+      <p class="what"><b>Matplotlib</b> is the low-level engine — verbose but total control. <b>Seaborn</b> is statistical plots in one line on top of matplotlib. <b>Plotly</b> is interactive plots for dashboards and notebooks.</p>
+      <div class="when"><b>Day-to-day:</b> seaborn for EDA, matplotlib for paper-quality customization, plotly when stakeholders need to hover.</div>
+<pre><span class="k">import</span> seaborn <span class="k">as</span> sns
+sns.<span class="f">pairplot</span>(df, hue=<span class="s">"target"</span>)             <span class="c"># 1 line, 25 plots</span>
+sns.<span class="f">heatmap</span>(df.<span class="f">corr</span>(), annot=<span class="k">True</span>)        <span class="c"># correlation matrix</span></pre>
+      <div class="pair">→ skip altair / bokeh until you need them</div>
+    </article>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- TIER 2: TABULAR ML BEYOND SKLEARN                            -->
+<!-- ============================================================ -->
+<section class="tier acc-purple" id="t2">
+  <div class="tier-head">
+    <span class="tier-num">02</span>
+    <h2>Tabular ML beyond sklearn</h2>
+    <span class="tier-badge core">expected on the job</span>
+  </div>
+  <p class="tier-intro">For tabular data, sklearn's <code>HistGradientBoosting</code> is excellent but not state-of-the-art. The dedicated gradient boosting libraries below dominate Kaggle and most production tabular ML. Plus the trio of tools that wrap any model: tuning, explaining, balancing.</p>
+
+  <div class="cards">
+    <article class="card acc-purple">
+      <div class="head"><div class="name">XGBoost</div><div class="stat">★ 26k</div></div>
+      <div class="tag">Gradient boosting, battle-tested</div>
+      <p class="what">The gradient-boosted tree library that started the modern tabular ML era. Still the most-used model in industry for structured data. Handles missing values natively, has GPU support, and exposes hundreds of knobs.</p>
+      <div class="when"><b>Reach for it when:</b> tabular problem, accuracy matters, ≤ ~10M rows. Beats sklearn's <code>HistGradientBoosting</code> by 1–3% typically.</div>
+<pre><span class="k">import</span> xgboost <span class="k">as</span> xgb
+m = xgb.<span class="f">XGBClassifier</span>(
+    n_estimators=<span class="n">500</span>, learning_rate=<span class="n">0.05</span>,
+    max_depth=<span class="n">6</span>, subsample=<span class="n">0.8</span>,
+    tree_method=<span class="s">"hist"</span>, device=<span class="s">"cuda"</span>,
+    early_stopping_rounds=<span class="n">50</span>,
+).fit(X_tr, y_tr, eval_set=[(X_val, y_val)])</pre>
+      <div class="pair">→ partners with: <b>Optuna</b>, <b>SHAP</b></div>
+    </article>
+
+    <article class="card acc-purple">
+      <div class="head"><div class="name">LightGBM</div><div class="stat">★ 17k</div></div>
+      <div class="tag">XGBoost's faster cousin</div>
+      <p class="what">From Microsoft. Often 2–10× faster than XGBoost with similar accuracy; uses leaf-wise tree growth and exclusive feature bundling. The Kaggle winner most of the time now.</p>
+      <div class="when"><b>Reach for it when:</b> very large tabular data, or you need fast iteration. Slightly more prone to overfit on small data.</div>
+<pre><span class="k">import</span> lightgbm <span class="k">as</span> lgb
+m = lgb.<span class="f">LGBMClassifier</span>(
+    n_estimators=<span class="n">1000</span>, learning_rate=<span class="n">0.05</span>,
+    num_leaves=<span class="n">63</span>, feature_fraction=<span class="n">0.8</span>,
+).fit(X_tr, y_tr,
+      eval_set=[(X_val, y_val)],
+      callbacks=[lgb.<span class="f">early_stopping</span>(<span class="n">50</span>)])</pre>
+      <div class="pair">→ same API as XGBoost; learn one, get the other for free</div>
+    </article>
+
+    <article class="card acc-purple">
+      <div class="head"><div class="name">CatBoost</div><div class="stat">★ 8k</div></div>
+      <div class="tag">Gradient boosting that loves categoricals</div>
+      <p class="what">From Yandex. Built-in handling of categorical features without manual encoding — uses a clever ordered target encoding that avoids leakage. Often wins on data with lots of high-cardinality categoricals.</p>
+      <div class="when"><b>Reach for it when:</b> many string/categorical columns, or you don't want to fuss with encoding pipelines.</div>
+<pre><span class="k">from</span> catboost <span class="k">import</span> CatBoostClassifier
+m = <span class="f">CatBoostClassifier</span>(
+    iterations=<span class="n">1000</span>, learning_rate=<span class="n">0.05</span>,
+    cat_features=[<span class="s">"country"</span>, <span class="s">"plan"</span>, <span class="s">"campaign"</span>],
+    verbose=<span class="n">100</span>,
+).fit(X_tr, y_tr, eval_set=(X_val, y_val))</pre>
+      <div class="pair">→ pick one of XGB / LGBM / Cat — learn all three eventually</div>
+    </article>
+
+    <article class="card acc-purple">
+      <div class="head"><div class="name">Optuna</div><div class="stat">★ 11k</div></div>
+      <div class="tag">Hyperparameter optimization done right</div>
+      <p class="what">Smarter than <code>GridSearchCV</code> or <code>RandomizedSearchCV</code>. Uses Bayesian optimization (Tree Parzen Estimator) to learn which hyperparameter regions are promising and focus search there. Comes with pruning, parallelism, and a slick dashboard.</p>
+      <div class="when"><b>Replace:</b> sklearn's grid/random search for any non-trivial tuning problem.</div>
+<pre><span class="k">import</span> optuna
+
+<span class="k">def</span> <span class="f">objective</span>(trial):
+    params = {
+      <span class="s">"learning_rate"</span>: trial.<span class="f">suggest_float</span>(<span class="s">"lr"</span>, <span class="n">1e-3</span>, <span class="n">0.3</span>, log=<span class="k">True</span>),
+      <span class="s">"max_depth"</span>:     trial.<span class="f">suggest_int</span>(<span class="s">"d"</span>, <span class="n">3</span>, <span class="n">12</span>),
+    }
+    <span class="k">return</span> <span class="f">cv_score</span>(params)
+
+study = optuna.<span class="f">create_study</span>(direction=<span class="s">"maximize"</span>)
+study.<span class="f">optimize</span>(objective, n_trials=<span class="n">100</span>)</pre>
+      <div class="pair">→ pairs with literally every model</div>
+    </article>
+
+    <article class="card acc-purple">
+      <div class="head"><div class="name">SHAP</div><div class="stat">★ 23k</div></div>
+      <div class="tag">Explaining any model's predictions</div>
+      <p class="what">Game-theoretic feature attribution. For every prediction, tells you how much each feature pushed the output up or down. The standard for model interpretability — required for regulated industries (finance, healthcare, hiring).</p>
+      <div class="when"><b>Use for:</b> debugging a model's mistakes, explaining decisions to stakeholders, audit and compliance.</div>
+<pre><span class="k">import</span> shap
+explainer = shap.<span class="f">TreeExplainer</span>(model)
+shap_values = <span class="f">explainer</span>(X_test)
+
+shap.<span class="f">summary_plot</span>(shap_values, X_test)     <span class="c"># global importance</span>
+shap.<span class="f">waterfall_plot</span>(shap_values[<span class="n">0</span>])       <span class="c"># single-prediction breakdown</span></pre>
+      <div class="pair">→ alternative: <b>LIME</b> (older, less popular now)</div>
+    </article>
+
+    <article class="card acc-purple">
+      <div class="head"><div class="name">imbalanced-learn</div><div class="stat">★ 7k</div></div>
+      <div class="tag">SMOTE and friends, sklearn-compatible</div>
+      <p class="what">Class imbalance toolbox. Drops into sklearn pipelines via its own <code>Pipeline</code> (the sklearn one won't resample inside CV correctly). SMOTE, ADASYN, undersamplers, combinations.</p>
+      <div class="when"><b>Reach for it when:</b> minority class &lt; 10%, especially with critical false-negative cost (fraud, churn, medical).</div>
+<pre><span class="k">from</span> imblearn.over_sampling <span class="k">import</span> SMOTE
+<span class="k">from</span> imblearn.pipeline      <span class="k">import</span> Pipeline
+
+pipe = <span class="f">Pipeline</span>([
+    (<span class="s">"smote"</span>, <span class="f">SMOTE</span>(random_state=<span class="n">42</span>)),
+    (<span class="s">"clf"</span>,   <span class="f">XGBClassifier</span>()),
+]).fit(X_tr, y_tr)                       <span class="c"># SMOTE runs ONLY on train folds</span></pre>
+      <div class="pair">→ also try: <code>class_weight</code>, threshold tuning</div>
+    </article>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- TIER 3: DEEP LEARNING                                         -->
+<!-- ============================================================ -->
+<section class="tier acc-coral" id="t3">
+  <div class="tier-head">
+    <span class="tier-num">03</span>
+    <h2>Deep learning</h2>
+    <span class="tier-badge core">core competency</span>
+  </div>
+  <p class="tier-intro">When data is images, audio, text, or large &amp; complex tabular — neural networks beat classical ML. PyTorch is the default now, even at Google. Learn it deeply; the rest is variations.</p>
+
+  <div class="cards">
+    <article class="card wide acc-coral">
+      <div class="head"><div class="name">PyTorch</div><div class="stat">★ 84k · the standard</div></div>
+      <div class="tag">The deep learning framework that won</div>
+      <p class="what">Dynamic computation graphs, Python-native, and the framework virtually every modern model is written in (GPT, Llama, Stable Diffusion, AlphaFold). If you learn one DL library, learn this one. The ecosystem (TorchVision, TorchAudio, TorchText, PyTorch Geometric) covers vision, audio, text, graphs.</p>
+      <div class="when"><b>Master:</b> tensors &amp; autograd, <code>nn.Module</code> classes, <code>DataLoader</code>, training loops, GPU placement, mixed precision, distributed training.</div>
+<pre><span class="k">import</span> torch
+<span class="k">import</span> torch.nn <span class="k">as</span> nn
+
+<span class="k">class</span> <span class="f">MLP</span>(nn.Module):
+    <span class="k">def</span> <span class="f">__init__</span>(self, in_dim, hidden, out_dim):
+        super().<span class="f">__init__</span>()
+        self.net = nn.<span class="f">Sequential</span>(
+            nn.<span class="f">Linear</span>(in_dim, hidden), nn.<span class="f">ReLU</span>(),
+            nn.<span class="f">Linear</span>(hidden, hidden), nn.<span class="f">ReLU</span>(),
+            nn.<span class="f">Linear</span>(hidden, out_dim),
+        )
+    <span class="k">def</span> <span class="f">forward</span>(self, x): <span class="k">return</span> self.<span class="f">net</span>(x)
+
+model = <span class="f">MLP</span>(<span class="n">20</span>, <span class="n">128</span>, <span class="n">3</span>).<span class="f">cuda</span>()
+opt   = torch.optim.<span class="f">AdamW</span>(model.<span class="f">parameters</span>(), lr=<span class="n">1e-3</span>)
+loss_fn = nn.<span class="f">CrossEntropyLoss</span>()
+
+<span class="k">for</span> X, y <span class="k">in</span> loader:
+    X, y = X.<span class="f">cuda</span>(), y.<span class="f">cuda</span>()
+    opt.<span class="f">zero_grad</span>()
+    loss = <span class="f">loss_fn</span>(<span class="f">model</span>(X), y)
+    loss.<span class="f">backward</span>()
+    opt.<span class="f">step</span>()</pre>
+      <div class="pair">→ next: <b>Lightning</b> for boilerplate, <b>Hugging Face</b> for pretrained models</div>
+    </article>
+
+    <article class="card acc-coral">
+      <div class="head"><div class="name">PyTorch Lightning</div><div class="stat">★ 28k</div></div>
+      <div class="tag">PyTorch without the boilerplate</div>
+      <p class="what">Wraps your model + training step in a class; Lightning handles the training loop, multi-GPU, checkpointing, logging, mixed precision. Same flexibility as raw PyTorch, half the code.</p>
+      <div class="when"><b>Use it when:</b> training loop is more than ~30 lines, you want multi-GPU/multi-node training without writing distributed code.</div>
+<pre><span class="k">import</span> lightning <span class="k">as</span> L
+
+<span class="k">class</span> <span class="f">LitMLP</span>(L.LightningModule):
+    <span class="k">def</span> <span class="f">training_step</span>(self, batch, _):
+        X, y = batch
+        loss = <span class="f">F.cross_entropy</span>(self(X), y)
+        self.<span class="f">log</span>(<span class="s">"loss"</span>, loss)
+        <span class="k">return</span> loss
+
+trainer = L.<span class="f">Trainer</span>(max_epochs=<span class="n">20</span>, accelerator=<span class="s">"gpu"</span>, devices=<span class="n">4</span>)
+trainer.<span class="f">fit</span>(LitMLP(), train_loader, val_loader)</pre>
+      <div class="pair">→ alternative: bare PyTorch + your own helpers</div>
+    </article>
+
+    <article class="card acc-coral">
+      <div class="head"><div class="name">TensorFlow / Keras</div><div class="stat">★ 186k · legacy-heavy</div></div>
+      <div class="tag">Google's framework — still in enterprise</div>
+      <p class="what">Was the dominant framework, now second to PyTorch. Keras 3 is multi-backend (TF, JAX, PyTorch) and a clean API for beginners. Worth knowing because many enterprise codebases use it, and TFLite still dominates on-device inference.</p>
+      <div class="when"><b>Learn it when:</b> your team already uses it, or you target mobile/edge inference (TFLite, TF.js).</div>
+<pre><span class="k">import</span> keras
+model = keras.<span class="f">Sequential</span>([
+    keras.layers.<span class="f">Dense</span>(<span class="n">128</span>, activation=<span class="s">"relu"</span>),
+    keras.layers.<span class="f">Dense</span>(<span class="n">3</span>, activation=<span class="s">"softmax"</span>),
+])
+model.<span class="f">compile</span>(optimizer=<span class="s">"adam"</span>, loss=<span class="s">"sparse_categorical_crossentropy"</span>)
+model.<span class="f">fit</span>(X, y, epochs=<span class="n">10</span>)</pre>
+      <div class="pair">→ if starting fresh in 2026, prefer PyTorch</div>
+    </article>
+
+    <article class="card acc-coral">
+      <div class="head"><div class="name">JAX</div><div class="stat">★ 31k · research-favorite</div></div>
+      <div class="tag">NumPy + autograd + XLA compilation</div>
+      <p class="what">From Google. Feels like NumPy but with automatic differentiation and just-in-time compilation to GPU/TPU. The research framework of choice at DeepMind, Anthropic, and many top labs. Steeper learning curve; pure functional style.</p>
+      <div class="when"><b>Learn it if:</b> you want to do ML research, custom optimization, or use TPUs at scale. Otherwise skip until needed.</div>
+<pre><span class="k">import</span> jax, jax.numpy <span class="k">as</span> jnp
+<span class="k">from</span> jax <span class="k">import</span> grad, jit
+
+<span class="k">def</span> <span class="f">loss</span>(w, X, y): <span class="k">return</span> jnp.<span class="f">mean</span>((X @ w - y) ** <span class="n">2</span>)
+
+grad_fn = <span class="f">jit</span>(<span class="f">grad</span>(loss))               <span class="c"># compiled gradient — fast</span>
+w = w - <span class="n">0.01</span> * <span class="f">grad_fn</span>(w, X, y)</pre>
+      <div class="pair">→ ecosystem: <b>Flax</b> (modules), <b>Optax</b> (optimizers)</div>
+    </article>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- TIER 4: LLMs & MODERN AI                                      -->
+<!-- ============================================================ -->
+<section class="tier acc-amber" id="t4">
+  <div class="tier-head">
+    <span class="tier-num">04</span>
+    <h2>LLMs &amp; modern AI</h2>
+    <span class="tier-badge hot">defines the 2026 role</span>
+  </div>
+  <p class="tier-intro">This is the section that didn't exist five years ago and is now half the AI/ML Engineer job. You don't train foundation models — you apply, fine-tune, and orchestrate them. Get fluent here.</p>
+
+  <div class="cards">
+    <article class="card wide acc-amber">
+      <div class="head"><div class="name">Hugging Face Transformers</div><div class="stat">★ 145k · the hub</div></div>
+      <div class="tag">Every pretrained model, one API</div>
+      <p class="what">The library that made modern NLP/CV/audio accessible. Thousands of pretrained models (BERT, Llama, Whisper, ViT, CLIP, SD) — download, fine-tune, or just run inference with three lines. Comes with companion libraries: <b>datasets</b>, <b>tokenizers</b>, <b>accelerate</b>, <b>peft</b> (LoRA/QLoRA), <b>trl</b> (RLHF/DPO).</p>
+      <div class="when"><b>Master:</b> <code>pipeline()</code> for prototyping, <code>AutoModel</code>/<code>AutoTokenizer</code> for control, <code>Trainer</code> for fine-tuning, <code>peft</code> for parameter-efficient tuning.</div>
+<pre><span class="k">from</span> transformers <span class="k">import</span> pipeline, AutoModelForSequenceClassification, AutoTokenizer
+
+<span class="c"># Zero to inference in 3 lines</span>
+clf = <span class="f">pipeline</span>(<span class="s">"sentiment-analysis"</span>, model=<span class="s">"distilbert-base-uncased-finetuned-sst-2-english"</span>)
+<span class="f">clf</span>([<span class="s">"This product saved my project."</span>, <span class="s">"Slow and buggy."</span>])
+
+<span class="c"># Or load and fine-tune</span>
+tok  = AutoTokenizer.<span class="f">from_pretrained</span>(<span class="s">"bert-base-uncased"</span>)
+model = AutoModelForSequenceClassification.<span class="f">from_pretrained</span>(<span class="s">"bert-base-uncased"</span>, num_labels=<span class="n">3</span>)</pre>
+      <div class="pair">→ surrounding tools: <b>datasets</b>, <b>peft</b>, <b>accelerate</b>, <b>trl</b></div>
+    </article>
+
+    <article class="card acc-amber">
+      <div class="head"><div class="name">LangChain / LlamaIndex</div><div class="stat">★ 90k + ★ 33k</div></div>
+      <div class="tag">Building applications on top of LLMs</div>
+      <p class="what">Frameworks for chaining LLM calls into useful applications: RAG (retrieval-augmented generation), agents, tool use, multi-step reasoning. LangChain is broader and more flexible; LlamaIndex is laser-focused on retrieval/RAG.</p>
+      <div class="when"><b>Reach for it when:</b> building chat-with-your-docs, agent workflows, or LLM apps with structured outputs. Be aware: APIs change often.</div>
+<pre><span class="k">from</span> langchain.chat_models <span class="k">import</span> ChatAnthropic
+<span class="k">from</span> langchain.prompts     <span class="k">import</span> ChatPromptTemplate
+
+llm = <span class="f">ChatAnthropic</span>(model=<span class="s">"claude-opus-4-7"</span>)
+prompt = ChatPromptTemplate.<span class="f">from_template</span>(<span class="s">"Summarize: {text}"</span>)
+chain = prompt | llm
+chain.<span class="f">invoke</span>({<span class="s">"text"</span>: doc})</pre>
+      <div class="pair">→ alternatives: raw API + your own glue (often cleaner)</div>
+    </article>
+
+    <article class="card acc-amber">
+      <div class="head"><div class="name">Sentence-Transformers</div><div class="stat">★ 15k</div></div>
+      <div class="tag">Embeddings, the gateway to semantic search</div>
+      <p class="what">Turn text (or images) into dense vectors that capture meaning. Two paragraphs about the same topic land near each other in vector space. The foundation under RAG, semantic search, clustering of documents, recommendation.</p>
+      <div class="when"><b>Use it when:</b> you need to compare texts by meaning, build search, or feed a vector DB. Faster &amp; cheaper than calling an LLM API per text.</div>
+<pre><span class="k">from</span> sentence_transformers <span class="k">import</span> SentenceTransformer
+model = <span class="f">SentenceTransformer</span>(<span class="s">"all-MiniLM-L6-v2"</span>)
+
+emb = model.<span class="f">encode</span>([
+    <span class="s">"How do I cancel my subscription?"</span>,
+    <span class="s">"Where do I update billing?"</span>,
+])                                  <span class="c"># shape (2, 384)</span>
+<span class="c"># Cosine similarity → these two are close</span></pre>
+      <div class="pair">→ next: feed into FAISS / Chroma / pgvector</div>
+    </article>
+
+    <article class="card acc-amber">
+      <div class="head"><div class="name">OpenAI / Anthropic SDKs</div><div class="stat">official clients</div></div>
+      <div class="tag">Foundation model APIs, directly</div>
+      <p class="what">The thinnest, most reliable way to call GPT-4, Claude, Gemini. Honestly, for most LLM apps, the SDK + a few helper functions beats any heavy framework. Both support tool use, streaming, vision, structured outputs.</p>
+      <div class="when"><b>Default for:</b> production LLM features where you control the prompts. Reach for LangChain only when orchestration genuinely helps.</div>
+<pre><span class="k">from</span> anthropic <span class="k">import</span> Anthropic
+client = <span class="f">Anthropic</span>()
+
+resp = client.messages.<span class="f">create</span>(
+    model=<span class="s">"claude-opus-4-7"</span>,
+    max_tokens=<span class="n">1024</span>,
+    messages=[{<span class="s">"role"</span>: <span class="s">"user"</span>, <span class="s">"content"</span>: <span class="s">"Explain RAG in one paragraph."</span>}],
+)
+<span class="f">print</span>(resp.content[<span class="n">0</span>].text)</pre>
+      <div class="pair">→ unify many providers: <b>LiteLLM</b></div>
+    </article>
+
+    <article class="card acc-amber">
+      <div class="head"><div class="name">DSPy</div><div class="stat">★ 19k · rising</div></div>
+      <div class="tag">Programming LLMs, not prompting them</div>
+      <p class="what">From Stanford. Replace hand-tuned prompt strings with composable modules that get <em>compiled</em> (auto-prompt-optimized) against your task. The next layer of abstraction over raw prompting. Worth learning early.</p>
+      <div class="when"><b>Reach for it when:</b> building multi-step LLM pipelines and you want repeatable quality without endless prompt tweaking.</div>
+<pre><span class="k">import</span> dspy
+classify = dspy.<span class="f">Predict</span>(<span class="s">"text -> sentiment, confidence"</span>)
+result = <span class="f">classify</span>(text=<span class="s">"This is amazing!"</span>)
+<span class="f">print</span>(result.sentiment, result.confidence)</pre>
+      <div class="pair">→ still volatile; watch the field</div>
+    </article>
+
+    <article class="card acc-amber">
+      <div class="head"><div class="name">vLLM / Ollama</div><div class="stat">serving + local</div></div>
+      <div class="tag">Running open-source LLMs yourself</div>
+      <p class="what"><b>vLLM</b> is the production serving engine for open models (Llama, Mistral, Qwen) — 10–20× faster throughput than naive transformers inference. <b>Ollama</b> is the dev-friendly way to run models locally with one command.</p>
+      <div class="when"><b>Reach for them when:</b> cost / data privacy rules out cloud APIs, or you need self-hosted inference at scale.</div>
+<pre><span class="c"># Ollama — one command per model</span>
+<span class="c"># $ ollama run llama3.1:70b</span>
+
+<span class="c"># vLLM — production serving</span>
+<span class="k">from</span> vllm <span class="k">import</span> LLM, SamplingParams
+llm = <span class="f">LLM</span>(model=<span class="s">"meta-llama/Llama-3.1-8B-Instruct"</span>)
+out = llm.<span class="f">generate</span>([<span class="s">"What is RAG?"</span>], <span class="f">SamplingParams</span>(temperature=<span class="n">0.7</span>))</pre>
+      <div class="pair">→ alternatives: <b>TGI</b>, <b>SGLang</b>, <b>llama.cpp</b></div>
+    </article>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- TIER 5: RETRIEVAL & VECTOR SEARCH                            -->
+<!-- ============================================================ -->
+<section class="tier acc-teal" id="t5">
+  <div class="tier-head">
+    <span class="tier-num">05</span>
+    <h2>Retrieval &amp; vector search</h2>
+    <span class="tier-badge hot">RAG enabler</span>
+  </div>
+  <p class="tier-intro">RAG (retrieval-augmented generation) made vector databases ubiquitous. You embed documents, store the vectors, and retrieve relevant chunks to feed an LLM. Learn one in-memory option and one persistent option.</p>
+
+  <div class="cards three">
+    <article class="card acc-teal">
+      <div class="head"><div class="name">FAISS</div><div class="stat">★ 33k</div></div>
+      <div class="tag">In-memory vector search, no DB</div>
+      <p class="what">From Meta. Pure library — give it a numpy array of embeddings, it builds an index and answers nearest-neighbor queries in milliseconds. No server, no schema. Perfect for prototypes and small-to-medium corpora.</p>
+<pre><span class="k">import</span> faiss
+index = faiss.<span class="f">IndexFlatIP</span>(<span class="n">384</span>)         <span class="c"># cosine via inner product</span>
+index.<span class="f">add</span>(embeddings)
+D, I = index.<span class="f">search</span>(query_emb, k=<span class="n">5</span>)</pre>
+      <div class="pair">→ fast, but no persistence built-in</div>
+    </article>
+
+    <article class="card acc-teal">
+      <div class="head"><div class="name">Chroma / Qdrant</div><div class="stat">popular vector DBs</div></div>
+      <div class="tag">Persistent, filterable, production-ready</div>
+      <p class="what"><b>Chroma</b> is the simplest — drop-in, embedded, perfect for getting started. <b>Qdrant</b> is more production-grade with rich filtering, payload storage, and horizontal scaling. Both speak the same conceptual API.</p>
+<pre><span class="k">import</span> chromadb
+client = chromadb.<span class="f">Client</span>()
+col = client.<span class="f">create_collection</span>(<span class="s">"docs"</span>)
+col.<span class="f">add</span>(documents=[<span class="s">"..."</span>], ids=[<span class="s">"d1"</span>])
+col.<span class="f">query</span>(query_texts=[<span class="s">"how to..."</span>], n_results=<span class="n">3</span>)</pre>
+      <div class="pair">→ alternatives: <b>Pinecone</b>, <b>Weaviate</b>, <b>Milvus</b></div>
+    </article>
+
+    <article class="card acc-teal">
+      <div class="head"><div class="name">pgvector</div><div class="stat">PostgreSQL extension</div></div>
+      <div class="tag">Vector search in your existing database</div>
+      <p class="what">If you already use Postgres, you might not need a separate vector DB. Adds vector columns, similarity operators, and ANN indexes (HNSW, IVFFlat). Lets you filter by SQL columns and similarity in one query — huge for production apps.</p>
+<pre><span class="c"># SQL — yes, really</span>
+<span class="c"># SELECT id, content</span>
+<span class="c"># FROM docs</span>
+<span class="c"># WHERE tenant_id = $1</span>
+<span class="c"># ORDER BY embedding &lt;=&gt; $2</span>
+<span class="c"># LIMIT 5;</span></pre>
+      <div class="pair">→ favorite of teams who don't want infra sprawl</div>
+    </article>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- TIER 6: SERVING & DEPLOYMENT                                  -->
+<!-- ============================================================ -->
+<section class="tier acc-purple" id="t6">
+  <div class="tier-head">
+    <span class="tier-num">06</span>
+    <h2>Serving &amp; deployment</h2>
+    <span class="tier-badge ops">production readiness</span>
+  </div>
+  <p class="tier-intro">A model that lives in a notebook isn't a product. The handoff from <em>train</em> to <em>serve</em> is what separates research from engineering. These tools turn a pickle file into a service.</p>
+
+  <div class="cards">
+    <article class="card acc-purple">
+      <div class="head"><div class="name">FastAPI</div><div class="stat">★ 80k</div></div>
+      <div class="tag">The default Python API framework</div>
+      <p class="what">Async, type-hinted, auto-generates OpenAPI docs, and 5–10× faster than Flask. Wraps a model into an HTTP service in ~15 lines. Knowing FastAPI is table stakes for any ML role that touches deployment.</p>
+<pre><span class="k">from</span> fastapi <span class="k">import</span> FastAPI
+<span class="k">from</span> pydantic <span class="k">import</span> BaseModel
+<span class="k">import</span> joblib
+
+model = joblib.<span class="f">load</span>(<span class="s">"model.joblib"</span>)
+app = <span class="f">FastAPI</span>()
+
+<span class="k">class</span> <span class="f">Input</span>(BaseModel):
+    features: list[float]
+
+<span class="k">@app.post</span>(<span class="s">"/predict"</span>)
+<span class="k">def</span> <span class="f">predict</span>(req: Input):
+    p = model.<span class="f">predict_proba</span>([req.features])[<span class="n">0</span>]
+    <span class="k">return</span> {<span class="s">"prob"</span>: p.tolist()}</pre>
+      <div class="pair">→ run with <b>uvicorn</b> or <b>gunicorn+uvicorn</b></div>
+    </article>
+
+    <article class="card acc-purple">
+      <div class="head"><div class="name">Docker</div><div class="stat">infrastructure baseline</div></div>
+      <div class="tag">Containers — your model + its world</div>
+      <p class="what">Not Python. Not optional. Every ML model goes into a container before it goes to production. Docker freezes your Python version, package versions, and OS into a portable image. Required for Kubernetes, every cloud, every CI/CD pipeline.</p>
+<pre><span class="c"># Dockerfile</span>
+FROM python:3.11-slim
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+COPY . /app
+WORKDIR /app
+CMD [<span class="s">"uvicorn"</span>, <span class="s">"main:app"</span>, <span class="s">"--host"</span>, <span class="s">"0.0.0.0"</span>]</pre>
+      <div class="pair">→ next step: <b>Kubernetes</b> (only when scale demands it)</div>
+    </article>
+
+    <article class="card acc-purple">
+      <div class="head"><div class="name">ONNX</div><div class="stat">interchange format</div></div>
+      <div class="tag">Run any model anywhere</div>
+      <p class="what">A neutral graph format. Convert sklearn / PyTorch / TF models into <code>.onnx</code> files, then run them via ONNX Runtime — often faster than the source framework, on CPU, GPU, mobile, or browser (via <code>onnxruntime-web</code>).</p>
+<pre><span class="k">import</span> torch.onnx
+torch.<span class="f">onnx.export</span>(model, dummy, <span class="s">"model.onnx"</span>)
+
+<span class="k">import</span> onnxruntime <span class="k">as</span> ort
+sess = ort.<span class="f">InferenceSession</span>(<span class="s">"model.onnx"</span>)
+out  = sess.<span class="f">run</span>(<span class="k">None</span>, {<span class="s">"input"</span>: arr})</pre>
+      <div class="pair">→ huge for edge / browser deployment</div>
+    </article>
+
+    <article class="card acc-purple">
+      <div class="head"><div class="name">Gradio / Streamlit</div><div class="stat">demo UIs</div></div>
+      <div class="tag">A web UI for your model in 20 lines</div>
+      <p class="what">Both let you build a working web demo without touching HTML/CSS/JS. <b>Gradio</b> is loved for ML demos (especially HF Spaces). <b>Streamlit</b> is broader, better for data dashboards. Not for production user-facing apps, but unbeatable for stakeholder demos and internal tools.</p>
+<pre><span class="k">import</span> gradio <span class="k">as</span> gr
+<span class="k">def</span> <span class="f">classify</span>(text):
+    <span class="k">return</span> model(text)[<span class="n">0</span>]
+
+gr.<span class="f">Interface</span>(fn=classify, inputs=<span class="s">"text"</span>, outputs=<span class="s">"label"</span>).<span class="f">launch</span>()</pre>
+      <div class="pair">→ replaces: 90% of "I need a quick UI" needs</div>
+    </article>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- TIER 7: MLOps                                                 -->
+<!-- ============================================================ -->
+<section class="tier acc-coral" id="t7">
+  <div class="tier-head">
+    <span class="tier-num">07</span>
+    <h2>MLOps — track, version, orchestrate</h2>
+    <span class="tier-badge ops">senior-level differentiator</span>
+  </div>
+  <p class="tier-intro">Once you train more than three models, you'll forget which one was best. Once you have data flowing daily, you'll need orchestration. The tools below answer "which experiment? which dataset? which pipeline run?" — the questions that separate a script from a system.</p>
+
+  <div class="cards">
+    <article class="card acc-coral">
+      <div class="head"><div class="name">MLflow</div><div class="stat">★ 19k · open source</div></div>
+      <div class="tag">Experiment tracking + model registry</div>
+      <p class="what">Log metrics, params, artifacts of every training run; compare them in a UI; promote the best to a registry; serve from the registry. Self-hostable, framework-agnostic, free.</p>
+<pre><span class="k">import</span> mlflow
+<span class="k">with</span> mlflow.<span class="f">start_run</span>():
+    mlflow.<span class="f">log_params</span>({<span class="s">"lr"</span>: <span class="n">0.05</span>, <span class="s">"depth"</span>: <span class="n">6</span>})
+    mlflow.<span class="f">log_metrics</span>({<span class="s">"f1"</span>: <span class="n">0.87</span>, <span class="s">"auc"</span>: <span class="n">0.93</span>})
+    mlflow.sklearn.<span class="f">log_model</span>(model, <span class="s">"clf"</span>)</pre>
+      <div class="pair">→ alternative: <b>Weights &amp; Biases</b> (hosted, slicker UI)</div>
+    </article>
+
+    <article class="card acc-coral">
+      <div class="head"><div class="name">Weights &amp; Biases</div><div class="stat">SaaS standard</div></div>
+      <div class="tag">Experiment tracking, but prettier</div>
+      <p class="what">Hosted version of MLflow with a much better UI: dashboards, sweeps (hyperparameter search), reports, artifacts, model registry, dataset versioning. Free for individuals/research; paid for teams.</p>
+<pre><span class="k">import</span> wandb
+wandb.<span class="f">init</span>(project=<span class="s">"churn"</span>, config=params)
+<span class="k">for</span> epoch <span class="k">in</span> <span class="f">range</span>(<span class="n">20</span>):
+    train_loss = <span class="f">train</span>()
+    wandb.<span class="f">log</span>({<span class="s">"loss"</span>: train_loss, <span class="s">"epoch"</span>: epoch})</pre>
+      <div class="pair">→ pick W&amp;B for solo work, MLflow if self-hosted is mandatory</div>
+    </article>
+
+    <article class="card acc-coral">
+      <div class="head"><div class="name">DVC</div><div class="stat">data version control</div></div>
+      <div class="tag">Git for datasets and model files</div>
+      <p class="what">Git can't handle 5 GB CSVs. DVC tracks data and model files via tiny pointer files in your git repo; the actual blobs live in S3/GCS/Azure. You can git-checkout a commit and get the matching data version. Critical for reproducibility.</p>
+<pre><span class="c"># Add a dataset to versioning</span>
+<span class="c"># $ dvc add data/raw.parquet</span>
+<span class="c"># $ git add data/raw.parquet.dvc</span>
+<span class="c"># $ dvc push                      # uploads to S3</span></pre>
+      <div class="pair">→ alternative: <b>LakeFS</b>, <b>Pachyderm</b></div>
+    </article>
+
+    <article class="card acc-coral">
+      <div class="head"><div class="name">Airflow / Prefect / Dagster</div><div class="stat">orchestrators</div></div>
+      <div class="tag">Pipelines, schedules, retries, alerts</div>
+      <p class="what">When you have daily data flowing through preprocessing → training → evaluation → deployment, you need an orchestrator. <b>Airflow</b> is the legacy standard. <b>Prefect</b> is modern and Pythonic. <b>Dagster</b> is the data-asset-aware newcomer.</p>
+<pre><span class="k">from</span> prefect <span class="k">import</span> flow, task
+
+<span class="k">@task</span>
+<span class="k">def</span> <span class="f">load</span>(): <span class="k">return</span> <span class="f">pd.read_parquet</span>(...)
+
+<span class="k">@task</span>
+<span class="k">def</span> <span class="f">train</span>(df): <span class="k">return</span> <span class="f">model.fit</span>(df)
+
+<span class="k">@flow</span>
+<span class="k">def</span> <span class="f">daily</span>():
+    df = <span class="f">load</span>()
+    m  = <span class="f">train</span>(df)</pre>
+      <div class="pair">→ pick one — they all solve the same problem</div>
+    </article>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- TIER 8: SPECIALIZED DOMAINS                                   -->
+<!-- ============================================================ -->
+<section class="tier acc-amber" id="t8">
+  <div class="tier-head">
+    <span class="tier-num">08</span>
+    <h2>Specialized domains</h2>
+    <span class="tier-badge ops">learn what you'll touch</span>
+  </div>
+  <p class="tier-intro">You don't need all of these. Pick by the domain you work in: text, images, time, big data. Each is the dominant tool in its niche.</p>
+
+  <div class="cards three">
+    <article class="card acc-amber">
+      <div class="head"><div class="name">spaCy</div><div class="stat">NLP</div></div>
+      <div class="tag">Production NLP pipelines</div>
+      <p class="what">Industrial-grade tokenization, POS tagging, NER, dependency parsing. Faster than NLTK, with pretrained models in 70+ languages. Use it for structured information extraction from text; pair with transformers for state-of-the-art accuracy.</p>
+      <div class="pair">→ alternatives: <b>NLTK</b> (academic), <b>Stanza</b></div>
+    </article>
+
+    <article class="card acc-amber">
+      <div class="head"><div class="name">OpenCV + Pillow + timm</div><div class="stat">Vision</div></div>
+      <div class="tag">The image processing stack</div>
+      <p class="what"><b>OpenCV</b> for classical CV (filtering, contours, transforms). <b>Pillow</b> for I/O and simple operations. <b>timm</b> (PyTorch Image Models) for 1000+ pretrained vision models — drop-in replacement for torchvision with better selection.</p>
+      <div class="pair">→ also: <b>albumentations</b> (augmentations)</div>
+    </article>
+
+    <article class="card acc-amber">
+      <div class="head"><div class="name">statsmodels + Prophet + sktime</div><div class="stat">Time series</div></div>
+      <div class="tag">Forecasting toolbox</div>
+      <p class="what"><b>statsmodels</b> for classical (ARIMA, SARIMAX, exponential smoothing) and statistical rigor (p-values, confidence intervals). <b>Prophet</b> for hands-off business forecasts with holidays. <b>sktime</b> brings the sklearn API to time-series tasks.</p>
+      <div class="pair">→ modern: <b>NeuralForecast</b>, <b>Chronos</b></div>
+    </article>
+
+    <article class="card acc-amber">
+      <div class="head"><div class="name">PySpark / Dask</div><div class="stat">Big data</div></div>
+      <div class="tag">When data won't fit in RAM</div>
+      <p class="what"><b>PySpark</b> dominates in enterprises with Hadoop/Databricks ecosystems. <b>Dask</b> is the Pythonic "scale-out pandas" that feels more native. For most teams &lt; 100 GB, Polars on a beefy box beats both.</p>
+      <div class="pair">→ also: <b>Ray</b> for distributed Python</div>
+    </article>
+
+    <article class="card acc-amber">
+      <div class="head"><div class="name">NetworkX</div><div class="stat">Graphs</div></div>
+      <div class="tag">Graph algorithms in pure Python</div>
+      <p class="what">Build, analyze, visualize networks. PageRank, shortest paths, community detection, centrality. For ML on graphs (GNNs), pair with <b>PyTorch Geometric</b> or <b>DGL</b>.</p>
+      <div class="pair">→ scale-up: <b>graph-tool</b>, <b>cuGraph</b></div>
+    </article>
+
+    <article class="card acc-amber">
+      <div class="head"><div class="name">Ray</div><div class="stat">distributed Python</div></div>
+      <div class="tag">Scale anything Python across a cluster</div>
+      <p class="what">Distributed actor framework. Use cases: <b>Ray Tune</b> for distributed hyperparameter search, <b>Ray Serve</b> for model serving, <b>Ray Data</b> for ML preprocessing at scale, <b>RLlib</b> for reinforcement learning.</p>
+      <div class="pair">→ learn once, use across the stack</div>
+    </article>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 90-DAY ROADMAP                                                -->
+<!-- ============================================================ -->
+<section class="roadmap-wrap">
+  <h2>The 90-day roadmap</h2>
+  <p class="sub">A realistic order for someone who already knows Python and sklearn. Treat it as a sequence of capability unlocks — by the end of each month you can do real work in a new area.</p>
+
+  <div class="weeks">
+    <div class="week">
+      <div class="lbl">Weeks 1–3 · Foundations</div>
+      <h4>Become unstoppable at data</h4>
+      <ul>
+        <li>NumPy: broadcasting, axis tricks</li>
+        <li>Pandas: groupby, merge, reshape</li>
+        <li>Polars: same patterns, lazy mode</li>
+        <li>Seaborn + Matplotlib for EDA</li>
+        <li><b>Project:</b> end-to-end EDA on a Kaggle dataset</li>
+      </ul>
+    </div>
+    <div class="week">
+      <div class="lbl">Weeks 4–6 · Tabular mastery</div>
+      <h4>Beat sklearn's defaults</h4>
+      <ul>
+        <li>XGBoost + LightGBM (pick one to know deeply)</li>
+        <li>Optuna for tuning</li>
+        <li>SHAP for explanations</li>
+        <li>imbalanced-learn for skewed classes</li>
+        <li><b>Project:</b> Kaggle tabular competition top 25%</li>
+      </ul>
+    </div>
+    <div class="week">
+      <div class="lbl">Weeks 7–9 · Deep learning</div>
+      <h4>PyTorch from scratch</h4>
+      <ul>
+        <li>Tensors, autograd, <code>nn.Module</code></li>
+        <li>Build an MLP, a CNN, a small transformer</li>
+        <li>PyTorch Lightning for the boilerplate</li>
+        <li>torchvision/timm pretrained models</li>
+        <li><b>Project:</b> fine-tune a vision model on custom data</li>
+      </ul>
+    </div>
+    <div class="week">
+      <div class="lbl">Weeks 10–12 · Modern AI</div>
+      <h4>Build with LLMs</h4>
+      <ul>
+        <li>Hugging Face Transformers + datasets</li>
+        <li>Sentence-Transformers + Chroma → RAG</li>
+        <li>Anthropic/OpenAI SDK + tool use</li>
+        <li>FastAPI to serve a model</li>
+        <li><b>Project:</b> chat-with-your-docs deployed via Docker</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- closing tips -->
+<section class="tips">
+  <div class="tip">
+    <div class="lbl">depth over breadth</div>
+    <p>You don't need to know every library on this page. Pick one per tier and go deep. A senior who knows pandas, PyTorch, transformers, and FastAPI cold beats a junior with a tab open for everything.</p>
+  </div>
+  <div class="tip">
+    <div class="lbl">build, don't bookmark</div>
+    <p>Every library here has a 10-minute "hello world" in its docs. Do them. Then build something real — a project teaches more than a month of tutorials. Aim for one shippable thing per tier.</p>
+  </div>
+  <div class="tip">
+    <div class="lbl">follow the work</div>
+    <p>Your current job lives somewhere on this map. If you're doing CRM/marketing analytics, master pandas + xgboost + SHAP + FastAPI first. If you're doing chat features, master transformers + LangChain + vector DBs. Don't learn what's trendy; learn what unblocks tomorrow.</p>
+  </div>
+</section>
+
+<footer class="foot">
+  <span>data · model · serve · operate</span>
+  <span>2026 · the AI/ML Engineer's toolkit</span>
+</footer>
+
+</div>
+</body>
+</html>
