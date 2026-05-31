@@ -1,0 +1,1776 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Pandas · The Complete Foundations Book</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a0c11; --bg-2:#0f131a; --surface:#161b24; --surface-2:#1c222c;
+  --border:#262d3a; --border-soft:#1f2530;
+  --text:#e8ebf1; --text-dim:#9aa3b2; --text-mute:#6b7385;
+  --teal:#1D9E75; --teal-2:#28c595;
+  --purple:#7F77DD; --purple-2:#9d96e6;
+  --coral:#D85A30; --coral-2:#ec7548;
+  --amber:#BA7517; --amber-2:#e0a64a;
+  --accent:#28c595;       /* Data Foundations series accent */
+  --code-bg:#0e1218;
+  --out-bg:#0b1015;
+  --code-key:#7F77DD; --code-fn:#28c595; --code-str:#e0a64a;
+  --code-num:#ec7548; --code-com:#5b6477; --code-self:#9aa3b2;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;scroll-behavior:smooth}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:'Inter',sans-serif;
+  font-size:15.5px;
+  line-height:1.75;
+  -webkit-font-smoothing:antialiased;
+  letter-spacing:.005em;
+}
+.book{max-width:840px;margin:0 auto;padding:0 28px}
+
+/* ============ COVER ============ */
+.cover{
+  min-height:88vh;
+  display:flex;flex-direction:column;justify-content:center;
+  padding:60px 0 80px;
+  background:radial-gradient(800px 500px at 20% 30%, rgba(40,197,149,.12), transparent 60%);
+  border-bottom:1px solid var(--border-soft);
+  margin-bottom:60px;
+}
+.cover .crest{
+  font-family:'JetBrains Mono',monospace;font-size:11px;
+  letter-spacing:.3em;text-transform:uppercase;
+  color:var(--accent);margin-bottom:24px;font-weight:600;
+}
+.cover h1{
+  font-family:'Fraunces',serif;
+  font-weight:400;font-style:italic;
+  font-size:108px;line-height:.92;letter-spacing:-.03em;
+  margin:0 0 18px;
+  background:linear-gradient(180deg,#fff 0%,#a9b3c4 100%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.cover .sub{
+  font-family:'Fraunces',serif;font-weight:300;
+  font-size:26px;line-height:1.35;letter-spacing:-.01em;
+  color:var(--text-dim);
+  max-width:620px;margin:0 0 40px;
+}
+.cover .meta{
+  display:flex;gap:32px;flex-wrap:wrap;
+  font-family:'JetBrains Mono',monospace;font-size:11px;
+  color:var(--text-mute);text-transform:uppercase;letter-spacing:.14em;
+  padding-top:28px;border-top:1px solid var(--border-soft);
+}
+.cover .meta b{color:var(--text-dim);font-weight:500}
+.series-nav{
+  display:inline-flex;gap:10px;flex-wrap:wrap;margin-bottom:32px;
+}
+.series-nav .item{
+  font-family:'JetBrains Mono',monospace;font-size:10.5px;
+  padding:5px 11px;border-radius:999px;
+  border:1px solid var(--border);background:var(--surface);
+  color:var(--text-mute);text-transform:uppercase;letter-spacing:.1em;
+}
+.series-nav .item.done{
+  color:var(--text-dim);
+}
+.series-nav .item.done::before{
+  content:"✓ ";color:var(--accent);
+}
+.series-nav .item.active{
+  background:rgba(40,197,149,.1);border-color:var(--accent);color:var(--accent);
+}
+
+/* ============ TOC ============ */
+.toc-page{
+  padding:40px 0 80px;
+  border-bottom:1px solid var(--border-soft);
+  margin-bottom:80px;
+}
+.toc-page h2{
+  font-family:'Fraunces',serif;font-style:italic;font-weight:400;
+  font-size:42px;letter-spacing:-.015em;
+  margin:0 0 8px;color:var(--text);
+}
+.toc-page .toc-intro{
+  color:var(--text-dim);font-size:14.5px;margin:0 0 36px;max-width:620px;
+}
+.toc-list{list-style:none;padding:0;margin:0}
+.toc-list li{
+  display:flex;justify-content:space-between;align-items:baseline;gap:14px;
+  padding:9px 0;
+  border-bottom:1px dotted var(--border-soft);
+}
+.toc-list a{
+  color:var(--text-dim);text-decoration:none;font-size:14.5px;
+  flex:1;display:flex;align-items:baseline;gap:16px;
+}
+.toc-list a:hover{color:var(--accent)}
+.toc-list .ch{
+  font-family:'JetBrains Mono',monospace;font-size:11px;
+  color:var(--accent);min-width:30px;
+}
+.toc-list .desc{
+  font-size:12px;color:var(--text-mute);font-style:italic;
+}
+
+/* ============ CHAPTERS ============ */
+.chapter{
+  padding:60px 0;
+  scroll-margin-top:24px;
+}
+.chapter + .chapter{border-top:1px solid var(--border-soft)}
+.ch-header{
+  margin-bottom:32px;
+}
+.ch-num{
+  font-family:'JetBrains Mono',monospace;
+  font-size:13px;font-weight:600;
+  color:var(--accent);
+  letter-spacing:.1em;
+  display:block;margin-bottom:8px;
+}
+.ch-title{
+  font-family:'Fraunces',serif;font-style:italic;font-weight:400;
+  font-size:46px;line-height:1.05;letter-spacing:-.02em;
+  margin:0;color:var(--text);
+}
+
+.dropcap::first-letter{
+  font-family:'Fraunces',serif;font-style:italic;font-weight:400;
+  font-size:62px;float:left;line-height:.85;margin:8px 12px 0 0;
+  color:var(--accent);
+}
+
+h3.section{
+  font-family:'Fraunces',serif;font-weight:500;
+  font-size:24px;letter-spacing:-.01em;
+  margin:42px 0 12px;color:var(--text);
+}
+h3.section .num{
+  font-family:'JetBrains Mono',monospace;font-size:12px;
+  color:var(--text-mute);font-weight:400;margin-right:10px;
+}
+h4.sub{
+  font-size:15px;font-weight:600;
+  margin:22px 0 8px;color:var(--text);
+  letter-spacing:-.005em;
+}
+
+p{margin:0 0 14px;color:var(--text)}
+p + p{margin-top:0}
+.lead{
+  font-size:17px;color:var(--text-dim);margin-bottom:20px;
+  font-family:'Fraunces',serif;font-weight:300;line-height:1.55;font-style:italic;
+}
+
+ul,ol{margin:0 0 16px;padding-left:24px;color:var(--text-dim)}
+li{margin-bottom:6px}
+b,strong{color:var(--text);font-weight:600}
+em{font-style:italic;color:var(--text)}
+
+/* ============ CODE ============ */
+pre{
+  background:var(--code-bg);
+  border:1px solid var(--border-soft);
+  border-radius:8px 8px 0 0;
+  padding:14px 16px;
+  font-family:'JetBrains Mono',monospace;
+  font-size:12.5px;
+  line-height:1.65;
+  overflow-x:auto;
+  margin:14px 0 0;
+  color:#cdd4e0;
+  position:relative;
+}
+pre:not(.out):not(:has(+ pre.out)){
+  border-radius:8px;margin-bottom:18px;
+}
+pre.out{
+  background:var(--out-bg);
+  border:1px dashed var(--border);border-top:0;
+  border-radius:0 0 8px 8px;
+  margin-top:0;margin-bottom:18px;
+  color:#a9b3c4;
+  font-size:12px;
+}
+pre.out::before{
+  content:"OUTPUT";position:absolute;top:6px;right:12px;
+  font-size:9px;color:var(--text-mute);
+  letter-spacing:.14em;font-weight:600;font-family:'JetBrains Mono',monospace;
+}
+pre.solo{
+  border-radius:8px;margin-bottom:18px;
+}
+code{font-family:'JetBrains Mono',monospace}
+:not(pre) > code{
+  background:rgba(40,197,149,.08);
+  padding:1px 6px;border-radius:4px;
+  border:1px solid rgba(40,197,149,.15);
+  color:var(--accent);
+  font-size:13px;
+}
+.k{color:var(--code-key)}
+.f{color:var(--code-fn)}
+.s{color:var(--code-str)}
+.n{color:var(--code-num)}
+.c{color:var(--code-com);font-style:italic}
+.sf{color:var(--code-self)}
+.o{color:#cdd4e0}
+
+/* ============ CALLOUTS ============ */
+.note{
+  display:flex;gap:16px;margin:18px 0;
+  padding:14px 18px;border-radius:8px;
+  background:var(--surface);
+  border-left:3px solid var(--note-accent,var(--purple-2));
+  font-size:14.5px;
+}
+.note .lbl{
+  font-family:'JetBrains Mono',monospace;font-size:10.5px;
+  text-transform:uppercase;letter-spacing:.12em;
+  color:var(--note-accent,var(--purple-2));
+  font-weight:600;flex-shrink:0;min-width:96px;
+}
+.note p{margin:0;color:var(--text-dim);font-size:14px}
+.note.intuition{--note-accent:var(--amber-2)}
+.note.warn{--note-accent:var(--coral-2)}
+.note.tip{--note-accent:var(--teal-2)}
+
+/* application card */
+.app{
+  background:linear-gradient(180deg,rgba(40,197,149,.05),transparent);
+  border:1px solid var(--border-soft);border-left:3px solid var(--accent);
+  border-radius:8px;
+  padding:14px 18px;margin:18px 0;
+}
+.app .lbl{
+  font-family:'JetBrains Mono',monospace;font-size:10px;
+  color:var(--accent);text-transform:uppercase;letter-spacing:.14em;
+  font-weight:600;margin-bottom:6px;
+}
+.app p{margin:0;color:var(--text-dim);font-size:13.5px;line-height:1.6}
+.app p + p{margin-top:6px}
+
+/* ============ FIGURES ============ */
+.figure{
+  margin:24px 0 28px;
+  background:var(--surface);
+  border:1px solid var(--border-soft);
+  border-radius:10px;
+  padding:24px 24px 16px;
+}
+.figure svg{display:block;margin:0 auto;width:100%;height:auto;max-width:760px}
+.fig-caption{
+  text-align:center;
+  font-size:12.5px;color:var(--text-mute);
+  font-style:italic;
+  margin-top:14px;font-family:'Fraunces',serif;
+}
+.fig-caption b{color:var(--text);font-style:normal;font-weight:600;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.04em;margin-right:6px}
+
+/* ============ TABLES ============ */
+table.tbl{
+  width:100%;border-collapse:collapse;
+  font-size:13.5px;margin:16px 0 18px;
+  background:var(--surface);border-radius:8px;overflow:hidden;
+  border:1px solid var(--border-soft);
+}
+table.tbl th,table.tbl td{
+  text-align:left;padding:10px 14px;
+  border-bottom:1px solid var(--border-soft);
+  vertical-align:top;
+}
+table.tbl th{
+  color:var(--text-mute);font-weight:500;
+  font-family:'JetBrains Mono',monospace;font-size:10.5px;
+  text-transform:uppercase;letter-spacing:.08em;
+  background:var(--bg-2);
+}
+table.tbl td:first-child{color:var(--text);font-weight:500}
+table.tbl tr:last-child td{border-bottom:none}
+table.tbl code{font-size:12.5px}
+
+/* ============ COLOPHON ============ */
+.colophon{
+  margin:80px 0 40px;padding:36px 0;
+  border-top:1px solid var(--border-soft);
+  text-align:center;
+}
+.colophon .mark{
+  font-family:'Fraunces',serif;font-style:italic;
+  font-size:36px;color:var(--accent);margin:0 0 10px;
+}
+.colophon p{
+  font-family:'JetBrains Mono',monospace;font-size:11px;
+  color:var(--text-mute);text-transform:uppercase;letter-spacing:.14em;
+  margin:0;
+}
+
+@media (max-width:680px){
+  .cover h1{font-size:62px}
+  .cover .sub{font-size:18px}
+  .ch-title{font-size:32px}
+  h3.section{font-size:20px}
+  .book{padding:0 18px}
+}
+@media print{
+  body{background:#fff;color:#111}
+  .cover h1{color:#111;-webkit-text-fill-color:#111}
+  .chapter{page-break-before:always;border-top:none}
+  pre,pre.out,.note,.figure,table.tbl,.app{background:#fff;border-color:#ddd;break-inside:avoid}
+  pre{background:#f7f7f9}
+  pre.out{background:#fbfcfd}
+  .k{color:#7c3aed}.f{color:#0d8a5b}.s{color:#a5650a}.n{color:#b14a26}.c{color:#888}
+}
+</style>
+</head>
+<body>
+<div class="book">
+
+<!-- ============================================================ -->
+<!-- COVER                                                         -->
+<!-- ============================================================ -->
+<section class="cover">
+  <div class="crest">⌗ the foundations · book 2 of 5</div>
+  <div class="series-nav">
+    <span class="item done">NumPy</span>
+    <span class="item active">Pandas</span>
+    <span class="item">Polars</span>
+    <span class="item">Visualization</span>
+    <span class="item">Project</span>
+  </div>
+  <h1>Pandas.</h1>
+  <p class="sub">Where numerical arrays grow labels. The tool you'll reach for ninety percent of the days you handle data in Python.</p>
+  <div class="meta">
+    <span><b>13</b> chapters</span>
+    <span><b>complete</b> coverage</span>
+    <span>groupby · merge · reshape</span>
+    <span><b>2026</b> edition</span>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- TOC                                                           -->
+<!-- ============================================================ -->
+<section class="toc-page" id="toc">
+  <h2>Contents</h2>
+  <p class="toc-intro">A complete tour from "what is a DataFrame" to fluency with the operations that fill real workdays. The middle section — groupby, merge, reshape — gets the deepest treatment because that's where most of the real work happens.</p>
+  <ul class="toc-list">
+    <li><a href="#c1"><span class="ch">01</span><span>Why pandas exists</span></a><span class="desc">labeled arrays, the right altitude</span></li>
+    <li><a href="#c2"><span class="ch">02</span><span>Series — the 1-D foundation</span></a><span class="desc">a column with an index</span></li>
+    <li><a href="#c3"><span class="ch">03</span><span>DataFrame — the workhorse</span></a><span class="desc">tables that think</span></li>
+    <li><a href="#c4"><span class="ch">04</span><span>Loading data</span></a><span class="desc">read_csv and friends</span></li>
+    <li><a href="#c5"><span class="ch">05</span><span>Selection &amp; indexing</span></a><span class="desc">loc, iloc, boolean, query</span></li>
+    <li><a href="#c6"><span class="ch">06</span><span>Cleaning data</span></a><span class="desc">missing values, types, duplicates</span></li>
+    <li><a href="#c7"><span class="ch">07</span><span>GroupBy deep dive</span></a><span class="desc">split-apply-combine in full</span></li>
+    <li><a href="#c8"><span class="ch">08</span><span>Merging &amp; joining</span></a><span class="desc">concat, merge, join</span></li>
+    <li><a href="#c9"><span class="ch">09</span><span>Reshape</span></a><span class="desc">pivot, melt, stack, unstack</span></li>
+    <li><a href="#c10"><span class="ch">10</span><span>Apply, transform, and friends</span></a><span class="desc">when not to use apply</span></li>
+    <li><a href="#c11"><span class="ch">11</span><span>Time series</span></a><span class="desc">DatetimeIndex, resample, rolling</span></li>
+    <li><a href="#c12"><span class="ch">12</span><span>Performance</span></a><span class="desc">memory, speed, categoricals</span></li>
+    <li><a href="#c13"><span class="ch">13</span><span>End-to-end example</span></a><span class="desc">sales pipeline in 30 lines</span></li>
+  </ul>
+</section>
+
+<!-- ============================================================ -->
+<!-- CHAPTER 1                                                     -->
+<!-- ============================================================ -->
+<section class="chapter" id="c1">
+  <div class="ch-header">
+    <span class="ch-num">CHAPTER 01</span>
+    <h2 class="ch-title">Why pandas exists</h2>
+  </div>
+  <p class="lead">NumPy gave you fast arrays. Pandas gives you arrays with names — and once your data has names, every operation reads like English.</p>
+
+  <p class="dropcap">NumPy is brilliant for math, but it has one problem for real data: every dimension is just a position. The seventh column has no name. The fifteenth row has no identity. If you ever need to track "what does column 4 represent" or "match these customer IDs to those order IDs," you're back to managing index lookups by hand. Pandas solves this by adding labels — every row has an index, every column has a name — and once that's true, alignment, joining, grouping, and reshaping all become natural.</p>
+
+  <h3 class="section"><span class="num">1.1</span>The two core data structures</h3>
+  <p>The whole library is built on two objects:</p>
+  <ul>
+    <li><b>Series</b> — a one-dimensional labeled array. Think "a column with a name and a row index."</li>
+    <li><b>DataFrame</b> — a two-dimensional labeled table. Think "a dict of Series sharing the same row index."</li>
+  </ul>
+  <p>Everything else — groupby, merge, pivot — is operations on these two. Get the data model right and the rest follows.</p>
+
+  <h3 class="section"><span class="num">1.2</span>The right altitude</h3>
+  <p>Pandas sits between NumPy and SQL in a useful way:</p>
+  <table class="tbl">
+    <thead><tr><th>Tool</th><th>Strength</th><th>Pain point</th></tr></thead>
+    <tbody>
+      <tr><td>NumPy</td><td>fastest math on dense arrays</td><td>no labels, no missing values, no mixed types</td></tr>
+      <tr><td>Pandas</td><td>labeled tables, mixed types, missing data, joins, groupby</td><td>slower than NumPy, less scalable than Spark/Polars</td></tr>
+      <tr><td>SQL</td><td>scales, transactional, declarative</td><td>verbose for analysis, no native ML integration</td></tr>
+      <tr><td>Spark / Polars</td><td>billions of rows, distributed</td><td>more ceremony for small-to-medium data</td></tr>
+    </tbody>
+  </table>
+  <p>For datasets up to maybe 10 GB on a single machine, pandas is usually the right answer. Anything smaller and the alternatives are overkill; anything larger and you'll outgrow it.</p>
+
+  <h3 class="section"><span class="num">1.3</span>Installing and importing</h3>
+<pre class="solo"><span class="c"># Bash</span>
+pip install pandas pyarrow      <span class="c"># pyarrow is the modern backend</span>
+
+<span class="c"># Python — the universal convention</span>
+<span class="k">import</span> pandas <span class="k">as</span> pd
+pd.__version__</pre>
+
+  <p>Like <code>np</code>, the <code>pd</code> alias is everywhere — never alias it differently. Modern pandas (2.x) defaults to NumPy-backed arrays but works much better when you also have <code>pyarrow</code> installed for IO speed and string handling.</p>
+
+  <h3 class="section"><span class="num">1.4</span>The mental model</h3>
+  <p>Think of a DataFrame as a spreadsheet with one extra rule: every row has a <em>label</em> (the index) and every column has a <em>name</em>. All operations respect those labels. When you add two DataFrames, pandas aligns by labels first, not by position. When you join, you join on labels. When you group, you group by labels. <em>Labels are the entire game.</em></p>
+
+  <div class="app">
+    <div class="lbl">Where you'll meet pandas</div>
+    <p>Every Jupyter notebook with tabular data. Every ML pipeline before the matrix goes into scikit-learn. Every dashboard built on Python. Every ETL job that doesn't yet run in Spark. Every data scientist's day. Pandas is the lingua franca of Python data work — and learning it once pays off forever.</p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- CHAPTER 2 — SERIES                                            -->
+<!-- ============================================================ -->
+<section class="chapter" id="c2">
+  <div class="ch-header">
+    <span class="ch-num">CHAPTER 02</span>
+    <h2 class="ch-title">Series — the 1-D foundation</h2>
+  </div>
+  <p class="lead">Every column in pandas is a Series. Learning Series first means DataFrame quirks suddenly make sense.</p>
+
+  <h3 class="section"><span class="num">2.1</span>Creating a Series</h3>
+<pre><span class="k">import</span> pandas <span class="k">as</span> pd
+
+<span class="c"># From a list</span>
+s = pd.<span class="f">Series</span>([<span class="n">10</span>, <span class="n">20</span>, <span class="n">30</span>, <span class="n">40</span>])
+s</pre>
+<pre class="out">0    10
+1    20
+2    30
+3    40
+dtype: int64</pre>
+
+<pre><span class="c"># With a custom index</span>
+s = pd.<span class="f">Series</span>([<span class="n">10</span>, <span class="n">20</span>, <span class="n">30</span>], index=[<span class="s">"a"</span>, <span class="s">"b"</span>, <span class="s">"c"</span>])
+s</pre>
+<pre class="out">a    10
+b    20
+c    30
+dtype: int64</pre>
+
+<pre><span class="c"># From a dict — keys become the index</span>
+s = pd.<span class="f">Series</span>({<span class="s">"apples"</span>: <span class="n">3</span>, <span class="s">"oranges"</span>: <span class="n">5</span>, <span class="s">"pears"</span>: <span class="n">2</span>})
+s</pre>
+<pre class="out">apples     3
+oranges    5
+pears      2
+dtype: int64</pre>
+
+  <h3 class="section"><span class="num">2.2</span>The three things every Series has</h3>
+<pre>s.values         <span class="c"># the underlying array (NumPy or Arrow)</span>
+s.index          <span class="c"># the label axis</span>
+s.dtype          <span class="c"># element type</span>
+s.name           <span class="c"># optional — the Series' own name</span></pre>
+<pre class="out">array([3, 5, 2])
+Index(['apples', 'oranges', 'pears'], dtype='object')
+dtype('int64')
+None</pre>
+
+  <h3 class="section"><span class="num">2.3</span>Lookup by label and by position</h3>
+<pre>s[<span class="s">"apples"</span>]            <span class="c"># by label — like a dict</span>
+s.<span class="f">iloc</span>[<span class="n">0</span>]              <span class="c"># by position — like a list</span>
+s.<span class="f">loc</span>[<span class="s">"apples"</span>]        <span class="c"># by label, explicit</span>
+
+s[[<span class="s">"apples"</span>, <span class="s">"pears"</span>]]  <span class="c"># multiple labels</span></pre>
+<pre class="out">3
+3
+3
+apples    3
+pears     2
+dtype: int64</pre>
+
+  <h3 class="section"><span class="num">2.4</span>Vectorized operations</h3>
+  <p>Like NumPy arrays, Series operations are vectorized:</p>
+<pre>prices = pd.<span class="f">Series</span>({<span class="s">"apple"</span>: <span class="n">1.5</span>, <span class="s">"orange"</span>: <span class="n">2.0</span>, <span class="s">"pear"</span>: <span class="n">3.0</span>})
+qty    = pd.<span class="f">Series</span>({<span class="s">"apple"</span>: <span class="n">10</span>, <span class="s">"orange"</span>: <span class="n">5</span>, <span class="s">"pear"</span>: <span class="n">2</span>})
+
+revenue = prices * qty
+revenue</pre>
+<pre class="out">apple     15.0
+orange    10.0
+pear       6.0
+dtype: float64</pre>
+
+  <h3 class="section"><span class="num">2.5</span>The killer feature — alignment by index</h3>
+  <p>When you combine two Series, pandas aligns them by label, not by position. Mismatched labels produce <code>NaN</code>.</p>
+<pre>a = pd.<span class="f">Series</span>({<span class="s">"x"</span>: <span class="n">1</span>, <span class="s">"y"</span>: <span class="n">2</span>, <span class="s">"z"</span>: <span class="n">3</span>})
+b = pd.<span class="f">Series</span>({<span class="s">"y"</span>: <span class="n">10</span>, <span class="s">"z"</span>: <span class="n">20</span>, <span class="s">"w"</span>: <span class="n">30</span>})
+a + b</pre>
+<pre class="out">w     NaN
+x     NaN
+y    12.0
+z    23.0
+dtype: float64</pre>
+
+  <p>Notice: <code>y</code> and <code>z</code> are added correctly (12 = 2+10, 23 = 3+20). The label <code>x</code> exists only in <code>a</code>, <code>w</code> only in <code>b</code> — both become NaN. This is the source of pandas' magic and also its most common gotcha.</p>
+
+  <div class="note intuition">
+    <span class="lbl">remember</span>
+    <p>Position is for code that's wrong. Labels are for code that's right. The whole point of pandas is that you can rearrange, filter, and combine data and still trust that "row labeled customer_42 is in fact customer 42's row." NumPy can't promise that.</p>
+  </div>
+
+  <h3 class="section"><span class="num">2.6</span>Useful Series methods</h3>
+<pre>s = pd.<span class="f">Series</span>([<span class="n">3</span>, <span class="n">1</span>, <span class="n">4</span>, <span class="n">1</span>, <span class="n">5</span>, <span class="n">9</span>, <span class="n">2</span>])
+
+s.<span class="f">describe</span>()                  <span class="c"># count, mean, std, min, quartiles, max</span>
+s.<span class="f">value_counts</span>()               <span class="c"># frequencies — sorted</span>
+s.<span class="f">unique</span>()                     <span class="c"># unique values, order preserved</span>
+s.<span class="f">nunique</span>()                    <span class="c"># count of unique values</span>
+s.<span class="f">sort_values</span>()                <span class="c"># sort by value</span>
+s.<span class="f">sort_index</span>()                 <span class="c"># sort by index label</span>
+s.<span class="f">isin</span>([<span class="n">1</span>, <span class="n">2</span>])                 <span class="c"># boolean mask: is each value in [1, 2]?</span></pre>
+
+  <div class="app">
+    <div class="lbl">Application</div>
+    <p>A Series is the unit of pandas thinking. When you select a column from a DataFrame, you get a Series. When you call <code>.mean()</code>, you reduce a Series to a scalar. When you call <code>.value_counts()</code>, you produce a Series. Most of "doing pandas" is composing Series operations. Get comfortable here and DataFrames become obvious.</p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- CHAPTER 3 — DATAFRAME                                         -->
+<!-- ============================================================ -->
+<section class="chapter" id="c3">
+  <div class="ch-header">
+    <span class="ch-num">CHAPTER 03</span>
+    <h2 class="ch-title">DataFrame — the workhorse</h2>
+  </div>
+  <p class="lead">A table where every column is a Series and every row has an index. The single most useful data structure in Python.</p>
+
+  <h3 class="section"><span class="num">3.1</span>Creating DataFrames</h3>
+
+  <h4 class="sub">From a dict of lists — the most common</h4>
+<pre>df = pd.<span class="f">DataFrame</span>({
+    <span class="s">"name"</span>:   [<span class="s">"Alice"</span>, <span class="s">"Bob"</span>, <span class="s">"Carol"</span>],
+    <span class="s">"age"</span>:    [<span class="n">25</span>, <span class="n">32</span>, <span class="n">28</span>],
+    <span class="s">"city"</span>:   [<span class="s">"Austin"</span>, <span class="s">"Dallas"</span>, <span class="s">"Houston"</span>],
+})
+df</pre>
+<pre class="out">    name  age     city
+0  Alice   25   Austin
+1    Bob   32   Dallas
+2  Carol   28  Houston</pre>
+
+  <h4 class="sub">From a list of dicts — rows as records</h4>
+<pre>records = [
+    {<span class="s">"name"</span>: <span class="s">"Alice"</span>, <span class="s">"age"</span>: <span class="n">25</span>},
+    {<span class="s">"name"</span>: <span class="s">"Bob"</span>,   <span class="s">"age"</span>: <span class="n">32</span>, <span class="s">"city"</span>: <span class="s">"Dallas"</span>},
+]
+pd.<span class="f">DataFrame</span>(records)</pre>
+<pre class="out">    name  age    city
+0  Alice   25     NaN
+1    Bob   32  Dallas</pre>
+
+  <p>Missing keys become NaN automatically. Great for messy real-world records.</p>
+
+  <h4 class="sub">From a NumPy array</h4>
+<pre><span class="k">import</span> numpy <span class="k">as</span> np
+
+arr = np.random.<span class="f">default_rng</span>(<span class="n">0</span>).<span class="f">normal</span>(size=(<span class="n">5</span>, <span class="n">3</span>))
+df = pd.<span class="f">DataFrame</span>(arr, columns=[<span class="s">"x"</span>, <span class="s">"y"</span>, <span class="s">"z"</span>])
+df</pre>
+<pre class="out">          x         y         z
+0  0.125730 -0.132105  0.640423
+1  0.105450 -0.535669  0.361636
+2  1.304180  0.947846 -0.703488
+3 -1.156436 -0.327662 -0.392108
+4 -0.140429  0.501359 -0.219148</pre>
+
+  <h3 class="section"><span class="num">3.2</span>Anatomy of a DataFrame</h3>
+<pre>df.shape          <span class="c"># (rows, columns)</span>
+df.dtypes         <span class="c"># per-column type</span>
+df.columns        <span class="c"># the column axis</span>
+df.index          <span class="c"># the row axis</span>
+df.values         <span class="c"># underlying 2-D array (loses labels)</span>
+df.size           <span class="c"># total cells</span></pre>
+
+  <h3 class="section"><span class="num">3.3</span>The inspection toolkit</h3>
+  <p>The first five things you do with any new DataFrame:</p>
+<pre>df.<span class="f">head</span>()              <span class="c"># first 5 rows</span>
+df.<span class="f">head</span>(<span class="n">10</span>)            <span class="c"># first 10</span>
+df.<span class="f">tail</span>()              <span class="c"># last 5</span>
+df.<span class="f">sample</span>(<span class="n">5</span>)           <span class="c"># 5 random rows</span>
+df.<span class="f">info</span>()              <span class="c"># dtypes, non-null counts, memory</span>
+df.<span class="f">describe</span>()          <span class="c"># numeric summary stats</span>
+df.<span class="f">describe</span>(include=<span class="s">"object"</span>)    <span class="c"># for string columns</span></pre>
+
+  <div class="note tip">
+    <span class="lbl">first move</span>
+    <p>The instant you load a DataFrame, run <code>df.shape</code>, <code>df.dtypes</code>, <code>df.head()</code>, <code>df.info()</code>. Four lines that prevent half the bugs you'd otherwise hit. Make it a reflex.</p>
+  </div>
+
+  <h3 class="section"><span class="num">3.4</span>Adding and removing columns</h3>
+<pre>df[<span class="s">"new_col"</span>] = <span class="n">0</span>                           <span class="c"># scalar broadcasts</span>
+df[<span class="s">"age_doubled"</span>] = df[<span class="s">"age"</span>] * <span class="n">2</span>           <span class="c"># compute from existing</span>
+
+df.<span class="f">drop</span>(columns=[<span class="s">"new_col"</span>], inplace=<span class="k">True</span>)  <span class="c"># remove</span>
+df = df.<span class="f">drop</span>(columns=<span class="s">"age_doubled"</span>)         <span class="c"># or return a copy</span></pre>
+
+  <h3 class="section"><span class="num">3.5</span>Setting the index</h3>
+<pre>df.<span class="f">set_index</span>(<span class="s">"name"</span>, inplace=<span class="k">True</span>)
+df</pre>
+<pre class="out">       age     city
+name
+Alice   25   Austin
+Bob     32   Dallas
+Carol   28  Houston</pre>
+
+<pre>df.<span class="f">reset_index</span>()                              <span class="c"># turn index back into a column</span></pre>
+
+  <p>Index choice matters: a useful index makes lookups, joins, and time-series operations natural. A meaningless integer index works fine but you're not getting full value from pandas.</p>
+
+  <div class="app">
+    <div class="lbl">Application</div>
+    <p>Treat the DataFrame as your primary data structure. Load CSV → DataFrame, clean it, group it, summarize it, then send the final summary somewhere else (a plot, a model, a Slack message). Pandas is the workshop where all your data passes through before becoming output.</p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- CHAPTER 4 — LOADING                                           -->
+<!-- ============================================================ -->
+<section class="chapter" id="c4">
+  <div class="ch-header">
+    <span class="ch-num">CHAPTER 04</span>
+    <h2 class="ch-title">Loading data</h2>
+  </div>
+  <p class="lead">Most data work starts with <code>read_csv</code> and a stubborn file. Knowing the options makes the difference between five seconds and five hours.</p>
+
+  <h3 class="section"><span class="num">4.1</span>CSV — the workhorse</h3>
+<pre>df = pd.<span class="f">read_csv</span>(<span class="s">"sales.csv"</span>)</pre>
+  <p>That works for clean files. Real files need more. Here are the arguments worth memorizing:</p>
+
+  <table class="tbl">
+    <thead><tr><th>Argument</th><th>What it does</th></tr></thead>
+    <tbody>
+      <tr><td><code>sep=";"</code></td><td>delimiter — semicolons, tabs (<code>"\t"</code>), or whatever</td></tr>
+      <tr><td><code>header=None</code></td><td>file has no header row</td></tr>
+      <tr><td><code>names=["a","b"]</code></td><td>supply column names explicitly</td></tr>
+      <tr><td><code>usecols=["x","y"]</code></td><td>load only these columns (huge speedup on wide files)</td></tr>
+      <tr><td><code>dtype={"id": "int32"}</code></td><td>force specific dtypes per column</td></tr>
+      <tr><td><code>parse_dates=["date"]</code></td><td>convert these columns to datetime</td></tr>
+      <tr><td><code>na_values=["?", "missing"]</code></td><td>treat these strings as NaN</td></tr>
+      <tr><td><code>skiprows=3</code></td><td>skip junk at the top</td></tr>
+      <tr><td><code>nrows=1000</code></td><td>read only the first N rows (great for testing)</td></tr>
+      <tr><td><code>chunksize=10000</code></td><td>iterator over N-row chunks for huge files</td></tr>
+      <tr><td><code>encoding="latin-1"</code></td><td>when "UTF-8" errors strike, try this</td></tr>
+      <tr><td><code>engine="pyarrow"</code></td><td>much faster, modern engine if available</td></tr>
+    </tbody>
+  </table>
+
+  <h3 class="section"><span class="num">4.2</span>The real-world example</h3>
+<pre>df = pd.<span class="f">read_csv</span>(
+    <span class="s">"messy_export.csv"</span>,
+    sep=<span class="s">";"</span>,
+    skiprows=<span class="n">3</span>,
+    usecols=[<span class="s">"order_id"</span>, <span class="s">"customer"</span>, <span class="s">"amount"</span>, <span class="s">"order_date"</span>],
+    dtype={<span class="s">"order_id"</span>: <span class="s">"int32"</span>, <span class="s">"customer"</span>: <span class="s">"string"</span>},
+    parse_dates=[<span class="s">"order_date"</span>],
+    na_values=[<span class="s">"N/A"</span>, <span class="s">""</span>, <span class="s">"-"</span>],
+    encoding=<span class="s">"latin-1"</span>,
+)
+df.<span class="f">info</span>()</pre>
+<pre class="out">&lt;class 'pandas.core.frame.DataFrame'&gt;
+RangeIndex: 50000 entries, 0 to 49999
+Data columns (total 4 columns):
+ #   Column      Non-Null Count  Dtype
+ 0   order_id    50000 non-null  int32
+ 1   customer    49823 non-null  string
+ 2   amount      49967 non-null  float64
+ 3   order_date  50000 non-null  datetime64[ns]</pre>
+
+  <h3 class="section"><span class="num">4.3</span>Other formats</h3>
+<pre>pd.<span class="f">read_excel</span>(<span class="s">"file.xlsx"</span>, sheet_name=<span class="s">"Q3"</span>)
+pd.<span class="f">read_parquet</span>(<span class="s">"file.parquet"</span>)           <span class="c"># fast, typed, compressed</span>
+pd.<span class="f">read_json</span>(<span class="s">"file.json"</span>)
+pd.<span class="f">read_sql</span>(<span class="s">"SELECT * FROM orders"</span>, conn)
+pd.<span class="f">read_html</span>(<span class="s">"https://en.wikipedia.org/wiki/List_of_..."</span>)  <span class="c"># scrapes tables</span>
+pd.<span class="f">read_clipboard</span>()                          <span class="c"># whatever you just copied</span></pre>
+
+  <div class="note tip">
+    <span class="lbl">prefer parquet</span>
+    <p>For anything you'll re-read more than once, save it as Parquet. It's typed (no string-int confusion on reload), compressed (often 5-10× smaller than CSV), and reads 10-100× faster. <code>df.to_parquet("file.parquet")</code> is your friend.</p>
+  </div>
+
+  <h3 class="section"><span class="num">4.4</span>Writing data</h3>
+<pre>df.<span class="f">to_csv</span>(<span class="s">"out.csv"</span>, index=<span class="k">False</span>)            <span class="c"># index=False unless you mean it</span>
+df.<span class="f">to_parquet</span>(<span class="s">"out.parquet"</span>)
+df.<span class="f">to_excel</span>(<span class="s">"out.xlsx"</span>, sheet_name=<span class="s">"results"</span>)
+df.<span class="f">to_json</span>(<span class="s">"out.json"</span>, orient=<span class="s">"records"</span>)</pre>
+
+  <div class="note warn">
+    <span class="lbl">index=False</span>
+    <p>Default <code>to_csv</code> writes the row index as the first column. If your index is just <code>0, 1, 2, ...</code> (which it usually is), pass <code>index=False</code> or your file gains a useless column on every save. The number of CSVs in the wild with a stray "Unnamed: 0" column is staggering.</p>
+  </div>
+
+  <div class="app">
+    <div class="lbl">Application</div>
+    <p>Half of "data engineering" is reading files. Master the read_csv arguments and you eliminate the most frustrating class of pandas bugs — the ones where your data loaded "successfully" but the numbers are strings, the dates aren't dates, and your aggregations silently produce garbage.</p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- CHAPTER 5 — SELECTION                                         -->
+<!-- ============================================================ -->
+<section class="chapter" id="c5">
+  <div class="ch-header">
+    <span class="ch-num">CHAPTER 05</span>
+    <h2 class="ch-title">Selection &amp; indexing</h2>
+  </div>
+  <p class="lead">Pulling out specific rows and columns. The simplest pandas operation, with the most confusing API. This chapter unconfuses it.</p>
+
+  <h3 class="section"><span class="num">5.1</span>The three selection styles</h3>
+<pre>df = pd.<span class="f">DataFrame</span>({
+    <span class="s">"name"</span>:    [<span class="s">"Alice"</span>, <span class="s">"Bob"</span>, <span class="s">"Carol"</span>, <span class="s">"Dan"</span>],
+    <span class="s">"age"</span>:     [<span class="n">25</span>, <span class="n">32</span>, <span class="n">28</span>, <span class="n">45</span>],
+    <span class="s">"city"</span>:    [<span class="s">"Austin"</span>, <span class="s">"Dallas"</span>, <span class="s">"Houston"</span>, <span class="s">"Austin"</span>],
+    <span class="s">"salary"</span>:  [<span class="n">75000</span>, <span class="n">92000</span>, <span class="n">68000</span>, <span class="n">120000</span>],
+})</pre>
+
+  <h4 class="sub">1 · Bracket — for columns</h4>
+<pre>df[<span class="s">"age"</span>]                  <span class="c"># single column → Series</span>
+df[[<span class="s">"name"</span>, <span class="s">"age"</span>]]         <span class="c"># multiple columns → DataFrame</span>
+df[<span class="n">0</span>:<span class="n">2</span>]                    <span class="c"># slice rows by position</span></pre>
+
+  <h4 class="sub">2 · <code>.loc</code> — label-based</h4>
+<pre>df.<span class="f">loc</span>[<span class="n">0</span>]                  <span class="c"># row at label 0</span>
+df.<span class="f">loc</span>[<span class="n">0</span>, <span class="s">"name"</span>]          <span class="c"># single cell</span>
+df.<span class="f">loc</span>[<span class="n">0</span>:<span class="n">2</span>, <span class="s">"name"</span>:<span class="s">"city"</span>]   <span class="c"># inclusive slices — both ends!</span>
+df.<span class="f">loc</span>[df[<span class="s">"age"</span>] &gt; <span class="n">30</span>]      <span class="c"># boolean mask</span></pre>
+
+  <h4 class="sub">3 · <code>.iloc</code> — position-based</h4>
+<pre>df.<span class="f">iloc</span>[<span class="n">0</span>]                 <span class="c"># first row (regardless of index label)</span>
+df.<span class="f">iloc</span>[<span class="n">0</span>:<span class="n">2</span>, <span class="n">0</span>:<span class="n">2</span>]          <span class="c"># top-left 2×2 — exclusive at end</span>
+df.<span class="f">iloc</span>[-<span class="n">1</span>]                <span class="c"># last row</span></pre>
+
+  <div class="note intuition">
+    <span class="lbl">the rule</span>
+    <p><b>loc is inclusive, iloc is exclusive</b> on the right end of a slice. <code>df.loc[0:2]</code> returns rows 0, 1, AND 2. <code>df.iloc[0:2]</code> returns rows at positions 0 and 1 only. This catches everyone the first time.</p>
+  </div>
+
+  <h3 class="section"><span class="num">5.2</span>Boolean masking — the workhorse</h3>
+<pre>df[df[<span class="s">"age"</span>] &gt; <span class="n">30</span>]                              <span class="c"># filter rows</span>
+df[df[<span class="s">"city"</span>] == <span class="s">"Austin"</span>]
+df[df[<span class="s">"city"</span>].<span class="f">isin</span>([<span class="s">"Austin"</span>, <span class="s">"Dallas"</span>])]      <span class="c"># multiple values</span>
+
+<span class="c"># Combined conditions — & | ~, ALWAYS parenthesized</span>
+df[(df[<span class="s">"age"</span>] &gt; <span class="n">25</span>) &amp; (df[<span class="s">"city"</span>] == <span class="s">"Austin"</span>)]
+df[(df[<span class="s">"age"</span>] &lt; <span class="n">30</span>) | (df[<span class="s">"salary"</span>] &gt; <span class="n">100000</span>)]
+df[~(df[<span class="s">"city"</span>] == <span class="s">"Austin"</span>)]                    <span class="c"># negate</span></pre>
+
+  <div class="note warn">
+    <span class="lbl">parentheses</span>
+    <p>Always parenthesize each comparison. <code>df[df.age &gt; 25 &amp; df.city == "Austin"]</code> is wrong because <code>&amp;</code> binds tighter than <code>&gt;</code>. Write <code>df[(df.age &gt; 25) &amp; (df.city == "Austin")]</code> and never wonder again.</p>
+  </div>
+
+  <h3 class="section"><span class="num">5.3</span>query — readable filtering</h3>
+  <p>For complex filters, <code>query</code> is much more readable:</p>
+<pre>df.<span class="f">query</span>(<span class="s">"age &gt; 25 and city == 'Austin'"</span>)
+df.<span class="f">query</span>(<span class="s">"salary &gt; @threshold"</span>)               <span class="c"># @ references Python variables</span></pre>
+
+  <h3 class="section"><span class="num">5.4</span>Setting values</h3>
+<pre>df.<span class="f">loc</span>[df[<span class="s">"city"</span>] == <span class="s">"Austin"</span>, <span class="s">"salary"</span>] *= <span class="n">1.05</span>   <span class="c"># 5% raise for Austin</span>
+df.<span class="f">loc</span>[<span class="n">0</span>, <span class="s">"age"</span>] = <span class="n">26</span>                            <span class="c"># single cell</span>
+df.<span class="f">loc</span>[df[<span class="s">"age"</span>] &gt; <span class="n">100</span>, <span class="s">"age"</span>] = np.nan             <span class="c"># bulk set</span></pre>
+
+  <h3 class="section"><span class="num">5.5</span>SettingWithCopyWarning — what it actually means</h3>
+  <p>The single most-Googled pandas error. It means: you might be modifying a copy instead of the original.</p>
+<pre><span class="c"># Bad — ambiguous</span>
+subset = df[df[<span class="s">"age"</span>] &gt; <span class="n">30</span>]
+subset[<span class="s">"salary"</span>] = <span class="n">0</span>                              <span class="c"># SettingWithCopyWarning!</span>
+
+<span class="c"># Good — modify the original</span>
+df.<span class="f">loc</span>[df[<span class="s">"age"</span>] &gt; <span class="n">30</span>, <span class="s">"salary"</span>] = <span class="n">0</span>
+
+<span class="c"># Or — explicitly make a copy you want to modify</span>
+subset = df[df[<span class="s">"age"</span>] &gt; <span class="n">30</span>].<span class="f">copy</span>()
+subset[<span class="s">"salary"</span>] = <span class="n">0</span></pre>
+
+  <div class="note tip">
+    <span class="lbl">the rule</span>
+    <p>If you want to modify a slice, use <code>df.loc[mask, "col"] = value</code> in one statement. If you want to keep a copy separately, call <code>.copy()</code> explicitly. The warning goes away forever.</p>
+  </div>
+
+  <div class="app">
+    <div class="lbl">Application</div>
+    <p>Selection is the bread of pandas work. Every dashboard query is "give me rows where X and aggregate Y by Z." Every cleaning operation is "find rows that look wrong and fix them." Boolean masks and <code>.loc</code> assignment together handle ~80% of all real pandas code you'll write.</p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- CHAPTER 6 — CLEANING                                          -->
+<!-- ============================================================ -->
+<section class="chapter" id="c6">
+  <div class="ch-header">
+    <span class="ch-num">CHAPTER 06</span>
+    <h2 class="ch-title">Cleaning data</h2>
+  </div>
+  <p class="lead">Real data is messy. Missing values, wrong types, duplicates, inconsistent strings. Half your job is making it usable.</p>
+
+  <h3 class="section"><span class="num">6.1</span>Finding missing values</h3>
+<pre>df.<span class="f">isna</span>()                  <span class="c"># boolean DataFrame: True where missing</span>
+df.<span class="f">isna</span>().<span class="f">sum</span>()            <span class="c"># count missing per column — your first move</span>
+df.<span class="f">isna</span>().<span class="f">mean</span>()           <span class="c"># fraction missing per column</span>
+df[df[<span class="s">"col"</span>].<span class="f">isna</span>()]        <span class="c"># rows where col is NaN</span>
+df.<span class="f">notna</span>()                 <span class="c"># opposite of isna</span></pre>
+
+  <h3 class="section"><span class="num">6.2</span>Handling missing values — three options</h3>
+<pre><span class="c"># 1. Drop</span>
+df.<span class="f">dropna</span>()                                <span class="c"># drop any row with any NaN</span>
+df.<span class="f">dropna</span>(subset=[<span class="s">"price"</span>, <span class="s">"qty"</span>])           <span class="c"># only check these</span>
+df.<span class="f">dropna</span>(thresh=<span class="n">3</span>)                       <span class="c"># keep rows with ≥3 non-null values</span>
+
+<span class="c"># 2. Fill</span>
+df.<span class="f">fillna</span>(<span class="n">0</span>)                                <span class="c"># fill all NaN with 0</span>
+df[<span class="s">"price"</span>].<span class="f">fillna</span>(df[<span class="s">"price"</span>].<span class="f">median</span>())     <span class="c"># fill with median</span>
+df.<span class="f">fillna</span>(method=<span class="s">"ffill"</span>)                  <span class="c"># forward-fill from previous row</span>
+df.<span class="f">fillna</span>(method=<span class="s">"bfill"</span>)                  <span class="c"># back-fill from next row</span>
+
+<span class="c"># 3. Interpolate (numeric only)</span>
+df[<span class="s">"price"</span>].<span class="f">interpolate</span>()                  <span class="c"># linear interpolation</span></pre>
+
+  <h3 class="section"><span class="num">6.3</span>Type coercion</h3>
+<pre>df[<span class="s">"price"</span>] = df[<span class="s">"price"</span>].<span class="f">astype</span>(<span class="s">"float64"</span>)
+df[<span class="s">"id"</span>]    = df[<span class="s">"id"</span>].<span class="f">astype</span>(<span class="s">"int32"</span>)
+df[<span class="s">"date"</span>]  = pd.<span class="f">to_datetime</span>(df[<span class="s">"date"</span>])
+df[<span class="s">"num"</span>]   = pd.<span class="f">to_numeric</span>(df[<span class="s">"num"</span>], errors=<span class="s">"coerce"</span>)   <span class="c"># bad → NaN</span>
+df[<span class="s">"cat"</span>]   = df[<span class="s">"cat"</span>].<span class="f">astype</span>(<span class="s">"category"</span>)               <span class="c"># much smaller for repeated strings</span></pre>
+
+  <p>The <code>errors="coerce"</code> trick is invaluable — it turns unparseable values into NaN instead of raising. Combine with <code>fillna</code> to handle them.</p>
+
+  <h3 class="section"><span class="num">6.4</span>Duplicates</h3>
+<pre>df.<span class="f">duplicated</span>()                          <span class="c"># mark duplicate rows (after first)</span>
+df.<span class="f">duplicated</span>(subset=[<span class="s">"customer_id"</span>])    <span class="c"># only check these columns</span>
+df.<span class="f">drop_duplicates</span>()                     <span class="c"># keep first occurrence</span>
+df.<span class="f">drop_duplicates</span>(subset=[<span class="s">"id"</span>], keep=<span class="s">"last"</span>)   <span class="c"># keep last instead</span></pre>
+
+  <h3 class="section"><span class="num">6.5</span>String cleanup — the <code>.str</code> accessor</h3>
+  <p>Every Series of strings has a <code>.str</code> accessor exposing vectorized string methods:</p>
+<pre>df[<span class="s">"name"</span>] = df[<span class="s">"name"</span>].<span class="f">str</span>.<span class="f">strip</span>()           <span class="c"># trim whitespace</span>
+df[<span class="s">"name"</span>] = df[<span class="s">"name"</span>].<span class="f">str</span>.<span class="f">lower</span>()           <span class="c"># lowercase</span>
+df[<span class="s">"name"</span>] = df[<span class="s">"name"</span>].<span class="f">str</span>.<span class="f">title</span>()           <span class="c"># Title Case</span>
+df[<span class="s">"name"</span>] = df[<span class="s">"name"</span>].<span class="f">str</span>.<span class="f">replace</span>(<span class="s">"-"</span>, <span class="s">" "</span>)
+df[<span class="s">"email"</span>].<span class="f">str</span>.<span class="f">contains</span>(<span class="s">"@gmail"</span>, na=<span class="k">False</span>)
+df[<span class="s">"phone"</span>].<span class="f">str</span>.<span class="f">extract</span>(<span class="s">r"(\d{3})-(\d{3})-(\d{4})"</span>)  <span class="c"># regex groups</span>
+df[<span class="s">"city"</span>].<span class="f">str</span>.<span class="f">split</span>(<span class="s">","</span>, expand=<span class="k">True</span>)         <span class="c"># split into cols</span></pre>
+
+  <h3 class="section"><span class="num">6.6</span>Renaming columns</h3>
+<pre>df.<span class="f">rename</span>(columns={<span class="s">"old_name"</span>: <span class="s">"new_name"</span>}, inplace=<span class="k">True</span>)
+df.columns = [c.<span class="f">lower</span>().<span class="f">replace</span>(<span class="s">" "</span>, <span class="s">"_"</span>) <span class="k">for</span> c <span class="k">in</span> df.columns]   <span class="c"># bulk clean</span></pre>
+
+  <div class="app">
+    <div class="lbl">Application</div>
+    <p>The first 30 minutes with any new dataset go to cleaning. The pattern: <code>df.info()</code> → identify problems → fix them one by one. Always assign cleaned data back to a new variable or to the same DataFrame deliberately — never lose track of what you've changed.</p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- CHAPTER 7 — GROUPBY                                           -->
+<!-- ============================================================ -->
+<section class="chapter" id="c7">
+  <div class="ch-header">
+    <span class="ch-num">CHAPTER 07</span>
+    <h2 class="ch-title">GroupBy deep dive</h2>
+  </div>
+  <p class="lead">Split the data by key, apply something to each group, combine the results. Three steps that handle a huge share of all data analysis you'll ever do.</p>
+
+  <p class="dropcap">GroupBy is the conceptual heart of pandas. Every "total sales per region," "average price per category," "max temperature per month" is a groupby. It's named after the SQL <code>GROUP BY</code> clause but does much more — you can apply any function, not just sum or mean. Master this chapter and you've mastered most of pandas.</p>
+
+  <h3 class="section"><span class="num">7.1</span>Split-apply-combine</h3>
+
+  <div class="figure">
+    <svg viewBox="0 0 720 320" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="cellgrad7" x1="0" x2="0" y1="0" y2="1">
+          <stop offset="0%" stop-color="#1c222c"/>
+          <stop offset="100%" stop-color="#11151c"/>
+        </linearGradient>
+        <marker id="arrgrn" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+          <path d="M0,0 L8,4 L0,8 z" fill="#28c595"/>
+        </marker>
+      </defs>
+      <!-- original -->
+      <g font-family="JetBrains Mono" font-size="11">
+        <text x="60" y="22" fill="#9aa3b2" font-size="11" font-style="italic">original</text>
+        <rect x="20" y="34" width="160" height="200" fill="url(#cellgrad7)" stroke="#262d3a"/>
+        <g fill="#e8ebf1" font-size="11">
+          <text x="36" y="54">A · 10</text>
+          <text x="36" y="74">B · 20</text>
+          <text x="36" y="94">A · 30</text>
+          <text x="36" y="114">C · 5</text>
+          <text x="36" y="134">B · 25</text>
+          <text x="36" y="154">A · 15</text>
+          <text x="36" y="174">C · 8</text>
+          <text x="36" y="194">B · 22</text>
+          <text x="36" y="214">A · 40</text>
+        </g>
+      </g>
+      <!-- arrows split -->
+      <g stroke="#28c595" stroke-width="1.5" fill="none" marker-end="url(#arrgrn)">
+        <line x1="190" y1="100" x2="240" y2="80"/>
+        <line x1="190" y1="125" x2="240" y2="140"/>
+        <line x1="190" y1="150" x2="240" y2="200"/>
+      </g>
+      <text x="200" y="42" fill="#28c595" font-size="10" font-style="italic">split</text>
+
+      <!-- groups -->
+      <g font-family="JetBrains Mono" font-size="11">
+        <text x="320" y="56" text-anchor="middle" fill="#28c595" font-size="11">group A</text>
+        <rect x="260" y="62" width="120" height="60" fill="url(#cellgrad7)" stroke="#28c595"/>
+        <g fill="#e8ebf1" font-size="10.5">
+          <text x="276" y="80">10</text><text x="306" y="80">30</text>
+          <text x="276" y="100">15</text><text x="306" y="100">40</text>
+        </g>
+
+        <text x="320" y="148" text-anchor="middle" fill="#28c595" font-size="11">group B</text>
+        <rect x="260" y="154" width="120" height="46" fill="url(#cellgrad7)" stroke="#28c595"/>
+        <g fill="#e8ebf1" font-size="10.5">
+          <text x="276" y="172">20</text><text x="306" y="172">25</text>
+          <text x="276" y="190">22</text>
+        </g>
+
+        <text x="320" y="222" text-anchor="middle" fill="#28c595" font-size="11">group C</text>
+        <rect x="260" y="228" width="120" height="32" fill="url(#cellgrad7)" stroke="#28c595"/>
+        <g fill="#e8ebf1" font-size="10.5">
+          <text x="276" y="246">5</text><text x="306" y="246">8</text>
+        </g>
+      </g>
+
+      <!-- arrows apply -->
+      <g stroke="#9d96e6" stroke-width="1.5" fill="none">
+        <line x1="385" y1="90" x2="445" y2="90" marker-end="url(#arrgrn)"/>
+        <line x1="385" y1="175" x2="445" y2="175" marker-end="url(#arrgrn)"/>
+        <line x1="385" y1="245" x2="445" y2="245" marker-end="url(#arrgrn)"/>
+      </g>
+      <text x="412" y="62" text-anchor="middle" fill="#9d96e6" font-size="10" font-style="italic">apply</text>
+      <text x="412" y="78" text-anchor="middle" fill="#9d96e6" font-size="10" font-style="italic">.sum()</text>
+
+      <!-- results -->
+      <g font-family="JetBrains Mono" font-size="12">
+        <rect x="455" y="78" width="60" height="24" fill="url(#cellgrad7)" stroke="#9d96e6"/>
+        <text x="485" y="95" text-anchor="middle" fill="#9d96e6">95</text>
+        <rect x="455" y="163" width="60" height="24" fill="url(#cellgrad7)" stroke="#9d96e6"/>
+        <text x="485" y="180" text-anchor="middle" fill="#9d96e6">67</text>
+        <rect x="455" y="233" width="60" height="24" fill="url(#cellgrad7)" stroke="#9d96e6"/>
+        <text x="485" y="250" text-anchor="middle" fill="#9d96e6">13</text>
+      </g>
+
+      <!-- combine -->
+      <g stroke="#e0a64a" stroke-width="1.5" fill="none">
+        <line x1="525" y1="90" x2="585" y2="120" marker-end="url(#arrgrn)"/>
+        <line x1="525" y1="175" x2="585" y2="160" marker-end="url(#arrgrn)"/>
+        <line x1="525" y1="245" x2="585" y2="200" marker-end="url(#arrgrn)"/>
+      </g>
+      <text x="555" y="60" text-anchor="middle" fill="#e0a64a" font-size="10" font-style="italic">combine</text>
+
+      <!-- final -->
+      <g font-family="JetBrains Mono" font-size="11">
+        <text x="640" y="100" fill="#e0a64a" font-size="11" font-style="italic">result</text>
+        <rect x="600" y="110" width="100" height="100" fill="url(#cellgrad7)" stroke="#e0a64a"/>
+        <g fill="#e8ebf1" font-size="11">
+          <text x="616" y="130">A · 95</text>
+          <text x="616" y="155">B · 67</text>
+          <text x="616" y="180">C · 13</text>
+        </g>
+      </g>
+    </svg>
+    <div class="fig-caption"><b>Figure 7.1</b>Split-apply-combine. The rows are partitioned by group key, a function runs on each partition, and the results are stitched back into a single output.</div>
+  </div>
+
+  <h3 class="section"><span class="num">7.2</span>The basic pattern</h3>
+<pre>df = pd.<span class="f">DataFrame</span>({
+    <span class="s">"region"</span>:  [<span class="s">"East"</span>, <span class="s">"West"</span>, <span class="s">"East"</span>, <span class="s">"South"</span>, <span class="s">"West"</span>, <span class="s">"East"</span>],
+    <span class="s">"product"</span>: [<span class="s">"A"</span>, <span class="s">"A"</span>, <span class="s">"B"</span>, <span class="s">"A"</span>, <span class="s">"B"</span>, <span class="s">"A"</span>],
+    <span class="s">"sales"</span>:   [<span class="n">100</span>, <span class="n">150</span>, <span class="n">200</span>, <span class="n">80</span>, <span class="n">130</span>, <span class="n">90</span>],
+    <span class="s">"units"</span>:   [<span class="n">10</span>, <span class="n">15</span>, <span class="n">18</span>, <span class="n">8</span>, <span class="n">12</span>, <span class="n">9</span>],
+})
+
+df.<span class="f">groupby</span>(<span class="s">"region"</span>)[<span class="s">"sales"</span>].<span class="f">sum</span>()</pre>
+<pre class="out">region
+East     390
+South     80
+West     280
+Name: sales, dtype: int64</pre>
+
+  <p>Three pieces: the <em>grouper</em> (<code>"region"</code>), the <em>column to operate on</em> (<code>"sales"</code>), and the <em>aggregation</em> (<code>.sum()</code>). Variations on this single pattern do the heavy lifting in pandas.</p>
+
+  <h3 class="section"><span class="num">7.3</span>Multiple aggregations at once</h3>
+<pre>df.<span class="f">groupby</span>(<span class="s">"region"</span>)[<span class="s">"sales"</span>].<span class="f">agg</span>([<span class="s">"sum"</span>, <span class="s">"mean"</span>, <span class="s">"max"</span>, <span class="s">"count"</span>])</pre>
+<pre class="out">        sum        mean  max  count
+region
+East    390  130.000000  200      3
+South    80   80.000000   80      1
+West    280  140.000000  150      2</pre>
+
+  <h3 class="section"><span class="num">7.4</span>Different aggregations per column — the agg dict</h3>
+<pre>df.<span class="f">groupby</span>(<span class="s">"region"</span>).<span class="f">agg</span>({
+    <span class="s">"sales"</span>: [<span class="s">"sum"</span>, <span class="s">"mean"</span>],
+    <span class="s">"units"</span>: <span class="s">"max"</span>,
+})</pre>
+
+  <h3 class="section"><span class="num">7.5</span>Named aggregations — the cleanest output</h3>
+<pre>df.<span class="f">groupby</span>(<span class="s">"region"</span>).<span class="f">agg</span>(
+    total_sales=(<span class="s">"sales"</span>, <span class="s">"sum"</span>),
+    avg_sales=(<span class="s">"sales"</span>, <span class="s">"mean"</span>),
+    n_orders=(<span class="s">"sales"</span>, <span class="s">"count"</span>),
+    total_units=(<span class="s">"units"</span>, <span class="s">"sum"</span>),
+)</pre>
+<pre class="out">        total_sales   avg_sales  n_orders  total_units
+region
+East            390  130.000000         3           37
+South            80   80.000000         1            8
+West            280  140.000000         2           27</pre>
+
+  <p>Named aggregations give clean column names with no multi-index gymnastics. This is the modern recommended pattern.</p>
+
+  <h3 class="section"><span class="num">7.6</span>Multi-column groupby</h3>
+<pre>df.<span class="f">groupby</span>([<span class="s">"region"</span>, <span class="s">"product"</span>])[<span class="s">"sales"</span>].<span class="f">sum</span>()</pre>
+<pre class="out">region  product
+East    A          190
+        B          200
+South   A           80
+West    A          150
+        B          130
+Name: sales, dtype: int64</pre>
+
+  <p>The result has a <em>multi-index</em>. Often you want flat columns instead:</p>
+<pre>df.<span class="f">groupby</span>([<span class="s">"region"</span>, <span class="s">"product"</span>], as_index=<span class="k">False</span>)[<span class="s">"sales"</span>].<span class="f">sum</span>()</pre>
+<pre class="out">  region product  sales
+0   East       A    190
+1   East       B    200
+2  South       A     80
+3   West       A    150
+4   West       B    130</pre>
+
+  <h3 class="section"><span class="num">7.7</span>transform — same shape as input</h3>
+  <p><code>agg</code> reduces each group to one row. <code>transform</code> instead spreads the result back to every row of the original — perfect for "add a per-group column to the original DataFrame":</p>
+<pre>df[<span class="s">"region_total"</span>] = df.<span class="f">groupby</span>(<span class="s">"region"</span>)[<span class="s">"sales"</span>].<span class="f">transform</span>(<span class="s">"sum"</span>)
+df[<span class="s">"share_of_region"</span>] = df[<span class="s">"sales"</span>] / df[<span class="s">"region_total"</span>]
+df</pre>
+<pre class="out">  region product  sales  units  region_total  share_of_region
+0   East       A    100     10           390         0.256410
+1   West       A    150     15           280         0.535714
+2   East       B    200     18           390         0.512821
+3  South       A     80      8            80         1.000000
+4   West       B    130     12           280         0.464286
+5   East       A     90      9           390         0.230769</pre>
+
+  <div class="note tip">
+    <span class="lbl">agg vs transform</span>
+    <p>Reduce each group to one number per group → <code>agg</code>. Compute a per-group value but keep every original row → <code>transform</code>. The mental model: <code>agg</code> shrinks, <code>transform</code> broadcasts. Once you internalize this, complex pandas code becomes obvious.</p>
+  </div>
+
+  <h3 class="section"><span class="num">7.8</span>filter — keep or drop whole groups</h3>
+<pre><span class="c"># Keep only regions with more than 2 orders</span>
+df.<span class="f">groupby</span>(<span class="s">"region"</span>).<span class="f">filter</span>(<span class="k">lambda</span> g: <span class="f">len</span>(g) &gt; <span class="n">2</span>)</pre>
+
+  <h3 class="section"><span class="num">7.9</span>apply — the escape hatch</h3>
+  <p>For anything <code>agg</code> and <code>transform</code> can't express, <code>apply</code> runs a user function on each group:</p>
+<pre><span class="c"># Top-2 sales rows per region</span>
+df.<span class="f">groupby</span>(<span class="s">"region"</span>).<span class="f">apply</span>(<span class="k">lambda</span> g: g.<span class="f">nlargest</span>(<span class="n">2</span>, <span class="s">"sales"</span>))</pre>
+
+  <p>Powerful but slower than <code>agg</code>/<code>transform</code>. Reach for <code>apply</code> last, not first.</p>
+
+  <h3 class="section"><span class="num">7.10</span>Common patterns</h3>
+<pre><span class="c"># Counting</span>
+df.<span class="f">groupby</span>(<span class="s">"region"</span>).size()                       <span class="c"># rows per group</span>
+df[<span class="s">"region"</span>].<span class="f">value_counts</span>()                       <span class="c"># shortcut for one column</span>
+
+<span class="c"># Multiple aggregations, flat output</span>
+(df.<span class="f">groupby</span>(<span class="s">"region"</span>)
+   .<span class="f">agg</span>(total=(<span class="s">"sales"</span>, <span class="s">"sum"</span>), avg=(<span class="s">"sales"</span>, <span class="s">"mean"</span>))
+   .<span class="f">reset_index</span>())
+
+<span class="c"># Rank within group</span>
+df[<span class="s">"rank_in_region"</span>] = df.<span class="f">groupby</span>(<span class="s">"region"</span>)[<span class="s">"sales"</span>].<span class="f">rank</span>(ascending=<span class="k">False</span>)
+
+<span class="c"># Cumulative within group</span>
+df[<span class="s">"running_total"</span>] = df.<span class="f">groupby</span>(<span class="s">"region"</span>)[<span class="s">"sales"</span>].<span class="f">cumsum</span>()
+
+<span class="c"># Percent change within group</span>
+df[<span class="s">"pct_change"</span>] = df.<span class="f">groupby</span>(<span class="s">"region"</span>)[<span class="s">"sales"</span>].<span class="f">pct_change</span>()</pre>
+
+  <div class="app">
+    <div class="lbl">Application</div>
+    <p>If you do one thing well in pandas, make it groupby. "Per customer," "per day," "per category" — any business question ends in a groupby. Combine groupby with the <code>transform</code> trick and you've replaced thousands of lines of SQL window-function code with three lines of Python.</p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- CHAPTER 8 — MERGE                                             -->
+<!-- ============================================================ -->
+<section class="chapter" id="c8">
+  <div class="ch-header">
+    <span class="ch-num">CHAPTER 08</span>
+    <h2 class="ch-title">Merging &amp; joining</h2>
+  </div>
+  <p class="lead">Combining two DataFrames into one. SQL joins for Python, with extra superpowers from the labeled index.</p>
+
+  <h3 class="section"><span class="num">8.1</span>Two flavors — concat vs merge</h3>
+  <p>Two distinct operations:</p>
+  <ul>
+    <li><b>concat</b> — stack DataFrames together, top-to-bottom (rows) or side-by-side (columns). Pure stacking, no matching by key.</li>
+    <li><b>merge</b> — match rows from two DataFrames based on shared key columns. Like SQL JOIN.</li>
+  </ul>
+
+  <h3 class="section"><span class="num">8.2</span>concat — pure stacking</h3>
+<pre>a = pd.<span class="f">DataFrame</span>({<span class="s">"x"</span>: [<span class="n">1</span>, <span class="n">2</span>], <span class="s">"y"</span>: [<span class="n">10</span>, <span class="n">20</span>]})
+b = pd.<span class="f">DataFrame</span>({<span class="s">"x"</span>: [<span class="n">3</span>, <span class="n">4</span>], <span class="s">"y"</span>: [<span class="n">30</span>, <span class="n">40</span>]})
+
+pd.<span class="f">concat</span>([a, b])                  <span class="c"># stack vertically (along axis=0)</span>
+pd.<span class="f">concat</span>([a, b], ignore_index=<span class="k">True</span>)  <span class="c"># renumber the index</span>
+pd.<span class="f">concat</span>([a, b], axis=<span class="n">1</span>)         <span class="c"># stack horizontally</span></pre>
+<pre class="out">   x   y
+0  1  10
+1  2  20
+0  3  30
+1  4  40
+# with ignore_index=True, the index becomes 0,1,2,3</pre>
+
+  <h3 class="section"><span class="num">8.3</span>merge — match by key</h3>
+<pre>customers = pd.<span class="f">DataFrame</span>({
+    <span class="s">"customer_id"</span>: [<span class="n">1</span>, <span class="n">2</span>, <span class="n">3</span>],
+    <span class="s">"name"</span>:        [<span class="s">"Alice"</span>, <span class="s">"Bob"</span>, <span class="s">"Carol"</span>],
+})
+
+orders = pd.<span class="f">DataFrame</span>({
+    <span class="s">"order_id"</span>:    [<span class="n">100</span>, <span class="n">101</span>, <span class="n">102</span>, <span class="n">103</span>],
+    <span class="s">"customer_id"</span>: [<span class="n">1</span>, <span class="n">2</span>, <span class="n">2</span>, <span class="n">4</span>],
+    <span class="s">"amount"</span>:      [<span class="n">50</span>, <span class="n">100</span>, <span class="n">75</span>, <span class="n">200</span>],
+})
+
+orders.<span class="f">merge</span>(customers, on=<span class="s">"customer_id"</span>)</pre>
+<pre class="out">   order_id  customer_id  amount   name
+0       100            1      50  Alice
+1       101            2     100    Bob
+2       102            2      75    Bob</pre>
+
+  <p>By default, <code>merge</code> does an <b>inner</b> join: only rows present in both. Customer 3 has no orders → dropped. Order 103 has no matching customer → dropped.</p>
+
+  <h3 class="section"><span class="num">8.4</span>The four join types</h3>
+
+  <div class="figure">
+    <svg viewBox="0 0 720 230" xmlns="http://www.w3.org/2000/svg">
+      <g font-family="JetBrains Mono" font-size="11">
+        <!-- Inner -->
+        <g transform="translate(40,30)">
+          <text x="60" y="0" text-anchor="middle" fill="#28c595" font-size="11">inner</text>
+          <circle cx="40" cy="80" r="40" fill="rgba(40,197,149,0.15)" stroke="#28c595" stroke-width="1.5"/>
+          <circle cx="80" cy="80" r="40" fill="rgba(40,197,149,0.15)" stroke="#28c595" stroke-width="1.5"/>
+          <path d="M 60,46 A 40,40 0 0,1 60,114 A 40,40 0 0,1 60,46 Z" fill="#28c595" opacity="0.7"/>
+          <text x="60" y="160" text-anchor="middle" fill="#9aa3b2" font-size="10" font-style="italic">both</text>
+        </g>
+        <!-- Left -->
+        <g transform="translate(220,30)">
+          <text x="60" y="0" text-anchor="middle" fill="#28c595" font-size="11">left</text>
+          <circle cx="40" cy="80" r="40" fill="#28c595" opacity="0.7" stroke="#28c595" stroke-width="1.5"/>
+          <circle cx="80" cy="80" r="40" fill="rgba(40,197,149,0.15)" stroke="#28c595" stroke-width="1.5"/>
+          <path d="M 60,46 A 40,40 0 0,1 60,114 A 40,40 0 0,1 60,46 Z" fill="#28c595" opacity="0.7"/>
+          <text x="60" y="160" text-anchor="middle" fill="#9aa3b2" font-size="10" font-style="italic">all of left</text>
+        </g>
+        <!-- Right -->
+        <g transform="translate(400,30)">
+          <text x="60" y="0" text-anchor="middle" fill="#28c595" font-size="11">right</text>
+          <circle cx="40" cy="80" r="40" fill="rgba(40,197,149,0.15)" stroke="#28c595" stroke-width="1.5"/>
+          <circle cx="80" cy="80" r="40" fill="#28c595" opacity="0.7" stroke="#28c595" stroke-width="1.5"/>
+          <path d="M 60,46 A 40,40 0 0,1 60,114 A 40,40 0 0,1 60,46 Z" fill="#28c595" opacity="0.7"/>
+          <text x="60" y="160" text-anchor="middle" fill="#9aa3b2" font-size="10" font-style="italic">all of right</text>
+        </g>
+        <!-- Outer -->
+        <g transform="translate(580,30)">
+          <text x="60" y="0" text-anchor="middle" fill="#28c595" font-size="11">outer</text>
+          <circle cx="40" cy="80" r="40" fill="#28c595" opacity="0.7" stroke="#28c595" stroke-width="1.5"/>
+          <circle cx="80" cy="80" r="40" fill="#28c595" opacity="0.7" stroke="#28c595" stroke-width="1.5"/>
+          <text x="60" y="160" text-anchor="middle" fill="#9aa3b2" font-size="10" font-style="italic">everything</text>
+        </g>
+      </g>
+    </svg>
+    <div class="fig-caption"><b>Figure 8.1</b>The four join types. <b>Inner</b> keeps only matched rows. <b>Left</b> keeps every left row, filling NaN for unmatched. <b>Right</b> mirrors left. <b>Outer</b> keeps everything, NaN where one side is missing.</div>
+  </div>
+
+<pre>orders.<span class="f">merge</span>(customers, on=<span class="s">"customer_id"</span>, how=<span class="s">"inner"</span>)
+orders.<span class="f">merge</span>(customers, on=<span class="s">"customer_id"</span>, how=<span class="s">"left"</span>)
+orders.<span class="f">merge</span>(customers, on=<span class="s">"customer_id"</span>, how=<span class="s">"right"</span>)
+orders.<span class="f">merge</span>(customers, on=<span class="s">"customer_id"</span>, how=<span class="s">"outer"</span>)</pre>
+
+  <h4 class="sub">Left join — most common in practice</h4>
+<pre>orders.<span class="f">merge</span>(customers, on=<span class="s">"customer_id"</span>, how=<span class="s">"left"</span>)</pre>
+<pre class="out">   order_id  customer_id  amount   name
+0       100            1      50  Alice
+1       101            2     100    Bob
+2       102            2      75    Bob
+3       103            4     200    NaN</pre>
+
+  <p>Order 103's customer doesn't exist in the customers table — but the row stays, name becomes NaN. This is what you usually want: keep your "main" table intact, attach lookup info where available.</p>
+
+  <h3 class="section"><span class="num">8.5</span>Different key names — left_on / right_on</h3>
+<pre>orders.<span class="f">merge</span>(customers, left_on=<span class="s">"customer_id"</span>, right_on=<span class="s">"id"</span>)</pre>
+
+  <h3 class="section"><span class="num">8.6</span>Merging on the index</h3>
+<pre>customers_indexed = customers.<span class="f">set_index</span>(<span class="s">"customer_id"</span>)
+orders.<span class="f">merge</span>(customers_indexed, left_on=<span class="s">"customer_id"</span>, right_index=<span class="k">True</span>)
+
+<span class="c"># Shortcut when both sides are indexed</span>
+orders.<span class="f">join</span>(customers_indexed, on=<span class="s">"customer_id"</span>)</pre>
+
+  <h3 class="section"><span class="num">8.7</span>The validate parameter — your safety net</h3>
+  <p>The single most important argument no one uses. Tell merge what kind of relationship to expect — it errors if your data violates it.</p>
+<pre>orders.<span class="f">merge</span>(customers, on=<span class="s">"customer_id"</span>, validate=<span class="s">"many_to_one"</span>)
+<span class="c"># raises if customer_id is not unique in customers</span></pre>
+
+  <table class="tbl">
+    <thead><tr><th>validate</th><th>Means</th></tr></thead>
+    <tbody>
+      <tr><td><code>"one_to_one"</code></td><td>both sides have unique keys</td></tr>
+      <tr><td><code>"one_to_many"</code></td><td>left is unique, right may repeat</td></tr>
+      <tr><td><code>"many_to_one"</code></td><td>right is unique, left may repeat (lookup table — common)</td></tr>
+      <tr><td><code>"many_to_many"</code></td><td>both may repeat (explicit cartesian — be careful)</td></tr>
+    </tbody>
+  </table>
+
+  <div class="note warn">
+    <span class="lbl">silent bugs</span>
+    <p>If your "lookup" table accidentally has duplicate keys, an unguarded merge will silently <em>multiply</em> your rows — and you may not notice until totals are wrong. <code>validate="many_to_one"</code> catches this at the source. Always pass it.</p>
+  </div>
+
+  <h3 class="section"><span class="num">8.8</span>Suffixes — same column name on both sides</h3>
+<pre>left.<span class="f">merge</span>(right, on=<span class="s">"id"</span>, suffixes=(<span class="s">"_2023"</span>, <span class="s">"_2024"</span>))
+<span class="c"># columns named "revenue" on both sides → revenue_2023, revenue_2024</span></pre>
+
+  <h3 class="section"><span class="num">8.9</span>indicator — see where each row came from</h3>
+<pre>orders.<span class="f">merge</span>(customers, on=<span class="s">"customer_id"</span>, how=<span class="s">"outer"</span>, indicator=<span class="k">True</span>)</pre>
+<pre class="out">   order_id  customer_id  amount   name      _merge
+0     100.0            1    50.0  Alice        both
+1     101.0            2   100.0    Bob        both
+2     102.0            2    75.0    Bob        both
+3     103.0            4   200.0    NaN   left_only
+4       NaN            3     NaN  Carol  right_only</pre>
+
+  <p>The <code>_merge</code> column tells you whether each row was in left, right, or both. Indispensable for debugging join mismatches.</p>
+
+  <div class="app">
+    <div class="lbl">Application</div>
+    <p>The four merge skills that handle 95% of real joins: left join with <code>validate="many_to_one"</code> when attaching lookup info, inner join when only matched rows matter, <code>indicator=True</code> when you can't figure out why row counts are wrong, and <code>suffixes</code> when both sides have a column with the same name. Master these and you'll never write "double-counted by accident" in a post-mortem again.</p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- CHAPTER 9 — RESHAPE                                           -->
+<!-- ============================================================ -->
+<section class="chapter" id="c9">
+  <div class="ch-header">
+    <span class="ch-num">CHAPTER 09</span>
+    <h2 class="ch-title">Reshape</h2>
+  </div>
+  <p class="lead">Same data, different shape. Wide vs long. The transformation that makes the difference between "I can plot this" and "I cannot."</p>
+
+  <h3 class="section"><span class="num">9.1</span>Long vs wide — the foundational concept</h3>
+  <p>The same data can be stored two ways:</p>
+
+  <div class="figure">
+    <svg viewBox="0 0 720 250" xmlns="http://www.w3.org/2000/svg">
+      <g font-family="JetBrains Mono" font-size="11">
+        <!-- Long format -->
+        <g>
+          <text x="120" y="22" text-anchor="middle" fill="#9aa3b2" font-style="italic">long format</text>
+          <text x="120" y="38" text-anchor="middle" fill="#6b7385" font-size="10">one observation per row</text>
+        </g>
+        <g transform="translate(20,50)">
+          <rect width="200" height="180" fill="#161b24" stroke="#262d3a"/>
+          <line x1="0" y1="24" x2="200" y2="24" stroke="#262d3a"/>
+          <g fill="#6b7385" font-size="10">
+            <text x="20" y="17">region</text>
+            <text x="100" y="17">product</text>
+            <text x="170" y="17">sales</text>
+          </g>
+          <g fill="#e8ebf1" font-size="10.5">
+            <text x="20" y="44">East</text><text x="100" y="44">A</text><text x="170" y="44">100</text>
+            <text x="20" y="64">East</text><text x="100" y="64">B</text><text x="170" y="64">200</text>
+            <text x="20" y="84">West</text><text x="100" y="84">A</text><text x="170" y="84">150</text>
+            <text x="20" y="104">West</text><text x="100" y="104">B</text><text x="170" y="104">130</text>
+            <text x="20" y="124">South</text><text x="100" y="124">A</text><text x="170" y="124">80</text>
+            <text x="20" y="144">South</text><text x="100" y="144">B</text><text x="170" y="144">110</text>
+          </g>
+        </g>
+
+        <!-- arrows -->
+        <g stroke="#28c595" stroke-width="1.5" fill="none">
+          <path d="M 240,110 Q 320,80 400,110" marker-end="url(#arrgrn)"/>
+          <path d="M 400,160 Q 320,190 240,160" marker-end="url(#arrgrn)"/>
+        </g>
+        <text x="320" y="84" text-anchor="middle" fill="#28c595" font-size="10" font-style="italic">pivot →</text>
+        <text x="320" y="206" text-anchor="middle" fill="#28c595" font-size="10" font-style="italic">← melt</text>
+
+        <!-- Wide format -->
+        <g>
+          <text x="560" y="22" text-anchor="middle" fill="#9aa3b2" font-style="italic">wide format</text>
+          <text x="560" y="38" text-anchor="middle" fill="#6b7385" font-size="10">one variable per column</text>
+        </g>
+        <g transform="translate(420,50)">
+          <rect width="280" height="120" fill="#161b24" stroke="#262d3a"/>
+          <line x1="0" y1="24" x2="280" y2="24" stroke="#262d3a"/>
+          <g fill="#6b7385" font-size="10">
+            <text x="20" y="17">region</text>
+            <text x="120" y="17">A</text>
+            <text x="220" y="17">B</text>
+          </g>
+          <g fill="#e8ebf1" font-size="10.5">
+            <text x="20" y="44">East</text><text x="120" y="44">100</text><text x="220" y="44">200</text>
+            <text x="20" y="64">West</text><text x="120" y="64">150</text><text x="220" y="64">130</text>
+            <text x="20" y="84">South</text><text x="120" y="84">80</text><text x="220" y="84">110</text>
+          </g>
+        </g>
+      </g>
+    </svg>
+    <div class="fig-caption"><b>Figure 9.1</b>Same six observations, two shapes. <b>Long</b> stores each measurement as a row — great for storage and statistical models. <b>Wide</b> spreads one variable across columns — easier for human reading and many plotting libraries.</div>
+  </div>
+
+  <h3 class="section"><span class="num">9.2</span>pivot — long to wide</h3>
+<pre>sales = pd.<span class="f">DataFrame</span>({
+    <span class="s">"region"</span>:  [<span class="s">"East"</span>, <span class="s">"East"</span>, <span class="s">"West"</span>, <span class="s">"West"</span>, <span class="s">"South"</span>, <span class="s">"South"</span>],
+    <span class="s">"product"</span>: [<span class="s">"A"</span>, <span class="s">"B"</span>, <span class="s">"A"</span>, <span class="s">"B"</span>, <span class="s">"A"</span>, <span class="s">"B"</span>],
+    <span class="s">"sales"</span>:   [<span class="n">100</span>, <span class="n">200</span>, <span class="n">150</span>, <span class="n">130</span>, <span class="n">80</span>, <span class="n">110</span>],
+})
+
+sales.<span class="f">pivot</span>(index=<span class="s">"region"</span>, columns=<span class="s">"product"</span>, values=<span class="s">"sales"</span>)</pre>
+<pre class="out">product    A    B
+region
+East     100  200
+South     80  110
+West     150  130</pre>
+
+  <p>Three arguments: <code>index</code> becomes the new row labels, <code>columns</code> becomes the new column labels, <code>values</code> fills the cells. The original DataFrame must have unique combinations of (index, columns) — pivot can't decide which value wins on duplicates.</p>
+
+  <h3 class="section"><span class="num">9.3</span>pivot_table — pivot with aggregation</h3>
+  <p>When you have duplicates and want to aggregate them, use <code>pivot_table</code>:</p>
+<pre>sales.<span class="f">pivot_table</span>(
+    index=<span class="s">"region"</span>,
+    columns=<span class="s">"product"</span>,
+    values=<span class="s">"sales"</span>,
+    aggfunc=<span class="s">"sum"</span>,       <span class="c"># or "mean", "count", or any callable</span>
+    fill_value=<span class="n">0</span>,         <span class="c"># NaN → 0 in the result</span>
+    margins=<span class="k">True</span>,         <span class="c"># add row/column totals</span>
+)</pre>
+
+  <h3 class="section"><span class="num">9.4</span>melt — wide to long</h3>
+  <p>The inverse of pivot. Take "wide" data and stack the columns into rows:</p>
+<pre>wide = pd.<span class="f">DataFrame</span>({
+    <span class="s">"region"</span>: [<span class="s">"East"</span>, <span class="s">"West"</span>, <span class="s">"South"</span>],
+    <span class="s">"A"</span>: [<span class="n">100</span>, <span class="n">150</span>, <span class="n">80</span>],
+    <span class="s">"B"</span>: [<span class="n">200</span>, <span class="n">130</span>, <span class="n">110</span>],
+})
+
+wide.<span class="f">melt</span>(
+    id_vars=<span class="s">"region"</span>,       <span class="c"># keep as-is</span>
+    var_name=<span class="s">"product"</span>,     <span class="c"># new col name for the old column names</span>
+    value_name=<span class="s">"sales"</span>,     <span class="c"># new col name for the values</span>
+)</pre>
+<pre class="out">  region product  sales
+0   East       A    100
+1   West       A    150
+2  South       A     80
+3   East       B    200
+4   West       B    130
+5  South       B    110</pre>
+
+  <h3 class="section"><span class="num">9.5</span>stack and unstack — pivot for multi-index</h3>
+  <p>When working with multi-indexed data, <code>stack</code> and <code>unstack</code> move levels between rows and columns:</p>
+<pre>multi = sales.<span class="f">set_index</span>([<span class="s">"region"</span>, <span class="s">"product"</span>])[<span class="s">"sales"</span>]
+multi</pre>
+<pre class="out">region  product
+East    A          100
+        B          200
+West    A          150
+        B          130
+South   A           80
+        B          110
+Name: sales, dtype: int64</pre>
+
+<pre>multi.<span class="f">unstack</span>()                  <span class="c"># last level → columns</span></pre>
+<pre class="out">product    A    B
+region
+East     100  200
+South     80  110
+West     150  130</pre>
+
+<pre>multi.<span class="f">unstack</span>(<span class="s">"region"</span>)          <span class="c"># move a named level instead</span>
+multi.<span class="f">unstack</span>().<span class="f">stack</span>()          <span class="c"># round-trip back to original</span></pre>
+
+  <h3 class="section"><span class="num">9.6</span>crosstab — cross-tabulation</h3>
+  <p>A specialized pivot_table for counting:</p>
+<pre>pd.<span class="f">crosstab</span>(sales[<span class="s">"region"</span>], sales[<span class="s">"product"</span>])
+pd.<span class="f">crosstab</span>(sales[<span class="s">"region"</span>], sales[<span class="s">"product"</span>], values=sales[<span class="s">"sales"</span>], aggfunc=<span class="s">"sum"</span>)
+pd.<span class="f">crosstab</span>(sales[<span class="s">"region"</span>], sales[<span class="s">"product"</span>], normalize=<span class="s">"index"</span>)   <span class="c"># row percentages</span></pre>
+
+  <h3 class="section"><span class="num">9.7</span>When to use which</h3>
+  <table class="tbl">
+    <thead><tr><th>Task</th><th>Use</th></tr></thead>
+    <tbody>
+      <tr><td>Long → wide, no duplicates</td><td><code>pivot</code></td></tr>
+      <tr><td>Long → wide, with aggregation</td><td><code>pivot_table</code></td></tr>
+      <tr><td>Wide → long</td><td><code>melt</code></td></tr>
+      <tr><td>Move levels in a multi-index</td><td><code>stack</code> / <code>unstack</code></td></tr>
+      <tr><td>Counting / frequency tables</td><td><code>crosstab</code></td></tr>
+    </tbody>
+  </table>
+
+  <div class="app">
+    <div class="lbl">Application</div>
+    <p>Reshape is what bridges the gap between "data in the format it's stored" and "data in the format your tool needs." Most plotting libraries (seaborn, plotly) want long format. Most spreadsheet humans want wide format. Most ML pipelines want either, depending on the model. Knowing reshape fluently means you stop fighting your data and start using it.</p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- CHAPTER 10 — APPLY                                            -->
+<!-- ============================================================ -->
+<section class="chapter" id="c10">
+  <div class="ch-header">
+    <span class="ch-num">CHAPTER 10</span>
+    <h2 class="ch-title">Apply, transform, and friends</h2>
+  </div>
+  <p class="lead">When the built-in operations don't cover what you need. And — just as important — when they actually do, even though it doesn't look like it.</p>
+
+  <h3 class="section"><span class="num">10.1</span>The "stop using apply" hierarchy</h3>
+  <p>Pandas has a culture problem: people reach for <code>apply</code> too quickly. It's slow because it dispatches to Python for every row. Almost always there's a faster vectorized way. Climb this ladder, top down:</p>
+  <ol>
+    <li><b>Vectorized arithmetic</b> on whole columns — fastest, e.g. <code>df["c"] = df["a"] + df["b"]</code></li>
+    <li><b>Built-in pandas methods</b> — <code>.str</code>, <code>.dt</code>, <code>.fillna</code>, <code>.replace</code>, <code>.where</code>, <code>.clip</code></li>
+    <li><b>np.where / np.select</b> — for branching logic</li>
+    <li><b>Series.map(dict)</b> — for value substitution</li>
+    <li><b>apply</b> — only when none of the above work</li>
+  </ol>
+
+  <h3 class="section"><span class="num">10.2</span>The apply API</h3>
+<pre>df = pd.<span class="f">DataFrame</span>({<span class="s">"x"</span>: [<span class="n">1</span>, <span class="n">2</span>, <span class="n">3</span>], <span class="s">"y"</span>: [<span class="n">10</span>, <span class="n">20</span>, <span class="n">30</span>]})
+
+<span class="c"># On a Series — function called on each value</span>
+df[<span class="s">"x"</span>].<span class="f">apply</span>(<span class="k">lambda</span> v: v ** <span class="n">2</span>)
+
+<span class="c"># On a DataFrame — function called on each column (default)</span>
+df.<span class="f">apply</span>(np.sum)                          <span class="c"># sum of each column</span>
+
+<span class="c"># Row-wise — axis=1</span>
+df.<span class="f">apply</span>(<span class="k">lambda</span> row: row[<span class="s">"x"</span>] * row[<span class="s">"y"</span>], axis=<span class="n">1</span>)</pre>
+
+  <h3 class="section"><span class="num">10.3</span>The replacements that beat apply</h3>
+
+  <h4 class="sub">For arithmetic — just operate on columns</h4>
+<pre><span class="c"># Slow</span>
+df[<span class="s">"product"</span>] = df.<span class="f">apply</span>(<span class="k">lambda</span> r: r[<span class="s">"x"</span>] * r[<span class="s">"y"</span>], axis=<span class="n">1</span>)
+
+<span class="c"># 100× faster</span>
+df[<span class="s">"product"</span>] = df[<span class="s">"x"</span>] * df[<span class="s">"y"</span>]</pre>
+
+  <h4 class="sub">For branching — use np.where</h4>
+<pre><span class="c"># Slow</span>
+df[<span class="s">"category"</span>] = df[<span class="s">"x"</span>].<span class="f">apply</span>(<span class="k">lambda</span> v: <span class="s">"big"</span> <span class="k">if</span> v &gt; <span class="n">2</span> <span class="k">else</span> <span class="s">"small"</span>)
+
+<span class="c"># Fast</span>
+df[<span class="s">"category"</span>] = np.<span class="f">where</span>(df[<span class="s">"x"</span>] &gt; <span class="n">2</span>, <span class="s">"big"</span>, <span class="s">"small"</span>)</pre>
+
+  <h4 class="sub">For value mapping — use map</h4>
+<pre>country_map = {<span class="s">"US"</span>: <span class="s">"North America"</span>, <span class="s">"CA"</span>: <span class="s">"North America"</span>, <span class="s">"DE"</span>: <span class="s">"Europe"</span>}
+df[<span class="s">"region"</span>] = df[<span class="s">"country"</span>].<span class="f">map</span>(country_map)</pre>
+
+  <h4 class="sub">For string operations — use .str</h4>
+<pre><span class="c"># Slow</span>
+df[<span class="s">"clean"</span>] = df[<span class="s">"name"</span>].<span class="f">apply</span>(<span class="k">lambda</span> s: s.<span class="f">strip</span>().<span class="f">lower</span>())
+
+<span class="c"># Fast</span>
+df[<span class="s">"clean"</span>] = df[<span class="s">"name"</span>].<span class="f">str</span>.<span class="f">strip</span>().<span class="f">str</span>.<span class="f">lower</span>()</pre>
+
+  <h3 class="section"><span class="num">10.4</span>When apply is genuinely needed</h3>
+  <p>Some real cases where <code>apply</code> is the right answer:</p>
+<pre><span class="c"># 1. Calling an external function that takes a row</span>
+<span class="k">def</span> <span class="f">classify_transaction</span>(row):
+    <span class="k">if</span> row[<span class="s">"amount"</span>] &gt; <span class="n">10000</span> <span class="k">and</span> row[<span class="s">"country"</span>] <span class="k">in</span> SUSPICIOUS:
+        <span class="k">return</span> <span class="s">"flag"</span>
+    <span class="k">return</span> <span class="s">"ok"</span>
+
+df[<span class="s">"label"</span>] = df.<span class="f">apply</span>(classify_transaction, axis=<span class="n">1</span>)
+
+<span class="c"># 2. apply on a GroupBy — most common legitimate use</span>
+df.<span class="f">groupby</span>(<span class="s">"customer"</span>).<span class="f">apply</span>(<span class="k">lambda</span> g: g.<span class="f">nlargest</span>(<span class="n">3</span>, <span class="s">"amount"</span>))
+
+<span class="c"># 3. Calling an API or a model per row</span>
+df[<span class="s">"sentiment"</span>] = df[<span class="s">"text"</span>].<span class="f">apply</span>(<span class="f">call_sentiment_api</span>)</pre>
+
+  <div class="note tip">
+    <span class="lbl">the test</span>
+    <p>Before writing <code>apply</code>, ask: can I express this with column arithmetic, a built-in method, <code>np.where</code>, or <code>.map</code>? If yes — use that. Apply is the escape hatch, not the default tool.</p>
+  </div>
+
+  <h3 class="section"><span class="num">10.5</span>Method chaining — pipelines that read top-to-bottom</h3>
+<pre>result = (
+    df
+    .<span class="f">query</span>(<span class="s">"amount &gt; 0"</span>)
+    .<span class="f">assign</span>(month=<span class="k">lambda</span> d: d[<span class="s">"date"</span>].<span class="f">dt</span>.month)
+    .<span class="f">groupby</span>([<span class="s">"region"</span>, <span class="s">"month"</span>])
+    .<span class="f">agg</span>(total=(<span class="s">"amount"</span>, <span class="s">"sum"</span>), n=(<span class="s">"amount"</span>, <span class="s">"count"</span>))
+    .<span class="f">reset_index</span>()
+    .<span class="f">sort_values</span>(<span class="s">"total"</span>, ascending=<span class="k">False</span>)
+)</pre>
+
+  <p>Each line is a small step. The data flows top-to-bottom. No intermediate variables. This is how mature pandas code looks — the dplyr-style chained pipeline.</p>
+
+  <div class="app">
+    <div class="lbl">Application</div>
+    <p>Method chaining changes how you write pandas. Instead of <code>df = ...; df = ...; df = ...</code> with a dozen reassignments, you express the whole transformation as one expression. Easier to read, easier to debug (comment out a line to see the intermediate result), and harder to leak stale state.</p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- CHAPTER 11 — TIME SERIES                                      -->
+<!-- ============================================================ -->
+<section class="chapter" id="c11">
+  <div class="ch-header">
+    <span class="ch-num">CHAPTER 11</span>
+    <h2 class="ch-title">Time series</h2>
+  </div>
+  <p class="lead">Dates as first-class citizens. Pandas was originally built for finance, and it shows — the time-series tooling is unusually strong.</p>
+
+  <h3 class="section"><span class="num">11.1</span>DatetimeIndex</h3>
+<pre>dates = pd.<span class="f">date_range</span>(<span class="s">"2024-01-01"</span>, periods=<span class="n">10</span>, freq=<span class="s">"D"</span>)
+ts = pd.<span class="f">Series</span>(np.random.<span class="f">default_rng</span>(<span class="n">0</span>).<span class="f">normal</span>(<span class="n">100</span>, <span class="n">5</span>, <span class="n">10</span>), index=dates)
+ts.<span class="f">head</span>()</pre>
+<pre class="out">2024-01-01    100.126
+2024-01-02     99.470
+2024-01-03    100.640
+2024-01-04    100.105
+2024-01-05     99.464
+Freq: D, dtype: float64</pre>
+
+  <h3 class="section"><span class="num">11.2</span>Frequency aliases</h3>
+  <table class="tbl">
+    <thead><tr><th>Alias</th><th>Meaning</th></tr></thead>
+    <tbody>
+      <tr><td><code>"D"</code></td><td>calendar day</td></tr>
+      <tr><td><code>"B"</code></td><td>business day</td></tr>
+      <tr><td><code>"W"</code></td><td>weekly (Sunday)</td></tr>
+      <tr><td><code>"ME"</code></td><td>month end</td></tr>
+      <tr><td><code>"QE"</code></td><td>quarter end</td></tr>
+      <tr><td><code>"YE"</code></td><td>year end</td></tr>
+      <tr><td><code>"h"</code></td><td>hourly</td></tr>
+      <tr><td><code>"min"</code></td><td>minutely</td></tr>
+    </tbody>
+  </table>
+
+  <h3 class="section"><span class="num">11.3</span>Slicing by date</h3>
+<pre>ts[<span class="s">"2024-01-03"</span>:<span class="s">"2024-01-07"</span>]            <span class="c"># date range</span>
+ts[<span class="s">"2024-01"</span>]                              <span class="c"># whole January</span>
+ts[<span class="s">"2024"</span>]                                 <span class="c"># whole year</span></pre>
+
+  <h3 class="section"><span class="num">11.4</span>The .dt accessor</h3>
+<pre>df[<span class="s">"date"</span>] = pd.<span class="f">to_datetime</span>(df[<span class="s">"date"</span>])
+
+df[<span class="s">"year"</span>]    = df[<span class="s">"date"</span>].<span class="f">dt</span>.year
+df[<span class="s">"month"</span>]   = df[<span class="s">"date"</span>].<span class="f">dt</span>.month
+df[<span class="s">"weekday"</span>] = df[<span class="s">"date"</span>].<span class="f">dt</span>.day_name()
+df[<span class="s">"quarter"</span>] = df[<span class="s">"date"</span>].<span class="f">dt</span>.quarter
+df[<span class="s">"is_weekend"</span>] = df[<span class="s">"date"</span>].<span class="f">dt</span>.dayofweek &gt;= <span class="n">5</span></pre>
+
+  <h3 class="section"><span class="num">11.5</span>resample — groupby for time</h3>
+<pre>daily = ts                                  <span class="c"># daily values</span>
+daily.<span class="f">resample</span>(<span class="s">"ME"</span>).<span class="f">sum</span>()                  <span class="c"># sum by month</span>
+daily.<span class="f">resample</span>(<span class="s">"W"</span>).<span class="f">mean</span>()                  <span class="c"># weekly mean</span>
+daily.<span class="f">resample</span>(<span class="s">"QE"</span>).<span class="f">agg</span>([<span class="s">"sum"</span>, <span class="s">"mean"</span>, <span class="s">"std"</span>])
+
+<span class="c"># Upsampling — go from less to more frequent</span>
+daily.<span class="f">resample</span>(<span class="s">"h"</span>).<span class="f">ffill</span>()                   <span class="c"># carry value forward</span>
+daily.<span class="f">resample</span>(<span class="s">"h"</span>).<span class="f">interpolate</span>()</pre>
+
+  <h3 class="section"><span class="num">11.6</span>Rolling windows</h3>
+<pre>ts.<span class="f">rolling</span>(window=<span class="n">7</span>).<span class="f">mean</span>()                  <span class="c"># 7-day moving average</span>
+ts.<span class="f">rolling</span>(<span class="n">7</span>).<span class="f">std</span>()                         <span class="c"># 7-day moving std</span>
+ts.<span class="f">rolling</span>(<span class="s">"7D"</span>).<span class="f">mean</span>()                      <span class="c"># 7 calendar days (handles missing dates)</span>
+
+<span class="c"># Exponentially weighted</span>
+ts.<span class="f">ewm</span>(span=<span class="n">7</span>).<span class="f">mean</span>()                          <span class="c"># EWMA — more weight on recent</span></pre>
+
+  <h3 class="section"><span class="num">11.7</span>shift and diff</h3>
+<pre>ts.<span class="f">shift</span>(<span class="n">1</span>)              <span class="c"># yesterday's value, aligned to today</span>
+ts - ts.<span class="f">shift</span>(<span class="n">1</span>)         <span class="c"># day-over-day change</span>
+ts.<span class="f">diff</span>()               <span class="c"># shortcut for the same thing</span>
+ts.<span class="f">pct_change</span>()         <span class="c"># percent change</span></pre>
+
+  <div class="app">
+    <div class="lbl">Application</div>
+    <p>For any time-indexed data — sales, sensor readings, server metrics — these tools handle 95% of the work. Resample to the right granularity, compute rolling averages to smooth noise, use <code>shift</code>/<code>diff</code> to compute deltas. Pandas turns a week of time-series analysis into a single afternoon.</p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- CHAPTER 12 — PERFORMANCE                                      -->
+<!-- ============================================================ -->
+<section class="chapter" id="c12">
+  <div class="ch-header">
+    <span class="ch-num">CHAPTER 12</span>
+    <h2 class="ch-title">Performance</h2>
+  </div>
+  <p class="lead">Pandas is fast until it isn't. Five techniques keep it fast — and tell you when it's time to graduate to Polars or DuckDB.</p>
+
+  <h3 class="section"><span class="num">12.1</span>Check memory usage</h3>
+<pre>df.<span class="f">info</span>(memory_usage=<span class="s">"deep"</span>)               <span class="c"># includes string memory</span>
+df.<span class="f">memory_usage</span>(deep=<span class="k">True</span>).<span class="f">sum</span>() / <span class="n">1e9</span>     <span class="c"># GB</span></pre>
+
+  <h3 class="section"><span class="num">12.2</span>Downcast numeric types</h3>
+<pre>df[<span class="s">"id"</span>] = pd.<span class="f">to_numeric</span>(df[<span class="s">"id"</span>], downcast=<span class="s">"integer"</span>)        <span class="c"># int64 → int8/16/32 if safe</span>
+df[<span class="s">"price"</span>] = pd.<span class="f">to_numeric</span>(df[<span class="s">"price"</span>], downcast=<span class="s">"float"</span>)    <span class="c"># float64 → float32</span></pre>
+
+  <p>Downcasting often cuts memory by 50-75% with zero quality loss.</p>
+
+  <h3 class="section"><span class="num">12.3</span>Use categoricals for repeated strings</h3>
+<pre>df[<span class="s">"country"</span>] = df[<span class="s">"country"</span>].<span class="f">astype</span>(<span class="s">"category"</span>)
+<span class="c"># a column of 10M strings repeating from 200 unique values</span>
+<span class="c"># goes from ~600 MB to ~10 MB. 60× saving.</span></pre>
+
+  <p>Categoricals also speed up groupby and merge on those columns.</p>
+
+  <h3 class="section"><span class="num">12.4</span>Chunked reading</h3>
+<pre><span class="k">for</span> chunk <span class="k">in</span> pd.<span class="f">read_csv</span>(<span class="s">"huge.csv"</span>, chunksize=<span class="n">100_000</span>):
+    <span class="f">process</span>(chunk)                       <span class="c"># aggregate, filter, write to parquet</span></pre>
+
+  <p>When the file doesn't fit in memory, process it piece by piece. Often the final result <em>does</em> fit, even when the raw data doesn't.</p>
+
+  <h3 class="section"><span class="num">12.5</span>Vectorize, don't iterate</h3>
+<pre><span class="c"># Slow — 100× to 1000× slower</span>
+<span class="k">for</span> i <span class="k">in</span> df.index:
+    df.<span class="f">loc</span>[i, <span class="s">"total"</span>] = df.<span class="f">loc</span>[i, <span class="s">"qty"</span>] * df.<span class="f">loc</span>[i, <span class="s">"price"</span>]
+
+<span class="c"># Fast</span>
+df[<span class="s">"total"</span>] = df[<span class="s">"qty"</span>] * df[<span class="s">"price"</span>]</pre>
+
+  <p>The number-one pandas anti-pattern is iterating over rows with a for loop. Almost always there's a vectorized alternative — find it.</p>
+
+  <h3 class="section"><span class="num">12.6</span>When to leave pandas</h3>
+  <table class="tbl">
+    <thead><tr><th>Symptom</th><th>Consider</th></tr></thead>
+    <tbody>
+      <tr><td>Memory errors loading data</td><td>Polars (book 3), DuckDB, or chunked reading</td></tr>
+      <tr><td>Operations take minutes</td><td>Polars (often 5-30× faster on the same machine)</td></tr>
+      <tr><td>Data is in many files</td><td>DuckDB queries directly across parquet files</td></tr>
+      <tr><td>Need distributed compute</td><td>Spark (PySpark or Spark SQL)</td></tr>
+      <tr><td>Need GPU acceleration</td><td>cuDF (RAPIDS) — pandas-compatible API on GPU</td></tr>
+    </tbody>
+  </table>
+
+  <div class="app">
+    <div class="lbl">Application</div>
+    <p>The pragmatic threshold: pandas comfortably handles 1-10 GB on a 32 GB machine. Below 1 GB, never even think about performance. Above 10 GB, your time is better spent learning Polars (the next book) than tuning pandas. There's a sweet spot in the middle — and the techniques above keep you in it.</p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- CHAPTER 13 — END TO END                                       -->
+<!-- ============================================================ -->
+<section class="chapter" id="c13">
+  <div class="ch-header">
+    <span class="ch-num">CHAPTER 13</span>
+    <h2 class="ch-title">End-to-end example</h2>
+  </div>
+  <p class="lead">A realistic sales pipeline that uses everything in the book. Thirty lines of pandas, one coherent story.</p>
+
+  <h3 class="section"><span class="num">13.1</span>The task</h3>
+  <p>Three CSVs: orders, customers, and products. Build a report of "top 5 customers by revenue per region in Q3 2024, with their favorite product."</p>
+
+<pre><span class="k">import</span> pandas <span class="k">as</span> pd
+
+<span class="c"># ---------- 1. Load ----------</span>
+orders = pd.<span class="f">read_csv</span>(<span class="s">"orders.csv"</span>, parse_dates=[<span class="s">"order_date"</span>])
+customers = pd.<span class="f">read_csv</span>(<span class="s">"customers.csv"</span>)
+products = pd.<span class="f">read_csv</span>(<span class="s">"products.csv"</span>)
+
+<span class="c"># ---------- 2. Clean ----------</span>
+orders = orders.<span class="f">dropna</span>(subset=[<span class="s">"customer_id"</span>, <span class="s">"product_id"</span>])
+orders = orders.<span class="f">query</span>(<span class="s">"amount &gt; 0"</span>)
+customers[<span class="s">"region"</span>] = customers[<span class="s">"region"</span>].<span class="f">str</span>.<span class="f">strip</span>().<span class="f">str</span>.<span class="f">title</span>()
+
+<span class="c"># ---------- 3. Join (with safety checks) ----------</span>
+df = (
+    orders
+    .<span class="f">merge</span>(customers, on=<span class="s">"customer_id"</span>, how=<span class="s">"left"</span>, validate=<span class="s">"many_to_one"</span>)
+    .<span class="f">merge</span>(products,  on=<span class="s">"product_id"</span>,  how=<span class="s">"left"</span>, validate=<span class="s">"many_to_one"</span>)
+)
+
+<span class="c"># ---------- 4. Filter to Q3 2024 ----------</span>
+mask = (df[<span class="s">"order_date"</span>] &gt;= <span class="s">"2024-07-01"</span>) &amp; (df[<span class="s">"order_date"</span>] &lt; <span class="s">"2024-10-01"</span>)
+q3 = df.<span class="f">loc</span>[mask].<span class="f">copy</span>()
+
+<span class="c"># ---------- 5. Revenue per customer ----------</span>
+per_customer = (
+    q3.<span class="f">groupby</span>([<span class="s">"region"</span>, <span class="s">"customer_id"</span>, <span class="s">"customer_name"</span>], as_index=<span class="k">False</span>)
+      .<span class="f">agg</span>(revenue=(<span class="s">"amount"</span>, <span class="s">"sum"</span>),
+           n_orders=(<span class="s">"order_id"</span>, <span class="s">"count"</span>))
+)
+
+<span class="c"># ---------- 6. Each customer's favorite product ----------</span>
+favorite = (
+    q3.<span class="f">groupby</span>([<span class="s">"customer_id"</span>, <span class="s">"product_name"</span>])[<span class="s">"amount"</span>].<span class="f">sum</span>()
+      .<span class="f">reset_index</span>()
+      .<span class="f">sort_values</span>([<span class="s">"customer_id"</span>, <span class="s">"amount"</span>], ascending=[<span class="k">True</span>, <span class="k">False</span>])
+      .<span class="f">drop_duplicates</span>(subset=<span class="s">"customer_id"</span>, keep=<span class="s">"first"</span>)
+      .<span class="f">rename</span>(columns={<span class="s">"product_name"</span>: <span class="s">"favorite_product"</span>})
+      [[<span class="s">"customer_id"</span>, <span class="s">"favorite_product"</span>]]
+)
+
+per_customer = per_customer.<span class="f">merge</span>(favorite, on=<span class="s">"customer_id"</span>, how=<span class="s">"left"</span>)
+
+<span class="c"># ---------- 7. Top 5 per region ----------</span>
+top5 = (
+    per_customer
+    .<span class="f">sort_values</span>([<span class="s">"region"</span>, <span class="s">"revenue"</span>], ascending=[<span class="k">True</span>, <span class="k">False</span>])
+    .<span class="f">groupby</span>(<span class="s">"region"</span>)
+    .<span class="f">head</span>(<span class="n">5</span>)
+    .<span class="f">reset_index</span>(drop=<span class="k">True</span>)
+)
+
+<span class="c"># ---------- 8. Save ----------</span>
+top5.<span class="f">to_csv</span>(<span class="s">"top5_q3_2024.csv"</span>, index=<span class="k">False</span>)
+top5.<span class="f">to_parquet</span>(<span class="s">"top5_q3_2024.parquet"</span>)</pre>
+
+  <h3 class="section"><span class="num">13.2</span>What this used</h3>
+  <ul>
+    <li><b>Loading</b> (Ch 4) — parse_dates argument</li>
+    <li><b>Cleaning</b> (Ch 6) — dropna, .str methods, query</li>
+    <li><b>Selection</b> (Ch 5) — boolean masking, .loc, .copy</li>
+    <li><b>Merging</b> (Ch 8) — left joins with validate</li>
+    <li><b>GroupBy</b> (Ch 7) — named aggregations, groupby + head pattern</li>
+    <li><b>Method chaining</b> (Ch 10) — pipelines that read top-to-bottom</li>
+  </ul>
+
+  <h3 class="section"><span class="num">13.3</span>What to do next</h3>
+  <p>You now know pandas well enough to be productive on real datasets. To go from "knows" to "fluent":</p>
+  <ol>
+    <li><b>Write more chains.</b> Resist the urge to create intermediate <code>df1, df2, df3</code> variables. Chain operations until they don't fit in your head — then start a new chain.</li>
+    <li><b>Read the docs index page.</b> Pandas has dozens of useful methods you haven't met yet. Skimming <code>pd.DataFrame.</code> in a Jupyter cell and tab-completing is a productive afternoon.</li>
+    <li><b>Move on to Polars.</b> Once pandas feels natural, Polars will feel <em>better</em> — same patterns, much faster, cleaner API. Book 3 picks up from here.</li>
+  </ol>
+
+  <div class="note tip">
+    <span class="lbl">parting word</span>
+    <p>Pandas will be the tool you reach for most days of your data career. It's not the fastest, not the prettiest, and not always the best — but it's the one with the deepest ecosystem and the strongest hold on the Python data world. Learn it well; the investment compounds for years.</p>
+  </div>
+</section>
+
+<!-- COLOPHON -->
+<section class="colophon">
+  <div class="mark">⌗</div>
+  <p>end of Book 2 · Pandas · next: Polars</p>
+</section>
+
+</div>
+</body>
+</html>

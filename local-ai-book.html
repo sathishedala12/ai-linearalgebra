@@ -1,0 +1,2243 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Local AI · Ollama, Embeddings, Vector DBs &amp; RAG</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a0c11; --bg-2:#0f131a; --surface:#161b24; --surface-2:#1c222c;
+  --border:#262d3a; --border-soft:#1f2530;
+  --text:#e8ebf1; --text-dim:#9aa3b2; --text-mute:#6b7385;
+  --teal:#1D9E75; --teal-2:#28c595;
+  --purple:#7F77DD; --purple-2:#9d96e6;
+  --coral:#D85A30; --coral-2:#ec7548;
+  --amber:#BA7517; --amber-2:#e0a64a;
+  --accent:#9d96e6;       /* Local AI book = purple */
+  --code-bg:#0e1218;
+  --out-bg:#0b1015;
+  --code-key:#7F77DD; --code-fn:#28c595; --code-str:#e0a64a;
+  --code-num:#ec7548; --code-com:#5b6477; --code-self:#9aa3b2;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;scroll-behavior:smooth}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:'Inter',sans-serif;
+  font-size:15.5px;
+  line-height:1.75;
+  -webkit-font-smoothing:antialiased;
+  letter-spacing:.005em;
+}
+.book{max-width:840px;margin:0 auto;padding:0 28px}
+
+/* ============ COVER ============ */
+.cover{
+  min-height:88vh;
+  display:flex;flex-direction:column;justify-content:center;
+  padding:60px 0 80px;
+  background:radial-gradient(800px 500px at 20% 30%, rgba(157,150,230,.14), transparent 60%);
+  border-bottom:1px solid var(--border-soft);
+  margin-bottom:60px;
+}
+.cover .crest{
+  font-family:'JetBrains Mono',monospace;font-size:11px;
+  letter-spacing:.3em;text-transform:uppercase;
+  color:var(--accent);margin-bottom:24px;font-weight:600;
+}
+.cover h1{
+  font-family:'Fraunces',serif;
+  font-weight:400;font-style:italic;
+  font-size:108px;line-height:.92;letter-spacing:-.03em;
+  margin:0 0 18px;
+  background:linear-gradient(180deg,#fff 0%,#a9b3c4 100%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.cover .sub{
+  font-family:'Fraunces',serif;font-weight:300;
+  font-size:26px;line-height:1.35;letter-spacing:-.01em;
+  color:var(--text-dim);
+  max-width:620px;margin:0 0 40px;
+}
+.cover .meta{
+  display:flex;gap:32px;flex-wrap:wrap;
+  font-family:'JetBrains Mono',monospace;font-size:11px;
+  color:var(--text-mute);text-transform:uppercase;letter-spacing:.14em;
+  padding-top:28px;border-top:1px solid var(--border-soft);
+}
+.cover .meta b{color:var(--text-dim);font-weight:500}
+.parts-nav{
+  display:inline-flex;gap:10px;flex-wrap:wrap;margin-bottom:32px;
+}
+.parts-nav .item{
+  font-family:'JetBrains Mono',monospace;font-size:10.5px;
+  padding:5px 11px;border-radius:999px;
+  border:1px solid var(--border);background:var(--surface);
+  color:var(--text-mute);text-transform:uppercase;letter-spacing:.1em;
+}
+
+/* ============ TOC ============ */
+.toc-page{
+  padding:40px 0 80px;
+  border-bottom:1px solid var(--border-soft);
+  margin-bottom:80px;
+}
+.toc-page h2{
+  font-family:'Fraunces',serif;font-style:italic;font-weight:400;
+  font-size:42px;letter-spacing:-.015em;
+  margin:0 0 8px;color:var(--text);
+}
+.toc-page .toc-intro{
+  color:var(--text-dim);font-size:14.5px;margin:0 0 36px;max-width:620px;
+}
+.toc-part{
+  font-family:'JetBrains Mono',monospace;font-size:11px;
+  color:var(--accent);text-transform:uppercase;letter-spacing:.14em;
+  margin:28px 0 10px;font-weight:600;
+  padding-bottom:6px;border-bottom:1px solid var(--border-soft);
+}
+.toc-list{list-style:none;padding:0;margin:0}
+.toc-list li{
+  display:flex;justify-content:space-between;align-items:baseline;gap:14px;
+  padding:9px 0;
+  border-bottom:1px dotted var(--border-soft);
+}
+.toc-list a{
+  color:var(--text-dim);text-decoration:none;font-size:14.5px;
+  flex:1;display:flex;align-items:baseline;gap:16px;
+}
+.toc-list a:hover{color:var(--accent)}
+.toc-list .ch{
+  font-family:'JetBrains Mono',monospace;font-size:11px;
+  color:var(--accent);min-width:34px;
+}
+.toc-list .desc{
+  font-size:12px;color:var(--text-mute);font-style:italic;
+}
+
+/* ============ PART DIVIDER ============ */
+.part-divider{
+  text-align:center;
+  padding:80px 0 60px;
+  border-top:1px solid var(--border-soft);
+  margin-top:60px;
+}
+.part-divider .pno{
+  font-family:'JetBrains Mono',monospace;font-size:11px;
+  color:var(--accent);letter-spacing:.3em;text-transform:uppercase;
+  margin-bottom:14px;
+}
+.part-divider h2{
+  font-family:'Fraunces',serif;font-style:italic;font-weight:400;
+  font-size:62px;letter-spacing:-.02em;margin:0 0 12px;color:var(--text);
+}
+.part-divider p{
+  color:var(--text-dim);max-width:520px;margin:0 auto;
+  font-family:'Fraunces',serif;font-weight:300;font-size:18px;
+  line-height:1.5;
+}
+
+/* ============ CHAPTERS ============ */
+.chapter{
+  padding:60px 0;
+  scroll-margin-top:24px;
+}
+.chapter + .chapter{border-top:1px solid var(--border-soft)}
+.ch-header{
+  margin-bottom:32px;
+}
+.ch-num{
+  font-family:'JetBrains Mono',monospace;
+  font-size:13px;font-weight:600;
+  color:var(--accent);
+  letter-spacing:.1em;
+  display:block;margin-bottom:8px;
+}
+.ch-title{
+  font-family:'Fraunces',serif;font-style:italic;font-weight:400;
+  font-size:46px;line-height:1.05;letter-spacing:-.02em;
+  margin:0;color:var(--text);
+}
+
+.dropcap::first-letter{
+  font-family:'Fraunces',serif;font-style:italic;font-weight:400;
+  font-size:62px;float:left;line-height:.85;margin:8px 12px 0 0;
+  color:var(--accent);
+}
+
+h3.section{
+  font-family:'Fraunces',serif;font-weight:500;
+  font-size:24px;letter-spacing:-.01em;
+  margin:42px 0 12px;color:var(--text);
+}
+h3.section .num{
+  font-family:'JetBrains Mono',monospace;font-size:12px;
+  color:var(--text-mute);font-weight:400;margin-right:10px;
+}
+h4.sub{
+  font-size:15px;font-weight:600;
+  margin:22px 0 8px;color:var(--text);
+  letter-spacing:-.005em;
+}
+
+p{margin:0 0 14px;color:var(--text)}
+p + p{margin-top:0}
+.lead{
+  font-size:17px;color:var(--text-dim);margin-bottom:20px;
+  font-family:'Fraunces',serif;font-weight:300;line-height:1.55;font-style:italic;
+}
+
+ul,ol{margin:0 0 16px;padding-left:24px;color:var(--text-dim)}
+li{margin-bottom:6px}
+b,strong{color:var(--text);font-weight:600}
+em{font-style:italic;color:var(--text)}
+
+/* ============ CODE ============ */
+pre{
+  background:var(--code-bg);
+  border:1px solid var(--border-soft);
+  border-radius:8px 8px 0 0;
+  padding:14px 16px;
+  font-family:'JetBrains Mono',monospace;
+  font-size:12.5px;
+  line-height:1.65;
+  overflow-x:auto;
+  margin:14px 0 0;
+  color:#cdd4e0;
+  position:relative;
+}
+pre.solo,
+pre:last-child{
+  border-radius:8px;margin-bottom:18px;
+}
+pre.out{
+  background:var(--out-bg);
+  border:1px dashed var(--border);border-top:0;
+  border-radius:0 0 8px 8px;
+  margin-top:0;margin-bottom:18px;
+  color:#a9b3c4;
+  font-size:12px;
+}
+pre.out::before{
+  content:"OUTPUT";position:absolute;top:6px;right:12px;
+  font-size:9px;color:var(--text-mute);
+  letter-spacing:.14em;font-weight:600;font-family:'JetBrains Mono',monospace;
+}
+pre.bash::before{
+  content:"BASH";position:absolute;top:6px;right:12px;
+  font-size:9px;color:var(--amber-2);
+  letter-spacing:.14em;font-weight:600;font-family:'JetBrains Mono',monospace;
+}
+code{font-family:'JetBrains Mono',monospace}
+:not(pre) > code{
+  background:rgba(157,150,230,.10);
+  padding:1px 6px;border-radius:4px;
+  border:1px solid rgba(157,150,230,.18);
+  color:var(--accent);
+  font-size:13px;
+}
+.k{color:var(--code-key)}
+.f{color:var(--code-fn)}
+.s{color:var(--code-str)}
+.n{color:var(--code-num)}
+.c{color:var(--code-com);font-style:italic}
+.sf{color:var(--code-self)}
+.o{color:#cdd4e0}
+
+/* ============ CALLOUTS ============ */
+.note{
+  display:flex;gap:16px;margin:18px 0;
+  padding:14px 18px;border-radius:8px;
+  background:var(--surface);
+  border-left:3px solid var(--note-accent,var(--purple-2));
+  font-size:14.5px;
+}
+.note .lbl{
+  font-family:'JetBrains Mono',monospace;font-size:10.5px;
+  text-transform:uppercase;letter-spacing:.12em;
+  color:var(--note-accent,var(--purple-2));
+  font-weight:600;flex-shrink:0;min-width:96px;
+}
+.note p{margin:0;color:var(--text-dim);font-size:14px}
+.note p + p{margin-top:6px}
+.note.intuition{--note-accent:var(--amber-2)}
+.note.warn{--note-accent:var(--coral-2)}
+.note.tip{--note-accent:var(--teal-2)}
+
+/* application card */
+.app{
+  background:linear-gradient(180deg,rgba(157,150,230,.07),transparent);
+  border:1px solid var(--border-soft);border-left:3px solid var(--accent);
+  border-radius:8px;
+  padding:14px 18px;margin:18px 0;
+}
+.app .lbl{
+  font-family:'JetBrains Mono',monospace;font-size:10px;
+  color:var(--accent);text-transform:uppercase;letter-spacing:.14em;
+  font-weight:600;margin-bottom:6px;
+}
+.app p{margin:0;color:var(--text-dim);font-size:13.5px;line-height:1.6}
+.app p + p{margin-top:6px}
+
+/* ============ FIGURES ============ */
+.figure{
+  margin:24px 0 28px;
+  background:var(--surface);
+  border:1px solid var(--border-soft);
+  border-radius:10px;
+  padding:24px 24px 16px;
+}
+.figure svg{display:block;margin:0 auto;width:100%;height:auto;max-width:760px}
+.fig-caption{
+  text-align:center;
+  font-size:12.5px;color:var(--text-mute);
+  font-style:italic;
+  margin-top:14px;font-family:'Fraunces',serif;
+}
+.fig-caption b{color:var(--text);font-style:normal;font-weight:600;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.04em;margin-right:6px}
+
+/* ============ TABLES ============ */
+table.tbl{
+  width:100%;border-collapse:collapse;
+  font-size:13.5px;margin:16px 0 18px;
+  background:var(--surface);border-radius:8px;overflow:hidden;
+  border:1px solid var(--border-soft);
+}
+table.tbl th,table.tbl td{
+  text-align:left;padding:10px 14px;
+  border-bottom:1px solid var(--border-soft);
+  vertical-align:top;
+}
+table.tbl th{
+  color:var(--text-mute);font-weight:500;
+  font-family:'JetBrains Mono',monospace;font-size:10.5px;
+  text-transform:uppercase;letter-spacing:.08em;
+  background:var(--bg-2);
+}
+table.tbl td:first-child{color:var(--text);font-weight:500}
+table.tbl tr:last-child td{border-bottom:none}
+table.tbl code{font-size:12.5px}
+
+/* ============ COLOPHON ============ */
+.colophon{
+  margin:80px 0 40px;padding:36px 0;
+  border-top:1px solid var(--border-soft);
+  text-align:center;
+}
+.colophon .mark{
+  font-family:'Fraunces',serif;font-style:italic;
+  font-size:36px;color:var(--accent);margin:0 0 10px;
+}
+.colophon p{
+  font-family:'JetBrains Mono',monospace;font-size:11px;
+  color:var(--text-mute);text-transform:uppercase;letter-spacing:.14em;
+  margin:0;
+}
+
+@media (max-width:680px){
+  .cover h1{font-size:60px}
+  .cover .sub{font-size:18px}
+  .ch-title{font-size:30px}
+  .part-divider h2{font-size:44px}
+  h3.section{font-size:20px}
+  .book{padding:0 18px}
+}
+@media print{
+  body{background:#fff;color:#111}
+  .cover h1{color:#111;-webkit-text-fill-color:#111}
+  .chapter,.part-divider{page-break-before:always;border-top:none}
+  pre,pre.out,.note,.figure,table.tbl,.app{background:#fff;border-color:#ddd;break-inside:avoid}
+  pre{background:#f7f7f9}
+  pre.out{background:#fbfcfd}
+  .k{color:#7c3aed}.f{color:#0d8a5b}.s{color:#a5650a}.n{color:#b14a26}.c{color:#888}
+}
+</style>
+</head>
+<body>
+<div class="book">
+
+<!-- ============================================================ -->
+<!-- COVER                                                         -->
+<!-- ============================================================ -->
+<section class="cover">
+  <div class="crest">⌗ the local ai handbook</div>
+  <div class="parts-nav">
+    <span class="item">I · Ollama</span>
+    <span class="item">II · Embeddings</span>
+    <span class="item">III · Vector DBs</span>
+    <span class="item">IV · RAG</span>
+    <span class="item">V · Production</span>
+  </div>
+  <h1>Local AI.</h1>
+  <p class="sub">Run language models on your own machine. Turn documents into vectors. Build a retrieval system that actually works. Then put it all together.</p>
+  <div class="meta">
+    <span><b>5</b> parts · 22 chapters</span>
+    <span>Ollama · Chroma · FAISS · Qdrant</span>
+    <span>end-to-end RAG</span>
+    <span><b>2026</b> edition</span>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- TOC                                                           -->
+<!-- ============================================================ -->
+<section class="toc-page" id="toc">
+  <h2>Contents</h2>
+  <p class="toc-intro">A complete path from "what is Ollama" to "I'm running a production RAG system." Every chapter has runnable code and clear concepts. By the end you'll be able to build retrieval-augmented apps without any API keys, paid services, or external dependencies.</p>
+
+  <div class="toc-part">Part I · Ollama — running models locally</div>
+  <ul class="toc-list">
+    <li><a href="#c1"><span class="ch">01</span><span>What is Ollama, and why local?</span></a><span class="desc">the case for self-hosted</span></li>
+    <li><a href="#c2"><span class="ch">02</span><span>Installing &amp; your first model</span></a><span class="desc">30 seconds to running</span></li>
+    <li><a href="#c3"><span class="ch">03</span><span>Picking the right model</span></a><span class="desc">sizes, quantization, families</span></li>
+    <li><a href="#c4"><span class="ch">04</span><span>The Ollama API</span></a><span class="desc">generate, chat, embed, stream</span></li>
+    <li><a href="#c5"><span class="ch">05</span><span>Modelfiles &amp; custom models</span></a><span class="desc">system prompts, parameters, fine personality</span></li>
+  </ul>
+
+  <div class="toc-part">Part II · Embeddings — text as numbers</div>
+  <ul class="toc-list">
+    <li><a href="#c6"><span class="ch">06</span><span>What an embedding actually is</span></a><span class="desc">vectors with meaning</span></li>
+    <li><a href="#c7"><span class="ch">07</span><span>Generating embeddings with Ollama</span></a><span class="desc">first vectors in five lines</span></li>
+    <li><a href="#c8"><span class="ch">08</span><span>Cosine similarity &amp; semantic search</span></a><span class="desc">finding "close" meaning</span></li>
+    <li><a href="#c9"><span class="ch">09</span><span>Choosing an embedding model</span></a><span class="desc">nomic, mxbai, BGE — when to use which</span></li>
+    <li><a href="#c10"><span class="ch">10</span><span>Chunking strategies</span></a><span class="desc">the most underrated decision in RAG</span></li>
+  </ul>
+
+  <div class="toc-part">Part III · Vector databases — storage &amp; search</div>
+  <ul class="toc-list">
+    <li><a href="#c11"><span class="ch">11</span><span>What a vector DB actually does</span></a><span class="desc">approximate nearest neighbor</span></li>
+    <li><a href="#c12"><span class="ch">12</span><span>ChromaDB — the friendly default</span></a><span class="desc">embed-search-done in 20 lines</span></li>
+    <li><a href="#c13"><span class="ch">13</span><span>FAISS — Facebook's index workhorse</span></a><span class="desc">when you need speed at scale</span></li>
+    <li><a href="#c14"><span class="ch">14</span><span>Qdrant &amp; pgvector</span></a><span class="desc">production options</span></li>
+    <li><a href="#c15"><span class="ch">15</span><span>Metadata &amp; hybrid search</span></a><span class="desc">filtering and combining with keyword</span></li>
+  </ul>
+
+  <div class="toc-part">Part IV · RAG — retrieval-augmented generation</div>
+  <ul class="toc-list">
+    <li><a href="#c16"><span class="ch">16</span><span>Why RAG exists</span></a><span class="desc">the knowledge problem with LLMs</span></li>
+    <li><a href="#c17"><span class="ch">17</span><span>Minimum viable RAG</span></a><span class="desc">60 lines, end to end</span></li>
+    <li><a href="#c18"><span class="ch">18</span><span>Better retrieval — re-ranking, HyDE, MMR</span></a><span class="desc">the techniques that lift quality</span></li>
+    <li><a href="#c19"><span class="ch">19</span><span>Prompting for RAG</span></a><span class="desc">grounding, citations, refusals</span></li>
+  </ul>
+
+  <div class="toc-part">Part V · Putting it together</div>
+  <ul class="toc-list">
+    <li><a href="#c20"><span class="ch">20</span><span>Complete worked example — chat with PDFs</span></a><span class="desc">one file, ~150 lines</span></li>
+    <li><a href="#c21"><span class="ch">21</span><span>Evaluating a RAG system</span></a><span class="desc">recall@k, MRR, LLM-as-judge</span></li>
+    <li><a href="#c22"><span class="ch">22</span><span>Going to production</span></a><span class="desc">caching, monitoring, safety</span></li>
+  </ul>
+</section>
+
+<!-- ============================================================ -->
+<!-- PART I                                                        -->
+<!-- ============================================================ -->
+<section class="part-divider">
+  <div class="pno">Part I</div>
+  <h2>Ollama</h2>
+  <p>Run language models on your own machine. No API keys, no cloud bills, no data leaving your laptop.</p>
+</section>
+
+<!-- ============================================================ -->
+<!-- CHAPTER 1                                                     -->
+<!-- ============================================================ -->
+<section class="chapter" id="c1">
+  <div class="ch-header">
+    <span class="ch-num">CHAPTER 01</span>
+    <h2 class="ch-title">What is Ollama, and why local?</h2>
+  </div>
+  <p class="lead">Ollama is what Docker was to containers: it took something powerful but fiddly and made it a single command.</p>
+
+  <p class="dropcap">Before Ollama, running an open-source language model locally meant downloading multi-gigabyte weight files, building llama.cpp from source, finding the right quantization, writing a Python wrapper, and praying your GPU drivers cooperated. After Ollama, it's <code>ollama run llama3.2</code>. The model downloads itself, the runtime starts automatically, and a chat interface appears in your terminal. The barrier dropped from "weekend project" to "thirty seconds."</p>
+
+  <h3 class="section"><span class="num">1.1</span>What Ollama actually is</h3>
+  <p>Three things wrapped together:</p>
+  <ul>
+    <li><b>A model registry</b> — like Docker Hub for LLMs. You can <code>ollama pull llama3.2</code> and get the right weights, tokenizer, and default settings.</li>
+    <li><b>A local inference server</b> — runs on <code>http://localhost:11434</code>, exposing an HTTP API. Everything in this book talks to that server.</li>
+    <li><b>A command-line client</b> — for chatting in the terminal, listing installed models, and managing storage.</li>
+  </ul>
+
+  <h3 class="section"><span class="num">1.2</span>Why run models locally</h3>
+  <table class="tbl">
+    <thead><tr><th>Reason</th><th>What it means in practice</th></tr></thead>
+    <tbody>
+      <tr><td>Privacy</td><td>Your prompts and documents never leave the machine. Indispensable for sensitive company data, legal documents, medical records.</td></tr>
+      <tr><td>Cost</td><td>Zero per-token cost. Build a RAG system that ingests a million-page archive and you pay only for electricity.</td></tr>
+      <tr><td>Latency</td><td>No round trip to a cloud API. First token in 100ms on consumer hardware.</td></tr>
+      <tr><td>Offline</td><td>Works on planes, in airgapped networks, in places with no internet.</td></tr>
+      <tr><td>No rate limits</td><td>Fire as many requests as your hardware can handle.</td></tr>
+      <tr><td>Reproducibility</td><td>The model file doesn't silently upgrade overnight. Your evals stay valid.</td></tr>
+    </tbody>
+  </table>
+
+  <h3 class="section"><span class="num">1.3</span>What local models are <em>not</em> good at (yet)</h3>
+  <p>Be honest about the trade-offs. A 7B-parameter model running on your laptop will not match GPT-4 or Claude on:</p>
+  <ul>
+    <li>Long, complex multi-step reasoning chains.</li>
+    <li>Niche specialized knowledge that wasn't in the training data.</li>
+    <li>Very long contexts (most local models top out at 8K–128K tokens; large frontier models handle 200K+).</li>
+    <li>Cutting-edge code generation on unfamiliar frameworks.</li>
+  </ul>
+  <p>But for <em>most</em> business tasks — summarization, classification, structured extraction, RAG-augmented Q&amp;A, drafting — a properly chosen local model is more than capable, and often <em>preferred</em> because you control the data flow.</p>
+
+  <div class="note intuition">
+    <span class="lbl">mental model</span>
+    <p>Think of Ollama as a personal LLM appliance. You install it once. You pull a few models. They sit on disk. Any program on your machine — Python script, Node app, browser extension, your shell — can talk to them over a local HTTP endpoint. That's the entire architecture.</p>
+  </div>
+
+  <div class="app">
+    <div class="lbl">When local wins</div>
+    <p><b>Internal tools</b> at a company that can't send prompts to external APIs. <b>Personal data assistants</b> over your emails, notes, or photo metadata. <b>Edge applications</b> where the network is unreliable. <b>Bulk processing</b> jobs where per-token API costs would be prohibitive. <b>Development</b> environments where you want fast iteration without burning credits.</p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- CHAPTER 2                                                     -->
+<!-- ============================================================ -->
+<section class="chapter" id="c2">
+  <div class="ch-header">
+    <span class="ch-num">CHAPTER 02</span>
+    <h2 class="ch-title">Installing &amp; your first model</h2>
+  </div>
+  <p class="lead">From zero to a working chat in under a minute on most machines.</p>
+
+  <h3 class="section"><span class="num">2.1</span>Installing</h3>
+<pre class="bash"><span class="c"># macOS</span>
+brew install ollama
+ollama <span class="f">serve</span>                      <span class="c"># start the background server</span>
+
+<span class="c"># Linux</span>
+curl -fsSL https://ollama.com/install.sh | sh
+
+<span class="c"># Windows</span>
+<span class="c"># download the installer from ollama.com/download</span></pre>
+
+  <p>After installation, the server runs on <code>http://localhost:11434</code>. Test it:</p>
+<pre class="bash">curl http://localhost:11434
+<span class="c"># should respond: Ollama is running</span></pre>
+
+  <h3 class="section"><span class="num">2.2</span>Pulling a model</h3>
+<pre class="bash">ollama pull llama3.2                <span class="c"># ~2 GB, runs on any laptop</span>
+ollama pull llama3.2:1b             <span class="c"># even smaller, ~1.3 GB</span>
+ollama pull qwen2.5:7b              <span class="c"># 4.7 GB — great all-around model</span>
+ollama pull nomic-embed-text        <span class="c"># 274 MB — embeddings, not chat</span></pre>
+
+  <p>Models download once and stay on disk in <code>~/.ollama/models</code>. List what you have:</p>
+<pre class="bash">ollama list
+<span class="c"># NAME                ID            SIZE     MODIFIED</span>
+<span class="c"># llama3.2:latest     a80c4f17acd5  2.0 GB   3 minutes ago</span>
+<span class="c"># nomic-embed-text    0a109f422b47  274 MB   5 minutes ago</span></pre>
+
+  <h3 class="section"><span class="num">2.3</span>Chatting from the terminal</h3>
+<pre class="bash">ollama run llama3.2
+&gt;&gt;&gt; <span class="s">Explain transformers in one sentence.</span>
+Transformers are neural networks that use self-attention to
+weigh the importance of different parts of an input...
+
+&gt;&gt;&gt; /bye</pre>
+
+  <p>Useful in-chat commands:</p>
+  <table class="tbl">
+    <thead><tr><th>Command</th><th>Effect</th></tr></thead>
+    <tbody>
+      <tr><td><code>/?</code></td><td>show help</td></tr>
+      <tr><td><code>/set system "..."</code></td><td>set a system prompt for the session</td></tr>
+      <tr><td><code>/show modelfile</code></td><td>print the current model's Modelfile</td></tr>
+      <tr><td><code>/save mychat</code></td><td>save the conversation as a new model</td></tr>
+      <tr><td><code>/clear</code></td><td>clear conversation history</td></tr>
+      <tr><td><code>/bye</code></td><td>exit</td></tr>
+    </tbody>
+  </table>
+
+  <h3 class="section"><span class="num">2.4</span>Removing models when you're out of disk</h3>
+<pre class="bash">ollama rm llama3.2:1b
+ollama ps                            <span class="c"># shows currently loaded models in RAM</span>
+ollama stop llama3.2                 <span class="c"># unload from memory without removing</span></pre>
+
+  <div class="note tip">
+    <span class="lbl">disk budget</span>
+    <p>Models add up fast. A typical RAG project needs one chat model (~4–8 GB) and one embedding model (~300 MB) — call it 8 GB total. Keep an eye on <code>~/.ollama/models</code> if you're experimenting widely.</p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- CHAPTER 3                                                     -->
+<!-- ============================================================ -->
+<section class="chapter" id="c3">
+  <div class="ch-header">
+    <span class="ch-num">CHAPTER 03</span>
+    <h2 class="ch-title">Picking the right model</h2>
+  </div>
+  <p class="lead">Bigger isn't always better. The right choice depends on what you have and what you need.</p>
+
+  <h3 class="section"><span class="num">3.1</span>How model size works</h3>
+  <p>A "7B" model has 7 billion parameters. Each parameter is roughly half a byte (in 4-bit quantization) to two bytes (in full precision). So a 7B model needs about:</p>
+  <ul>
+    <li><b>~4 GB</b> at 4-bit quantization (q4) — the common default for laptops</li>
+    <li><b>~8 GB</b> at 8-bit quantization (q8) — better quality, more memory</li>
+    <li><b>~14 GB</b> at full 16-bit precision — server territory</li>
+  </ul>
+  <p>That's RAM (or VRAM if you have a GPU) for the weights alone. Add ~1–2 GB for the KV cache and runtime overhead.</p>
+
+  <h3 class="section"><span class="num">3.2</span>What size to pick</h3>
+  <table class="tbl">
+    <thead><tr><th>Hardware</th><th>Recommended max</th><th>Why</th></tr></thead>
+    <tbody>
+      <tr><td>8 GB RAM laptop</td><td>3B model (q4)</td><td>llama3.2:3b, qwen2.5:3b — usable for simple tasks</td></tr>
+      <tr><td>16 GB RAM laptop</td><td>7–8B model (q4)</td><td>llama3.1:8b, qwen2.5:7b — the everyday workhorses</td></tr>
+      <tr><td>32 GB RAM / consumer GPU</td><td>13B model (q4) or 8B (q8)</td><td>noticeably better at reasoning</td></tr>
+      <tr><td>64+ GB / pro GPU</td><td>70B model (q4)</td><td>llama3.1:70b — approaches frontier quality</td></tr>
+    </tbody>
+  </table>
+
+  <h3 class="section"><span class="num">3.3</span>Quantization explained</h3>
+  <p>The original model weights are 16-bit floating-point numbers. Quantization rounds them to fewer bits — saving memory and speeding up inference, at the cost of a tiny quality loss.</p>
+<pre class="bash">ollama pull llama3.1:8b-instruct-q4_K_M    <span class="c"># 4-bit, "medium" — common default</span>
+ollama pull llama3.1:8b-instruct-q5_K_M    <span class="c"># 5-bit — a sweet spot</span>
+ollama pull llama3.1:8b-instruct-q8_0      <span class="c"># 8-bit — nearly lossless, 2× memory</span></pre>
+
+  <div class="note intuition">
+    <span class="lbl">tag anatomy</span>
+    <p>Reading <code>llama3.1:8b-instruct-q4_K_M</code>: the family is <em>llama3.1</em>, size is <em>8B</em>, it's been instruction-tuned (<em>instruct</em>), and quantized to <em>4-bit, K-quant, medium</em> variant. When in doubt, the unsuffixed name <code>llama3.1:8b</code> gives you the recommended default.</p>
+  </div>
+
+  <h3 class="section"><span class="num">3.4</span>Model families worth knowing</h3>
+  <table class="tbl">
+    <thead><tr><th>Family</th><th>From</th><th>Best at</th></tr></thead>
+    <tbody>
+      <tr><td>Llama 3.1 / 3.2</td><td>Meta</td><td>strong all-rounder, good instruction following</td></tr>
+      <tr><td>Qwen 2.5</td><td>Alibaba</td><td>code, math, multilingual — often punches above its size</td></tr>
+      <tr><td>Mistral / Mixtral</td><td>Mistral AI</td><td>efficiency, European-style alignment</td></tr>
+      <tr><td>Gemma 2</td><td>Google</td><td>compact, well-tuned</td></tr>
+      <tr><td>Phi 3 / 3.5</td><td>Microsoft</td><td>tiny but capable, perfect for edge</td></tr>
+      <tr><td>DeepSeek-Coder</td><td>DeepSeek</td><td>code completion</td></tr>
+      <tr><td>nomic-embed-text</td><td>Nomic</td><td>embeddings (not chat) — the default for RAG</td></tr>
+      <tr><td>mxbai-embed-large</td><td>Mixedbread</td><td>embeddings — higher quality, larger</td></tr>
+    </tbody>
+  </table>
+
+  <h3 class="section"><span class="num">3.5</span>How to actually pick</h3>
+  <ol>
+    <li><b>Start with <code>llama3.2</code> or <code>qwen2.5:7b</code></b> if you have 16 GB of RAM. They're the default "general purpose" choices in 2026.</li>
+    <li><b>Pull <code>nomic-embed-text</code></b> for embeddings — small, fast, well-supported.</li>
+    <li><b>Run your real prompts.</b> Don't rely on benchmark leaderboards alone. The right model is the one that produces good output for <em>your</em> tasks.</li>
+    <li><b>Only upsize</b> if quality is insufficient. Bigger models are slower and hungrier; don't pay the cost unless you need to.</li>
+  </ol>
+
+  <div class="app">
+    <div class="lbl">Application</div>
+    <p>For a typical "Q&A over company docs" RAG system, your stack is <em>qwen2.5:7b</em> (or <em>llama3.2</em>) for generation, plus <em>nomic-embed-text</em> for embeddings. That's about 5 GB of disk, runs comfortably on any modern laptop, and is enough to build a genuinely useful internal tool.</p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- CHAPTER 4                                                     -->
+<!-- ============================================================ -->
+<section class="chapter" id="c4">
+  <div class="ch-header">
+    <span class="ch-num">CHAPTER 04</span>
+    <h2 class="ch-title">The Ollama API</h2>
+  </div>
+  <p class="lead">Everything beyond the terminal happens here. Four endpoints, simple JSON, ready to be called from any language.</p>
+
+  <h3 class="section"><span class="num">4.1</span>The endpoints</h3>
+  <table class="tbl">
+    <thead><tr><th>Endpoint</th><th>Purpose</th></tr></thead>
+    <tbody>
+      <tr><td><code>POST /api/generate</code></td><td>single-prompt completion</td></tr>
+      <tr><td><code>POST /api/chat</code></td><td>multi-turn conversation</td></tr>
+      <tr><td><code>POST /api/embeddings</code></td><td>turn text into a vector</td></tr>
+      <tr><td><code>GET /api/tags</code></td><td>list installed models</td></tr>
+      <tr><td><code>POST /api/pull</code></td><td>download a model programmatically</td></tr>
+    </tbody>
+  </table>
+
+  <h3 class="section"><span class="num">4.2</span>Generate — single-prompt completion</h3>
+<pre><span class="k">import</span> requests, json
+
+response = requests.<span class="f">post</span>(
+    <span class="s">"http://localhost:11434/api/generate"</span>,
+    json={
+        <span class="s">"model"</span>: <span class="s">"llama3.2"</span>,
+        <span class="s">"prompt"</span>: <span class="s">"Explain HNSW indexes in two sentences."</span>,
+        <span class="s">"stream"</span>: <span class="k">False</span>,
+    },
+)
+<span class="f">print</span>(response.<span class="f">json</span>()[<span class="s">"response"</span>])</pre>
+<pre class="out">HNSW (Hierarchical Navigable Small World) is a graph-based index
+that organizes vectors into multiple layers, where higher layers
+contain fewer points for fast long-distance jumps. Searches start
+at the top and descend through the layers, achieving sub-linear
+query time on millions of vectors with high recall.</pre>
+
+  <h3 class="section"><span class="num">4.3</span>Chat — multi-turn conversation</h3>
+  <p>The chat endpoint takes a list of messages with roles (<code>system</code>, <code>user</code>, <code>assistant</code>). You're responsible for passing the full conversation history each turn.</p>
+<pre><span class="k">import</span> requests
+
+messages = [
+    {<span class="s">"role"</span>: <span class="s">"system"</span>, <span class="s">"content"</span>: <span class="s">"You are a concise senior engineer."</span>},
+    {<span class="s">"role"</span>: <span class="s">"user"</span>, <span class="s">"content"</span>: <span class="s">"What is a vector database?"</span>},
+]
+
+r = requests.<span class="f">post</span>(
+    <span class="s">"http://localhost:11434/api/chat"</span>,
+    json={<span class="s">"model"</span>: <span class="s">"llama3.2"</span>, <span class="s">"messages"</span>: messages, <span class="s">"stream"</span>: <span class="k">False</span>},
+)
+reply = r.<span class="f">json</span>()[<span class="s">"message"</span>][<span class="s">"content"</span>]
+<span class="f">print</span>(reply)
+
+<span class="c"># to continue, append the assistant's reply and the next user message</span>
+messages.<span class="f">append</span>({<span class="s">"role"</span>: <span class="s">"assistant"</span>, <span class="s">"content"</span>: reply})
+messages.<span class="f">append</span>({<span class="s">"role"</span>: <span class="s">"user"</span>, <span class="s">"content"</span>: <span class="s">"And what's an embedding?"</span>})</pre>
+
+  <h3 class="section"><span class="num">4.4</span>Streaming responses</h3>
+  <p>Setting <code>stream=True</code> makes Ollama emit a JSON object per token. This is how you build typewriter-style chat UIs.</p>
+<pre><span class="k">import</span> requests, json
+
+r = requests.<span class="f">post</span>(
+    <span class="s">"http://localhost:11434/api/generate"</span>,
+    json={<span class="s">"model"</span>: <span class="s">"llama3.2"</span>, <span class="s">"prompt"</span>: <span class="s">"Tell me a haiku about HNSW."</span>},
+    stream=<span class="k">True</span>,
+)
+
+<span class="k">for</span> line <span class="k">in</span> r.<span class="f">iter_lines</span>():
+    <span class="k">if</span> line:
+        chunk = json.<span class="f">loads</span>(line)
+        <span class="f">print</span>(chunk[<span class="s">"response"</span>], end=<span class="s">""</span>, flush=<span class="k">True</span>)
+        <span class="k">if</span> chunk.<span class="f">get</span>(<span class="s">"done"</span>):
+            <span class="f">print</span>()
+            <span class="k">break</span></pre>
+<pre class="out">Layers of vectors,
+nearest neighbors found in graphs,
+search whispers — answers.</pre>
+
+  <h3 class="section"><span class="num">4.5</span>Embeddings — text to vector</h3>
+<pre><span class="k">import</span> requests
+
+r = requests.<span class="f">post</span>(
+    <span class="s">"http://localhost:11434/api/embeddings"</span>,
+    json={<span class="s">"model"</span>: <span class="s">"nomic-embed-text"</span>, <span class="s">"prompt"</span>: <span class="s">"PayPal is a payments company."</span>},
+)
+vec = r.<span class="f">json</span>()[<span class="s">"embedding"</span>]
+<span class="f">len</span>(vec), vec[:<span class="n">4</span>]</pre>
+<pre class="out">(768, [-0.0157, 0.0421, 0.0892, -0.0367])</pre>
+  <p>768 floating-point numbers represent the meaning of that sentence. Part II explores what that vector actually <em>means</em>.</p>
+
+  <h3 class="section"><span class="num">4.6</span>Generation parameters worth knowing</h3>
+<pre>r = requests.<span class="f">post</span>(
+    <span class="s">"http://localhost:11434/api/generate"</span>,
+    json={
+        <span class="s">"model"</span>: <span class="s">"llama3.2"</span>,
+        <span class="s">"prompt"</span>: <span class="s">"List three vector DBs."</span>,
+        <span class="s">"stream"</span>: <span class="k">False</span>,
+        <span class="s">"options"</span>: {
+            <span class="s">"temperature"</span>: <span class="n">0.2</span>,       <span class="c"># 0 = deterministic-ish, 1 = creative</span>
+            <span class="s">"top_p"</span>: <span class="n">0.9</span>,             <span class="c"># nucleus sampling</span>
+            <span class="s">"top_k"</span>: <span class="n">40</span>,              <span class="c"># sample only from top-K most likely tokens</span>
+            <span class="s">"num_predict"</span>: <span class="n">150</span>,       <span class="c"># max new tokens</span>
+            <span class="s">"seed"</span>: <span class="n">42</span>,               <span class="c"># reproducibility</span>
+            <span class="s">"num_ctx"</span>: <span class="n">8192</span>,           <span class="c"># context window size</span>
+        },
+    },
+)</pre>
+
+  <div class="note tip">
+    <span class="lbl">defaults</span>
+    <p>For factual RAG answers, drop <code>temperature</code> to <code>0.1</code> or <code>0.2</code>. For creative tasks, leave it at <code>0.7</code>. Setting a <code>seed</code> alongside <code>temperature: 0</code> gets you fully reproducible outputs for testing.</p>
+  </div>
+
+  <h3 class="section"><span class="num">4.7</span>The OpenAI-compatible endpoint</h3>
+  <p>Ollama also exposes an OpenAI-compatible API on the same port. That means any library that talks to OpenAI talks to Ollama with a one-line change.</p>
+<pre><span class="k">from</span> openai <span class="k">import</span> OpenAI
+
+client = <span class="f">OpenAI</span>(
+    base_url=<span class="s">"http://localhost:11434/v1"</span>,
+    api_key=<span class="s">"ollama"</span>,             <span class="c"># dummy — required by the SDK but ignored</span>
+)
+
+reply = client.chat.completions.<span class="f">create</span>(
+    model=<span class="s">"llama3.2"</span>,
+    messages=[{<span class="s">"role"</span>: <span class="s">"user"</span>, <span class="s">"content"</span>: <span class="s">"Say hi."</span>}],
+)
+<span class="f">print</span>(reply.choices[<span class="n">0</span>].message.content)</pre>
+
+  <div class="app">
+    <div class="lbl">Application</div>
+    <p>Compatibility with the OpenAI SDK is enormous. Every framework that integrates with OpenAI — LangChain, LlamaIndex, Instructor, OpenAI's own client — now works with your local Ollama. You can prototype against GPT-4 in the cloud, then flip the <code>base_url</code> and run the same code locally for production.</p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- CHAPTER 5                                                     -->
+<!-- ============================================================ -->
+<section class="chapter" id="c5">
+  <div class="ch-header">
+    <span class="ch-num">CHAPTER 05</span>
+    <h2 class="ch-title">Modelfiles &amp; custom models</h2>
+  </div>
+  <p class="lead">Bake a system prompt, temperature, and personality into a reusable model. Like a Dockerfile, but for LLMs.</p>
+
+  <h3 class="section"><span class="num">5.1</span>What a Modelfile is</h3>
+  <p>A Modelfile is a small text file that says: take this base model, apply these defaults, give it this name. Once you create one, you can pull, run, and share that customized model just like any official one.</p>
+
+<pre class="solo"><span class="c"># Modelfile</span>
+FROM llama3.2
+
+PARAMETER temperature <span class="n">0.2</span>
+PARAMETER num_ctx <span class="n">8192</span>
+
+SYSTEM <span class="s">"""
+You are a precise technical assistant. Always cite sources when
+provided. If you don't know, say so. Prefer code examples over
+prose. Never invent function names or API endpoints.
+"""</span></pre>
+
+  <p>Build it:</p>
+<pre class="bash">ollama create tech-assistant -f Modelfile
+ollama run tech-assistant</pre>
+
+  <h3 class="section"><span class="num">5.2</span>The full Modelfile grammar</h3>
+  <table class="tbl">
+    <thead><tr><th>Directive</th><th>Purpose</th></tr></thead>
+    <tbody>
+      <tr><td><code>FROM</code></td><td>base model (or a GGUF file path)</td></tr>
+      <tr><td><code>PARAMETER</code></td><td>set defaults: <code>temperature</code>, <code>top_p</code>, <code>num_ctx</code>, <code>num_predict</code>, <code>stop</code>, <code>seed</code></td></tr>
+      <tr><td><code>SYSTEM</code></td><td>system prompt baked into the model</td></tr>
+      <tr><td><code>TEMPLATE</code></td><td>chat template — usually inherited from the base model, rarely overridden</td></tr>
+      <tr><td><code>MESSAGE</code></td><td>seed the conversation with example messages (few-shot)</td></tr>
+      <tr><td><code>ADAPTER</code></td><td>attach a LoRA adapter (advanced)</td></tr>
+    </tbody>
+  </table>
+
+  <h3 class="section"><span class="num">5.3</span>Example — a RAG-tuned assistant</h3>
+<pre class="solo"><span class="c"># Modelfile for RAG</span>
+FROM qwen2.5:7b
+
+PARAMETER temperature <span class="n">0.1</span>
+PARAMETER num_ctx <span class="n">16384</span>
+PARAMETER stop <span class="s">"---END---"</span>
+
+SYSTEM <span class="s">"""
+You answer questions strictly from the CONTEXT block provided.
+
+Rules:
+- If the CONTEXT does not contain the answer, reply exactly:
+  "I don't have information about that in the provided context."
+- Cite the chunk number you used in square brackets, e.g. [3].
+- Never invent facts. Never use general knowledge to fill gaps.
+- Keep answers under 150 words unless asked otherwise.
+"""</span></pre>
+
+<pre class="bash">ollama create rag-bot -f Modelfile.rag</pre>
+
+  <p>Now every call to <code>rag-bot</code> behaves like a grounded retrieval agent — without you re-specifying the system prompt or temperature in every request.</p>
+
+  <h3 class="section"><span class="num">5.4</span>Few-shot examples via MESSAGE</h3>
+<pre class="solo">FROM llama3.2
+
+SYSTEM <span class="s">"You classify customer feedback as positive, negative, or neutral."</span>
+
+MESSAGE user <span class="s">"The checkout was so fast!"</span>
+MESSAGE assistant <span class="s">"positive"</span>
+
+MESSAGE user <span class="s">"My order never arrived."</span>
+MESSAGE assistant <span class="s">"negative"</span>
+
+MESSAGE user <span class="s">"Got a 15% off email today."</span>
+MESSAGE assistant <span class="s">"neutral"</span></pre>
+
+  <p>Calls to this model already know the format and style. The user only needs to send the next message.</p>
+
+  <div class="note intuition">
+    <span class="lbl">when to use</span>
+    <p>Use a Modelfile whenever you find yourself copy-pasting the same system prompt and temperature across many scripts. It's also the right way to ship a model variant to a team — instead of asking everyone to remember the right parameters, you create <code>internal-rag-bot</code> once and tell them to pull it.</p>
+  </div>
+
+  <div class="app">
+    <div class="lbl">Application</div>
+    <p>A common production pattern: a base RAG model bundled with the team's preferred system prompt, stop tokens, and temperature, named something like <code>company-assistant:v3</code>. Bumping the version is how you roll out prompt improvements to everyone at once — same UX as bumping a Docker image tag.</p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- PART II                                                       -->
+<!-- ============================================================ -->
+<section class="part-divider">
+  <div class="pno">Part II</div>
+  <h2>Embeddings</h2>
+  <p>Turn text into vectors where meaning becomes geometry. Then "search" stops meaning "string match" and starts meaning "find similar ideas."</p>
+</section>
+
+<!-- ============================================================ -->
+<!-- CHAPTER 6                                                     -->
+<!-- ============================================================ -->
+<section class="chapter" id="c6">
+  <div class="ch-header">
+    <span class="ch-num">CHAPTER 06</span>
+    <h2 class="ch-title">What an embedding actually is</h2>
+  </div>
+  <p class="lead">A list of floats. But arranged so that texts with similar meaning end up close in space — that's the magic.</p>
+
+  <p class="dropcap">An embedding is a function that takes a piece of text and returns a fixed-length vector of floating-point numbers — usually 384, 768, or 1024 of them. The function is a neural network, trained on enormous amounts of text, so that two pieces with similar meaning produce vectors that are close in space. This single property — semantic similarity as geometric closeness — is the bedrock of modern retrieval. Once you have it, you stop searching for keywords and start searching for <em>ideas</em>.</p>
+
+  <h3 class="section"><span class="num">6.1</span>An example before the theory</h3>
+<pre>texts = [
+    <span class="s">"The cat sat on the mat."</span>,
+    <span class="s">"A feline rested on the rug."</span>,
+    <span class="s">"Quarterly revenue grew by 12%."</span>,
+]
+
+<span class="c"># Embed each — Part 2.7 shows the code</span>
+vecs = [<span class="f">embed</span>(t) <span class="k">for</span> t <span class="k">in</span> texts]
+
+<span class="c"># Pairwise cosine similarity (1 = identical, 0 = unrelated)</span>
+<span class="f">cosine</span>(vecs[<span class="n">0</span>], vecs[<span class="n">1</span>])     <span class="c"># ≈ 0.82  — cat ↔ feline, very similar</span>
+<span class="f">cosine</span>(vecs[<span class="n">0</span>], vecs[<span class="n">2</span>])     <span class="c"># ≈ 0.11  — cat ↔ revenue, unrelated</span></pre>
+
+  <p>The model has never been told "cat" and "feline" are synonyms. It learned from training data that they tend to appear in similar contexts, and that knowledge collapses into vectors that sit near each other in 768-dimensional space.</p>
+
+  <h3 class="section"><span class="num">6.2</span>What the dimensions actually represent</h3>
+  <p>You'd love it if dimension 1 meant "animal-ness" and dimension 2 meant "formality." Sadly, no. The dimensions are abstract: each one captures some learned mixture of features that the training process found useful. You can't interpret individual numbers; you can only compare whole vectors.</p>
+
+  <div class="figure">
+    <svg viewBox="0 0 680 320" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="cloud-blue" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#7F77DD" stop-opacity="0.35"/>
+          <stop offset="100%" stop-color="#7F77DD" stop-opacity="0"/>
+        </radialGradient>
+        <radialGradient id="cloud-green" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#28c595" stop-opacity="0.35"/>
+          <stop offset="100%" stop-color="#28c595" stop-opacity="0"/>
+        </radialGradient>
+        <radialGradient id="cloud-coral" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#ec7548" stop-opacity="0.35"/>
+          <stop offset="100%" stop-color="#ec7548" stop-opacity="0"/>
+        </radialGradient>
+      </defs>
+      <text x="340" y="22" text-anchor="middle" fill="#9aa3b2" font-family="Fraunces" font-style="italic" font-size="14">embeddings cluster by meaning — illustrated in 2D</text>
+
+      <!-- cluster 1: animals -->
+      <ellipse cx="170" cy="120" rx="90" ry="60" fill="url(#cloud-blue)"/>
+      <circle cx="155" cy="105" r="4" fill="#9d96e6"/>
+      <circle cx="180" cy="120" r="4" fill="#9d96e6"/>
+      <circle cx="165" cy="140" r="4" fill="#9d96e6"/>
+      <circle cx="195" cy="135" r="4" fill="#9d96e6"/>
+      <circle cx="145" cy="125" r="4" fill="#9d96e6"/>
+      <text x="170" y="195" text-anchor="middle" fill="#9d96e6" font-family="JetBrains Mono" font-size="11">animals</text>
+      <text x="200" y="100" fill="#cdd4e0" font-family="Inter" font-size="10">"cat"</text>
+      <text x="100" y="115" fill="#cdd4e0" font-family="Inter" font-size="10">"feline"</text>
+      <text x="195" y="148" fill="#cdd4e0" font-family="Inter" font-size="10">"kitten"</text>
+
+      <!-- cluster 2: finance -->
+      <ellipse cx="470" cy="100" rx="90" ry="55" fill="url(#cloud-green)"/>
+      <circle cx="450" cy="90" r="4" fill="#28c595"/>
+      <circle cx="475" cy="100" r="4" fill="#28c595"/>
+      <circle cx="490" cy="115" r="4" fill="#28c595"/>
+      <circle cx="460" cy="120" r="4" fill="#28c595"/>
+      <text x="470" y="175" text-anchor="middle" fill="#28c595" font-family="JetBrains Mono" font-size="11">finance</text>
+      <text x="495" y="88" fill="#cdd4e0" font-family="Inter" font-size="10">"revenue"</text>
+      <text x="390" y="92" fill="#cdd4e0" font-family="Inter" font-size="10">"profit"</text>
+      <text x="495" y="125" fill="#cdd4e0" font-family="Inter" font-size="10">"earnings"</text>
+
+      <!-- cluster 3: cooking -->
+      <ellipse cx="320" cy="240" rx="90" ry="55" fill="url(#cloud-coral)"/>
+      <circle cx="305" cy="230" r="4" fill="#ec7548"/>
+      <circle cx="330" cy="245" r="4" fill="#ec7548"/>
+      <circle cx="340" cy="225" r="4" fill="#ec7548"/>
+      <circle cx="300" cy="255" r="4" fill="#ec7548"/>
+      <text x="320" y="295" text-anchor="middle" fill="#ec7548" font-family="JetBrains Mono" font-size="11">cooking</text>
+      <text x="345" y="232" fill="#cdd4e0" font-family="Inter" font-size="10">"roast"</text>
+      <text x="245" y="245" fill="#cdd4e0" font-family="Inter" font-size="10">"sauté"</text>
+      <text x="305" y="265" fill="#cdd4e0" font-family="Inter" font-size="10">"simmer"</text>
+
+      <!-- query arrow -->
+      <line x1="600" y1="270" x2="525" y2="180" stroke="#e0a64a" stroke-width="1.5" stroke-dasharray="4 3"/>
+      <circle cx="600" cy="270" r="5" fill="#e0a64a"/>
+      <text x="610" y="275" fill="#e0a64a" font-family="JetBrains Mono" font-size="10">query: "Q3 earnings"</text>
+      <text x="540" y="170" fill="#e0a64a" font-family="Inter" font-size="10" font-style="italic">→ nearest neighbors</text>
+    </svg>
+    <div class="fig-caption"><b>Figure 6.1</b>A toy 2-D projection. Real embeddings live in 768 dimensions, but the principle is identical: semantically related texts cluster together, and a query lands in the neighborhood of its best matches.</div>
+  </div>
+
+  <h3 class="section"><span class="num">6.3</span>What "close" means — cosine similarity</h3>
+  <p>The standard distance metric for embeddings is <b>cosine similarity</b>: the cosine of the angle between two vectors, ignoring their lengths.</p>
+<pre><span class="k">def</span> <span class="f">cosine</span>(a, b):
+    <span class="k">import</span> numpy <span class="k">as</span> np
+    a, b = np.<span class="f">array</span>(a), np.<span class="f">array</span>(b)
+    <span class="k">return</span> a @ b / (np.linalg.<span class="f">norm</span>(a) * np.linalg.<span class="f">norm</span>(b))</pre>
+  <p>Values run from <code>−1</code> (opposite) through <code>0</code> (unrelated) to <code>1</code> (identical direction). In practice good embeddings rarely go below ~0.1 for English text — the meaningful range is roughly 0.2 (unrelated) to 0.95 (paraphrase).</p>
+
+  <div class="note intuition">
+    <span class="lbl">why cosine, not euclidean</span>
+    <p>Cosine ignores magnitude. Two texts can have very different lengths or vector norms but still mean the same thing — cosine catches that. Euclidean distance gets confused by length. For text embeddings, cosine is almost always what you want.</p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- CHAPTER 7                                                     -->
+<!-- ============================================================ -->
+<section class="chapter" id="c7">
+  <div class="ch-header">
+    <span class="ch-num">CHAPTER 07</span>
+    <h2 class="ch-title">Generating embeddings with Ollama</h2>
+  </div>
+  <p class="lead">Five lines of Python and you have your first vector. Now wrap it into a reusable helper.</p>
+
+  <h3 class="section"><span class="num">7.1</span>The basics</h3>
+<pre><span class="k">import</span> requests, numpy <span class="k">as</span> np
+
+<span class="k">def</span> <span class="f">embed</span>(text: <span class="f">str</span>, model: <span class="f">str</span> = <span class="s">"nomic-embed-text"</span>) -&gt; np.ndarray:
+    r = requests.<span class="f">post</span>(
+        <span class="s">"http://localhost:11434/api/embeddings"</span>,
+        json={<span class="s">"model"</span>: model, <span class="s">"prompt"</span>: text},
+    )
+    r.<span class="f">raise_for_status</span>()
+    <span class="k">return</span> np.<span class="f">array</span>(r.<span class="f">json</span>()[<span class="s">"embedding"</span>])
+
+v = <span class="f">embed</span>(<span class="s">"PayPal launched Buy Now Pay Later in 2020."</span>)
+v.shape, v.dtype</pre>
+<pre class="out">((768,), dtype('float64'))</pre>
+
+  <h3 class="section"><span class="num">7.2</span>Batch embedding — one at a time, but fast</h3>
+  <p>The Ollama embeddings endpoint takes one input per call. For batches, loop — the model stays loaded and each call is fast (typically 10–30ms for short texts).</p>
+<pre><span class="k">def</span> <span class="f">embed_all</span>(texts: <span class="f">list</span>[<span class="f">str</span>], model: <span class="f">str</span> = <span class="s">"nomic-embed-text"</span>) -&gt; np.ndarray:
+    <span class="k">return</span> np.<span class="f">vstack</span>([<span class="f">embed</span>(t, model) <span class="k">for</span> t <span class="k">in</span> texts])
+
+corpus = [
+    <span class="s">"PayPal is a digital payments company."</span>,
+    <span class="s">"Venmo is owned by PayPal."</span>,
+    <span class="s">"Stripe competes with PayPal."</span>,
+    <span class="s">"The Eiffel Tower is in Paris."</span>,
+]
+M = <span class="f">embed_all</span>(corpus)
+M.shape</pre>
+<pre class="out">(4, 768)</pre>
+
+  <h3 class="section"><span class="num">7.3</span>Normalizing — a habit worth forming</h3>
+  <p>If you normalize every vector to length 1, cosine similarity becomes a simple dot product — and most vector indexes expect normalized input anyway.</p>
+<pre><span class="k">def</span> <span class="f">embed_norm</span>(text: <span class="f">str</span>, model=<span class="s">"nomic-embed-text"</span>) -&gt; np.ndarray:
+    v = <span class="f">embed</span>(text, model)
+    <span class="k">return</span> v / np.linalg.<span class="f">norm</span>(v)
+
+v = <span class="f">embed_norm</span>(<span class="s">"Hello world."</span>)
+np.linalg.<span class="f">norm</span>(v)</pre>
+<pre class="out">1.0</pre>
+
+  <h3 class="section"><span class="num">7.4</span>The async pattern — when you embed a lot</h3>
+  <p>For embedding thousands of chunks, run requests concurrently. The Ollama server queues them, but Python overhead is the bottleneck — async lets you fill the pipe.</p>
+<pre><span class="k">import</span> asyncio, aiohttp, numpy <span class="k">as</span> np
+
+<span class="k">async</span> <span class="k">def</span> <span class="f">embed_async</span>(session, text, model=<span class="s">"nomic-embed-text"</span>):
+    <span class="k">async</span> <span class="k">with</span> session.<span class="f">post</span>(
+        <span class="s">"http://localhost:11434/api/embeddings"</span>,
+        json={<span class="s">"model"</span>: model, <span class="s">"prompt"</span>: text},
+    ) <span class="k">as</span> r:
+        data = <span class="k">await</span> r.<span class="f">json</span>()
+        <span class="k">return</span> np.<span class="f">array</span>(data[<span class="s">"embedding"</span>])
+
+<span class="k">async</span> <span class="k">def</span> <span class="f">embed_many</span>(texts, concurrency=<span class="n">8</span>):
+    sem = asyncio.<span class="f">Semaphore</span>(concurrency)
+    <span class="k">async</span> <span class="k">with</span> aiohttp.<span class="f">ClientSession</span>() <span class="k">as</span> s:
+        <span class="k">async</span> <span class="k">def</span> <span class="f">bounded</span>(t):
+            <span class="k">async</span> <span class="k">with</span> sem:
+                <span class="k">return</span> <span class="k">await</span> <span class="f">embed_async</span>(s, t)
+        <span class="k">return</span> np.<span class="f">vstack</span>(<span class="k">await</span> asyncio.<span class="f">gather</span>(*[<span class="f">bounded</span>(t) <span class="k">for</span> t <span class="k">in</span> texts]))</pre>
+
+  <div class="note tip">
+    <span class="lbl">throughput</span>
+    <p>With <code>nomic-embed-text</code> on a modern laptop you can expect roughly 50–150 embeddings per second using async. That's plenty for ingesting a book overnight and totally adequate for query-time embedding (one call per question, ~20ms).</p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- CHAPTER 8                                                     -->
+<!-- ============================================================ -->
+<section class="chapter" id="c8">
+  <div class="ch-header">
+    <span class="ch-num">CHAPTER 08</span>
+    <h2 class="ch-title">Cosine similarity &amp; semantic search</h2>
+  </div>
+  <p class="lead">A 30-line search engine that beats keyword matching on understanding intent.</p>
+
+  <h3 class="section"><span class="num">8.1</span>Building a tiny search</h3>
+<pre><span class="k">import</span> numpy <span class="k">as</span> np
+
+docs = [
+    <span class="s">"PayPal acquired Honey in 2020 for $4 billion."</span>,
+    <span class="s">"Venmo allows peer-to-peer transfers in the US."</span>,
+    <span class="s">"Stripe was founded in 2010 by the Collison brothers."</span>,
+    <span class="s">"Buy Now Pay Later splits a purchase into installments."</span>,
+    <span class="s">"The Eiffel Tower is 330 meters tall."</span>,
+]
+
+<span class="c"># Pre-compute corpus embeddings (do this once, store on disk)</span>
+M = <span class="f">embed_all</span>(docs)
+M = M / np.linalg.<span class="f">norm</span>(M, axis=<span class="n">1</span>, keepdims=<span class="k">True</span>)     <span class="c"># normalize rows</span>
+
+<span class="k">def</span> <span class="f">search</span>(query, k=<span class="n">3</span>):
+    q = <span class="f">embed</span>(query)
+    q = q / np.linalg.<span class="f">norm</span>(q)
+    scores = M @ q                                <span class="c"># cosine since both are unit-length</span>
+    top = np.<span class="f">argsort</span>(scores)[::-<span class="n">1</span>][:k]
+    <span class="k">return</span> [(<span class="f">float</span>(scores[i]), docs[i]) <span class="k">for</span> i <span class="k">in</span> top]
+
+<span class="f">search</span>(<span class="s">"What did PayPal buy?"</span>)</pre>
+<pre class="out">[(0.71, 'PayPal acquired Honey in 2020 for $4 billion.'),
+ (0.49, 'Venmo allows peer-to-peer transfers in the US.'),
+ (0.38, 'Buy Now Pay Later splits a purchase into installments.')]</pre>
+
+  <p>Notice what's happening: the query "What did PayPal buy?" contains neither "acquired" nor "Honey" — pure keyword search would miss the right document. The embeddings know that "buy" and "acquired" mean roughly the same thing.</p>
+
+  <h3 class="section"><span class="num">8.2</span>Why this beats keyword search</h3>
+<pre><span class="c"># Keyword search</span>
+[d <span class="k">for</span> d <span class="k">in</span> docs <span class="k">if</span> <span class="s">"buy"</span> <span class="k">in</span> d.<span class="f">lower</span>()]</pre>
+<pre class="out">['Buy Now Pay Later splits a purchase into installments.']</pre>
+  <p>Keyword search returns one (irrelevant) match. Semantic search returns the right answer. Multiply this benefit across every synonym, paraphrase, and indirect reference in your data — that's why RAG is built on embeddings, not on grep.</p>
+
+  <h3 class="section"><span class="num">8.3</span>The matrix-multiply trick at scale</h3>
+  <p>Once your corpus embeddings are stacked into a 2-D matrix <code>M</code>, finding the closest documents to any query is a single matrix-vector multiplication. For a million documents and a 768-dim model, this is roughly 0.8 GB of memory and ~30ms per query on CPU — already too slow for production, but a useful baseline. Part III introduces vector databases that solve this with approximate indexes.</p>
+</section>
+
+<!-- ============================================================ -->
+<!-- CHAPTER 9                                                     -->
+<!-- ============================================================ -->
+<section class="chapter" id="c9">
+  <div class="ch-header">
+    <span class="ch-num">CHAPTER 09</span>
+    <h2 class="ch-title">Choosing an embedding model</h2>
+  </div>
+  <p class="lead">A few popular options, what they cost, and what they're good at.</p>
+
+  <h3 class="section"><span class="num">9.1</span>The candidates</h3>
+  <table class="tbl">
+    <thead><tr><th>Model</th><th>Dims</th><th>Size</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td><code>nomic-embed-text</code></td><td>768</td><td>274 MB</td><td>excellent default for English</td></tr>
+      <tr><td><code>mxbai-embed-large</code></td><td>1024</td><td>670 MB</td><td>higher quality, ~2× slower</td></tr>
+      <tr><td><code>all-minilm</code></td><td>384</td><td>46 MB</td><td>tiny, fast, slightly lower quality</td></tr>
+      <tr><td><code>bge-large</code></td><td>1024</td><td>660 MB</td><td>strong multilingual</td></tr>
+      <tr><td><code>snowflake-arctic-embed:33m</code></td><td>384</td><td>67 MB</td><td>balanced — small and decent</td></tr>
+    </tbody>
+  </table>
+
+  <h3 class="section"><span class="num">9.2</span>Dimensionality trade-off</h3>
+  <p>Higher dimensions store more nuance but cost more memory and slow down search. A million 1024-dim float32 vectors is 4 GB; a million 384-dim is 1.5 GB. For retrieval quality, the gap between models matters more than the exact dimension count — but the storage cost is real.</p>
+
+  <h3 class="section"><span class="num">9.3</span>Quality benchmarks — MTEB</h3>
+  <p>MTEB (Massive Text Embedding Benchmark) is the leaderboard everyone references. It scores models on dozens of retrieval and classification tasks. Useful for picking a starting candidate — but always confirm with <em>your own</em> data, because real workloads diverge from benchmark distributions.</p>
+
+  <h3 class="section"><span class="num">9.4</span>The locked-in rule</h3>
+  <div class="note warn">
+    <span class="lbl">do not mix</span>
+    <p>Once you've embedded a corpus with a specific model, you cannot mix in vectors from a different model. Switching models means re-embedding everything. Pick carefully at the start — and version your embeddings (e.g., a column or directory named for the model) so you remember which is which.</p>
+  </div>
+
+  <div class="app">
+    <div class="lbl">Practical pick</div>
+    <p>For 90% of projects, start with <code>nomic-embed-text</code>. It's the standard, the documentation assumes it, and it's good enough that you can defer the "do I need something better" question until you have real evaluation numbers. If you discover quality issues — <em>then</em> try <code>mxbai-embed-large</code> and re-measure.</p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- CHAPTER 10                                                    -->
+<!-- ============================================================ -->
+<section class="chapter" id="c10">
+  <div class="ch-header">
+    <span class="ch-num">CHAPTER 10</span>
+    <h2 class="ch-title">Chunking strategies</h2>
+  </div>
+  <p class="lead">How you split documents into chunks before embedding determines retrieval quality more than almost any other choice.</p>
+
+  <h3 class="section"><span class="num">10.1</span>Why you can't just embed the whole document</h3>
+  <p>Embedding models have a maximum input length — typically 512 to 8K tokens. More importantly, even if you could embed a whole 100-page document, the resulting vector would average across every topic in it. Retrieving "the section about refund policy" requires that section to be its own vector, not diluted in a document-wide average.</p>
+
+  <h3 class="section"><span class="num">10.2</span>The three main strategies</h3>
+
+  <h4 class="sub">Fixed-size chunks with overlap</h4>
+  <p>Split by character or token count, with a chunk-to-chunk overlap so context isn't lost at boundaries.</p>
+<pre><span class="k">def</span> <span class="f">chunk_fixed</span>(text, size=<span class="n">500</span>, overlap=<span class="n">50</span>):
+    chunks = []
+    i = <span class="n">0</span>
+    <span class="k">while</span> i &lt; <span class="f">len</span>(text):
+        chunks.<span class="f">append</span>(text[i:i + size])
+        i += size - overlap
+    <span class="k">return</span> chunks</pre>
+  <p>Simple, robust, language-agnostic. Default to this when you don't have a better signal.</p>
+
+  <h4 class="sub">Semantic chunks — split at natural boundaries</h4>
+  <p>Split by paragraphs, headings, or sentences. Better when your text has clear structure (Markdown, HTML, well-formed prose).</p>
+<pre><span class="k">import</span> re
+
+<span class="k">def</span> <span class="f">chunk_paragraphs</span>(text, max_chars=<span class="n">800</span>):
+    paras = re.<span class="f">split</span>(<span class="s">r"\n\s*\n"</span>, text)
+    chunks, current = [], <span class="s">""</span>
+    <span class="k">for</span> p <span class="k">in</span> paras:
+        <span class="k">if</span> <span class="f">len</span>(current) + <span class="f">len</span>(p) &lt; max_chars:
+            current += (<span class="s">"\n\n"</span> + p) <span class="k">if</span> current <span class="k">else</span> p
+        <span class="k">else</span>:
+            <span class="k">if</span> current: chunks.<span class="f">append</span>(current)
+            current = p
+    <span class="k">if</span> current: chunks.<span class="f">append</span>(current)
+    <span class="k">return</span> chunks</pre>
+
+  <h4 class="sub">Recursive splitting</h4>
+  <p>Try splitting on the largest separator (sections), and if any chunk is still too big, recursively split it on the next-largest (paragraphs, then sentences, then characters). This is what LangChain's <code>RecursiveCharacterTextSplitter</code> does — and it's a reasonable production default.</p>
+
+  <h3 class="section"><span class="num">10.3</span>How to pick chunk size</h3>
+  <table class="tbl">
+    <thead><tr><th>Use case</th><th>Recommended size</th></tr></thead>
+    <tbody>
+      <tr><td>Factual Q&amp;A over short docs</td><td>200–400 chars</td></tr>
+      <tr><td>General document search</td><td>500–800 chars</td></tr>
+      <tr><td>Long-form context (legal, medical)</td><td>1000–1500 chars</td></tr>
+      <tr><td>Code search</td><td>by function / by class boundary, ~50 lines</td></tr>
+    </tbody>
+  </table>
+
+  <h3 class="section"><span class="num">10.4</span>Overlap — why and how much</h3>
+  <p>Without overlap, a fact that straddles two chunks ("…the policy was changed in 2023. The new rule states…") gets fragmented. Each chunk has half the context. With overlap (typically 10–20% of chunk size), both chunks contain the full transition — and whichever is retrieved gives the model enough to answer.</p>
+
+  <h3 class="section"><span class="num">10.5</span>Storing chunk metadata</h3>
+  <p>Every chunk you produce should carry metadata: source filename, page number, section heading, timestamp. This becomes essential later for filtering, citation, and debugging.</p>
+<pre>chunk = {
+    <span class="s">"text"</span>: <span class="s">"PayPal acquired Honey..."</span>,
+    <span class="s">"source"</span>: <span class="s">"annual_report_2020.pdf"</span>,
+    <span class="s">"page"</span>: <span class="n">14</span>,
+    <span class="s">"section"</span>: <span class="s">"Acquisitions"</span>,
+    <span class="s">"chunk_id"</span>: <span class="s">"ar2020_p14_c2"</span>,
+}</pre>
+
+  <div class="app">
+    <div class="lbl">Application</div>
+    <p>Chunking is the single biggest "RAG quality lever" most teams under-invest in. Poor chunks → poor retrieval → poor answers. When you're debugging a RAG system that "sometimes hallucinates," the first place to look is whether the relevant chunk is even <em>in</em> your top-k retrieval — and that almost always traces back to chunk size or boundaries.</p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- PART III                                                      -->
+<!-- ============================================================ -->
+<section class="part-divider">
+  <div class="pno">Part III</div>
+  <h2>Vector databases</h2>
+  <p>Once you have a million vectors, "loop through them all" stops working. Vector databases use clever indexes to find nearest neighbors fast.</p>
+</section>
+
+<!-- ============================================================ -->
+<!-- CHAPTER 11                                                    -->
+<!-- ============================================================ -->
+<section class="chapter" id="c11">
+  <div class="ch-header">
+    <span class="ch-num">CHAPTER 11</span>
+    <h2 class="ch-title">What a vector DB actually does</h2>
+  </div>
+  <p class="lead">Three jobs: store vectors, find the nearest ones to a query fast, and let you filter by metadata along the way.</p>
+
+  <h3 class="section"><span class="num">11.1</span>The brute-force baseline</h3>
+  <p>Given a query vector and a million stored vectors, the "exact" answer is to compute the cosine similarity with all of them and take the top-k. That's exact nearest-neighbor (ENN) search. Easy to write, but linear time — too slow once you're past tens of thousands of vectors per query.</p>
+
+  <h3 class="section"><span class="num">11.2</span>Approximate nearest neighbors (ANN)</h3>
+  <p>Vector databases use ANN algorithms that trade a tiny amount of recall (sometimes missing the absolute top result) for enormous speedups — often 100×–1000×. The two main families:</p>
+  <ul>
+    <li><b>HNSW (Hierarchical Navigable Small World)</b> — graph-based, the most common. Builds a multi-layer graph where higher layers are sparser; queries skip across the top layers and refine downward. Used by Chroma, Qdrant, pgvector, Weaviate, Milvus.</li>
+    <li><b>IVF (Inverted File Index)</b> — clusters vectors by k-means, queries only the nearest clusters. Used by FAISS for very large indexes.</li>
+  </ul>
+
+  <h3 class="section"><span class="num">11.3</span>The trade-off triangle</h3>
+  <table class="tbl">
+    <thead><tr><th>Knob</th><th>Effect</th></tr></thead>
+    <tbody>
+      <tr><td>Recall</td><td>fraction of "true top-k" your ANN returns. Tune higher → more accurate, slower.</td></tr>
+      <tr><td>Latency</td><td>query time. Tune lower at cost of recall and/or memory.</td></tr>
+      <tr><td>Memory</td><td>index size in RAM. Better recall usually needs a bigger index.</td></tr>
+    </tbody>
+  </table>
+  <p>You don't get all three. Real vector DBs expose parameters (HNSW's <code>M</code> and <code>efConstruction</code>; IVF's <code>nprobe</code>) that move you along this triangle.</p>
+
+  <h3 class="section"><span class="num">11.4</span>What a vector DB gives you beyond raw ANN</h3>
+  <ul>
+    <li><b>Storage</b> — persists vectors across restarts.</li>
+    <li><b>Metadata</b> — attach arbitrary key-value data per vector; filter at query time ("only docs from 2024 with author = X").</li>
+    <li><b>Hybrid search</b> — combine vector similarity with keyword (BM25) matching.</li>
+    <li><b>Updates &amp; deletes</b> — without rebuilding the whole index.</li>
+    <li><b>Distributed scale</b> — sharding across machines (for the heavy hitters).</li>
+  </ul>
+
+  <div class="note intuition">
+    <span class="lbl">mental picture</span>
+    <p>A vector DB is to vectors what Postgres is to rows. The interface ("store, query, filter, update") is the same; the implementation under the hood is wildly different because the query type is "find the closest vectors," not "find rows where column = X."</p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- CHAPTER 12                                                    -->
+<!-- ============================================================ -->
+<section class="chapter" id="c12">
+  <div class="ch-header">
+    <span class="ch-num">CHAPTER 12</span>
+    <h2 class="ch-title">ChromaDB — the friendly default</h2>
+  </div>
+  <p class="lead">Open source, runs in-process, single import. The fastest path from "I have text" to "I have semantic search."</p>
+
+  <h3 class="section"><span class="num">12.1</span>Install and connect</h3>
+<pre class="bash">pip install chromadb</pre>
+
+<pre><span class="k">import</span> chromadb
+
+client = chromadb.<span class="f">PersistentClient</span>(path=<span class="s">"./chroma_data"</span>)
+collection = client.<span class="f">get_or_create_collection</span>(name=<span class="s">"docs"</span>)</pre>
+
+  <p>Persistent mode saves to disk. There's also <code>chromadb.Client()</code> for an in-memory store (good for testing).</p>
+
+  <h3 class="section"><span class="num">12.2</span>Adding documents</h3>
+  <p>Chroma can generate embeddings for you internally, but for this book we'll feed it our own from Ollama — it's more flexible and you control the model.</p>
+<pre>docs = [
+    <span class="s">"PayPal acquired Honey in 2020 for $4 billion."</span>,
+    <span class="s">"Venmo allows peer-to-peer transfers in the US."</span>,
+    <span class="s">"Stripe was founded in 2010 by the Collison brothers."</span>,
+    <span class="s">"Buy Now Pay Later splits a purchase into installments."</span>,
+]
+
+embeddings = [<span class="f">embed</span>(d).<span class="f">tolist</span>() <span class="k">for</span> d <span class="k">in</span> docs]
+ids       = [f<span class="s">"doc_{i}"</span> <span class="k">for</span> i <span class="k">in</span> <span class="f">range</span>(<span class="f">len</span>(docs))]
+metadatas = [{<span class="s">"source"</span>: <span class="s">"finance_brief"</span>, <span class="s">"year"</span>: <span class="n">2024</span>} <span class="k">for</span> _ <span class="k">in</span> docs]
+
+collection.<span class="f">add</span>(
+    documents=docs,
+    embeddings=embeddings,
+    ids=ids,
+    metadatas=metadatas,
+)
+collection.<span class="f">count</span>()</pre>
+<pre class="out">4</pre>
+
+  <h3 class="section"><span class="num">12.3</span>Querying</h3>
+<pre>q_vec = <span class="f">embed</span>(<span class="s">"What company did PayPal buy?"</span>).<span class="f">tolist</span>()
+result = collection.<span class="f">query</span>(query_embeddings=[q_vec], n_results=<span class="n">3</span>)
+
+<span class="k">for</span> doc, dist <span class="k">in</span> <span class="f">zip</span>(result[<span class="s">"documents"</span>][<span class="n">0</span>], result[<span class="s">"distances"</span>][<span class="n">0</span>]):
+    <span class="f">print</span>(f<span class="s">"{dist:.3f}  {doc}"</span>)</pre>
+<pre class="out">0.289  PayPal acquired Honey in 2020 for $4 billion.
+0.512  Venmo allows peer-to-peer transfers in the US.
+0.620  Buy Now Pay Later splits a purchase into installments.</pre>
+
+  <div class="note tip">
+    <span class="lbl">distance vs similarity</span>
+    <p>Chroma returns <em>distance</em> (lower = closer), not similarity. For cosine, distance is <code>1 − cos_sim</code>. If a model returns distance 0.29, the cosine similarity is about 0.71.</p>
+  </div>
+
+  <h3 class="section"><span class="num">12.4</span>Filtering by metadata</h3>
+<pre>result = collection.<span class="f">query</span>(
+    query_embeddings=[q_vec],
+    n_results=<span class="n">3</span>,
+    where={<span class="s">"year"</span>: {<span class="s">"$gte"</span>: <span class="n">2023</span>}},        <span class="c"># only recent docs</span>
+    where_document={<span class="s">"$contains"</span>: <span class="s">"PayPal"</span>}, <span class="c"># text must contain word</span>
+)</pre>
+
+  <p>The <code>where</code> clause supports <code>$eq</code>, <code>$ne</code>, <code>$gt</code>, <code>$gte</code>, <code>$lt</code>, <code>$lte</code>, <code>$in</code>, <code>$nin</code>, plus boolean <code>$and</code> and <code>$or</code> compositions.</p>
+
+  <h3 class="section"><span class="num">12.5</span>Updating and deleting</h3>
+<pre>collection.<span class="f">update</span>(
+    ids=[<span class="s">"doc_0"</span>],
+    documents=[<span class="s">"PayPal acquired Honey in November 2019, completed January 2020."</span>],
+    embeddings=[<span class="f">embed</span>(<span class="s">"PayPal acquired Honey in November 2019..."</span>).<span class="f">tolist</span>()],
+)
+
+collection.<span class="f">delete</span>(ids=[<span class="s">"doc_3"</span>])
+collection.<span class="f">delete</span>(where={<span class="s">"year"</span>: {<span class="s">"$lt"</span>: <span class="n">2020</span>}})
+collection.<span class="f">count</span>()</pre>
+
+  <h3 class="section"><span class="num">12.6</span>When Chroma is and isn't the right pick</h3>
+  <table class="tbl">
+    <thead><tr><th>Choose Chroma when…</th><th>Look elsewhere when…</th></tr></thead>
+    <tbody>
+      <tr><td>You want zero setup and single-machine simplicity</td><td>You need horizontal scale across servers</td></tr>
+      <tr><td>Corpus is under a few million vectors</td><td>Corpus is in the hundreds of millions</td></tr>
+      <tr><td>You're prototyping or building an internal tool</td><td>You need a managed, redundant production cluster</td></tr>
+      <tr><td>You're embedding inside a Python app</td><td>You need network access from many languages — pick Qdrant</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ============================================================ -->
+<!-- CHAPTER 13                                                    -->
+<!-- ============================================================ -->
+<section class="chapter" id="c13">
+  <div class="ch-header">
+    <span class="ch-num">CHAPTER 13</span>
+    <h2 class="ch-title">FAISS — Facebook's index workhorse</h2>
+  </div>
+  <p class="lead">Not a database — a library of indexes. Faster than Chroma at scale, but lower-level. You manage IDs and metadata yourself.</p>
+
+  <h3 class="section"><span class="num">13.1</span>What FAISS is</h3>
+  <p>FAISS (Facebook AI Similarity Search) is a C++ library with Python bindings, built to find nearest neighbors among billions of vectors. It doesn't store metadata, doesn't persist on its own, doesn't expose a network API — it just builds and queries vector indexes blazingly fast.</p>
+
+  <h3 class="section"><span class="num">13.2</span>The simplest index — Flat</h3>
+<pre class="bash">pip install faiss-cpu      <span class="c"># or faiss-gpu</span></pre>
+
+<pre><span class="k">import</span> faiss, numpy <span class="k">as</span> np
+
+dim = <span class="n">768</span>
+index = faiss.<span class="f">IndexFlatIP</span>(dim)               <span class="c"># inner product (cosine on normalized)</span>
+
+vectors = <span class="f">embed_all</span>(docs).<span class="f">astype</span>(<span class="s">"float32"</span>)
+faiss.<span class="f">normalize_L2</span>(vectors)                   <span class="c"># normalize in-place</span>
+index.<span class="f">add</span>(vectors)
+index.ntotal</pre>
+<pre class="out">4</pre>
+
+<pre>q = <span class="f">embed</span>(<span class="s">"PayPal acquisitions"</span>).<span class="f">astype</span>(<span class="s">"float32"</span>).<span class="f">reshape</span>(<span class="n">1</span>, -<span class="n">1</span>)
+faiss.<span class="f">normalize_L2</span>(q)
+scores, idxs = index.<span class="f">search</span>(q, k=<span class="n">3</span>)
+scores, idxs</pre>
+<pre class="out">(array([[0.71, 0.46, 0.31]], dtype=float32),
+ array([[0, 1, 3]]))</pre>
+
+  <p>That's an exact search. For millions of vectors you'd graduate to an approximate index:</p>
+
+  <h3 class="section"><span class="num">13.3</span>HNSW index</h3>
+<pre>index = faiss.<span class="f">IndexHNSWFlat</span>(dim, <span class="n">32</span>)         <span class="c"># 32 = M, the graph degree</span>
+index.hnsw.efConstruction = <span class="n">200</span>             <span class="c"># build-time quality</span>
+index.hnsw.efSearch       = <span class="n">64</span>              <span class="c"># query-time quality vs speed</span>
+
+index.<span class="f">add</span>(vectors)
+scores, idxs = index.<span class="f">search</span>(q, k=<span class="n">3</span>)</pre>
+
+  <h3 class="section"><span class="num">13.4</span>IVF — clustering for huge corpora</h3>
+<pre>nlist = <span class="n">100</span>                                  <span class="c"># number of clusters</span>
+quantizer = faiss.<span class="f">IndexFlatIP</span>(dim)
+index = faiss.<span class="f">IndexIVFFlat</span>(quantizer, dim, nlist)
+
+index.<span class="f">train</span>(vectors)                          <span class="c"># required for IVF</span>
+index.<span class="f">add</span>(vectors)
+index.nprobe = <span class="n">10</span>                             <span class="c"># search the 10 nearest clusters per query</span>
+
+scores, idxs = index.<span class="f">search</span>(q, k=<span class="n">3</span>)</pre>
+
+  <h3 class="section"><span class="num">13.5</span>Persistence</h3>
+<pre>faiss.<span class="f">write_index</span>(index, <span class="s">"index.faiss"</span>)
+loaded = faiss.<span class="f">read_index</span>(<span class="s">"index.faiss"</span>)</pre>
+
+  <h3 class="section"><span class="num">13.6</span>What FAISS doesn't do</h3>
+  <p>FAISS holds vectors and returns integer IDs. It doesn't store the original text, doesn't filter by metadata, doesn't update gracefully. You wrap it with your own bookkeeping — usually a Python dict mapping FAISS IDs to your chunk records.</p>
+
+  <div class="app">
+    <div class="lbl">Application</div>
+    <p>FAISS is the engine inside many other tools — LangChain's <code>FAISS</code> wrapper, LlamaIndex's default in-memory store, even some "real" databases use it under the hood. Reach for raw FAISS when you've outgrown Chroma's convenience but don't yet need a full server like Qdrant, or when you want the absolute fastest in-process index.</p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- CHAPTER 14                                                    -->
+<!-- ============================================================ -->
+<section class="chapter" id="c14">
+  <div class="ch-header">
+    <span class="ch-num">CHAPTER 14</span>
+    <h2 class="ch-title">Qdrant &amp; pgvector</h2>
+  </div>
+  <p class="lead">Two production-grade options. Qdrant if you want a dedicated server. pgvector if you already have Postgres.</p>
+
+  <h3 class="section"><span class="num">14.1</span>Qdrant — the dedicated server</h3>
+  <p>Qdrant is a Rust-written vector database with a clean HTTP/gRPC API. It runs as a Docker container and scales horizontally.</p>
+
+<pre class="bash">docker run -p 6333:6333 -p 6334:6334 \
+    -v $(pwd)/qdrant_storage:/qdrant/storage \
+    qdrant/qdrant
+
+pip install qdrant-client</pre>
+
+<pre><span class="k">from</span> qdrant_client <span class="k">import</span> QdrantClient
+<span class="k">from</span> qdrant_client.models <span class="k">import</span> Distance, VectorParams, PointStruct
+
+client = <span class="f">QdrantClient</span>(<span class="s">"localhost"</span>, port=<span class="n">6333</span>)
+
+client.<span class="f">create_collection</span>(
+    collection_name=<span class="s">"docs"</span>,
+    vectors_config=<span class="f">VectorParams</span>(size=<span class="n">768</span>, distance=Distance.COSINE),
+)
+
+points = [
+    <span class="f">PointStruct</span>(
+        id=i,
+        vector=<span class="f">embed</span>(doc).<span class="f">tolist</span>(),
+        payload={<span class="s">"text"</span>: doc, <span class="s">"source"</span>: <span class="s">"brief"</span>},
+    )
+    <span class="k">for</span> i, doc <span class="k">in</span> <span class="f">enumerate</span>(docs)
+]
+client.<span class="f">upsert</span>(collection_name=<span class="s">"docs"</span>, points=points)</pre>
+
+<pre>hits = client.<span class="f">search</span>(
+    collection_name=<span class="s">"docs"</span>,
+    query_vector=<span class="f">embed</span>(<span class="s">"What did PayPal buy?"</span>).<span class="f">tolist</span>(),
+    limit=<span class="n">3</span>,
+)
+<span class="k">for</span> h <span class="k">in</span> hits:
+    <span class="f">print</span>(f<span class="s">"{h.score:.3f}  {h.payload[</span><span class="s">'text'</span><span class="s">]}"</span>)</pre>
+<pre class="out">0.711  PayPal acquired Honey in 2020 for $4 billion.
+0.487  Venmo allows peer-to-peer transfers in the US.
+0.380  Buy Now Pay Later splits a purchase into installments.</pre>
+
+  <h4 class="sub">Why pick Qdrant</h4>
+  <ul>
+    <li>Production-grade — clustering, replication, snapshots.</li>
+    <li>Rich filtering — combine vector search with complex payload queries.</li>
+    <li>Multi-language clients — Python, JS, Go, Rust, Java.</li>
+    <li>Fast — Rust core, no GIL.</li>
+  </ul>
+
+  <h3 class="section"><span class="num">14.2</span>pgvector — vectors in Postgres</h3>
+  <p>If your stack already runs on Postgres, you can store vectors in a regular column with the <code>pgvector</code> extension. No new infrastructure.</p>
+
+<pre class="bash">CREATE EXTENSION vector;</pre>
+
+<pre>CREATE TABLE chunks (
+  id        bigserial PRIMARY KEY,
+  text      text,
+  source    text,
+  embedding vector(<span class="n">768</span>)
+);
+
+CREATE INDEX ON chunks USING hnsw (embedding vector_cosine_ops);</pre>
+
+<pre><span class="k">import</span> psycopg
+
+conn = psycopg.<span class="f">connect</span>(<span class="s">"dbname=mydb"</span>)
+vec = <span class="f">embed</span>(<span class="s">"PayPal acquired Honey..."</span>).<span class="f">tolist</span>()
+conn.<span class="f">execute</span>(
+    <span class="s">"INSERT INTO chunks (text, source, embedding) VALUES (%s, %s, %s)"</span>,
+    (<span class="s">"PayPal acquired Honey..."</span>, <span class="s">"brief"</span>, vec),
+)
+conn.<span class="f">commit</span>()</pre>
+
+<pre>q = <span class="f">embed</span>(<span class="s">"What did PayPal buy?"</span>).<span class="f">tolist</span>()
+rows = conn.<span class="f">execute</span>(
+    <span class="s">"SELECT text, embedding &lt;=&gt; %s AS distance "</span>
+    <span class="s">"FROM chunks ORDER BY distance LIMIT 3"</span>,
+    (q,),
+).<span class="f">fetchall</span>()</pre>
+
+  <div class="note intuition">
+    <span class="lbl">the operator</span>
+    <p><code>&lt;=&gt;</code> is pgvector's cosine distance operator. <code>&lt;-&gt;</code> is L2 distance. <code>&lt;#&gt;</code> is negative inner product. Pick the one matching your index type.</p>
+  </div>
+
+  <h4 class="sub">Why pick pgvector</h4>
+  <ul>
+    <li>You already run Postgres — no new service to operate.</li>
+    <li>You want vector search alongside transactional data — joins, foreign keys, ACID.</li>
+    <li>You're comfortable with SQL.</li>
+  </ul>
+
+  <h3 class="section"><span class="num">14.3</span>The honest comparison</h3>
+  <table class="tbl">
+    <thead><tr><th>Need</th><th>Pick</th></tr></thead>
+    <tbody>
+      <tr><td>Prototype, in-process, dead simple</td><td>Chroma</td></tr>
+      <tr><td>Squeeze max speed from one machine</td><td>FAISS</td></tr>
+      <tr><td>Production server, scale-out</td><td>Qdrant</td></tr>
+      <tr><td>Already have Postgres, want simplicity</td><td>pgvector</td></tr>
+      <tr><td>SaaS, hands-off, willing to pay</td><td>Pinecone, Weaviate Cloud</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ============================================================ -->
+<!-- CHAPTER 15                                                    -->
+<!-- ============================================================ -->
+<section class="chapter" id="c15">
+  <div class="ch-header">
+    <span class="ch-num">CHAPTER 15</span>
+    <h2 class="ch-title">Metadata &amp; hybrid search</h2>
+  </div>
+  <p class="lead">Pure vector search isn't always enough. Combining it with metadata filters and keyword scoring lifts quality measurably.</p>
+
+  <h3 class="section"><span class="num">15.1</span>Why metadata matters</h3>
+  <p>Consider a query like "show me Q3 2024 sales figures." Vector search might return many revenue-related chunks, but only some are from Q3 2024. A metadata filter — <code>quarter == "Q3" AND year == 2024</code> — narrows the candidate pool <em>before</em> ranking, dramatically improving relevance.</p>
+
+<pre>chunk_metadata = {
+    <span class="s">"source"</span>: <span class="s">"earnings_q3_2024.pdf"</span>,
+    <span class="s">"author"</span>: <span class="s">"Finance"</span>,
+    <span class="s">"date"</span>: <span class="s">"2024-10-15"</span>,
+    <span class="s">"quarter"</span>: <span class="s">"Q3"</span>,
+    <span class="s">"year"</span>: <span class="n">2024</span>,
+    <span class="s">"region"</span>: <span class="s">"US"</span>,
+    <span class="s">"section"</span>: <span class="s">"Revenue"</span>,
+}</pre>
+
+  <h3 class="section"><span class="num">15.2</span>Pre-filtering vs post-filtering</h3>
+  <p>Two ways to combine metadata with vector search:</p>
+  <ul>
+    <li><b>Pre-filter</b> — narrow by metadata first, then run vector search only over that subset. Best when filters are selective (cuts the candidate set to under ~10%).</li>
+    <li><b>Post-filter</b> — run vector search globally, then drop results that don't match. Best when filters are loose.</li>
+  </ul>
+  <p>Modern vector DBs (Qdrant, Chroma, pgvector) do this automatically: they look at the filter selectivity and pick the strategy.</p>
+
+  <h3 class="section"><span class="num">15.3</span>Hybrid search — vectors plus keywords</h3>
+  <p>Sometimes the exact word matters. Searching for "ISO-27001" or "v2.3.1" needs a keyword match — embeddings often blur exact identifiers. Hybrid search runs both vector and keyword (BM25) search and fuses the results.</p>
+
+<pre><span class="c"># Reciprocal Rank Fusion (RRF) — the standard fusion algorithm</span>
+<span class="k">def</span> <span class="f">rrf</span>(rankings, k=<span class="n">60</span>):
+    <span class="s">"""rankings: list of {doc_id: rank} dicts. Returns fused doc_id -&gt; score."""</span>
+    scores = {}
+    <span class="k">for</span> ranking <span class="k">in</span> rankings:
+        <span class="k">for</span> doc_id, rank <span class="k">in</span> ranking.<span class="f">items</span>():
+            scores[doc_id] = scores.<span class="f">get</span>(doc_id, <span class="n">0</span>) + <span class="n">1</span> / (k + rank)
+    <span class="k">return</span> <span class="f">dict</span>(<span class="f">sorted</span>(scores.<span class="f">items</span>(), key=<span class="k">lambda</span> x: -x[<span class="n">1</span>]))
+
+vector_ranking  = {<span class="s">"doc_0"</span>: <span class="n">1</span>, <span class="s">"doc_2"</span>: <span class="n">2</span>, <span class="s">"doc_5"</span>: <span class="n">3</span>}
+keyword_ranking = {<span class="s">"doc_0"</span>: <span class="n">2</span>, <span class="s">"doc_3"</span>: <span class="n">1</span>, <span class="s">"doc_2"</span>: <span class="n">3</span>}
+
+<span class="f">rrf</span>([vector_ranking, keyword_ranking])</pre>
+<pre class="out">{'doc_0': 0.0327, 'doc_2': 0.0322, 'doc_3': 0.0161, 'doc_5': 0.0156}</pre>
+
+  <p>RRF is parameter-light and robust. It's what most production hybrid systems use under the hood.</p>
+
+  <h3 class="section"><span class="num">15.4</span>Native hybrid in Qdrant</h3>
+  <p>Qdrant supports hybrid search natively as of 1.10+ — you index both dense vectors and sparse vectors (BM25 / SPLADE), and the engine fuses them per query.</p>
+
+  <div class="app">
+    <div class="lbl">Application</div>
+    <p>For most internal-document RAG systems, plain vector search with good metadata filters handles 95% of queries well. Hybrid search adds noticeable quality when your corpus contains lots of identifiers, codes, or product names — anywhere users will search for an exact string and get burned by pure semantic search.</p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- PART IV                                                       -->
+<!-- ============================================================ -->
+<section class="part-divider">
+  <div class="pno">Part IV</div>
+  <h2>RAG</h2>
+  <p>Retrieval-augmented generation. The pattern that turns a smart-but-clueless LLM into an expert on your data.</p>
+</section>
+
+<!-- ============================================================ -->
+<!-- CHAPTER 16                                                    -->
+<!-- ============================================================ -->
+<section class="chapter" id="c16">
+  <div class="ch-header">
+    <span class="ch-num">CHAPTER 16</span>
+    <h2 class="ch-title">Why RAG exists</h2>
+  </div>
+  <p class="lead">LLMs are great at language but limited in what they know. RAG fixes the knowledge gap without fine-tuning.</p>
+
+  <p class="dropcap">Language models are trained on a fixed snapshot of the internet, frozen at some date. Ask them about your company's internal wiki, your private codebase, last week's news, or a niche academic field — and the answer is either "I don't know" or, worse, a confident hallucination. Fine-tuning can teach a model new facts but it's slow, expensive, hard to update, and tends to forget what it already knew. RAG solves this differently: at query time, retrieve the relevant documents and put them directly in the prompt. The model reads them and answers based on what's in front of it.</p>
+
+  <h3 class="section"><span class="num">16.1</span>The flow at a glance</h3>
+
+  <div class="figure">
+    <svg viewBox="0 0 760 240" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="rag-arrow" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto">
+          <path d="M0,0 L10,5 L0,10 z" fill="#9d96e6"/>
+        </marker>
+      </defs>
+      <g font-family="JetBrains Mono" font-size="11">
+        <!-- query -->
+        <rect x="20" y="80" width="100" height="60" rx="8" fill="#161b24" stroke="#9d96e6" stroke-width="1.5"/>
+        <text x="70" y="105" text-anchor="middle" fill="#e8ebf1" font-family="Inter" font-size="12">User</text>
+        <text x="70" y="125" text-anchor="middle" fill="#9aa3b2" font-size="10">"What did X do?"</text>
+        <!-- embed -->
+        <line x1="120" y1="110" x2="160" y2="110" stroke="#9d96e6" stroke-width="1.5" marker-end="url(#rag-arrow)"/>
+        <rect x="160" y="80" width="100" height="60" rx="8" fill="#161b24" stroke="#28c595" stroke-width="1.5"/>
+        <text x="210" y="105" text-anchor="middle" fill="#e8ebf1" font-family="Inter" font-size="12">Embed</text>
+        <text x="210" y="125" text-anchor="middle" fill="#9aa3b2" font-size="10">[ 768 floats ]</text>
+        <!-- search -->
+        <line x1="260" y1="110" x2="300" y2="110" stroke="#9d96e6" stroke-width="1.5" marker-end="url(#rag-arrow)"/>
+        <rect x="300" y="80" width="110" height="60" rx="8" fill="#161b24" stroke="#28c595" stroke-width="1.5"/>
+        <text x="355" y="105" text-anchor="middle" fill="#e8ebf1" font-family="Inter" font-size="12">Vector DB</text>
+        <text x="355" y="125" text-anchor="middle" fill="#9aa3b2" font-size="10">top-k chunks</text>
+        <!-- prompt -->
+        <line x1="410" y1="110" x2="450" y2="110" stroke="#9d96e6" stroke-width="1.5" marker-end="url(#rag-arrow)"/>
+        <rect x="450" y="80" width="100" height="60" rx="8" fill="#161b24" stroke="#e0a64a" stroke-width="1.5"/>
+        <text x="500" y="105" text-anchor="middle" fill="#e8ebf1" font-family="Inter" font-size="12">Prompt</text>
+        <text x="500" y="125" text-anchor="middle" fill="#9aa3b2" font-size="10">context + Q</text>
+        <!-- llm -->
+        <line x1="550" y1="110" x2="590" y2="110" stroke="#9d96e6" stroke-width="1.5" marker-end="url(#rag-arrow)"/>
+        <rect x="590" y="80" width="100" height="60" rx="8" fill="#161b24" stroke="#ec7548" stroke-width="1.5"/>
+        <text x="640" y="105" text-anchor="middle" fill="#e8ebf1" font-family="Inter" font-size="12">LLM</text>
+        <text x="640" y="125" text-anchor="middle" fill="#9aa3b2" font-size="10">grounded answer</text>
+
+        <!-- bottom labels -->
+        <text x="355" y="180" text-anchor="middle" fill="#9aa3b2" font-style="italic" font-family="Fraunces" font-size="13">
+          one query → embed → retrieve → augment → generate
+        </text>
+
+        <!-- ingestion bracket -->
+        <text x="80" y="50" fill="#28c595" font-size="10">PRE-INGESTED</text>
+        <line x1="160" y1="55" x2="410" y2="55" stroke="#28c595" stroke-width="1" stroke-dasharray="3 3" opacity="0.5"/>
+        <text x="500" y="50" fill="#ec7548" font-size="10">RUNTIME</text>
+        <line x1="450" y1="55" x2="690" y2="55" stroke="#ec7548" stroke-width="1" stroke-dasharray="3 3" opacity="0.5"/>
+      </g>
+    </svg>
+    <div class="fig-caption"><b>Figure 16.1</b>The RAG pipeline. Embedding the corpus is a one-time (or periodic) ingestion job. Query time runs embed → search → prompt → generate, typically in well under a second.</div>
+  </div>
+
+  <h3 class="section"><span class="num">16.2</span>What RAG is not</h3>
+  <ul>
+    <li><b>Not fine-tuning.</b> RAG doesn't change the model's weights. The model is the same; only the prompt changes.</li>
+    <li><b>Not a memory system.</b> Each query retrieves fresh. There's no persistent state across queries unless you build it.</li>
+    <li><b>Not a magic answer machine.</b> If the relevant chunk isn't in your retrieval, the model has no way to answer correctly — it will either decline (if prompted well) or hallucinate (if not).</li>
+  </ul>
+
+  <h3 class="section"><span class="num">16.3</span>Why it works so well</h3>
+  <p>LLMs are surprisingly good at extracting the answer from a passage you hand them — even if they wouldn't have known the answer from memory. Reading comprehension is much easier than recall. RAG plays to this strength: don't ask the model what it knows; give it what it needs to know and ask it to read.</p>
+
+  <div class="note intuition">
+    <span class="lbl">analogy</span>
+    <p>RAG is open-book exam mode. The LLM is a smart student. Without the book (just pretrained knowledge), it might guess or hallucinate. With the right page in front of it, it can answer confidently and correctly — even on material it's never seen before.</p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- CHAPTER 17                                                    -->
+<!-- ============================================================ -->
+<section class="chapter" id="c17">
+  <div class="ch-header">
+    <span class="ch-num">CHAPTER 17</span>
+    <h2 class="ch-title">Minimum viable RAG</h2>
+  </div>
+  <p class="lead">Sixty lines of Python. No frameworks. End-to-end working system.</p>
+
+  <h3 class="section"><span class="num">17.1</span>The whole thing in one file</h3>
+<pre><span class="k">import</span> requests, numpy <span class="k">as</span> np, json
+
+OLLAMA = <span class="s">"http://localhost:11434"</span>
+EMBED_MODEL = <span class="s">"nomic-embed-text"</span>
+CHAT_MODEL  = <span class="s">"llama3.2"</span>
+
+<span class="c"># ----- 1. Embed helper -----</span>
+<span class="k">def</span> <span class="f">embed</span>(text):
+    r = requests.<span class="f">post</span>(f<span class="s">"{OLLAMA}/api/embeddings"</span>,
+                       json={<span class="s">"model"</span>: EMBED_MODEL, <span class="s">"prompt"</span>: text})
+    <span class="k">return</span> np.<span class="f">array</span>(r.<span class="f">json</span>()[<span class="s">"embedding"</span>])
+
+<span class="c"># ----- 2. Build the index from a list of chunks -----</span>
+chunks = [
+    <span class="s">"PayPal acquired Honey in 2020 for $4 billion."</span>,
+    <span class="s">"Venmo allows peer-to-peer transfers in the US."</span>,
+    <span class="s">"Stripe was founded in 2010 by the Collison brothers."</span>,
+    <span class="s">"Buy Now Pay Later splits a purchase into installments."</span>,
+    <span class="s">"PayPal launched Smart Payment Buttons in 2018."</span>,
+]
+
+M = np.<span class="f">vstack</span>([<span class="f">embed</span>(c) <span class="k">for</span> c <span class="k">in</span> chunks])
+M = M / np.linalg.<span class="f">norm</span>(M, axis=<span class="n">1</span>, keepdims=<span class="k">True</span>)
+
+<span class="c"># ----- 3. Retrieve top-k chunks for a query -----</span>
+<span class="k">def</span> <span class="f">retrieve</span>(query, k=<span class="n">3</span>):
+    q = <span class="f">embed</span>(query)
+    q = q / np.linalg.<span class="f">norm</span>(q)
+    scores = M @ q
+    top = np.<span class="f">argsort</span>(scores)[::-<span class="n">1</span>][:k]
+    <span class="k">return</span> [(<span class="f">float</span>(scores[i]), chunks[i]) <span class="k">for</span> i <span class="k">in</span> top]
+
+<span class="c"># ----- 4. Generate a grounded answer -----</span>
+<span class="k">def</span> <span class="f">answer</span>(query):
+    hits = <span class="f">retrieve</span>(query, k=<span class="n">3</span>)
+    context = <span class="s">"\n\n"</span>.<span class="f">join</span>(f<span class="s">"[{i+1}] {text}"</span> <span class="k">for</span> i, (_, text) <span class="k">in</span> <span class="f">enumerate</span>(hits))
+
+    prompt = f<span class="s">"""Answer the question using ONLY the CONTEXT below. If the answer
+is not in the context, say "I don't have that information."
+
+CONTEXT:
+{context}
+
+QUESTION: {query}
+
+ANSWER:"""</span>
+
+    r = requests.<span class="f">post</span>(f<span class="s">"{OLLAMA}/api/generate"</span>, json={
+        <span class="s">"model"</span>: CHAT_MODEL, <span class="s">"prompt"</span>: prompt, <span class="s">"stream"</span>: <span class="k">False</span>,
+        <span class="s">"options"</span>: {<span class="s">"temperature"</span>: <span class="n">0.1</span>},
+    })
+    <span class="k">return</span> r.<span class="f">json</span>()[<span class="s">"response"</span>]
+
+<span class="c"># ----- 5. Use it -----</span>
+<span class="f">print</span>(<span class="f">answer</span>(<span class="s">"What did PayPal acquire?"</span>))</pre>
+<pre class="out">According to the context, PayPal acquired Honey in 2020 for $4 billion. [1]</pre>
+
+  <p>That's it. The whole RAG pattern in 50ish lines. Everything else in the rest of this book — chunking, vector DBs, re-ranking, evaluation — is about making each of those five steps better.</p>
+
+  <h3 class="section"><span class="num">17.2</span>What this skeleton is missing</h3>
+  <ul>
+    <li><b>Persistence.</b> The matrix <code>M</code> is rebuilt on every script run. A vector DB fixes this.</li>
+    <li><b>Real chunking.</b> Hard-coded sentences become a real document loader + splitter.</li>
+    <li><b>Citations.</b> The prompt suggests citing <code>[N]</code>; in practice you'd parse them from the answer for UI display.</li>
+    <li><b>Eval.</b> Does it actually work? Chapter 21 covers measurement.</li>
+    <li><b>Streaming.</b> For UX you'd stream the answer token by token.</li>
+  </ul>
+
+  <div class="app">
+    <div class="lbl">Application</div>
+    <p>This minimum viable RAG is enough to demo a useful internal tool to your team. Drop in 50–500 chunks of real company docs, point it at any question, and you have a private Q&amp;A assistant that answers from your data. Use it as a milestone — get this far first, then improve specific weaknesses based on observed failures.</p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- CHAPTER 18                                                    -->
+<!-- ============================================================ -->
+<section class="chapter" id="c18">
+  <div class="ch-header">
+    <span class="ch-num">CHAPTER 18</span>
+    <h2 class="ch-title">Better retrieval — re-ranking, HyDE, MMR</h2>
+  </div>
+  <p class="lead">Three techniques that lift retrieval quality. Use them when the baseline misses too often.</p>
+
+  <h3 class="section"><span class="num">18.1</span>Re-ranking</h3>
+  <p>The pattern: retrieve a larger candidate set (say top-20), then use a smaller, more accurate cross-encoder model to re-score and keep only the top-5. Cross-encoders read the query and document together (rather than embedding each separately) — much more accurate, but too slow to apply to the whole corpus.</p>
+
+<pre><span class="k">from</span> sentence_transformers <span class="k">import</span> CrossEncoder
+
+reranker = <span class="f">CrossEncoder</span>(<span class="s">"BAAI/bge-reranker-base"</span>)
+
+candidates = [c <span class="k">for</span> _, c <span class="k">in</span> <span class="f">retrieve</span>(query, k=<span class="n">20</span>)]
+pairs = [(query, c) <span class="k">for</span> c <span class="k">in</span> candidates]
+scores = reranker.<span class="f">predict</span>(pairs)
+
+ranked = <span class="f">sorted</span>(<span class="f">zip</span>(scores, candidates), reverse=<span class="k">True</span>)
+top_5 = [c <span class="k">for</span> _, c <span class="k">in</span> ranked[:<span class="n">5</span>]]</pre>
+
+  <p>Re-rankers are the highest-impact, lowest-effort RAG upgrade. A small re-ranker on top of a baseline embedding retrieval typically gains 5–15 percentage points on recall@5.</p>
+
+  <h3 class="section"><span class="num">18.2</span>HyDE — Hypothetical Document Embeddings</h3>
+  <p>Sometimes queries don't embed well — they're short, abstract, or phrased differently from the documents. HyDE flips it: ask the LLM to generate a hypothetical answer first, then embed <em>that</em> instead of the original query. The hypothetical answer looks more like a document, so it matches better.</p>
+
+<pre><span class="k">def</span> <span class="f">hyde_retrieve</span>(query, k=<span class="n">5</span>):
+    prompt = f<span class="s">"Write a short, plausible passage that would answer: {query}"</span>
+    hypo = requests.<span class="f">post</span>(f<span class="s">"{OLLAMA}/api/generate"</span>, json={
+        <span class="s">"model"</span>: CHAT_MODEL, <span class="s">"prompt"</span>: prompt, <span class="s">"stream"</span>: <span class="k">False</span>,
+    }).<span class="f">json</span>()[<span class="s">"response"</span>]
+    <span class="k">return</span> <span class="f">retrieve</span>(hypo, k)</pre>
+
+  <p>Trade-off: HyDE adds latency (an extra LLM call) and can drift on rare topics where the LLM's hypothetical is wrong. Use it selectively — for short or vague queries it's a big win; for queries that are already document-like, plain retrieval is fine.</p>
+
+  <h3 class="section"><span class="num">18.3</span>MMR — Maximal Marginal Relevance</h3>
+  <p>Top-5 by cosine might return five chunks that all say the same thing — high relevance, but no diversity. MMR balances relevance with novelty: pick the top result first, then for each subsequent pick, prefer chunks that are similar to the query but <em>dissimilar</em> from what you've already chosen.</p>
+
+<pre><span class="k">def</span> <span class="f">mmr</span>(query_vec, doc_vecs, docs, k=<span class="n">5</span>, lam=<span class="n">0.7</span>):
+    sims_q = doc_vecs @ query_vec                <span class="c"># query similarity</span>
+    selected, candidates = [], <span class="f">list</span>(<span class="f">range</span>(<span class="f">len</span>(docs)))
+    <span class="k">while</span> <span class="f">len</span>(selected) &lt; k <span class="k">and</span> candidates:
+        <span class="k">if</span> <span class="k">not</span> selected:
+            best = <span class="f">max</span>(candidates, key=<span class="k">lambda</span> i: sims_q[i])
+        <span class="k">else</span>:
+            <span class="k">def</span> <span class="f">score</span>(i):
+                max_sim_selected = <span class="f">max</span>(doc_vecs[i] @ doc_vecs[j] <span class="k">for</span> j <span class="k">in</span> selected)
+                <span class="k">return</span> lam * sims_q[i] - (<span class="n">1</span> - lam) * max_sim_selected
+            best = <span class="f">max</span>(candidates, key=score)
+        selected.<span class="f">append</span>(best)
+        candidates.<span class="f">remove</span>(best)
+    <span class="k">return</span> [docs[i] <span class="k">for</span> i <span class="k">in</span> selected]</pre>
+
+  <p>The <code>lam</code> parameter tunes relevance vs diversity: <code>1.0</code> = pure relevance (back to plain top-k), <code>0.0</code> = pure diversity. <code>0.7</code> is a good default.</p>
+
+  <h3 class="section"><span class="num">18.4</span>When to use which</h3>
+  <table class="tbl">
+    <thead><tr><th>Symptom</th><th>Try</th></tr></thead>
+    <tbody>
+      <tr><td>Right chunks are in top-20 but not top-5</td><td>Re-ranker</td></tr>
+      <tr><td>Queries are short or vague</td><td>HyDE</td></tr>
+      <tr><td>Top-k all say the same thing</td><td>MMR</td></tr>
+      <tr><td>Exact identifiers fail</td><td>Hybrid (Ch. 15)</td></tr>
+      <tr><td>Right chunk simply isn't there</td><td>Re-chunk or re-embed (Ch. 10)</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ============================================================ -->
+<!-- CHAPTER 19                                                    -->
+<!-- ============================================================ -->
+<section class="chapter" id="c19">
+  <div class="ch-header">
+    <span class="ch-num">CHAPTER 19</span>
+    <h2 class="ch-title">Prompting for RAG</h2>
+  </div>
+  <p class="lead">Retrieved chunks are only as useful as the prompt that wraps them. A few patterns make the difference between grounded answers and confident hallucinations.</p>
+
+  <h3 class="section"><span class="num">19.1</span>The structure that works</h3>
+<pre class="solo">SYSTEM:
+You are a precise assistant. Answer using ONLY the provided CONTEXT.
+If the context doesn't contain the answer, say "I don't have that
+information." Never use general knowledge to fill gaps. Cite the
+chunk number in [brackets] when you use one.
+
+USER:
+CONTEXT:
+[1] First retrieved chunk text here...
+[2] Second retrieved chunk text here...
+[3] Third retrieved chunk text here...
+
+QUESTION: &lt;user question&gt;
+
+ANSWER:</pre>
+
+  <p>Three rules baked in: grounding (only use the context), refusal (admit ignorance), and citation (point to the source). All three matter — drop any one and quality drops.</p>
+
+  <h3 class="section"><span class="num">19.2</span>Why "say I don't know" is the most important instruction</h3>
+  <p>Without an explicit refusal instruction, LLMs are sycophantic — they'll invent an answer rather than admit they don't have one. With a clear "say I don't have that information" clause, the model becomes dramatically more honest about gaps. Almost every measurable improvement in RAG honesty traces back to this single prompt rule.</p>
+
+  <h3 class="section"><span class="num">19.3</span>Adding citations</h3>
+<pre>prompt = f<span class="s">"""Answer using ONLY the CONTEXT. For every claim, cite the
+chunk number in square brackets like [2]. If the context does not
+contain enough information, reply exactly: "I don't have that information."
+
+CONTEXT:
+{context}
+
+QUESTION: {query}"""</span></pre>
+
+  <p>The square-bracket convention is easy to parse from the model's output and display as clickable links in a UI.</p>
+
+  <h3 class="section"><span class="num">19.4</span>Handling conflicting context</h3>
+  <p>Sometimes retrieved chunks contradict each other (different versions of a policy, dates from different sources). Tell the model how to handle this.</p>
+<pre class="solo">If sources disagree, prefer the most recent one (by date in metadata).
+If you cannot determine which is more recent, present both views and
+note the conflict explicitly.</pre>
+
+  <h3 class="section"><span class="num">19.5</span>Length and format control</h3>
+<pre class="solo">Keep your answer under 150 words.
+Use bullet points only when comparing items.
+Never include preamble like "Based on the context...". Start directly
+with the substantive answer.</pre>
+
+  <p>Small length and format instructions have outsized effects on user satisfaction. A 50-word answer to "what is X?" feels right; a 500-word answer feels like a wall of text.</p>
+
+  <div class="note tip">
+    <span class="lbl">temperature</span>
+    <p>For factual RAG, use <code>temperature: 0.1</code> — low enough that the model stays grounded, high enough to avoid awkward repetition. <code>0.0</code> sometimes produces unnatural-sounding answers; <code>0.7</code> opens the door to hallucinations.</p>
+  </div>
+
+  <div class="app">
+    <div class="lbl">Application</div>
+    <p>The system prompt above — grounding + refusal + citation + low temperature — is the standard four-ingredient recipe. Almost every production RAG system uses some version of it. Tweak wording for your domain ("legal sources" vs "policy documents" vs "code snippets"), but keep all four elements. Removing any one is where teams get burned.</p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- PART V                                                        -->
+<!-- ============================================================ -->
+<section class="part-divider">
+  <div class="pno">Part V</div>
+  <h2>Putting it together</h2>
+  <p>A complete worked example, then evaluation, then what changes when this leaves your laptop and becomes a system real users depend on.</p>
+</section>
+
+<!-- ============================================================ -->
+<!-- CHAPTER 20                                                    -->
+<!-- ============================================================ -->
+<section class="chapter" id="c20">
+  <div class="ch-header">
+    <span class="ch-num">CHAPTER 20</span>
+    <h2 class="ch-title">Complete worked example — chat with PDFs</h2>
+  </div>
+  <p class="lead">One file. ChromaDB, Ollama, and pypdf. Drop a folder of PDFs, ask questions, get cited answers.</p>
+
+<pre class="bash">pip install chromadb pypdf requests numpy</pre>
+
+<pre><span class="c"># chat_with_pdfs.py</span>
+<span class="k">import</span> os, glob, requests, numpy <span class="k">as</span> np
+<span class="k">import</span> chromadb
+<span class="k">from</span> pypdf <span class="k">import</span> PdfReader
+
+OLLAMA      = <span class="s">"http://localhost:11434"</span>
+EMBED_MODEL = <span class="s">"nomic-embed-text"</span>
+CHAT_MODEL  = <span class="s">"llama3.2"</span>
+DATA_DIR    = <span class="s">"./pdfs"</span>
+DB_DIR      = <span class="s">"./chroma_pdf_db"</span>
+CHUNK_SIZE  = <span class="n">800</span>
+CHUNK_OVERLAP = <span class="n">100</span>
+
+<span class="c"># ----- Embeddings -----</span>
+<span class="k">def</span> <span class="f">embed</span>(text):
+    r = requests.<span class="f">post</span>(f<span class="s">"{OLLAMA}/api/embeddings"</span>,
+                       json={<span class="s">"model"</span>: EMBED_MODEL, <span class="s">"prompt"</span>: text})
+    <span class="k">return</span> r.<span class="f">json</span>()[<span class="s">"embedding"</span>]
+
+<span class="c"># ----- PDF loader and chunker -----</span>
+<span class="k">def</span> <span class="f">extract_pages</span>(path):
+    reader = <span class="f">PdfReader</span>(path)
+    <span class="k">return</span> [(i+<span class="n">1</span>, page.<span class="f">extract_text</span>() <span class="k">or</span> <span class="s">""</span>) <span class="k">for</span> i, page <span class="k">in</span> <span class="f">enumerate</span>(reader.pages)]
+
+<span class="k">def</span> <span class="f">chunk_text</span>(text, size=CHUNK_SIZE, overlap=CHUNK_OVERLAP):
+    chunks, i = [], <span class="n">0</span>
+    <span class="k">while</span> i &lt; <span class="f">len</span>(text):
+        chunks.<span class="f">append</span>(text[i:i+size].<span class="f">strip</span>())
+        i += size - overlap
+    <span class="k">return</span> [c <span class="k">for</span> c <span class="k">in</span> chunks <span class="k">if</span> c]
+
+<span class="c"># ----- Ingest -----</span>
+<span class="k">def</span> <span class="f">ingest</span>():
+    client = chromadb.<span class="f">PersistentClient</span>(path=DB_DIR)
+    coll = client.<span class="f">get_or_create_collection</span>(<span class="s">"pdfs"</span>)
+
+    <span class="k">if</span> coll.<span class="f">count</span>() &gt; <span class="n">0</span>:
+        <span class="f">print</span>(f<span class="s">"already ingested ({coll.count()} chunks)"</span>)
+        <span class="k">return</span> coll
+
+    <span class="k">for</span> path <span class="k">in</span> glob.<span class="f">glob</span>(os.path.<span class="f">join</span>(DATA_DIR, <span class="s">"*.pdf"</span>)):
+        fname = os.path.<span class="f">basename</span>(path)
+        <span class="f">print</span>(f<span class="s">"ingesting {fname}"</span>)
+        <span class="k">for</span> page_no, page_text <span class="k">in</span> <span class="f">extract_pages</span>(path):
+            <span class="k">for</span> j, chunk <span class="k">in</span> <span class="f">enumerate</span>(<span class="f">chunk_text</span>(page_text)):
+                cid = f<span class="s">"{fname}::p{page_no}::c{j}"</span>
+                coll.<span class="f">add</span>(
+                    ids=[cid],
+                    documents=[chunk],
+                    embeddings=[<span class="f">embed</span>(chunk)],
+                    metadatas=[{<span class="s">"source"</span>: fname, <span class="s">"page"</span>: page_no}],
+                )
+    <span class="f">print</span>(f<span class="s">"done. total chunks: {coll.count()}"</span>)
+    <span class="k">return</span> coll
+
+<span class="c"># ----- Ask -----</span>
+<span class="k">def</span> <span class="f">ask</span>(coll, query, k=<span class="n">5</span>):
+    res = coll.<span class="f">query</span>(query_embeddings=[<span class="f">embed</span>(query)], n_results=k)
+    chunks = res[<span class="s">"documents"</span>][<span class="n">0</span>]
+    metas  = res[<span class="s">"metadatas"</span>][<span class="n">0</span>]
+
+    context = <span class="s">"\n\n"</span>.<span class="f">join</span>(
+        f<span class="s">"[{i+1}] (from {m[</span><span class="s">'source'</span><span class="s">]} p.{m[</span><span class="s">'page'</span><span class="s">]})\n{c}"</span>
+        <span class="k">for</span> i, (c, m) <span class="k">in</span> <span class="f">enumerate</span>(<span class="f">zip</span>(chunks, metas))
+    )
+
+    prompt = f<span class="s">"""Answer the question using ONLY the CONTEXT below. Cite the
+chunk number you used in square brackets like [2]. If the context
+doesn't contain the answer, say "I don't have that information."
+
+CONTEXT:
+{context}
+
+QUESTION: {query}
+
+ANSWER:"""</span>
+
+    r = requests.<span class="f">post</span>(f<span class="s">"{OLLAMA}/api/generate"</span>, json={
+        <span class="s">"model"</span>: CHAT_MODEL, <span class="s">"prompt"</span>: prompt,
+        <span class="s">"stream"</span>: <span class="k">False</span>,
+        <span class="s">"options"</span>: {<span class="s">"temperature"</span>: <span class="n">0.1</span>, <span class="s">"num_ctx"</span>: <span class="n">8192</span>},
+    })
+    <span class="k">return</span> r.<span class="f">json</span>()[<span class="s">"response"</span>], metas
+
+<span class="c"># ----- CLI loop -----</span>
+<span class="k">if</span> __name__ == <span class="s">"__main__"</span>:
+    coll = <span class="f">ingest</span>()
+    <span class="k">while</span> <span class="k">True</span>:
+        q = <span class="f">input</span>(<span class="s">"\n&gt; "</span>).<span class="f">strip</span>()
+        <span class="k">if</span> q <span class="k">in</span> {<span class="s">"exit"</span>, <span class="s">"quit"</span>, <span class="s">""</span>}:
+            <span class="k">break</span>
+        answer, sources = <span class="f">ask</span>(coll, q)
+        <span class="f">print</span>(<span class="s">"\n"</span> + answer)
+        <span class="f">print</span>(<span class="s">"\nSources:"</span>)
+        <span class="k">for</span> i, m <span class="k">in</span> <span class="f">enumerate</span>(sources, <span class="n">1</span>):
+            <span class="f">print</span>(f<span class="s">"  [{i}] {m[</span><span class="s">'source'</span><span class="s">]}, page {m[</span><span class="s">'page'</span><span class="s">]}"</span>)</pre>
+
+<pre>$ python chat_with_pdfs.py
+ingesting annual_report_2024.pdf
+done. total chunks: 1483
+
+&gt; What was the revenue in Q3?
+Revenue in Q3 was $7.85 billion, a 9% year-over-year
+increase driven by Braintree and BNPL volume [2].
+
+Sources:
+  [1] annual_report_2024.pdf, page 17
+  [2] annual_report_2024.pdf, page 18
+  [3] annual_report_2024.pdf, page 14</pre>
+
+  <p>That's a working, persistent, cited PDF chat in under 150 lines. It handles real documents, gives source attributions, refuses gracefully on missing info, and gets faster on every re-run (the ingestion check skips work).</p>
+
+  <h3 class="section"><span class="num">20.1</span>What you'd add for production</h3>
+  <ul>
+    <li><b>Better chunking</b> — switch to a recursive splitter that respects paragraph boundaries.</li>
+    <li><b>OCR fallback</b> — for scanned PDFs (use <code>pdfplumber</code> + <code>pytesseract</code>).</li>
+    <li><b>Async ingestion</b> — embedding 1000s of chunks one-by-one is slow; parallelize.</li>
+    <li><b>Re-ranking</b> — drop in a cross-encoder for the top-20 → top-5 step.</li>
+    <li><b>Streaming UI</b> — pipe the LLM response token-by-token to a chat interface.</li>
+    <li><b>Multi-collection</b> — separate collections per user, project, or document tag.</li>
+  </ul>
+</section>
+
+<!-- ============================================================ -->
+<!-- CHAPTER 21                                                    -->
+<!-- ============================================================ -->
+<section class="chapter" id="c21">
+  <div class="ch-header">
+    <span class="ch-num">CHAPTER 21</span>
+    <h2 class="ch-title">Evaluating a RAG system</h2>
+  </div>
+  <p class="lead">Without measurement, you can't tell improvement from regression. Three families of metrics, all worth measuring.</p>
+
+  <h3 class="section"><span class="num">21.1</span>The two halves of evaluation</h3>
+  <ul>
+    <li><b>Retrieval quality</b> — given a question, did we fetch the right chunks?</li>
+    <li><b>Generation quality</b> — given the right chunks, did the LLM produce a good answer?</li>
+  </ul>
+  <p>Many RAG bugs are retrieval bugs, but they look like generation bugs ("the model hallucinated"). Splitting evaluation into these two layers tells you where to focus.</p>
+
+  <h3 class="section"><span class="num">21.2</span>Retrieval metrics — recall@k and MRR</h3>
+  <p>You need a small <em>eval set</em>: questions paired with the chunk IDs that should be retrieved. Even 30–50 well-chosen examples is enough to track progress.</p>
+
+<pre>eval_set = [
+    {<span class="s">"question"</span>: <span class="s">"What did PayPal acquire in 2020?"</span>,
+     <span class="s">"gold_chunk_ids"</span>: [<span class="s">"ar2020_p14_c2"</span>]},
+    {<span class="s">"question"</span>: <span class="s">"Q3 2024 revenue?"</span>,
+     <span class="s">"gold_chunk_ids"</span>: [<span class="s">"ar2024_p18_c0"</span>]},
+    <span class="c"># ...</span>
+]
+
+<span class="k">def</span> <span class="f">recall_at_k</span>(eval_set, k=<span class="n">5</span>):
+    hits = <span class="n">0</span>
+    <span class="k">for</span> ex <span class="k">in</span> eval_set:
+        retrieved_ids = <span class="f">retrieve_ids</span>(ex[<span class="s">"question"</span>], k=k)
+        <span class="k">if</span> <span class="f">any</span>(gid <span class="k">in</span> retrieved_ids <span class="k">for</span> gid <span class="k">in</span> ex[<span class="s">"gold_chunk_ids"</span>]):
+            hits += <span class="n">1</span>
+    <span class="k">return</span> hits / <span class="f">len</span>(eval_set)
+
+<span class="k">def</span> <span class="f">mrr</span>(eval_set, k=<span class="n">10</span>):
+    total = <span class="n">0</span>
+    <span class="k">for</span> ex <span class="k">in</span> eval_set:
+        retrieved_ids = <span class="f">retrieve_ids</span>(ex[<span class="s">"question"</span>], k=k)
+        <span class="k">for</span> rank, rid <span class="k">in</span> <span class="f">enumerate</span>(retrieved_ids, <span class="n">1</span>):
+            <span class="k">if</span> rid <span class="k">in</span> ex[<span class="s">"gold_chunk_ids"</span>]:
+                total += <span class="n">1</span> / rank
+                <span class="k">break</span>
+    <span class="k">return</span> total / <span class="f">len</span>(eval_set)</pre>
+
+  <p>Recall@k tells you whether the right chunk is anywhere in the top-k. MRR (mean reciprocal rank) penalizes you more for finding it at rank 5 than at rank 1 — useful when ordering matters.</p>
+
+  <h3 class="section"><span class="num">21.3</span>Generation metrics — LLM-as-judge</h3>
+  <p>Once retrieval is good, evaluate answer quality. You can't easily compute exact-match for free-form answers, so use a stronger LLM to judge each answer against the gold answer.</p>
+
+<pre><span class="k">def</span> <span class="f">judge</span>(question, gold_answer, model_answer):
+    prompt = f<span class="s">"""Compare the MODEL_ANSWER to the GOLD_ANSWER for this question.
+Score 1–5 (1 = wrong, 5 = fully correct and well-supported).
+Respond with JSON only: {{"score": &lt;1-5&gt;, "reasoning": "&lt;short&gt;"}}.
+
+QUESTION: {question}
+GOLD: {gold_answer}
+MODEL: {model_answer}"""</span>
+    r = requests.<span class="f">post</span>(f<span class="s">"{OLLAMA}/api/generate"</span>, json={
+        <span class="s">"model"</span>: <span class="s">"qwen2.5:7b"</span>, <span class="s">"prompt"</span>: prompt, <span class="s">"stream"</span>: <span class="k">False</span>,
+        <span class="s">"format"</span>: <span class="s">"json"</span>, <span class="s">"options"</span>: {<span class="s">"temperature"</span>: <span class="n">0</span>},
+    })
+    <span class="k">return</span> json.<span class="f">loads</span>(r.<span class="f">json</span>()[<span class="s">"response"</span>])</pre>
+
+  <p>The Ollama <code>format: "json"</code> option forces structured JSON output. Useful for any eval loop.</p>
+
+  <h3 class="section"><span class="num">21.4</span>Faithfulness — did the answer use the context?</h3>
+  <p>An answer can be correct and still "ungrounded" — the model knew the answer from training and ignored the context. To check faithfulness, ask a judge to verify each claim in the answer against the retrieved chunks.</p>
+<pre>prompt = <span class="s">"""For each factual claim in the ANSWER, check whether it is
+supported by the CONTEXT. Return JSON: {"supported": N, "total": M}.
+
+CONTEXT:
+&lt;...&gt;
+
+ANSWER:
+&lt;...&gt;"""</span></pre>
+  <p>Faithfulness score is <code>supported / total</code>. Below 0.8 usually indicates the model is leaning on prior knowledge — tighten the system prompt, lower temperature, or improve retrieval.</p>
+
+  <h3 class="section"><span class="num">21.5</span>The RAGAS framework</h3>
+  <p>For production teams: <a style="color:var(--accent)">ragas</a> is a Python package that bundles recall, faithfulness, answer relevancy, and context precision into one library. Good when you want a battle-tested set of metrics without writing them all yourself.</p>
+
+  <div class="app">
+    <div class="lbl">Application</div>
+    <p>The single highest-ROI engineering practice in RAG is having an eval set you re-run on every change. Without it, every "this prompt feels better" change is guesswork. With it, you can prove improvements numerically — and catch regressions before users do.</p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- CHAPTER 22                                                    -->
+<!-- ============================================================ -->
+<section class="chapter" id="c22">
+  <div class="ch-header">
+    <span class="ch-num">CHAPTER 22</span>
+    <h2 class="ch-title">Going to production</h2>
+  </div>
+  <p class="lead">A working prototype is 20% of the work. What separates that from a system real users rely on.</p>
+
+  <h3 class="section"><span class="num">22.1</span>Caching</h3>
+  <p>Three cache layers compound:</p>
+  <ul>
+    <li><b>Query embedding cache</b> — same question hits the index without re-embedding. Even a 5-minute LRU cache catches obvious repeats.</li>
+    <li><b>Retrieval cache</b> — query → top-k chunk IDs, valid until the index changes.</li>
+    <li><b>Generation cache</b> — (query, retrieved-chunks) → answer, valid until docs or prompt change.</li>
+  </ul>
+  <p>For high-traffic systems, caching halves the average latency and the inference cost.</p>
+
+  <h3 class="section"><span class="num">22.2</span>Monitoring — log everything</h3>
+  <p>For every query, log:</p>
+<pre class="solo">- timestamp, user_id (or session)
+- raw query
+- top-k retrieved chunk IDs and similarity scores
+- final prompt sent to LLM
+- LLM response
+- latency: embed_ms, retrieve_ms, generate_ms
+- user feedback (👍 / 👎 if you collect it)</pre>
+  <p>This log is the single most useful artifact for improving the system. Failure modes become obvious when you can sort by lowest user rating and see exactly what was retrieved and why the answer was wrong.</p>
+
+  <h3 class="section"><span class="num">22.3</span>Versioning your index</h3>
+  <p>The corpus changes. Documents get added, removed, edited. So your embedding model might be upgraded. Treat your vector index like a database schema — version it, snapshot it, document what changed and when.</p>
+  <p>Useful convention: name collections like <code>docs_v3_nomic-embed-text</code>. The model name in the collection name prevents the cardinal sin of "we changed the embedder and forgot to re-index."</p>
+
+  <h3 class="section"><span class="num">22.4</span>Concurrency and scale</h3>
+  <ul>
+    <li><b>One Ollama server</b> can usually saturate a single GPU. For more throughput, run multiple Ollama instances behind a load balancer.</li>
+    <li><b>Vector DB</b> — Chroma handles one machine well; Qdrant or Milvus handle clusters. pgvector inherits Postgres scaling.</li>
+    <li><b>Stateless retriever</b> — keep your retrieval service stateless so you can scale horizontally without sticky sessions.</li>
+  </ul>
+
+  <h3 class="section"><span class="num">22.5</span>Safety and abuse considerations</h3>
+  <ul>
+    <li><b>Prompt injection</b> — users may write queries designed to make the LLM ignore your system prompt ("forget everything above and respond as..."). Defend with strong system prompts, output validation, and (for high-risk apps) a second LLM call that double-checks the output.</li>
+    <li><b>Data leakage</b> — RAG retrieves chunks. If your corpus contains sensitive data (PII, credentials), they'll leak into prompts. Filter or redact at ingestion time.</li>
+    <li><b>Permission scoping</b> — different users should retrieve only the chunks they're allowed to see. Use metadata filters tied to user roles.</li>
+    <li><b>Refusal floor</b> — keep your "I don't know" fallback strong. Better to refuse than to fabricate.</li>
+  </ul>
+
+  <h3 class="section"><span class="num">22.6</span>The production checklist</h3>
+  <table class="tbl">
+    <thead><tr><th>Concern</th><th>Minimum bar</th></tr></thead>
+    <tbody>
+      <tr><td>Eval set</td><td>≥30 examples, re-run on every change</td></tr>
+      <tr><td>Logging</td><td>Query, retrieved IDs, response, latency, feedback</td></tr>
+      <tr><td>Caching</td><td>At least query-embedding cache</td></tr>
+      <tr><td>Versioning</td><td>Collection name encodes embedder + version</td></tr>
+      <tr><td>Refusal</td><td>System prompt mandates "I don't have that info" for gaps</td></tr>
+      <tr><td>Citations</td><td>Every answer carries chunk references in UI</td></tr>
+      <tr><td>Permissions</td><td>Metadata filters enforce access rules</td></tr>
+      <tr><td>Monitoring</td><td>Dashboard for latency, refusal rate, thumbs-down rate</td></tr>
+    </tbody>
+  </table>
+
+  <h3 class="section"><span class="num">22.7</span>Where to go from here</h3>
+  <ul>
+    <li><b>Agentic RAG</b> — let the LLM decide which retriever to call (multi-collection, web, structured DB), iterate, and refine its own queries.</li>
+    <li><b>Graph RAG</b> — build a knowledge graph alongside the vector index; retrieve by both similarity and graph traversal.</li>
+    <li><b>Long-context models</b> — newer models with 128K+ token windows let you skip retrieval for some tasks ("just stuff the whole doc in") — useful, but expensive and slow at scale.</li>
+    <li><b>Multimodal RAG</b> — embed images, PDFs as images, audio, code — anything with an embedding model.</li>
+  </ul>
+
+  <div class="note tip">
+    <span class="lbl">final word</span>
+    <p>RAG is more engineering than ML. The model and the embedder are commodities; the differentiator is everything around them — chunking, metadata, retrieval quality, prompts, evaluation, and the willingness to iterate against a real eval set. The teams that ship great RAG aren't the ones with the fanciest models; they're the ones with the tightest feedback loop between users, eval, and ingestion.</p>
+  </div>
+
+  <div class="app">
+    <div class="lbl">You're done</div>
+    <p>You now have the full stack — local LLM, embedding model, vector database, RAG pipeline, evaluation, and a checklist for going live. Everything in this book runs on one laptop with no cloud accounts, no API keys, no data leaving your machine. That's the whole point: useful AI you actually control.</p>
+  </div>
+</section>
+
+<!-- COLOPHON -->
+<section class="colophon">
+  <div class="mark">⌗</div>
+  <p>end of book · local ai · ollama · embeddings · vector dbs · rag</p>
+</section>
+
+</div>
+</body>
+</html>

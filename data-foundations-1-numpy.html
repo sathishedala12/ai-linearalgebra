@@ -1,0 +1,1605 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>NumPy · The Complete Foundations Book</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a0c11; --bg-2:#0f131a; --surface:#161b24; --surface-2:#1c222c;
+  --border:#262d3a; --border-soft:#1f2530;
+  --text:#e8ebf1; --text-dim:#9aa3b2; --text-mute:#6b7385;
+  --teal:#1D9E75; --teal-2:#28c595;
+  --purple:#7F77DD; --purple-2:#9d96e6;
+  --coral:#D85A30; --coral-2:#ec7548;
+  --amber:#BA7517; --amber-2:#e0a64a;
+  --accent:#28c595;       /* NumPy book accent */
+  --code-bg:#0e1218;
+  --out-bg:#0b1015;
+  --code-key:#7F77DD; --code-fn:#28c595; --code-str:#e0a64a;
+  --code-num:#ec7548; --code-com:#5b6477; --code-self:#9aa3b2;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;scroll-behavior:smooth}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:'Inter',sans-serif;
+  font-size:15.5px;
+  line-height:1.75;
+  -webkit-font-smoothing:antialiased;
+  letter-spacing:.005em;
+}
+.book{max-width:840px;margin:0 auto;padding:0 28px}
+
+/* ============ COVER ============ */
+.cover{
+  min-height:88vh;
+  display:flex;flex-direction:column;justify-content:center;
+  padding:60px 0 80px;
+  background:radial-gradient(800px 500px at 20% 30%, rgba(40,197,149,.12), transparent 60%);
+  border-bottom:1px solid var(--border-soft);
+  margin-bottom:60px;
+}
+.cover .crest{
+  font-family:'JetBrains Mono',monospace;font-size:11px;
+  letter-spacing:.3em;text-transform:uppercase;
+  color:var(--accent);margin-bottom:24px;font-weight:600;
+}
+.cover h1{
+  font-family:'Fraunces',serif;
+  font-weight:400;font-style:italic;
+  font-size:108px;line-height:.92;letter-spacing:-.03em;
+  margin:0 0 18px;
+  background:linear-gradient(180deg,#fff 0%,#a9b3c4 100%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.cover .sub{
+  font-family:'Fraunces',serif;font-weight:300;
+  font-size:26px;line-height:1.35;letter-spacing:-.01em;
+  color:var(--text-dim);
+  max-width:580px;margin:0 0 40px;
+}
+.cover .meta{
+  display:flex;gap:32px;flex-wrap:wrap;
+  font-family:'JetBrains Mono',monospace;font-size:11px;
+  color:var(--text-mute);text-transform:uppercase;letter-spacing:.14em;
+  padding-top:28px;border-top:1px solid var(--border-soft);
+}
+.cover .meta b{color:var(--text-dim);font-weight:500}
+.series-nav{
+  display:inline-flex;gap:10px;flex-wrap:wrap;margin-bottom:32px;
+}
+.series-nav .item{
+  font-family:'JetBrains Mono',monospace;font-size:10.5px;
+  padding:5px 11px;border-radius:999px;
+  border:1px solid var(--border);background:var(--surface);
+  color:var(--text-mute);text-transform:uppercase;letter-spacing:.1em;
+}
+.series-nav .item.active{
+  background:rgba(40,197,149,.1);border-color:var(--accent);color:var(--accent);
+}
+
+/* ============ TOC ============ */
+.toc-page{
+  padding:40px 0 80px;
+  border-bottom:1px solid var(--border-soft);
+  margin-bottom:80px;
+}
+.toc-page h2{
+  font-family:'Fraunces',serif;font-style:italic;font-weight:400;
+  font-size:42px;letter-spacing:-.015em;
+  margin:0 0 8px;color:var(--text);
+}
+.toc-page .toc-intro{
+  color:var(--text-dim);font-size:14.5px;margin:0 0 36px;max-width:620px;
+}
+.toc-list{list-style:none;padding:0;margin:0}
+.toc-list li{
+  display:flex;justify-content:space-between;align-items:baseline;gap:14px;
+  padding:9px 0;
+  border-bottom:1px dotted var(--border-soft);
+}
+.toc-list a{
+  color:var(--text-dim);text-decoration:none;font-size:14.5px;
+  flex:1;display:flex;align-items:baseline;gap:16px;
+}
+.toc-list a:hover{color:var(--accent)}
+.toc-list .ch{
+  font-family:'JetBrains Mono',monospace;font-size:11px;
+  color:var(--accent);min-width:30px;
+}
+.toc-list .desc{
+  font-size:12px;color:var(--text-mute);font-style:italic;
+}
+
+/* ============ CHAPTERS ============ */
+.chapter{
+  padding:60px 0;
+  scroll-margin-top:24px;
+}
+.chapter + .chapter{border-top:1px solid var(--border-soft)}
+.ch-header{
+  margin-bottom:32px;
+}
+.ch-num{
+  font-family:'JetBrains Mono',monospace;
+  font-size:13px;font-weight:600;
+  color:var(--accent);
+  letter-spacing:.1em;
+  display:block;margin-bottom:8px;
+}
+.ch-title{
+  font-family:'Fraunces',serif;font-style:italic;font-weight:400;
+  font-size:46px;line-height:1.05;letter-spacing:-.02em;
+  margin:0;color:var(--text);
+}
+
+.dropcap::first-letter{
+  font-family:'Fraunces',serif;font-style:italic;font-weight:400;
+  font-size:62px;float:left;line-height:.85;margin:8px 12px 0 0;
+  color:var(--accent);
+}
+
+h3.section{
+  font-family:'Fraunces',serif;font-weight:500;
+  font-size:24px;letter-spacing:-.01em;
+  margin:42px 0 12px;color:var(--text);
+}
+h3.section .num{
+  font-family:'JetBrains Mono',monospace;font-size:12px;
+  color:var(--text-mute);font-weight:400;margin-right:10px;
+}
+h4.sub{
+  font-size:15px;font-weight:600;
+  margin:22px 0 8px;color:var(--text);
+  letter-spacing:-.005em;
+}
+
+p{margin:0 0 14px;color:var(--text)}
+p + p{margin-top:0}
+.lead{
+  font-size:17px;color:var(--text-dim);margin-bottom:20px;
+  font-family:'Fraunces',serif;font-weight:300;line-height:1.55;font-style:italic;
+}
+
+ul,ol{margin:0 0 16px;padding-left:24px;color:var(--text-dim)}
+li{margin-bottom:6px}
+b,strong{color:var(--text);font-weight:600}
+em{font-style:italic;color:var(--text)}
+
+/* ============ CODE ============ */
+pre{
+  background:var(--code-bg);
+  border:1px solid var(--border-soft);
+  border-radius:8px 8px 0 0;
+  padding:14px 16px;
+  font-family:'JetBrains Mono',monospace;
+  font-size:12.5px;
+  line-height:1.65;
+  overflow-x:auto;
+  margin:14px 0 0;
+  color:#cdd4e0;
+  position:relative;
+}
+pre:not(.out):not(:has(+ pre.out)){
+  border-radius:8px;margin-bottom:18px;
+}
+pre.out{
+  background:var(--out-bg);
+  border:1px dashed var(--border);border-top:0;
+  border-radius:0 0 8px 8px;
+  margin-top:0;margin-bottom:18px;
+  color:#a9b3c4;
+  font-size:12px;
+}
+pre.out::before{
+  content:"OUTPUT";position:absolute;top:6px;right:12px;
+  font-size:9px;color:var(--text-mute);
+  letter-spacing:.14em;font-weight:600;font-family:'JetBrains Mono',monospace;
+}
+pre.solo{
+  border-radius:8px;margin-bottom:18px;
+}
+code{font-family:'JetBrains Mono',monospace}
+:not(pre) > code{
+  background:rgba(40,197,149,.08);
+  padding:1px 6px;border-radius:4px;
+  border:1px solid rgba(40,197,149,.15);
+  color:var(--accent);
+  font-size:13px;
+}
+.k{color:var(--code-key)}
+.f{color:var(--code-fn)}
+.s{color:var(--code-str)}
+.n{color:var(--code-num)}
+.c{color:var(--code-com);font-style:italic}
+.sf{color:var(--code-self)}
+.o{color:#cdd4e0}
+
+/* ============ CALLOUTS ============ */
+.note{
+  display:flex;gap:16px;margin:18px 0;
+  padding:14px 18px;border-radius:8px;
+  background:var(--surface);
+  border-left:3px solid var(--note-accent,var(--purple-2));
+  font-size:14.5px;
+}
+.note .lbl{
+  font-family:'JetBrains Mono',monospace;font-size:10.5px;
+  text-transform:uppercase;letter-spacing:.12em;
+  color:var(--note-accent,var(--purple-2));
+  font-weight:600;flex-shrink:0;min-width:96px;
+}
+.note p{margin:0;color:var(--text-dim);font-size:14px}
+.note.intuition{--note-accent:var(--amber-2)}
+.note.warn{--note-accent:var(--coral-2)}
+.note.tip{--note-accent:var(--teal-2)}
+
+/* application card */
+.app{
+  background:linear-gradient(180deg,rgba(40,197,149,.05),transparent);
+  border:1px solid var(--border-soft);border-left:3px solid var(--accent);
+  border-radius:8px;
+  padding:14px 18px;margin:18px 0;
+}
+.app .lbl{
+  font-family:'JetBrains Mono',monospace;font-size:10px;
+  color:var(--accent);text-transform:uppercase;letter-spacing:.14em;
+  font-weight:600;margin-bottom:6px;
+}
+.app p{margin:0;color:var(--text-dim);font-size:13.5px;line-height:1.6}
+.app p + p{margin-top:6px}
+
+/* ============ FIGURES ============ */
+.figure{
+  margin:24px 0 28px;
+  background:var(--surface);
+  border:1px solid var(--border-soft);
+  border-radius:10px;
+  padding:24px 24px 16px;
+}
+.figure svg{display:block;margin:0 auto;width:100%;height:auto;max-width:720px}
+.fig-caption{
+  text-align:center;
+  font-size:12.5px;color:var(--text-mute);
+  font-style:italic;
+  margin-top:14px;font-family:'Fraunces',serif;
+}
+.fig-caption b{color:var(--text);font-style:normal;font-weight:600;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.04em;margin-right:6px}
+
+/* ============ TABLES ============ */
+table.tbl{
+  width:100%;border-collapse:collapse;
+  font-size:13.5px;margin:16px 0 18px;
+  background:var(--surface);border-radius:8px;overflow:hidden;
+  border:1px solid var(--border-soft);
+}
+table.tbl th,table.tbl td{
+  text-align:left;padding:10px 14px;
+  border-bottom:1px solid var(--border-soft);
+  vertical-align:top;
+}
+table.tbl th{
+  color:var(--text-mute);font-weight:500;
+  font-family:'JetBrains Mono',monospace;font-size:10.5px;
+  text-transform:uppercase;letter-spacing:.08em;
+  background:var(--bg-2);
+}
+table.tbl td:first-child{color:var(--text);font-weight:500}
+table.tbl tr:last-child td{border-bottom:none}
+table.tbl code{font-size:12.5px}
+
+/* ============ COLOPHON ============ */
+.colophon{
+  margin:80px 0 40px;padding:36px 0;
+  border-top:1px solid var(--border-soft);
+  text-align:center;
+}
+.colophon .mark{
+  font-family:'Fraunces',serif;font-style:italic;
+  font-size:36px;color:var(--accent);margin:0 0 10px;
+}
+.colophon p{
+  font-family:'JetBrains Mono',monospace;font-size:11px;
+  color:var(--text-mute);text-transform:uppercase;letter-spacing:.14em;
+  margin:0;
+}
+
+@media (max-width:680px){
+  .cover h1{font-size:62px}
+  .cover .sub{font-size:18px}
+  .ch-title{font-size:32px}
+  h3.section{font-size:20px}
+  .book{padding:0 18px}
+}
+@media print{
+  body{background:#fff;color:#111}
+  .cover h1{color:#111;-webkit-text-fill-color:#111}
+  .chapter{page-break-before:always;border-top:none}
+  pre,pre.out,.note,.figure,table.tbl,.app{background:#fff;border-color:#ddd;break-inside:avoid}
+  pre{background:#f7f7f9}
+  pre.out{background:#fbfcfd}
+  .k{color:#7c3aed}.f{color:#0d8a5b}.s{color:#a5650a}.n{color:#b14a26}.c{color:#888}
+}
+</style>
+</head>
+<body>
+<div class="book">
+
+<!-- ============================================================ -->
+<!-- COVER                                                         -->
+<!-- ============================================================ -->
+<section class="cover">
+  <div class="crest">⌗ the foundations · book 1 of 5</div>
+  <div class="series-nav">
+    <span class="item active">NumPy</span>
+    <span class="item">Pandas</span>
+    <span class="item">Polars</span>
+    <span class="item">Visualization</span>
+    <span class="item">Project</span>
+  </div>
+  <h1>NumPy.</h1>
+  <p class="sub">The array foundation. Master it once and every other Python data tool — pandas, scikit-learn, PyTorch — starts making sense.</p>
+  <div class="meta">
+    <span><b>12</b> chapters</span>
+    <span><b>complete</b> coverage</span>
+    <span>code · output · application</span>
+    <span><b>2026</b> edition</span>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- TOC                                                           -->
+<!-- ============================================================ -->
+<section class="toc-page" id="toc">
+  <h2>Contents</h2>
+  <p class="toc-intro">A complete walk from "what is an array" to "I can manipulate any numerical data fluently." Every chapter has runnable code, sample output, and where you'll actually use the technique.</p>
+  <ul class="toc-list">
+    <li><a href="#c1"><span class="ch">01</span><span>Why NumPy exists</span></a><span class="desc">the 60× speed test</span></li>
+    <li><a href="#c2"><span class="ch">02</span><span>Creating &amp; inspecting arrays</span></a><span class="desc">six ways, three attributes</span></li>
+    <li><a href="#c3"><span class="ch">03</span><span>Data types and memory</span></a><span class="desc">int32 vs float64 vs bool</span></li>
+    <li><a href="#c4"><span class="ch">04</span><span>Indexing &amp; slicing</span></a><span class="desc">basic, fancy, and boolean</span></li>
+    <li><a href="#c5"><span class="ch">05</span><span>Reshape &amp; axis</span></a><span class="desc">the shape-manipulation toolkit</span></li>
+    <li><a href="#c6"><span class="ch">06</span><span>Broadcasting deep dive</span></a><span class="desc">the rule that powers everything</span></li>
+    <li><a href="#c7"><span class="ch">07</span><span>Math &amp; ufuncs</span></a><span class="desc">vectorized everything</span></li>
+    <li><a href="#c8"><span class="ch">08</span><span>Aggregations &amp; axis tricks</span></a><span class="desc">sum, mean, and the keepdims trick</span></li>
+    <li><a href="#c9"><span class="ch">09</span><span>Boolean masking &amp; where</span></a><span class="desc">conditional logic, vectorized</span></li>
+    <li><a href="#c10"><span class="ch">10</span><span>Stacking, splitting, sorting</span></a><span class="desc">combining and rearranging</span></li>
+    <li><a href="#c11"><span class="ch">11</span><span>Random &amp; linear algebra</span></a><span class="desc">stochastic and matrix operations</span></li>
+    <li><a href="#c12"><span class="ch">12</span><span>Real-world applications</span></a><span class="desc">five complete examples</span></li>
+  </ul>
+</section>
+
+<!-- ============================================================ -->
+<!-- CHAPTER 1                                                     -->
+<!-- ============================================================ -->
+<section class="chapter" id="c1">
+  <div class="ch-header">
+    <span class="ch-num">CHAPTER 01</span>
+    <h2 class="ch-title">Why NumPy exists</h2>
+  </div>
+  <p class="lead">Before you learn what NumPy <em>does</em>, feel why it exists. A simple speed test makes the case better than any explanation.</p>
+
+  <p class="dropcap">Python is a wonderful language with one ugly secret: it's slow at numerical work. Every number is wrapped in a full Python object, every loop pays a type-checking tax, and every operation hops through the interpreter. Fine for ten numbers. Catastrophic for ten million. NumPy fixes this by storing arrays as contiguous blocks of raw machine numbers — like a C array — and operating on them in compiled code. The speedup isn't 2× or 5×; it's 50–100×, sometimes more.</p>
+
+  <h3 class="section"><span class="num">1.1</span>The motivating example</h3>
+  <p>Multiply ten million numbers by 2 and add 1. Once in pure Python, once with NumPy.</p>
+<pre><span class="k">import</span> time
+<span class="k">import</span> numpy <span class="k">as</span> np
+
+n = <span class="n">10_000_000</span>
+
+<span class="c"># Pure Python — a list of ten million floats</span>
+xs = <span class="f">list</span>(<span class="f">range</span>(n))
+t = time.<span class="f">perf_counter</span>()
+result = [x * <span class="n">2.0</span> + <span class="n">1.0</span> <span class="k">for</span> x <span class="k">in</span> xs]
+<span class="f">print</span>(f<span class="s">"python list:  {time.perf_counter() - t:.3f} s"</span>)
+
+<span class="c"># NumPy — same operation, vectorized</span>
+arr = np.<span class="f">arange</span>(n, dtype=np.float64)
+t = time.<span class="f">perf_counter</span>()
+result = arr * <span class="n">2.0</span> + <span class="n">1.0</span>
+<span class="f">print</span>(f<span class="s">"numpy array:  {time.perf_counter() - t:.3f} s"</span>)</pre>
+<pre class="out">python list:  0.812 s
+numpy array:  0.014 s</pre>
+
+  <p>About 60× faster, and the NumPy version is shorter. That ratio is roughly constant across every numerical operation you'll ever care about. Once you internalize this, you stop writing Python loops over numbers — and your code stops being slow.</p>
+
+  <h3 class="section"><span class="num">1.2</span>What makes it fast</h3>
+  <ul>
+    <li><b>Contiguous memory.</b> A NumPy array is a single block of bytes. The CPU loves predictable memory; it can prefetch, vectorize with SIMD instructions, and avoid cache misses.</li>
+    <li><b>Single dtype.</b> Every element is the same type — usually <code>float64</code> or <code>int64</code>. No per-element type checking.</li>
+    <li><b>Compiled inner loops.</b> Operations like <code>arr + 1</code> dispatch to optimized C code (often via BLAS / OpenBLAS / MKL).</li>
+    <li><b>Vectorization.</b> You describe <em>what</em> to compute, not <em>how</em> to loop. NumPy figures out the looping.</li>
+  </ul>
+
+  <h3 class="section"><span class="num">1.3</span>Installing and importing</h3>
+<pre class="solo"><span class="c"># Bash</span>
+pip install numpy
+
+<span class="c"># Python — the universal convention</span>
+<span class="k">import</span> numpy <span class="k">as</span> np
+np.__version__      <span class="c"># '2.x.x'</span></pre>
+
+  <div class="note tip">
+    <span class="lbl">convention</span>
+    <p>Always import NumPy as <code>np</code>. It's so universal that not doing it looks alien. Same for <code>pd</code> (pandas), <code>plt</code> (matplotlib.pyplot), <code>sns</code> (seaborn). These two-letter aliases are part of the language now.</p>
+  </div>
+
+  <h3 class="section"><span class="num">1.4</span>The mental model</h3>
+  <p>An array is a <b>shape</b> (how many positions in each direction), a <b>dtype</b> (what fills each position), and a <b>block of memory</b> containing the values. Every operation you'll learn is some combination of: changing the shape's interpretation, changing the dtype, or computing new values from old ones.</p>
+
+  <div class="app">
+    <div class="lbl">Where you'll meet NumPy</div>
+    <p><b>Everywhere numerical.</b> pandas DataFrames are backed by NumPy arrays. scikit-learn takes NumPy as input. PyTorch tensors interconvert with NumPy in microseconds. OpenCV images are NumPy arrays. The entire scientific Python ecosystem assumes NumPy.</p>
+    <p>Learning NumPy isn't optional for serious data work — it's the prerequisite that lets everything else click into place.</p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- CHAPTER 2                                                     -->
+<!-- ============================================================ -->
+<section class="chapter" id="c2">
+  <div class="ch-header">
+    <span class="ch-num">CHAPTER 02</span>
+    <h2 class="ch-title">Creating &amp; inspecting arrays</h2>
+  </div>
+  <p class="lead">Six ways to make an array, four attributes to inspect it. That's the whole chapter — and you'll use these every single day.</p>
+
+  <h3 class="section"><span class="num">2.1</span>Six ways to create</h3>
+
+  <h4 class="sub">1 · From a Python list</h4>
+<pre>a = np.<span class="f">array</span>([<span class="n">1</span>, <span class="n">2</span>, <span class="n">3</span>])              <span class="c"># 1-D</span>
+b = np.<span class="f">array</span>([[<span class="n">1</span>, <span class="n">2</span>], [<span class="n">3</span>, <span class="n">4</span>]])        <span class="c"># 2-D from nested list</span>
+<span class="f">print</span>(a)
+<span class="f">print</span>(b)</pre>
+<pre class="out">[1 2 3]
+[[1 2]
+ [3 4]]</pre>
+
+  <h4 class="sub">2 · Filled with a constant</h4>
+<pre>np.<span class="f">zeros</span>((<span class="n">3</span>, <span class="n">4</span>))                       <span class="c"># 3×4 of 0.0</span>
+np.<span class="f">ones</span>((<span class="n">2</span>, <span class="n">5</span>), dtype=np.int32)         <span class="c"># 2×5 of integer 1s</span>
+np.<span class="f">full</span>((<span class="n">2</span>, <span class="n">3</span>), <span class="n">7</span>)                       <span class="c"># 2×3 filled with 7</span></pre>
+<pre class="out">array([[0., 0., 0., 0.],
+       [0., 0., 0., 0.],
+       [0., 0., 0., 0.]])
+array([[1, 1, 1, 1, 1],
+       [1, 1, 1, 1, 1]], dtype=int32)
+array([[7, 7, 7],
+       [7, 7, 7]])</pre>
+
+  <h4 class="sub">3 · Ranges</h4>
+<pre>np.<span class="f">arange</span>(<span class="n">0</span>, <span class="n">10</span>, <span class="n">2</span>)                      <span class="c"># like Python range, NumPy version</span>
+np.<span class="f">linspace</span>(<span class="n">0</span>, <span class="n">1</span>, <span class="n">5</span>)                     <span class="c"># 5 evenly-spaced values from 0 to 1</span></pre>
+<pre class="out">array([0, 2, 4, 6, 8])
+array([0.  , 0.25, 0.5 , 0.75, 1.  ])</pre>
+  <p>Use <code>arange</code> when you know the step; use <code>linspace</code> when you know how many points you want.</p>
+
+  <h4 class="sub">4 · Random</h4>
+<pre>rng = np.random.<span class="f">default_rng</span>(seed=<span class="n">42</span>)   <span class="c"># the modern way</span>
+rng.<span class="f">random</span>((<span class="n">2</span>, <span class="n">3</span>))                       <span class="c"># uniform [0, 1)</span>
+rng.<span class="f">normal</span>(<span class="n">0</span>, <span class="n">1</span>, <span class="n">5</span>)                      <span class="c"># standard normal, 5 values</span>
+rng.<span class="f">integers</span>(<span class="n">0</span>, <span class="n">10</span>, (<span class="n">3</span>, <span class="n">3</span>))                <span class="c"># integers in [0, 10)</span></pre>
+<pre class="out">array([[0.77395605, 0.43887844, 0.85859792],
+       [0.69736803, 0.09417735, 0.97562235]])
+array([ 0.30471708, -1.03998411,  0.7504512 ,  0.94056472, -1.95103519])
+array([[5, 6, 9],
+       [5, 6, 4],
+       [7, 4, 4]])</pre>
+  <div class="note tip">
+    <span class="lbl">modern rng</span>
+    <p>Old tutorials use <code>np.random.rand()</code> etc. — those still work but are deprecated style. <code>np.random.default_rng(seed)</code> gives you a generator with better statistical properties, a cleaner API, and reproducibility for free.</p>
+  </div>
+
+  <h4 class="sub">5 · Identity and diagonal matrices</h4>
+<pre>np.<span class="f">eye</span>(<span class="n">3</span>)                                <span class="c"># 3×3 identity</span>
+np.<span class="f">diag</span>([<span class="n">1</span>, <span class="n">2</span>, <span class="n">3</span>])                       <span class="c"># put values on the diagonal</span></pre>
+<pre class="out">array([[1., 0., 0.],
+       [0., 1., 0.],
+       [0., 0., 1.]])
+array([[1, 0, 0],
+       [0, 2, 0],
+       [0, 0, 3]])</pre>
+
+  <h4 class="sub">6 · "Like another array" — keep shape and dtype</h4>
+<pre>x = np.<span class="f">array</span>([[<span class="n">1.0</span>, <span class="n">2.0</span>], [<span class="n">3.0</span>, <span class="n">4.0</span>]])
+np.<span class="f">zeros_like</span>(x)
+np.<span class="f">ones_like</span>(x)
+np.<span class="f">full_like</span>(x, <span class="n">99</span>)</pre>
+<pre class="out">array([[0., 0.],
+       [0., 0.]])
+array([[1., 1.],
+       [1., 1.]])
+array([[99., 99.],
+       [99., 99.]])</pre>
+
+  <h3 class="section"><span class="num">2.2</span>The four attributes you'll inspect</h3>
+<pre>x = np.<span class="f">arange</span>(<span class="n">12</span>).<span class="f">reshape</span>(<span class="n">3</span>, <span class="n">4</span>)
+x</pre>
+<pre class="out">array([[ 0,  1,  2,  3],
+       [ 4,  5,  6,  7],
+       [ 8,  9, 10, 11]])</pre>
+
+<pre>x.shape       <span class="c"># dimensions: tuple of ints</span>
+x.dtype       <span class="c"># element type</span>
+x.ndim        <span class="c"># number of dimensions</span>
+x.size        <span class="c"># total element count</span>
+x.nbytes      <span class="c"># bytes of storage</span></pre>
+<pre class="out">(3, 4)
+dtype('int64')
+2
+12
+96</pre>
+
+  <div class="note intuition">
+    <span class="lbl">mental model</span>
+    <p>Think of <code>shape</code> as the array's address space — how many positions in each direction. The <code>dtype</code> is what fills each address. Most bugs in NumPy code are shape bugs. <code>print(x.shape)</code> is your most-used debugging tool.</p>
+  </div>
+
+  <div class="app">
+    <div class="lbl">Application</div>
+    <p>The first thing you do with any new array is print its shape and dtype. Loading an image? <code>img.shape</code> tells you height, width, channels. Loading a dataset? <code>X.shape</code> tells you rows and features. Getting weird errors from a model? Almost always a shape mismatch — and you fix it by inspecting shapes at each step.</p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- CHAPTER 3 — DTYPES                                            -->
+<!-- ============================================================ -->
+<section class="chapter" id="c3">
+  <div class="ch-header">
+    <span class="ch-num">CHAPTER 03</span>
+    <h2 class="ch-title">Data types &amp; memory</h2>
+  </div>
+  <p class="lead">Every NumPy array has one dtype for all its elements. Knowing which to use saves memory and prevents silent bugs.</p>
+
+  <p>Unlike Python lists (which can mix types), a NumPy array is homogeneous. That uniformity is the source of its speed — and the source of one of its only real gotchas.</p>
+
+  <h3 class="section"><span class="num">3.1</span>The dtype zoo</h3>
+  <table class="tbl">
+    <thead><tr><th>Dtype</th><th>Range / use</th><th>Bytes</th></tr></thead>
+    <tbody>
+      <tr><td><code>int8</code></td><td>−128 to 127 — image pixels, small categoricals</td><td>1</td></tr>
+      <tr><td><code>int16</code></td><td>±32,767 — audio samples</td><td>2</td></tr>
+      <tr><td><code>int32</code></td><td>±2.1 billion — most everyday integers</td><td>4</td></tr>
+      <tr><td><code>int64</code></td><td>±9.2 quintillion — default integer on most systems</td><td>8</td></tr>
+      <tr><td><code>uint8</code></td><td>0–255 — image pixels (RGB), the most common image type</td><td>1</td></tr>
+      <tr><td><code>float16</code></td><td>half precision — GPU memory-saver, less common on CPU</td><td>2</td></tr>
+      <tr><td><code>float32</code></td><td>single precision — deep learning default, 7 digits</td><td>4</td></tr>
+      <tr><td><code>float64</code></td><td>double precision — NumPy default, 15 digits</td><td>8</td></tr>
+      <tr><td><code>bool</code></td><td>True / False — masks, conditions</td><td>1</td></tr>
+      <tr><td><code>complex128</code></td><td>complex numbers — signal processing</td><td>16</td></tr>
+    </tbody>
+  </table>
+
+  <h3 class="section"><span class="num">3.2</span>Setting dtype on creation</h3>
+<pre>a = np.<span class="f">array</span>([<span class="n">1</span>, <span class="n">2</span>, <span class="n">3</span>], dtype=np.float32)
+b = np.<span class="f">zeros</span>(<span class="n">5</span>, dtype=np.int16)
+c = np.<span class="f">array</span>([<span class="k">True</span>, <span class="k">False</span>, <span class="k">True</span>])         <span class="c"># inferred as bool</span>
+
+a.dtype, b.dtype, c.dtype</pre>
+<pre class="out">(dtype('float32'), dtype('int16'), dtype('bool'))</pre>
+
+  <h3 class="section"><span class="num">3.3</span>Converting with astype</h3>
+<pre>x = np.<span class="f">array</span>([<span class="n">1.7</span>, <span class="n">2.3</span>, <span class="n">3.9</span>])
+x.<span class="f">astype</span>(np.int64)                          <span class="c"># truncates toward zero</span>
+x.<span class="f">astype</span>(np.float32)
+x.<span class="f">astype</span>(<span class="f">bool</span>)                              <span class="c"># nonzero → True</span></pre>
+<pre class="out">array([1, 2, 3])
+array([1.7, 2.3, 3.9], dtype=float32)
+array([ True,  True,  True])</pre>
+
+  <h3 class="section"><span class="num">3.4</span>The integer overflow trap</h3>
+  <p>This is the single most common dtype bug. NumPy doesn't promote integers when they overflow — they wrap silently.</p>
+<pre>a = np.<span class="f">array</span>([<span class="n">200</span>], dtype=np.uint8)         <span class="c"># max is 255</span>
+a + <span class="n">100</span>                                       <span class="c"># 300 would overflow</span></pre>
+<pre class="out">array([44], dtype=uint8)         # WRONG — silently wrapped from 300</pre>
+
+  <div class="note warn">
+    <span class="lbl">overflow</span>
+    <p>If you're doing arithmetic on small-dtype integers (especially <code>uint8</code> image data), cast to a larger type first: <code>a.astype(np.int32) + 100</code>. Otherwise you get silently wrong answers with no warning.</p>
+  </div>
+
+  <h3 class="section"><span class="num">3.5</span>Why dtype matters for memory</h3>
+<pre>a = np.<span class="f">zeros</span>(<span class="n">1_000_000</span>, dtype=np.float64)   <span class="c"># 8 MB</span>
+b = np.<span class="f">zeros</span>(<span class="n">1_000_000</span>, dtype=np.float32)   <span class="c"># 4 MB</span>
+c = np.<span class="f">zeros</span>(<span class="n">1_000_000</span>, dtype=np.int8)      <span class="c"># 1 MB</span>
+
+a.nbytes, b.nbytes, c.nbytes</pre>
+<pre class="out">(8000000, 4000000, 1000000)</pre>
+
+  <div class="app">
+    <div class="lbl">Application</div>
+    <p>If you're loading a 1 GB CSV of integers that all fit in int16 but pandas defaults to int64, you're wasting 75% of your RAM. Same for float32 vs float64. When data is large, downcasting types is one of the easiest performance wins available.</p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- CHAPTER 4 — INDEXING                                          -->
+<!-- ============================================================ -->
+<section class="chapter" id="c4">
+  <div class="ch-header">
+    <span class="ch-num">CHAPTER 04</span>
+    <h2 class="ch-title">Indexing &amp; slicing</h2>
+  </div>
+  <p class="lead">Three ways to pick elements out of an array: by integer, by slice, by boolean mask. They combine freely.</p>
+
+  <h3 class="section"><span class="num">4.1</span>Basic indexing — 1-D</h3>
+<pre>x = np.<span class="f">array</span>([<span class="n">10</span>, <span class="n">20</span>, <span class="n">30</span>, <span class="n">40</span>, <span class="n">50</span>])
+x[<span class="n">0</span>]                <span class="c"># first element</span>
+x[-<span class="n">1</span>]               <span class="c"># last element</span>
+x[<span class="n">1</span>:<span class="n">4</span>]              <span class="c"># slice [start:stop), stop excluded</span>
+x[::<span class="n">2</span>]              <span class="c"># every second element</span>
+x[::-<span class="n">1</span>]             <span class="c"># reversed</span></pre>
+<pre class="out">10
+50
+array([20, 30, 40])
+array([10, 30, 50])
+array([50, 40, 30, 20, 10])</pre>
+
+  <h3 class="section"><span class="num">4.2</span>Multi-dimensional indexing</h3>
+<pre>x = np.<span class="f">arange</span>(<span class="n">12</span>).<span class="f">reshape</span>(<span class="n">3</span>, <span class="n">4</span>)
+x</pre>
+<pre class="out">array([[ 0,  1,  2,  3],
+       [ 4,  5,  6,  7],
+       [ 8,  9, 10, 11]])</pre>
+
+<pre>x[<span class="n">1</span>, <span class="n">2</span>]             <span class="c"># row 1, col 2 — single element</span>
+x[<span class="n">0</span>]                <span class="c"># first row, returns 1-D array</span>
+x[:, <span class="n">2</span>]             <span class="c"># third column, returns 1-D array</span>
+x[<span class="n">1</span>:<span class="n">3</span>, <span class="n">1</span>:<span class="n">3</span>]         <span class="c"># a 2×2 block</span>
+x[:, ::-<span class="n">1</span>]          <span class="c"># reverse columns within each row</span></pre>
+<pre class="out">6
+array([0, 1, 2, 3])
+array([ 2,  6, 10])
+array([[ 5,  6],
+       [ 9, 10]])
+array([[ 3,  2,  1,  0],
+       [ 7,  6,  5,  4],
+       [11, 10,  9,  8]])</pre>
+
+  <div class="note intuition">
+    <span class="lbl">comma matters</span>
+    <p><code>x[1, 2]</code> indexes both dimensions at once. <code>x[1][2]</code> first creates a temporary 1-D row, then indexes it — same result, more memory and slower. Always use the comma form.</p>
+  </div>
+
+  <h3 class="section"><span class="num">4.3</span>Views vs copies — the trap</h3>
+  <p>Slices in NumPy are <b>views</b>. They share memory with the original — modifying one modifies the other. This is intentional (fast, no copying) but surprises everyone the first time.</p>
+<pre>x = np.<span class="f">arange</span>(<span class="n">10</span>)
+y = x[<span class="n">2</span>:<span class="n">5</span>]                              <span class="c"># view, not copy</span>
+y[<span class="n">0</span>] = <span class="n">999</span>
+<span class="f">print</span>(x)</pre>
+<pre class="out">[  0   1 999   3   4   5   6   7   8   9]</pre>
+<pre>y = x[<span class="n">2</span>:<span class="n">5</span>].<span class="f">copy</span>()                       <span class="c"># explicit copy — safe</span>
+y[<span class="n">0</span>] = <span class="n">42</span>
+<span class="f">print</span>(x)</pre>
+<pre class="out">[  0   1 999   3   4   5   6   7   8   9]    # unchanged</pre>
+
+  <div class="note warn">
+    <span class="lbl">remember</span>
+    <p>Basic slicing returns views. Fancy indexing (next section) returns copies. If you want to modify a piece without affecting the original, call <code>.copy()</code>.</p>
+  </div>
+
+  <h3 class="section"><span class="num">4.4</span>Fancy indexing — with arrays of integers</h3>
+<pre>x = np.<span class="f">array</span>([<span class="n">10</span>, <span class="n">20</span>, <span class="n">30</span>, <span class="n">40</span>, <span class="n">50</span>])
+x[[<span class="n">0</span>, <span class="n">2</span>, <span class="n">4</span>]]                            <span class="c"># pick specific indices</span>
+x[[<span class="n">3</span>, <span class="n">3</span>, <span class="n">1</span>, <span class="n">0</span>]]                          <span class="c"># can repeat and reorder</span></pre>
+<pre class="out">array([10, 30, 50])
+array([40, 40, 20, 10])</pre>
+
+<pre>x = np.<span class="f">arange</span>(<span class="n">12</span>).<span class="f">reshape</span>(<span class="n">3</span>, <span class="n">4</span>)
+rows = [<span class="n">0</span>, <span class="n">2</span>]
+cols = [<span class="n">1</span>, <span class="n">3</span>]
+x[rows, cols]                            <span class="c"># picks (0,1) and (2,3) — pairs!</span>
+x[np.<span class="f">ix_</span>(rows, cols)]                    <span class="c"># the cross-product instead</span></pre>
+<pre class="out">array([ 1, 11])
+array([[ 1,  3],
+       [ 9, 11]])</pre>
+
+  <h3 class="section"><span class="num">4.5</span>Boolean masking — the workhorse</h3>
+  <p>You'll use this more than any other indexing form. Pass a boolean array; get back only the True positions.</p>
+<pre>x = np.<span class="f">array</span>([<span class="n">1</span>, -<span class="n">2</span>, <span class="n">3</span>, -<span class="n">4</span>, <span class="n">5</span>])
+mask = x &gt; <span class="n">0</span>
+mask</pre>
+<pre class="out">array([ True, False,  True, False,  True])</pre>
+<pre>x[mask]                                  <span class="c"># keep positives</span>
+x[x &gt; <span class="n">0</span>]                                <span class="c"># inline — most common pattern</span>
+x[(x &gt; <span class="n">0</span>) &amp; (x &lt; <span class="n">5</span>)]                    <span class="c"># compound — note parentheses + bitwise &amp;</span></pre>
+<pre class="out">array([1, 3, 5])
+array([1, 3, 5])
+array([1, 3])</pre>
+
+  <div class="note warn">
+    <span class="lbl">compound masks</span>
+    <p>Use <code>&amp;</code>, <code>|</code>, <code>~</code> — not <code>and</code>, <code>or</code>, <code>not</code>. And <em>always</em> wrap each comparison in parentheses, because Python's operator precedence is wrong for this case.</p>
+  </div>
+
+  <h3 class="section"><span class="num">4.6</span>Assignment through indexing</h3>
+  <p>Any indexing expression can also appear on the left-hand side of an assignment.</p>
+<pre>x = np.<span class="f">arange</span>(<span class="n">10</span>)
+x[x &gt; <span class="n">5</span>] = <span class="n">0</span>                              <span class="c"># clip large values</span>
+x</pre>
+<pre class="out">array([0, 1, 2, 3, 4, 5, 0, 0, 0, 0])</pre>
+
+  <div class="app">
+    <div class="lbl">Application</div>
+    <p>This pattern shows up everywhere: <code>image[image &lt; threshold] = 0</code> to clean noise from an image, <code>data[data &gt; 1e6] = np.nan</code> to flag outliers as missing, <code>labels[predictions == 1] = "positive"</code> to label classification results. Once you internalize boolean masking, you stop writing loops.</p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- CHAPTER 5 — RESHAPE & AXIS                                    -->
+<!-- ============================================================ -->
+<section class="chapter" id="c5">
+  <div class="ch-header">
+    <span class="ch-num">CHAPTER 05</span>
+    <h2 class="ch-title">Reshape &amp; axis operations</h2>
+  </div>
+  <p class="lead">Most NumPy bugs are shape bugs. This chapter is your immunity training.</p>
+
+  <h3 class="section"><span class="num">5.1</span>Understanding axes</h3>
+  <p>An axis is a direction along the shape. For a 2-D array of shape <code>(rows, cols)</code>:</p>
+  <ul>
+    <li><b>axis 0</b> goes <em>down</em> through rows. Reducing along axis 0 collapses rows, leaving one value per column.</li>
+    <li><b>axis 1</b> goes <em>across</em> columns. Reducing along axis 1 collapses columns, leaving one value per row.</li>
+  </ul>
+
+  <div class="figure">
+    <svg viewBox="0 0 680 280" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="cellgrad" x1="0" x2="0" y1="0" y2="1">
+          <stop offset="0%" stop-color="#1c222c"/>
+          <stop offset="100%" stop-color="#11151c"/>
+        </linearGradient>
+        <marker id="arrgreen" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+          <path d="M0,0 L8,4 L0,8 z" fill="#28c595"/>
+        </marker>
+        <marker id="arrcoral" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+          <path d="M0,0 L8,4 L0,8 z" fill="#ec7548"/>
+        </marker>
+      </defs>
+      <!-- title -->
+      <text x="340" y="22" text-anchor="middle" fill="#9aa3b2" font-family="Fraunces" font-style="italic" font-size="14">a 3×4 array — two ways to reduce</text>
+      <!-- grid -->
+      <g transform="translate(220,50)" font-family="JetBrains Mono" font-size="12">
+        <g>
+          <rect x="0" y="0" width="50" height="50" fill="url(#cellgrad)" stroke="#262d3a" stroke-width="1"/>
+          <text x="25" y="30" text-anchor="middle" fill="#e8ebf1">1</text>
+          <rect x="50" y="0" width="50" height="50" fill="url(#cellgrad)" stroke="#262d3a" stroke-width="1"/>
+          <text x="75" y="30" text-anchor="middle" fill="#e8ebf1">2</text>
+          <rect x="100" y="0" width="50" height="50" fill="url(#cellgrad)" stroke="#262d3a" stroke-width="1"/>
+          <text x="125" y="30" text-anchor="middle" fill="#e8ebf1">3</text>
+          <rect x="150" y="0" width="50" height="50" fill="url(#cellgrad)" stroke="#262d3a" stroke-width="1"/>
+          <text x="175" y="30" text-anchor="middle" fill="#e8ebf1">4</text>
+          <rect x="0" y="50" width="50" height="50" fill="url(#cellgrad)" stroke="#262d3a" stroke-width="1"/>
+          <text x="25" y="80" text-anchor="middle" fill="#e8ebf1">5</text>
+          <rect x="50" y="50" width="50" height="50" fill="url(#cellgrad)" stroke="#262d3a" stroke-width="1"/>
+          <text x="75" y="80" text-anchor="middle" fill="#e8ebf1">6</text>
+          <rect x="100" y="50" width="50" height="50" fill="url(#cellgrad)" stroke="#262d3a" stroke-width="1"/>
+          <text x="125" y="80" text-anchor="middle" fill="#e8ebf1">7</text>
+          <rect x="150" y="50" width="50" height="50" fill="url(#cellgrad)" stroke="#262d3a" stroke-width="1"/>
+          <text x="175" y="80" text-anchor="middle" fill="#e8ebf1">8</text>
+          <rect x="0" y="100" width="50" height="50" fill="url(#cellgrad)" stroke="#262d3a" stroke-width="1"/>
+          <text x="25" y="130" text-anchor="middle" fill="#e8ebf1">9</text>
+          <rect x="50" y="100" width="50" height="50" fill="url(#cellgrad)" stroke="#262d3a" stroke-width="1"/>
+          <text x="75" y="130" text-anchor="middle" fill="#e8ebf1">10</text>
+          <rect x="100" y="100" width="50" height="50" fill="url(#cellgrad)" stroke="#262d3a" stroke-width="1"/>
+          <text x="125" y="130" text-anchor="middle" fill="#e8ebf1">11</text>
+          <rect x="150" y="100" width="50" height="50" fill="url(#cellgrad)" stroke="#262d3a" stroke-width="1"/>
+          <text x="175" y="130" text-anchor="middle" fill="#e8ebf1">12</text>
+        </g>
+      </g>
+      <!-- axis 0 arrow (down) -->
+      <g>
+        <line x1="170" y1="50" x2="170" y2="200" stroke="#28c595" stroke-width="2" marker-end="url(#arrgreen)"/>
+        <text x="120" y="130" fill="#28c595" font-family="JetBrains Mono" font-size="11">axis 0</text>
+        <text x="120" y="148" fill="#9aa3b2" font-family="Inter" font-size="10" font-style="italic">collapse rows</text>
+      </g>
+      <!-- axis 1 arrow (right) -->
+      <g>
+        <line x1="220" y1="220" x2="420" y2="220" stroke="#ec7548" stroke-width="2" marker-end="url(#arrcoral)"/>
+        <text x="290" y="248" fill="#ec7548" font-family="JetBrains Mono" font-size="11">axis 1</text>
+        <text x="290" y="262" fill="#9aa3b2" font-family="Inter" font-size="10" font-style="italic">collapse columns</text>
+      </g>
+      <!-- result axis 0 -->
+      <g transform="translate(220,210)" font-family="JetBrains Mono" font-size="11">
+        <text x="-20" y="30" fill="#9aa3b2" font-size="10" font-style="italic">x.sum(0):</text>
+        <rect x="0" y="20" width="50" height="20" fill="#161b24" stroke="#28c595" stroke-width="1"/>
+        <text x="25" y="34" text-anchor="middle" fill="#28c595">15</text>
+        <rect x="50" y="20" width="50" height="20" fill="#161b24" stroke="#28c595" stroke-width="1"/>
+        <text x="75" y="34" text-anchor="middle" fill="#28c595">18</text>
+        <rect x="100" y="20" width="50" height="20" fill="#161b24" stroke="#28c595" stroke-width="1"/>
+        <text x="125" y="34" text-anchor="middle" fill="#28c595">21</text>
+        <rect x="150" y="20" width="50" height="20" fill="#161b24" stroke="#28c595" stroke-width="1"/>
+        <text x="175" y="34" text-anchor="middle" fill="#28c595">24</text>
+      </g>
+      <!-- result axis 1 -->
+      <g transform="translate(440,50)" font-family="JetBrains Mono" font-size="11">
+        <text x="0" y="-10" fill="#9aa3b2" font-size="10" font-style="italic">x.sum(1):</text>
+        <rect x="0" y="0" width="30" height="50" fill="#161b24" stroke="#ec7548" stroke-width="1"/>
+        <text x="15" y="30" text-anchor="middle" fill="#ec7548">10</text>
+        <rect x="0" y="50" width="30" height="50" fill="#161b24" stroke="#ec7548" stroke-width="1"/>
+        <text x="15" y="80" text-anchor="middle" fill="#ec7548">26</text>
+        <rect x="0" y="100" width="30" height="50" fill="#161b24" stroke="#ec7548" stroke-width="1"/>
+        <text x="15" y="130" text-anchor="middle" fill="#ec7548">42</text>
+      </g>
+    </svg>
+    <div class="fig-caption"><b>Figure 5.1</b>Axes for a 2-D array. Summing along axis 0 collapses rows down, leaving one value per column. Summing along axis 1 collapses columns across, leaving one value per row.</div>
+  </div>
+
+  <h3 class="section"><span class="num">5.2</span>Reshape — same data, new layout</h3>
+<pre>x = np.<span class="f">arange</span>(<span class="n">12</span>)
+x.<span class="f">reshape</span>(<span class="n">3</span>, <span class="n">4</span>)                       <span class="c"># 3×4</span>
+x.<span class="f">reshape</span>(<span class="n">2</span>, <span class="n">6</span>)                       <span class="c"># 2×6</span>
+x.<span class="f">reshape</span>(<span class="n">2</span>, <span class="n">2</span>, <span class="n">3</span>)                    <span class="c"># 2×2×3</span>
+x.<span class="f">reshape</span>(-<span class="n">1</span>, <span class="n">4</span>)                      <span class="c"># -1 means "figure it out"</span></pre>
+<pre class="out">array([[ 0,  1,  2,  3],
+       [ 4,  5,  6,  7],
+       [ 8,  9, 10, 11]])
+# ... etc</pre>
+
+  <div class="note tip">
+    <span class="lbl">the -1 trick</span>
+    <p>Use <code>-1</code> in exactly one position to let NumPy compute that dimension. <code>x.reshape(-1, 4)</code> means "I want 4 columns, you figure out how many rows." Lifesaver when the batch size is dynamic.</p>
+  </div>
+
+  <h3 class="section"><span class="num">5.3</span>Adding and removing single-size axes</h3>
+<pre>x = np.<span class="f">array</span>([<span class="n">1</span>, <span class="n">2</span>, <span class="n">3</span>])             <span class="c"># shape (3,)</span>
+x[np.newaxis, :].shape               <span class="c"># (1, 3) — row vector</span>
+x[:, np.newaxis].shape               <span class="c"># (3, 1) — column vector</span>
+x.<span class="f">reshape</span>(<span class="n">1</span>, -<span class="n">1</span>).shape                <span class="c"># same as above</span>
+
+y = np.<span class="f">zeros</span>((<span class="n">1</span>, <span class="n">3</span>, <span class="n">1</span>))
+y.<span class="f">squeeze</span>().shape                     <span class="c"># (3,) — drop all size-1 axes</span>
+y.<span class="f">squeeze</span>(axis=<span class="n">0</span>).shape               <span class="c"># (3, 1) — drop only axis 0</span></pre>
+<pre class="out">(1, 3)
+(3, 1)
+(1, 3)
+(3,)
+(3, 1)</pre>
+
+  <p>The <code>None</code> alias works too: <code>x[None, :]</code> is the same as <code>x[np.newaxis, :]</code>. Many people prefer <code>None</code> — shorter and equally clear.</p>
+
+  <h3 class="section"><span class="num">5.4</span>Transpose and axis swapping</h3>
+<pre>x = np.<span class="f">arange</span>(<span class="n">6</span>).<span class="f">reshape</span>(<span class="n">2</span>, <span class="n">3</span>)
+x
+x.T                                  <span class="c"># transpose, shape (3, 2)</span>
+x.<span class="f">transpose</span>()                         <span class="c"># same</span></pre>
+<pre class="out">array([[0, 1, 2],
+       [3, 4, 5]])
+array([[0, 3],
+       [1, 4],
+       [2, 5]])</pre>
+
+<pre>img = np.<span class="f">zeros</span>((<span class="n">100</span>, <span class="n">200</span>, <span class="n">3</span>))           <span class="c"># H×W×C — common image format</span>
+img.<span class="f">transpose</span>(<span class="n">2</span>, <span class="n">0</span>, <span class="n">1</span>).shape             <span class="c"># C×H×W — PyTorch wants this</span></pre>
+<pre class="out">(3, 100, 200)</pre>
+
+  <h3 class="section"><span class="num">5.5</span>Flatten and ravel</h3>
+  <p>Both squash a multi-dim array down to 1-D. The difference: <code>ravel</code> returns a view when possible (fast); <code>flatten</code> always copies (safe).</p>
+<pre>x = np.<span class="f">arange</span>(<span class="n">6</span>).<span class="f">reshape</span>(<span class="n">2</span>, <span class="n">3</span>)
+x.<span class="f">ravel</span>()                              <span class="c"># view if contiguous</span>
+x.<span class="f">flatten</span>()                            <span class="c"># always copy</span></pre>
+<pre class="out">array([0, 1, 2, 3, 4, 5])
+array([0, 1, 2, 3, 4, 5])</pre>
+
+  <div class="app">
+    <div class="lbl">Application</div>
+    <p>Reshape is everywhere in machine learning. Loading 28×28 MNIST images? You reshape to <code>(n_samples, 784)</code> for a dense layer. Sending an image to a CNN? You add a batch dimension with <code>img[None, ...]</code>. Converting between PyTorch's channel-first format and Matplotlib's channel-last format? <code>img.transpose(1, 2, 0)</code>. These three operations alone handle 90% of your shape-juggling needs.</p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- CHAPTER 6 — BROADCASTING                                      -->
+<!-- ============================================================ -->
+<section class="chapter" id="c6">
+  <div class="ch-header">
+    <span class="ch-num">CHAPTER 06</span>
+    <h2 class="ch-title">Broadcasting deep dive</h2>
+  </div>
+  <p class="lead">Broadcasting is NumPy's superpower. It lets you combine arrays of different shapes without writing a single loop — and once it clicks, you'll see it everywhere.</p>
+
+  <p class="dropcap">When two arrays have the same shape, combining them is obvious: pair up corresponding elements. When they have different shapes, NumPy applies broadcasting: it stretches the smaller array (conceptually, without copying memory) so the shapes match. The result feels like magic the first time and obvious by the tenth.</p>
+
+  <h3 class="section"><span class="num">6.1</span>The simplest case — scalar plus array</h3>
+<pre>x = np.<span class="f">array</span>([<span class="n">1</span>, <span class="n">2</span>, <span class="n">3</span>, <span class="n">4</span>])
+x + <span class="n">10</span>                                  <span class="c"># scalar 10 is "stretched" to match x</span>
+x * <span class="n">2</span>
+x ** <span class="n">2</span></pre>
+<pre class="out">array([11, 12, 13, 14])
+array([2, 4, 6, 8])
+array([ 1,  4,  9, 16])</pre>
+  <p>This is broadcasting in its simplest form. The scalar isn't actually copied — NumPy uses one value against every element conceptually.</p>
+
+  <h3 class="section"><span class="num">6.2</span>The broadcasting rule</h3>
+  <p>Two arrays can broadcast if, walking from the <em>right</em> through their shapes, each dimension is either equal, or one of them is 1.</p>
+  <table class="tbl">
+    <thead><tr><th>Shape A</th><th>Shape B</th><th>Result</th><th>OK?</th></tr></thead>
+    <tbody>
+      <tr><td>(3, 4)</td><td>(4,)</td><td>(3, 4)</td><td>✓ — B broadcasts across rows</td></tr>
+      <tr><td>(3, 4)</td><td>(3, 1)</td><td>(3, 4)</td><td>✓ — B broadcasts across columns</td></tr>
+      <tr><td>(3, 4)</td><td>(1, 4)</td><td>(3, 4)</td><td>✓ — B broadcasts across rows</td></tr>
+      <tr><td>(3, 4)</td><td>(3, 4)</td><td>(3, 4)</td><td>✓ — exact match</td></tr>
+      <tr><td>(3, 4)</td><td>(3,)</td><td>error</td><td>✗ — last dims don't match (4 vs 3)</td></tr>
+      <tr><td>(3, 4)</td><td>(2, 4)</td><td>error</td><td>✗ — first dims don't match (3 vs 2)</td></tr>
+    </tbody>
+  </table>
+
+  <div class="figure">
+    <svg viewBox="0 0 680 240" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="bgrad" x1="0" x2="0" y1="0" y2="1">
+          <stop offset="0%" stop-color="#1c222c"/>
+          <stop offset="100%" stop-color="#11151c"/>
+        </linearGradient>
+      </defs>
+      <g font-family="JetBrains Mono" font-size="11">
+        <!-- A: 3x4 -->
+        <text x="80" y="22" text-anchor="middle" fill="#9aa3b2" font-size="11">A · shape (3, 4)</text>
+        <g transform="translate(20,40)">
+          <g fill="url(#bgrad)" stroke="#28c595" stroke-width="1">
+            <rect x="0" y="0" width="30" height="30"/><rect x="30" y="0" width="30" height="30"/><rect x="60" y="0" width="30" height="30"/><rect x="90" y="0" width="30" height="30"/>
+            <rect x="0" y="30" width="30" height="30"/><rect x="30" y="30" width="30" height="30"/><rect x="60" y="30" width="30" height="30"/><rect x="90" y="30" width="30" height="30"/>
+            <rect x="0" y="60" width="30" height="30"/><rect x="30" y="60" width="30" height="30"/><rect x="60" y="60" width="30" height="30"/><rect x="90" y="60" width="30" height="30"/>
+          </g>
+        </g>
+        <!-- + sign -->
+        <text x="170" y="80" fill="#9aa3b2" font-size="18">+</text>
+        <!-- B: 1x4 -->
+        <text x="260" y="22" text-anchor="middle" fill="#9aa3b2" font-size="11">B · shape (4,)</text>
+        <g transform="translate(200,40)">
+          <g fill="url(#bgrad)" stroke="#ec7548" stroke-width="1">
+            <rect x="0" y="0" width="30" height="30"/><rect x="30" y="0" width="30" height="30"/><rect x="60" y="0" width="30" height="30"/><rect x="90" y="0" width="30" height="30"/>
+          </g>
+        </g>
+        <!-- broadcast: stretch -->
+        <text x="260" y="98" text-anchor="middle" fill="#ec7548" font-size="10" font-style="italic">virtually stretched ↓↓↓</text>
+        <g transform="translate(200,118)" opacity="0.4">
+          <g fill="url(#bgrad)" stroke="#ec7548" stroke-width="1" stroke-dasharray="2 2">
+            <rect x="0" y="0" width="30" height="30"/><rect x="30" y="0" width="30" height="30"/><rect x="60" y="0" width="30" height="30"/><rect x="90" y="0" width="30" height="30"/>
+          </g>
+        </g>
+        <g transform="translate(200,148)" opacity="0.4">
+          <g fill="url(#bgrad)" stroke="#ec7548" stroke-width="1" stroke-dasharray="2 2">
+            <rect x="0" y="0" width="30" height="30"/><rect x="30" y="0" width="30" height="30"/><rect x="60" y="0" width="30" height="30"/><rect x="90" y="0" width="30" height="30"/>
+          </g>
+        </g>
+        <!-- = sign -->
+        <text x="350" y="80" fill="#9aa3b2" font-size="18">=</text>
+        <!-- result -->
+        <text x="450" y="22" text-anchor="middle" fill="#9aa3b2" font-size="11">A + B · shape (3, 4)</text>
+        <g transform="translate(390,40)">
+          <g fill="url(#bgrad)" stroke="#9d96e6" stroke-width="1.5">
+            <rect x="0" y="0" width="30" height="30"/><rect x="30" y="0" width="30" height="30"/><rect x="60" y="0" width="30" height="30"/><rect x="90" y="0" width="30" height="30"/>
+            <rect x="0" y="30" width="30" height="30"/><rect x="30" y="30" width="30" height="30"/><rect x="60" y="30" width="30" height="30"/><rect x="90" y="30" width="30" height="30"/>
+            <rect x="0" y="60" width="30" height="30"/><rect x="30" y="60" width="30" height="30"/><rect x="60" y="60" width="30" height="30"/><rect x="90" y="60" width="30" height="30"/>
+          </g>
+        </g>
+        <!-- arrow showing rule -->
+        <g fill="#9aa3b2" font-family="Inter" font-size="11">
+          <text x="240" y="195" font-style="italic">B is conceptually copied across rows.</text>
+          <text x="240" y="212" font-style="italic">No actual memory is allocated.</text>
+        </g>
+      </g>
+    </svg>
+    <div class="fig-caption"><b>Figure 6.1</b>Broadcasting a 1-D array across a 2-D array. The smaller shape lines up against the right edge of the larger; missing dimensions are treated as length 1 and "stretched" without copying.</div>
+  </div>
+
+  <h3 class="section"><span class="num">6.3</span>Practical examples</h3>
+
+  <h4 class="sub">Add a vector to every row</h4>
+<pre>X = np.<span class="f">arange</span>(<span class="n">12</span>).<span class="f">reshape</span>(<span class="n">3</span>, <span class="n">4</span>)
+row_bias = np.<span class="f">array</span>([<span class="n">10</span>, <span class="n">20</span>, <span class="n">30</span>, <span class="n">40</span>])
+X + row_bias</pre>
+<pre class="out">array([[10, 21, 32, 43],
+       [14, 25, 36, 47],
+       [18, 29, 40, 51]])</pre>
+
+  <h4 class="sub">Add a vector to every column — need a column shape</h4>
+<pre>col_bias = np.<span class="f">array</span>([<span class="n">100</span>, <span class="n">200</span>, <span class="n">300</span>])
+col_bias.shape                            <span class="c"># (3,) — won't work for columns</span>
+X + col_bias                              <span class="c"># ERROR — last dim 4 vs 3</span>
+
+col_bias = col_bias[:, np.newaxis]        <span class="c"># now (3, 1)</span>
+X + col_bias                              <span class="c"># works!</span></pre>
+<pre class="out">array([[100, 101, 102, 103],
+       [204, 205, 206, 207],
+       [308, 309, 310, 311]])</pre>
+
+  <h4 class="sub">Center every column (subtract per-column mean)</h4>
+<pre>X = np.random.<span class="f">default_rng</span>(<span class="n">0</span>).<span class="f">normal</span>(<span class="n">5</span>, <span class="n">2</span>, (<span class="n">100</span>, <span class="n">4</span>))
+col_means = X.<span class="f">mean</span>(axis=<span class="n">0</span>)                <span class="c"># shape (4,)</span>
+X_centered = X - col_means                <span class="c"># broadcasts across rows</span>
+X_centered.<span class="f">mean</span>(axis=<span class="n">0</span>)                   <span class="c"># now ~0</span></pre>
+<pre class="out">array([ 1.42e-16, -8.88e-17,  2.13e-16, -3.55e-17])</pre>
+
+  <h4 class="sub">Pairwise distance — the chef's kiss of broadcasting</h4>
+<pre>points = np.<span class="f">array</span>([[<span class="n">0</span>, <span class="n">0</span>], [<span class="n">3</span>, <span class="n">4</span>], [<span class="n">1</span>, <span class="n">1</span>]])    <span class="c"># 3 points</span>
+diff = points[:, np.newaxis, :] - points[np.newaxis, :, :]
+diff.shape</pre>
+<pre class="out">(3, 3, 2)</pre>
+<pre>dists = np.<span class="f">sqrt</span>((diff ** <span class="n">2</span>).<span class="f">sum</span>(axis=-<span class="n">1</span>))      <span class="c"># pairwise distances</span>
+dists</pre>
+<pre class="out">array([[0.        , 5.        , 1.41421356],
+       [5.        , 0.        , 3.60555128],
+       [1.41421356, 3.60555128, 0.        ]])</pre>
+
+  <p>This is a complete pairwise distance computation in one line. Pure Python would need a double loop. The trick: add a dimension to one operand so broadcasting produces a 3-D result containing all pairs.</p>
+
+  <div class="note intuition">
+    <span class="lbl">when broadcasting "feels wrong"</span>
+    <p>If you're getting unexpected shapes, print both operand shapes. Broadcasting walks dimensions from the right; if you need it to align differently, use <code>np.newaxis</code> or <code>reshape</code> to add a length-1 axis in the right place. There's never any ambiguity once you've checked the shapes.</p>
+  </div>
+
+  <div class="app">
+    <div class="lbl">Application</div>
+    <p>Broadcasting is how every "vectorized" operation in ML works under the hood. Standardizing features, computing cosine similarity, calculating attention weights in a transformer, normalizing image batches — all of it. Mastering broadcasting moves you from "I write loops" to "I think in arrays."</p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- CHAPTER 7 — MATH                                              -->
+<!-- ============================================================ -->
+<section class="chapter" id="c7">
+  <div class="ch-header">
+    <span class="ch-num">CHAPTER 07</span>
+    <h2 class="ch-title">Math &amp; ufuncs</h2>
+  </div>
+  <p class="lead">Every math function NumPy ships works element-wise on entire arrays. They're called ufuncs (universal functions), and they're the workhorses you'll combine all day.</p>
+
+  <h3 class="section"><span class="num">7.1</span>The basic operators</h3>
+<pre>a = np.<span class="f">array</span>([<span class="n">1</span>, <span class="n">2</span>, <span class="n">3</span>])
+b = np.<span class="f">array</span>([<span class="n">10</span>, <span class="n">20</span>, <span class="n">30</span>])
+
+a + b, a - b, a * b, a / b
+a // b                                <span class="c"># integer division</span>
+a % b                                 <span class="c"># modulo</span>
+a ** <span class="n">2</span>                                <span class="c"># exponentiation</span></pre>
+<pre class="out">(array([11, 22, 33]), array([-9, -18, -27]), array([10, 40, 90]), array([0.1, 0.1, 0.1]))
+array([0, 0, 0])
+array([1, 2, 3])
+array([1, 4, 9])</pre>
+
+  <h3 class="section"><span class="num">7.2</span>Element-wise math functions</h3>
+<pre>x = np.<span class="f">array</span>([<span class="n">1.0</span>, <span class="n">2.0</span>, <span class="n">4.0</span>, <span class="n">8.0</span>])
+
+np.<span class="f">sqrt</span>(x)                             <span class="c"># square root</span>
+np.<span class="f">exp</span>(x)                              <span class="c"># e^x</span>
+np.<span class="f">log</span>(x)                              <span class="c"># natural log</span>
+np.<span class="f">log10</span>(x)                            <span class="c"># base-10 log</span>
+np.<span class="f">log1p</span>(x)                            <span class="c"># log(1 + x) — stable near zero</span>
+np.<span class="f">sin</span>(x), np.<span class="f">cos</span>(x), np.<span class="f">tan</span>(x)
+np.<span class="f">abs</span>(x)                              <span class="c"># also np.absolute</span>
+np.<span class="f">round</span>(x), np.<span class="f">floor</span>(x), np.<span class="f">ceil</span>(x)</pre>
+<pre class="out">array([1.        , 1.41421356, 2.        , 2.82842712])
+array([   2.71828183,    7.3890561 ,   54.59815003, 2980.95798704])
+array([0.        , 0.69314718, 1.38629436, 2.07944154])</pre>
+
+  <h3 class="section"><span class="num">7.3</span>Comparison operators return boolean arrays</h3>
+<pre>x = np.<span class="f">array</span>([<span class="n">1</span>, <span class="n">5</span>, <span class="n">3</span>, <span class="n">8</span>, <span class="n">2</span>])
+x &gt; <span class="n">3</span>                                <span class="c"># element-wise comparison</span>
+x == <span class="n">5</span>
+np.<span class="f">equal</span>(x, <span class="n">5</span>)                       <span class="c"># same as ==</span>
+np.<span class="f">isclose</span>(x, <span class="n">5.00001</span>)                 <span class="c"># for floats with tolerance</span></pre>
+<pre class="out">array([False,  True, False,  True, False])
+array([False,  True, False, False, False])
+array([False,  True, False, False, False])
+array([False,  True, False, False, False])</pre>
+
+  <h3 class="section"><span class="num">7.4</span>Matrix operations vs element-wise</h3>
+  <p>This trips up everyone once. The <code>*</code> operator is <em>element-wise</em>, not matrix multiplication. For matrix multiplication, use <code>@</code> (preferred) or <code>np.dot</code>.</p>
+<pre>A = np.<span class="f">array</span>([[<span class="n">1</span>, <span class="n">2</span>], [<span class="n">3</span>, <span class="n">4</span>]])
+B = np.<span class="f">array</span>([[<span class="n">5</span>, <span class="n">6</span>], [<span class="n">7</span>, <span class="n">8</span>]])
+
+A * B                                <span class="c"># element-wise multiplication</span>
+A @ B                                <span class="c"># matrix multiplication</span></pre>
+<pre class="out">array([[ 5, 12],
+       [21, 32]])
+array([[19, 22],
+       [43, 50]])</pre>
+
+  <h3 class="section"><span class="num">7.5</span>In-place operations save memory</h3>
+<pre>x = np.<span class="f">arange</span>(<span class="n">5</span>, dtype=np.float64)
+x += <span class="n">10</span>                              <span class="c"># in-place — no new allocation</span>
+x *= <span class="n">2</span>
+np.<span class="f">add</span>(x, <span class="n">1</span>, out=x)                   <span class="c"># also in-place, explicit form</span></pre>
+
+  <div class="note tip">
+    <span class="lbl">large arrays</span>
+    <p>For million-element arrays, the difference between <code>x = x + 1</code> (allocates a new array) and <code>x += 1</code> (modifies in place) can be huge. The in-place form is preferred when you don't need to keep the original.</p>
+  </div>
+
+  <h3 class="section"><span class="num">7.6</span>Handling NaN and inf</h3>
+<pre>x = np.<span class="f">array</span>([<span class="n">1.0</span>, <span class="n">2.0</span>, np.nan, <span class="n">4.0</span>, np.inf])
+
+np.<span class="f">isnan</span>(x)                            <span class="c"># where are NaNs?</span>
+np.<span class="f">isfinite</span>(x)                         <span class="c"># not NaN and not inf</span>
+np.<span class="f">nansum</span>(x)                           <span class="c"># sum ignoring NaN</span>
+np.<span class="f">nanmean</span>(x)                          <span class="c"># mean ignoring NaN</span>
+
+x[np.<span class="f">isnan</span>(x)] = <span class="n">0</span>                    <span class="c"># replace NaN with 0</span></pre>
+<pre class="out">array([False, False,  True, False, False])
+array([ True,  True, False,  True, False])
+inf                                       # because of the np.inf
+nan                                       # plain mean: nan-aware version below
+3.5  # for the nan-stripped sum: 1 + 2 + 4 + inf — replace inf too</pre>
+
+  <div class="app">
+    <div class="lbl">Application</div>
+    <p>Real data has NaN everywhere — failed sensor readings, missing survey responses, division-by-zero results. The <code>nan*</code> family of functions (<code>nansum</code>, <code>nanmean</code>, <code>nanstd</code>, etc.) computes the right answer without you needing to filter first. Knowing they exist saves hours.</p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- CHAPTER 8 — AGGREGATIONS                                      -->
+<!-- ============================================================ -->
+<section class="chapter" id="c8">
+  <div class="ch-header">
+    <span class="ch-num">CHAPTER 08</span>
+    <h2 class="ch-title">Aggregations &amp; axis tricks</h2>
+  </div>
+  <p class="lead">Reducing an array to fewer numbers — sums, means, max, min — is half of all data work. Mastering the axis argument is the unlock.</p>
+
+  <h3 class="section"><span class="num">8.1</span>Reducing everything to one number</h3>
+<pre>x = np.<span class="f">arange</span>(<span class="n">12</span>).<span class="f">reshape</span>(<span class="n">3</span>, <span class="n">4</span>)
+x</pre>
+<pre class="out">array([[ 0,  1,  2,  3],
+       [ 4,  5,  6,  7],
+       [ 8,  9, 10, 11]])</pre>
+<pre>x.<span class="f">sum</span>()                              <span class="c"># 66</span>
+x.<span class="f">mean</span>()                             <span class="c"># 5.5</span>
+x.<span class="f">std</span>()                              <span class="c"># 3.452...</span>
+x.<span class="f">min</span>(), x.<span class="f">max</span>()                    <span class="c"># (0, 11)</span>
+x.<span class="f">argmin</span>(), x.<span class="f">argmax</span>()              <span class="c"># indices of min &amp; max in flattened array</span>
+x.<span class="f">prod</span>()                             <span class="c"># product of all elements (here: 0)</span>
+x.<span class="f">any</span>(), x.<span class="f">all</span>()                    <span class="c"># for boolean arrays</span></pre>
+
+  <h3 class="section"><span class="num">8.2</span>The axis argument — the most important trick</h3>
+  <p>Pass <code>axis=N</code> to reduce <em>along</em> axis N, collapsing it.</p>
+<pre>x.<span class="f">sum</span>(axis=<span class="n">0</span>)                          <span class="c"># sum down each column → shape (4,)</span>
+x.<span class="f">sum</span>(axis=<span class="n">1</span>)                          <span class="c"># sum across each row → shape (3,)</span>
+x.<span class="f">mean</span>(axis=<span class="n">0</span>)                         <span class="c"># mean of each column</span></pre>
+<pre class="out">array([12, 15, 18, 21])
+array([ 6, 22, 38])
+array([4., 5., 6., 7.])</pre>
+
+  <div class="note intuition">
+    <span class="lbl">remembering axis</span>
+    <p>One rule: <b>axis=N is the axis that disappears.</b> Start with shape (3, 4), call <code>.sum(axis=0)</code> — axis 0 disappears, you get shape (4,). Call <code>.sum(axis=1)</code> — axis 1 disappears, you get shape (3,). This rule generalizes to any number of dimensions.</p>
+  </div>
+
+  <h3 class="section"><span class="num">8.3</span>keepdims — the broadcasting friend</h3>
+  <p>When you want to use the reduced result in a broadcast operation against the original, you usually want to preserve the axis as size 1 — that's what <code>keepdims=True</code> does.</p>
+<pre>X = np.<span class="f">arange</span>(<span class="n">12</span>).<span class="f">reshape</span>(<span class="n">3</span>, <span class="n">4</span>)
+row_means = X.<span class="f">mean</span>(axis=<span class="n">1</span>)
+row_means.shape</pre>
+<pre class="out">(3,)</pre>
+<pre>X - row_means                              <span class="c"># ERROR — shape (3, 4) vs (3,)</span>
+
+row_means = X.<span class="f">mean</span>(axis=<span class="n">1</span>, keepdims=<span class="k">True</span>)
+row_means.shape</pre>
+<pre class="out">(3, 1)</pre>
+<pre>X - row_means                              <span class="c"># works — broadcasts cleanly</span></pre>
+<pre class="out">array([[-1.5, -0.5,  0.5,  1.5],
+       [-1.5, -0.5,  0.5,  1.5],
+       [-1.5, -0.5,  0.5,  1.5]])</pre>
+
+  <h3 class="section"><span class="num">8.4</span>Reducing multiple axes at once</h3>
+<pre>cube = np.<span class="f">arange</span>(<span class="n">24</span>).<span class="f">reshape</span>(<span class="n">2</span>, <span class="n">3</span>, <span class="n">4</span>)
+cube.<span class="f">sum</span>(axis=(<span class="n">0</span>, <span class="n">1</span>))                     <span class="c"># reduce two axes, leaves (4,)</span>
+cube.<span class="f">mean</span>(axis=(<span class="n">1</span>, <span class="n">2</span>))                    <span class="c"># reduce last two — leaves (2,)</span></pre>
+<pre class="out">array([60, 66, 72, 78])
+array([ 5.5, 17.5])</pre>
+
+  <h3 class="section"><span class="num">8.5</span>Cumulative aggregations</h3>
+<pre>x = np.<span class="f">array</span>([<span class="n">1</span>, <span class="n">2</span>, <span class="n">3</span>, <span class="n">4</span>, <span class="n">5</span>])
+np.<span class="f">cumsum</span>(x)                            <span class="c"># running sum</span>
+np.<span class="f">cumprod</span>(x)                           <span class="c"># running product</span>
+np.<span class="f">diff</span>(x)                              <span class="c"># consecutive differences</span></pre>
+<pre class="out">array([ 1,  3,  6, 10, 15])
+array([  1,   2,   6,  24, 120])
+array([1, 1, 1, 1])</pre>
+
+  <h3 class="section"><span class="num">8.6</span>Percentiles and ordering</h3>
+<pre>data = np.random.<span class="f">default_rng</span>(<span class="n">0</span>).<span class="f">normal</span>(<span class="n">50</span>, <span class="n">15</span>, <span class="n">1000</span>)
+
+np.<span class="f">median</span>(data)
+np.<span class="f">percentile</span>(data, [<span class="n">25</span>, <span class="n">50</span>, <span class="n">75</span>])         <span class="c"># quartiles</span>
+np.<span class="f">quantile</span>(data, [<span class="n">0.05</span>, <span class="n">0.95</span>])             <span class="c"># 5th and 95th percentiles</span></pre>
+<pre class="out">50.123...
+array([39.876, 50.123, 60.214])
+array([24.91, 75.31])</pre>
+
+  <div class="app">
+    <div class="lbl">Application</div>
+    <p>Feature standardization in ML: <code>(X - X.mean(axis=0)) / X.std(axis=0)</code>. Per-image normalization: <code>(img - img.mean(axis=(0,1))) / img.std(axis=(0,1))</code>. Outlier removal: <code>data[data &lt; np.percentile(data, 99)]</code>. Row-wise softmax in a neural network: <code>np.exp(x) / np.exp(x).sum(axis=1, keepdims=True)</code>. These four lines, with axes managed correctly, do an enormous amount of useful work.</p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- CHAPTER 9 — MASKING & WHERE                                   -->
+<!-- ============================================================ -->
+<section class="chapter" id="c9">
+  <div class="ch-header">
+    <span class="ch-num">CHAPTER 09</span>
+    <h2 class="ch-title">Boolean masking &amp; where</h2>
+  </div>
+  <p class="lead">Conditional logic without loops. Once you have this, you'll stop reaching for <code>for</code> and <code>if</code> on numerical data.</p>
+
+  <h3 class="section"><span class="num">9.1</span>Recap — boolean masks select elements</h3>
+<pre>x = np.<span class="f">array</span>([<span class="n">1</span>, -<span class="n">2</span>, <span class="n">3</span>, -<span class="n">4</span>, <span class="n">5</span>])
+positive = x &gt; <span class="n">0</span>
+x[positive]                              <span class="c"># keep only positives</span>
+x[~positive]                             <span class="c"># invert with ~</span></pre>
+<pre class="out">array([1, 3, 5])
+array([-2, -4])</pre>
+
+  <h3 class="section"><span class="num">9.2</span>Counting and existence checks</h3>
+<pre>x = np.random.<span class="f">default_rng</span>(<span class="n">0</span>).<span class="f">integers</span>(<span class="n">0</span>, <span class="n">100</span>, <span class="n">50</span>)
+(x &gt; <span class="n">50</span>).<span class="f">sum</span>()                          <span class="c"># count how many are &gt; 50</span>
+(x &gt; <span class="n">50</span>).<span class="f">mean</span>()                         <span class="c"># fraction that are &gt; 50</span>
+(x &gt; <span class="n">50</span>).<span class="f">any</span>()                          <span class="c"># is at least one?</span>
+(x &gt; <span class="n">50</span>).<span class="f">all</span>()                          <span class="c"># are all of them?</span></pre>
+<pre class="out">21
+0.42
+True
+False</pre>
+
+  <p>Why this works: booleans are treated as 0/1 by <code>sum</code> and <code>mean</code>. Counting items satisfying a condition becomes one short line.</p>
+
+  <h3 class="section"><span class="num">9.3</span>np.where — vectorized if-then-else</h3>
+  <p>The cleanest pattern in NumPy. <code>np.where(condition, value_if_true, value_if_false)</code>.</p>
+<pre>x = np.<span class="f">array</span>([<span class="n">1</span>, -<span class="n">2</span>, <span class="n">3</span>, -<span class="n">4</span>, <span class="n">5</span>])
+np.<span class="f">where</span>(x &gt; <span class="n">0</span>, x, <span class="n">0</span>)                     <span class="c"># negatives → 0 (ReLU!)</span>
+np.<span class="f">where</span>(x &gt; <span class="n">0</span>, <span class="s">"pos"</span>, <span class="s">"neg"</span>)               <span class="c"># can mix types</span>
+np.<span class="f">where</span>(x &gt; <span class="n">0</span>, x, -x)                    <span class="c"># absolute value, the hard way</span></pre>
+<pre class="out">array([1, 0, 3, 0, 5])
+array(['pos', 'neg', 'pos', 'neg', 'pos'], dtype='&lt;U21')
+array([1, 2, 3, 4, 5])</pre>
+
+  <h3 class="section"><span class="num">9.4</span>np.select — multiple conditions</h3>
+  <p>When you have more than two branches, use <code>np.select</code>:</p>
+<pre>x = np.<span class="f">array</span>([<span class="n">15</span>, <span class="n">42</span>, <span class="n">73</span>, <span class="n">99</span>, <span class="n">28</span>])
+
+conditions = [x &lt; <span class="n">30</span>, x &lt; <span class="n">60</span>, x &lt; <span class="n">85</span>]
+choices    = [<span class="s">"low"</span>, <span class="s">"medium"</span>, <span class="s">"high"</span>]
+np.<span class="f">select</span>(conditions, choices, default=<span class="s">"very_high"</span>)</pre>
+<pre class="out">array(['low', 'medium', 'medium', 'very_high', 'low'], dtype='&lt;U9')</pre>
+
+  <h3 class="section"><span class="num">9.5</span>np.clip — bound values into a range</h3>
+<pre>x = np.<span class="f">array</span>([-<span class="n">5</span>, <span class="n">0</span>, <span class="n">3</span>, <span class="n">7</span>, <span class="n">100</span>])
+np.<span class="f">clip</span>(x, <span class="n">0</span>, <span class="n">10</span>)                          <span class="c"># anything &lt; 0 → 0, &gt; 10 → 10</span></pre>
+<pre class="out">array([ 0,  0,  3,  7, 10])</pre>
+
+  <h3 class="section"><span class="num">9.6</span>np.where with one argument — find indices</h3>
+<pre>x = np.<span class="f">array</span>([<span class="n">10</span>, <span class="n">20</span>, <span class="n">30</span>, <span class="n">20</span>, <span class="n">10</span>])
+np.<span class="f">where</span>(x == <span class="n">20</span>)                          <span class="c"># positions where it's 20</span></pre>
+<pre class="out">(array([1, 3]),)</pre>
+
+  <p>Returns a tuple of index arrays — one per dimension. For 1-D it looks weird (single-element tuple); for 2-D it's actually useful.</p>
+
+  <div class="app">
+    <div class="lbl">Application</div>
+    <p>Cleaning data: <code>np.where(price &lt; 0, np.nan, price)</code> to mark bad prices. Implementing activation functions: <code>relu = np.where(x &gt; 0, x, 0)</code>. Categorizing customers: <code>np.select([spend &gt; 1000, spend &gt; 100], ["whale", "regular"], default="new")</code>. Capping outliers: <code>np.clip(values, lower_bound, upper_bound)</code>. Every line that would otherwise need a Python loop with an <code>if</code> becomes a single vectorized expression.</p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- CHAPTER 10 — STACK / SPLIT / SORT                             -->
+<!-- ============================================================ -->
+<section class="chapter" id="c10">
+  <div class="ch-header">
+    <span class="ch-num">CHAPTER 10</span>
+    <h2 class="ch-title">Stacking, splitting, sorting</h2>
+  </div>
+  <p class="lead">Combining arrays into bigger ones, cutting them apart, putting them in order. The plumbing of any real data pipeline.</p>
+
+  <h3 class="section"><span class="num">10.1</span>Combining arrays — concatenate, stack, hstack, vstack</h3>
+<pre>a = np.<span class="f">array</span>([[<span class="n">1</span>, <span class="n">2</span>], [<span class="n">3</span>, <span class="n">4</span>]])         <span class="c"># shape (2, 2)</span>
+b = np.<span class="f">array</span>([[<span class="n">5</span>, <span class="n">6</span>], [<span class="n">7</span>, <span class="n">8</span>]])         <span class="c"># shape (2, 2)</span>
+
+np.<span class="f">concatenate</span>([a, b], axis=<span class="n">0</span>)            <span class="c"># along rows → (4, 2)</span>
+np.<span class="f">concatenate</span>([a, b], axis=<span class="n">1</span>)            <span class="c"># along cols → (2, 4)</span>
+np.<span class="f">vstack</span>([a, b])                         <span class="c"># vertical = axis 0</span>
+np.<span class="f">hstack</span>([a, b])                         <span class="c"># horizontal = axis 1</span>
+np.<span class="f">stack</span>([a, b])                          <span class="c"># NEW axis at front → (2, 2, 2)</span></pre>
+<pre class="out">array([[1, 2],
+       [3, 4],
+       [5, 6],
+       [7, 8]])
+array([[1, 2, 5, 6],
+       [3, 4, 7, 8]])
+# vstack and hstack give the same as concatenate at axis 0/1
+array([[[1, 2],
+        [3, 4]],
+
+       [[5, 6],
+        [7, 8]]])</pre>
+
+  <div class="note intuition">
+    <span class="lbl">stack vs concatenate</span>
+    <p><b>Concatenate</b> joins along an existing axis — output has the same number of dimensions. <b>Stack</b> joins along a new axis — output has one more dimension. Use stack when you want to "batch up" multiple same-shape arrays.</p>
+  </div>
+
+  <h3 class="section"><span class="num">10.2</span>Splitting — the reverse</h3>
+<pre>x = np.<span class="f">arange</span>(<span class="n">12</span>).<span class="f">reshape</span>(<span class="n">3</span>, <span class="n">4</span>)
+np.<span class="f">split</span>(x, <span class="n">2</span>, axis=<span class="n">1</span>)                    <span class="c"># split into 2 equal parts along axis 1</span>
+np.<span class="f">split</span>(x, [<span class="n">1</span>, <span class="n">3</span>], axis=<span class="n">1</span>)                 <span class="c"># split at given positions</span>
+np.<span class="f">hsplit</span>(x, <span class="n">2</span>)                          <span class="c"># shortcut for axis 1</span>
+np.<span class="f">vsplit</span>(x, <span class="n">3</span>)                          <span class="c"># shortcut for axis 0</span></pre>
+<pre class="out">[array([[0, 1],
+       [4, 5],
+       [8, 9]]),
+ array([[ 2,  3],
+       [ 6,  7],
+       [10, 11]])]
+# the [1, 3] form yields 3 pieces of widths 1, 2, 1</pre>
+
+  <h3 class="section"><span class="num">10.3</span>Sorting</h3>
+<pre>x = np.<span class="f">array</span>([<span class="n">3</span>, <span class="n">1</span>, <span class="n">4</span>, <span class="n">1</span>, <span class="n">5</span>, <span class="n">9</span>, <span class="n">2</span>, <span class="n">6</span>])
+np.<span class="f">sort</span>(x)                                <span class="c"># returns sorted copy</span>
+x.<span class="f">sort</span>()                                  <span class="c"># in-place — modifies x</span>
+
+np.<span class="f">argsort</span>(x)                             <span class="c"># indices that would sort</span></pre>
+<pre class="out">array([1, 1, 2, 3, 4, 5, 6, 9])
+# x is now sorted in place
+array([0, 1, 2, 3, 4, 5, 6, 7])  # already sorted now</pre>
+
+  <h4 class="sub">Sorting 2-D arrays</h4>
+<pre>X = np.<span class="f">array</span>([[<span class="n">3</span>, <span class="n">1</span>], [<span class="n">1</span>, <span class="n">5</span>], [<span class="n">2</span>, <span class="n">2</span>]])
+np.<span class="f">sort</span>(X, axis=<span class="n">0</span>)                        <span class="c"># sort each column independently</span>
+np.<span class="f">sort</span>(X, axis=<span class="n">1</span>)                        <span class="c"># sort each row independently</span></pre>
+<pre class="out">array([[1, 1],
+       [2, 2],
+       [3, 5]])
+array([[1, 3],
+       [1, 5],
+       [2, 2]])</pre>
+
+  <h4 class="sub">Sort by a key column — using argsort</h4>
+<pre>data = np.<span class="f">array</span>([[<span class="n">25</span>, <span class="n">80000</span>], [<span class="n">22</span>, <span class="n">50000</span>], [<span class="n">30</span>, <span class="n">120000</span>]])
+order = np.<span class="f">argsort</span>(data[:, <span class="n">1</span>])             <span class="c"># indices that sort by salary</span>
+data[order]                                <span class="c"># rows sorted by salary</span></pre>
+<pre class="out">array([[    22,  50000],
+       [    25,  80000],
+       [    30, 120000]])</pre>
+
+  <h3 class="section"><span class="num">10.4</span>Unique values and counts</h3>
+<pre>x = np.<span class="f">array</span>([<span class="s">"a"</span>, <span class="s">"b"</span>, <span class="s">"a"</span>, <span class="s">"c"</span>, <span class="s">"b"</span>, <span class="s">"a"</span>])
+np.<span class="f">unique</span>(x)                              <span class="c"># sorted unique values</span>
+vals, counts = np.<span class="f">unique</span>(x, return_counts=<span class="k">True</span>)
+<span class="f">dict</span>(<span class="f">zip</span>(vals, counts))</pre>
+<pre class="out">array(['a', 'b', 'c'], dtype='&lt;U1')
+{'a': 3, 'b': 2, 'c': 1}</pre>
+
+  <h3 class="section"><span class="num">10.5</span>argmax with axis — finding "the best in each row"</h3>
+<pre>scores = np.<span class="f">array</span>([
+    [<span class="n">0.1</span>, <span class="n">0.7</span>, <span class="n">0.2</span>],     <span class="c"># sample 1: probabilities for 3 classes</span>
+    [<span class="n">0.4</span>, <span class="n">0.3</span>, <span class="n">0.3</span>],     <span class="c"># sample 2</span>
+    [<span class="n">0.0</span>, <span class="n">0.0</span>, <span class="n">1.0</span>],     <span class="c"># sample 3</span>
+])
+scores.<span class="f">argmax</span>(axis=<span class="n">1</span>)                    <span class="c"># predicted class per sample</span></pre>
+<pre class="out">array([1, 0, 2])</pre>
+
+  <div class="app">
+    <div class="lbl">Application</div>
+    <p>Train/test split: take a random permutation of indices, split at 80%, use to index <code>X</code> and <code>y</code>. Get top-k predictions: <code>np.argsort(scores)[-k:][::-1]</code>. Frequency table: <code>np.unique(labels, return_counts=True)</code>. Convert softmax outputs to class predictions: <code>probs.argmax(axis=1)</code>. These are the building blocks of every ML evaluation script you'll ever write.</p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- CHAPTER 11 — RANDOM & LINALG                                  -->
+<!-- ============================================================ -->
+<section class="chapter" id="c11">
+  <div class="ch-header">
+    <span class="ch-num">CHAPTER 11</span>
+    <h2 class="ch-title">Random &amp; linear algebra</h2>
+  </div>
+  <p class="lead">Two specialized modules that you'll use less than the basics but lean on heavily when you need them.</p>
+
+  <h3 class="section"><span class="num">11.1</span>The modern random API</h3>
+  <p>Always start with a generator. Pass a seed for reproducibility.</p>
+<pre>rng = np.random.<span class="f">default_rng</span>(seed=<span class="n">42</span>)
+
+<span class="c"># Distributions</span>
+rng.<span class="f">random</span>(<span class="n">5</span>)                       <span class="c"># uniform [0, 1)</span>
+rng.<span class="f">uniform</span>(low=<span class="n">10</span>, high=<span class="n">20</span>, size=<span class="n">5</span>)
+rng.<span class="f">normal</span>(loc=<span class="n">0</span>, scale=<span class="n">1</span>, size=<span class="n">5</span>)
+rng.<span class="f">integers</span>(<span class="n">0</span>, <span class="n">100</span>, size=<span class="n">5</span>)         <span class="c"># [0, 100)</span>
+
+<span class="c"># Categorical-style choices</span>
+rng.<span class="f">choice</span>([<span class="s">"a"</span>, <span class="s">"b"</span>, <span class="s">"c"</span>], size=<span class="n">10</span>)
+rng.<span class="f">choice</span>(<span class="n">100</span>, size=<span class="n">5</span>, replace=<span class="k">False</span>)   <span class="c"># sample 5 distinct from 0..99</span>
+
+<span class="c"># Shuffling</span>
+x = np.<span class="f">arange</span>(<span class="n">10</span>)
+rng.<span class="f">shuffle</span>(x)                       <span class="c"># in-place</span>
+rng.<span class="f">permutation</span>(<span class="n">10</span>)                  <span class="c"># return a shuffled copy</span></pre>
+<pre class="out">array([0.77395605, 0.43887844, 0.85859792, 0.69736803, 0.09417735])
+array([17.74, 14.39, 18.59, 16.97, 10.94])
+array([ 0.30471708, -1.03998411,  0.7504512 ,  0.94056472, -1.95103519])
+array([ 9, 50, 22, 87, 81])
+array(['a', 'b', 'a', 'a', 'c', 'b', 'c', 'a', 'b', 'a'], dtype='&lt;U1')
+array([76, 19,  3, 70, 22])</pre>
+
+  <h3 class="section"><span class="num">11.2</span>Why seeds matter</h3>
+  <p>Reproducibility is the foundation of comparing experiments. Without a seed, every run is different and you can't tell if a change helped or you just got lucky.</p>
+<pre>rng1 = np.random.<span class="f">default_rng</span>(<span class="n">42</span>)
+rng2 = np.random.<span class="f">default_rng</span>(<span class="n">42</span>)
+rng1.<span class="f">random</span>(<span class="n">3</span>) == rng2.<span class="f">random</span>(<span class="n">3</span>)            <span class="c"># identical sequences</span></pre>
+<pre class="out">array([ True,  True,  True])</pre>
+
+  <h3 class="section"><span class="num">11.3</span>Linear algebra — what you'll actually use</h3>
+<pre><span class="k">import</span> numpy <span class="k">as</span> np
+
+A = np.<span class="f">array</span>([[<span class="n">1.0</span>, <span class="n">2.0</span>], [<span class="n">3.0</span>, <span class="n">4.0</span>]])
+b = np.<span class="f">array</span>([<span class="n">5.0</span>, <span class="n">6.0</span>])
+
+A @ b                                <span class="c"># matrix-vector multiply</span>
+A @ A                                <span class="c"># matrix-matrix multiply</span>
+
+np.linalg.<span class="f">inv</span>(A)                    <span class="c"># inverse</span>
+np.linalg.<span class="f">det</span>(A)                    <span class="c"># determinant</span>
+np.linalg.<span class="f">norm</span>(b)                   <span class="c"># Euclidean (L2) norm</span>
+np.linalg.<span class="f">norm</span>(b, ord=<span class="n">1</span>)            <span class="c"># L1 norm</span>
+
+<span class="c"># Solving Ax = b — much better than inv(A) @ b</span>
+x = np.linalg.<span class="f">solve</span>(A, b)
+A @ x                                <span class="c"># should equal b</span></pre>
+<pre class="out">array([17., 39.])
+array([[ 7., 10.],
+       [15., 22.]])
+array([[-2. ,  1. ],
+       [ 1.5, -0.5]])
+-2.0
+7.810249675906654
+11.0
+array([-4. ,  4.5])
+array([5., 6.])  # confirms solve worked</pre>
+
+  <h4 class="sub">Eigenvalues, SVD, QR</h4>
+<pre>vals, vecs = np.linalg.<span class="f">eig</span>(A)        <span class="c"># eigendecomposition</span>
+U, s, Vt   = np.linalg.<span class="f">svd</span>(A)        <span class="c"># singular value decomposition</span>
+Q, R       = np.linalg.<span class="f">qr</span>(A)         <span class="c"># QR decomposition</span></pre>
+
+  <div class="note tip">
+    <span class="lbl">solve vs inv</span>
+    <p>To solve <code>Ax = b</code>, never write <code>np.linalg.inv(A) @ b</code> — it's slower and numerically less stable. Use <code>np.linalg.solve(A, b)</code> directly. The difference matters once your matrices get larger than a textbook.</p>
+  </div>
+
+  <h3 class="section"><span class="num">11.4</span>Dot products and norms in action</h3>
+<pre><span class="c"># Cosine similarity between two vectors</span>
+<span class="k">def</span> <span class="f">cosine_sim</span>(u, v):
+    <span class="k">return</span> u @ v / (np.linalg.<span class="f">norm</span>(u) * np.linalg.<span class="f">norm</span>(v))
+
+<span class="f">cosine_sim</span>(np.<span class="f">array</span>([<span class="n">1</span>, <span class="n">0</span>, <span class="n">1</span>]), np.<span class="f">array</span>([<span class="n">1</span>, <span class="n">1</span>, <span class="n">1</span>]))</pre>
+<pre class="out">0.8164965809277261</pre>
+
+  <div class="app">
+    <div class="lbl">Application</div>
+    <p>Linear algebra is the engine room of ML. Neural networks are stacks of matrix multiplications. PCA is an eigendecomposition. Recommender systems factorize matrices. Embeddings are compared with cosine similarity. You don't always call <code>np.linalg</code> directly — higher-level libraries do — but understanding what these operations mean is what makes the libraries make sense.</p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- CHAPTER 12 — APPLICATIONS                                     -->
+<!-- ============================================================ -->
+<section class="chapter" id="c12">
+  <div class="ch-header">
+    <span class="ch-num">CHAPTER 12</span>
+    <h2 class="ch-title">Real-world applications</h2>
+  </div>
+  <p class="lead">Five complete worked examples. Each one stitches together everything from the previous chapters.</p>
+
+  <h3 class="section"><span class="num">12.1</span>Application 1 — image processing</h3>
+  <p>An RGB image is a 3-D NumPy array of shape <code>(height, width, 3)</code>. Image processing is array manipulation.</p>
+<pre><span class="k">import</span> numpy <span class="k">as</span> np
+<span class="k">from</span> PIL <span class="k">import</span> Image
+
+img = np.<span class="f">array</span>(Image.<span class="f">open</span>(<span class="s">"photo.jpg"</span>))
+img.shape, img.dtype</pre>
+<pre class="out">((1200, 1600, 3), dtype('uint8'))</pre>
+
+<pre><span class="c"># 1. Convert to grayscale — weighted sum of RGB</span>
+weights = np.<span class="f">array</span>([<span class="n">0.299</span>, <span class="n">0.587</span>, <span class="n">0.114</span>])      <span class="c"># human perception</span>
+gray = (img @ weights).<span class="f">astype</span>(np.uint8)
+gray.shape</pre>
+<pre class="out">(1200, 1600)</pre>
+
+<pre><span class="c"># 2. Increase brightness by 30, clipping to valid range</span>
+brighter = np.<span class="f">clip</span>(img.<span class="f">astype</span>(np.int16) + <span class="n">30</span>, <span class="n">0</span>, <span class="n">255</span>).<span class="f">astype</span>(np.uint8)
+
+<span class="c"># 3. Threshold to black-and-white</span>
+bw = np.<span class="f">where</span>(gray &gt; <span class="n">128</span>, <span class="n">255</span>, <span class="n">0</span>).<span class="f">astype</span>(np.uint8)
+
+<span class="c"># 4. Flip horizontally — just slice with step -1 on width axis</span>
+flipped = img[:, ::-<span class="n">1</span>, :]
+
+<span class="c"># 5. Crop to center 400×400</span>
+h, w = img.shape[:<span class="n">2</span>]
+ch, cw = h // <span class="n">2</span>, w // <span class="n">2</span>
+crop = img[ch-<span class="n">200</span>:ch+<span class="n">200</span>, cw-<span class="n">200</span>:cw+<span class="n">200</span>]</pre>
+
+  <h3 class="section"><span class="num">12.2</span>Application 2 — feature standardization</h3>
+  <p>Standardizing features (zero mean, unit variance) is required for many ML models. The whole operation is two lines of NumPy.</p>
+<pre>rng = np.random.<span class="f">default_rng</span>(<span class="n">0</span>)
+X = rng.<span class="f">normal</span>(loc=<span class="n">50</span>, scale=<span class="n">15</span>, size=(<span class="n">1000</span>, <span class="n">5</span>))   <span class="c"># 1000 samples, 5 features</span>
+
+mean = X.<span class="f">mean</span>(axis=<span class="n">0</span>)                       <span class="c"># per-feature mean → shape (5,)</span>
+std  = X.<span class="f">std</span>(axis=<span class="n">0</span>)                        <span class="c"># per-feature std  → shape (5,)</span>
+
+X_scaled = (X - mean) / std                  <span class="c"># broadcasts cleanly</span>
+
+X_scaled.<span class="f">mean</span>(axis=<span class="n">0</span>), X_scaled.<span class="f">std</span>(axis=<span class="n">0</span>)</pre>
+<pre class="out">(array([-7.11e-17, -2.66e-17, -1.42e-17, -1.78e-17,  3.55e-18]),
+ array([1., 1., 1., 1., 1.]))</pre>
+  <p>Every feature now has mean ≈ 0 and std exactly 1. This single transformation is what scikit-learn's <code>StandardScaler</code> does under the hood.</p>
+
+  <h3 class="section"><span class="num">12.3</span>Application 3 — Monte Carlo estimate of π</h3>
+  <p>A classic numerical example. Throw random darts at a 2×2 square; the fraction landing inside the inscribed circle equals π/4.</p>
+<pre>rng = np.random.<span class="f">default_rng</span>(<span class="n">42</span>)
+n = <span class="n">10_000_000</span>
+
+x = rng.<span class="f">uniform</span>(-<span class="n">1</span>, <span class="n">1</span>, n)
+y = rng.<span class="f">uniform</span>(-<span class="n">1</span>, <span class="n">1</span>, n)
+
+inside = (x**<span class="n">2</span> + y**<span class="n">2</span>) &lt;= <span class="n">1.0</span>
+pi_est = <span class="n">4</span> * inside.<span class="f">mean</span>()
+pi_est</pre>
+<pre class="out">3.14156132</pre>
+  <p>10 million simulations, one line of math, half a second. The same in pure Python would take 30 seconds.</p>
+
+  <h3 class="section"><span class="num">12.4</span>Application 4 — moving average for time series</h3>
+<pre><span class="k">def</span> <span class="f">moving_average</span>(x, window):
+    cumsum = np.<span class="f">cumsum</span>(np.<span class="f">insert</span>(x, <span class="n">0</span>, <span class="n">0</span>))   <span class="c"># prepend 0</span>
+    <span class="k">return</span> (cumsum[window:] - cumsum[:-window]) / window
+
+prices = np.<span class="f">array</span>([<span class="n">100</span>, <span class="n">102</span>, <span class="n">98</span>, <span class="n">105</span>, <span class="n">110</span>, <span class="n">108</span>, <span class="n">112</span>, <span class="n">115</span>])
+<span class="f">moving_average</span>(prices, window=<span class="n">3</span>)</pre>
+<pre class="out">array([100.        , 101.66666667, 104.33333333, 107.66666667,
+       110.        , 111.66666667])</pre>
+  <p>The cumulative-sum trick avoids any loop. This is the kind of code review where someone says "wait, you computed a moving average in three lines?" — yes, NumPy does that.</p>
+
+  <h3 class="section"><span class="num">12.5</span>Application 5 — one-hot encoding</h3>
+  <p>Convert integer class labels into one-hot vectors — required for many neural network loss functions.</p>
+<pre>labels = np.<span class="f">array</span>([<span class="n">2</span>, <span class="n">0</span>, <span class="n">1</span>, <span class="n">2</span>, <span class="n">1</span>, <span class="n">0</span>, <span class="n">2</span>])
+n_classes = <span class="n">3</span>
+
+one_hot = np.<span class="f">eye</span>(n_classes)[labels]      <span class="c"># identity rows indexed by label</span>
+one_hot</pre>
+<pre class="out">array([[0., 0., 1.],
+       [1., 0., 0.],
+       [0., 1., 0.],
+       [0., 0., 1.],
+       [0., 1., 0.],
+       [1., 0., 0.],
+       [0., 0., 1.]])</pre>
+  <p>One line. The identity matrix's rows <em>are</em> one-hot vectors; indexing them by class labels gives you the encoding directly.</p>
+
+  <h3 class="section"><span class="num">12.6</span>What to do next</h3>
+  <p>You now know NumPy well enough to be productive. To go from "knows" to "fluent," do these three things:</p>
+  <ol>
+    <li><b>Stop writing loops</b> on numerical data. When you catch yourself reaching for <code>for</code>, pause and ask: can broadcasting or boolean masking do this in one line?</li>
+    <li><b>Inspect shapes constantly.</b> Every line you write that produces an array, print its <code>.shape</code> while developing. Shape errors are 80% of NumPy bugs.</li>
+    <li><b>Move on to pandas.</b> NumPy is the foundation; pandas is what you'll use most days, sitting on top of it. The next book in this series picks up exactly where this one leaves off.</li>
+  </ol>
+
+  <div class="note tip">
+    <span class="lbl">parting word</span>
+    <p>NumPy isn't a library you learn once and check off. You'll discover new tricks for years — and that's a feature, not a bug. The dozen chapters here cover everything you need to start; the depth is something you'll grow into as you build real things.</p>
+  </div>
+</section>
+
+<!-- COLOPHON -->
+<section class="colophon">
+  <div class="mark">⌗</div>
+  <p>end of Book 1 · NumPy · next: Pandas</p>
+</section>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,1301 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>RAG · LLM · VectorDB · Complete Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0b0d12;
+  --bg-2:#11151c;
+  --surface:#161b24;
+  --surface-2:#1c222c;
+  --border:#262d3a;
+  --border-soft:#1f2530;
+  --text:#e6e9ef;
+  --text-dim:#9aa3b2;
+  --text-mute:#6b7385;
+  --teal:#1D9E75;
+  --teal-2:#28c595;
+  --purple:#7F77DD;
+  --coral:#D85A30;
+  --amber:#BA7517;
+  --amber-2:#e0a64a;
+  --code-bg:#0e1218;
+  --code-key:#7F77DD;
+  --code-fn:#28c595;
+  --code-str:#e0a64a;
+  --code-num:#D85A30;
+  --code-com:#5b6477;
+}
+
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:
+    radial-gradient(1200px 600px at 10% -10%, rgba(127,119,221,.10), transparent 60%),
+    radial-gradient(900px 500px at 110% 10%, rgba(29,158,117,.08), transparent 60%),
+    var(--bg);
+  color:var(--text);
+  font-family:'Manrope',sans-serif;
+  font-size:14px;
+  line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+  letter-spacing:.005em;
+}
+
+.wrap{max-width:1300px;margin:0 auto;padding:48px 28px 80px}
+
+/* ---------- header ---------- */
+header.top{
+  display:flex;align-items:flex-end;justify-content:space-between;
+  border-bottom:1px solid var(--border);
+  padding-bottom:28px;margin-bottom:44px;
+  gap:20px;flex-wrap:wrap;
+}
+.header-left h1{
+  font-family:'Instrument Serif',serif;
+  font-size:clamp(28px,4vw,46px);
+  font-weight:400;
+  line-height:1.1;
+  margin:0 0 8px;
+  letter-spacing:-.02em;
+}
+.header-left h1 em{
+  font-style:italic;
+  background:linear-gradient(120deg,var(--teal-2),var(--purple));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.header-left p{
+  color:var(--text-dim);font-size:13.5px;margin:0;max-width:540px;line-height:1.6;
+}
+.header-right{display:flex;flex-direction:column;align-items:flex-end;gap:8px;}
+.badge{
+  font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.1em;
+  text-transform:uppercase;padding:4px 10px;border-radius:3px;
+  border:1px solid var(--border);color:var(--text-mute);
+}
+
+/* ---------- toc pill bar ---------- */
+.toc-bar{
+  display:flex;gap:6px;flex-wrap:wrap;margin-bottom:40px;
+}
+.toc-btn{
+  padding:6px 14px;border-radius:4px;
+  border:1px solid var(--border);background:var(--surface);
+  color:var(--text-dim);font-size:11.5px;font-family:'Manrope',sans-serif;
+  cursor:pointer;transition:all .18s;text-decoration:none;
+}
+.toc-btn:hover{border-color:var(--teal);color:var(--teal-2);}
+.toc-btn.teal{border-color:rgba(29,158,117,.3);color:var(--teal-2);background:rgba(29,158,117,.06);}
+.toc-btn.purple{border-color:rgba(127,119,221,.3);color:var(--purple);background:rgba(127,119,221,.06);}
+.toc-btn.coral{border-color:rgba(216,90,48,.3);color:var(--coral);background:rgba(216,90,48,.06);}
+.toc-btn.amber{border-color:rgba(224,166,74,.3);color:var(--amber-2);background:rgba(186,117,23,.06);}
+
+/* ---------- chapter header ---------- */
+.chapter{
+  display:flex;align-items:center;gap:14px;
+  margin:52px 0 20px;padding-bottom:14px;
+  border-bottom:1px solid var(--border-soft);
+}
+.chapter-num{
+  font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.12em;
+  text-transform:uppercase;padding:3px 10px;border-radius:3px;
+  background:rgba(127,119,221,.12);color:var(--purple);border:1px solid rgba(127,119,221,.25);
+  white-space:nowrap;
+}
+.chapter-num.teal{background:rgba(29,158,117,.1);color:var(--teal-2);border-color:rgba(29,158,117,.25);}
+.chapter-num.coral{background:rgba(216,90,48,.1);color:var(--coral);border-color:rgba(216,90,48,.25);}
+.chapter-num.amber{background:rgba(224,166,74,.1);color:var(--amber-2);border-color:rgba(224,166,74,.25);}
+.chapter h2{
+  font-family:'Instrument Serif',serif;font-weight:400;
+  font-size:clamp(18px,2.5vw,26px);margin:0;letter-spacing:-.01em;
+}
+
+/* ---------- section ---------- */
+h3.section{
+  font-family:'Manrope',sans-serif;font-weight:700;font-size:12px;
+  letter-spacing:.09em;text-transform:uppercase;color:var(--text-dim);
+  margin:28px 0 10px;display:flex;align-items:center;gap:8px;
+}
+h3.section .num{
+  font-family:'JetBrains Mono',monospace;font-size:10px;
+  color:var(--text-mute);letter-spacing:.08em;
+}
+
+/* ---------- two/three col grid ---------- */
+.grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(380px,1fr));gap:16px;margin-bottom:16px;}
+.grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin-bottom:16px;}
+
+/* ---------- card ---------- */
+.card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:8px;padding:20px 22px;
+}
+.card.teal{border-left:3px solid var(--teal);}
+.card.purple{border-left:3px solid var(--purple);}
+.card.coral{border-left:3px solid var(--coral);}
+.card.amber{border-left:3px solid var(--amber-2);}
+.card h4{
+  font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--text-dim);margin:0 0 10px;
+}
+.card p{margin:0;color:var(--text-dim);font-size:13px;line-height:1.6;}
+.card ul{margin:6px 0 0;padding-left:16px;color:var(--text-dim);font-size:13px;}
+.card ul li{margin-bottom:4px;}
+
+/* ---------- analogy box ---------- */
+.analogy{
+  background:linear-gradient(135deg,rgba(127,119,221,.07),rgba(29,158,117,.05));
+  border:1px solid rgba(127,119,221,.2);border-radius:8px;
+  padding:18px 22px;margin:14px 0;
+}
+.analogy .label{
+  font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.15em;
+  text-transform:uppercase;color:var(--purple);margin-bottom:6px;
+}
+.analogy p{margin:0;font-size:13.5px;color:var(--text-dim);line-height:1.65;}
+
+/* ---------- flow diagram (ascii-style) ---------- */
+.flow{
+  background:var(--code-bg);border:1px solid var(--border);border-radius:8px;
+  padding:20px 24px;font-family:'JetBrains Mono',monospace;font-size:12.5px;
+  line-height:1.7;overflow-x:auto;margin:10px 0;white-space:pre;
+}
+.flow .fg-teal{color:var(--teal-2);}
+.flow .fg-purple{color:var(--purple);}
+.flow .fg-coral{color:var(--coral);}
+.flow .fg-amber{color:var(--amber-2);}
+.flow .fg-dim{color:var(--text-mute);}
+.flow .fg-text{color:var(--text-dim);}
+
+/* ---------- comparison table ---------- */
+.tbl-wrap{overflow-x:auto;margin:10px 0;}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+thead th{
+  background:var(--surface-2);color:var(--text-dim);
+  font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.09em;text-transform:uppercase;
+  padding:10px 14px;text-align:left;border-bottom:1px solid var(--border);border-top:1px solid var(--border);
+}
+tbody td{
+  padding:10px 14px;border-bottom:1px solid var(--border-soft);
+  color:var(--text-dim);vertical-align:top;
+}
+tbody tr:hover td{background:rgba(255,255,255,.02);}
+.tag{
+  display:inline-block;padding:2px 8px;border-radius:3px;font-size:11px;
+  font-family:'JetBrains Mono',monospace;
+}
+.tag.green{background:rgba(40,197,149,.12);color:var(--teal-2);}
+.tag.purple{background:rgba(127,119,221,.12);color:var(--purple);}
+.tag.red{background:rgba(216,90,48,.12);color:var(--coral);}
+.tag.amber{background:rgba(224,166,74,.12);color:var(--amber-2);}
+
+/* ---------- code blocks ---------- */
+pre{
+  background:var(--code-bg);border:1px solid var(--border);border-radius:7px;
+  padding:18px 20px;overflow-x:auto;margin:10px 0;
+  font-family:'JetBrains Mono',monospace;font-size:12.5px;line-height:1.7;
+}
+.lang{
+  display:block;font-size:9px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--text-mute);margin-bottom:10px;padding-bottom:8px;
+  border-bottom:1px solid var(--border-soft);
+}
+.k{color:var(--code-key);}  /* keyword / import */
+.f{color:var(--code-fn);}   /* function / class */
+.s{color:var(--code-str);}  /* string */
+.n{color:var(--code-num);}  /* number */
+.c{color:var(--code-com);}  /* comment */
+.t{color:var(--text);}      /* normal text */
+
+/* ---------- callout ---------- */
+.callout{
+  display:flex;gap:12px;align-items:flex-start;
+  border-radius:7px;padding:14px 16px;margin:12px 0;font-size:13px;
+}
+.callout.info{background:rgba(127,119,221,.08);border:1px solid rgba(127,119,221,.2);}
+.callout.tip{background:rgba(29,158,117,.08);border:1px solid rgba(29,158,117,.2);}
+.callout.warn{background:rgba(216,90,48,.08);border:1px solid rgba(216,90,48,.2);}
+.callout .icon{font-size:15px;line-height:1;flex-shrink:0;padding-top:1px;}
+.callout p{margin:0;line-height:1.6;color:var(--text-dim);}
+
+/* ---------- step list ---------- */
+.steps{list-style:none;margin:0;padding:0;}
+.steps li{
+  display:flex;gap:14px;padding:12px 0;border-bottom:1px solid var(--border-soft);
+}
+.steps li:last-child{border-bottom:none;}
+.step-num{
+  width:26px;height:26px;border-radius:50%;background:rgba(127,119,221,.15);
+  border:1px solid rgba(127,119,221,.3);color:var(--purple);
+  font-family:'JetBrains Mono',monospace;font-size:11px;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  margin-top:1px;
+}
+.step-num.teal{background:rgba(29,158,117,.12);border-color:rgba(29,158,117,.3);color:var(--teal-2);}
+.step-body strong{color:var(--text);font-size:13.5px;}
+.step-body p{margin:4px 0 0;color:var(--text-dim);font-size:13px;line-height:1.55;}
+
+/* ---------- big diagram ---------- */
+.diagram-card{
+  background:var(--surface);border:1px solid var(--border);border-radius:10px;
+  padding:28px;margin:16px 0;
+}
+.diagram-card h4{
+  font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--text-mute);margin:0 0 18px;
+}
+
+/* ---------- metric row ---------- */
+.metric-row{display:flex;gap:12px;flex-wrap:wrap;margin:10px 0;}
+.metric{
+  flex:1;min-width:140px;background:var(--surface);border:1px solid var(--border);
+  border-radius:8px;padding:16px 18px;
+}
+.metric .val{
+  font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:600;
+  color:var(--teal-2);margin-bottom:4px;
+}
+.metric .lbl{font-size:12px;color:var(--text-mute);}
+
+/* ---------- footer ---------- */
+footer{margin-top:64px;padding-top:24px;border-top:1px solid var(--border);}
+footer p{color:var(--text-mute);font-size:12px;text-align:center;}
+
+/* ---------- scroll id targets ---------- */
+[id]{scroll-margin-top:20px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- ═══ HEADER ═══ -->
+<header class="top">
+  <div class="header-left">
+    <h1>RAG · VectorDB · Pipelines<br><em>&amp; LLM Fundamentals</em></h1>
+    <p>A complete engineering guide — from how LLMs work, to retrieval-augmented generation, vector databases, production pipelines, and techniques to make your AI smarter.</p>
+  </div>
+  <div class="header-right">
+    <span class="badge">complete guide</span>
+    <span class="badge">v 2025</span>
+  </div>
+</header>
+
+<!-- ═══ TOC ═══ -->
+<div class="toc-bar">
+  <a href="#llm" class="toc-btn purple">01 · LLM Fundamentals</a>
+  <a href="#embeddings" class="toc-btn teal">02 · Embeddings</a>
+  <a href="#vectordb" class="toc-btn coral">03 · Vector Databases</a>
+  <a href="#rag" class="toc-btn amber">04 · RAG</a>
+  <a href="#pipelines" class="toc-btn purple">05 · Pipelines</a>
+  <a href="#chunking" class="toc-btn teal">06 · Chunking Strategies</a>
+  <a href="#enhance" class="toc-btn coral">07 · Enhancing LLMs</a>
+  <a href="#eval" class="toc-btn amber">08 · Evaluation</a>
+  <a href="#patterns" class="toc-btn purple">09 · Production Patterns</a>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     CH 1 — LLM FUNDAMENTALS
+════════════════════════════════════════════════════════ -->
+<div id="llm">
+<div class="chapter">
+  <span class="chapter-num">Chapter 01</span>
+  <h2>LLM Fundamentals</h2>
+</div>
+
+<div class="analogy">
+  <div class="label">Plain English Analogy</div>
+  <p>An LLM is a student who read the entire internet, then took an exam with the book closed. It knows a lot — but its knowledge is frozen at the exam date, and it can only answer from memory. RAG gives it an open-book.</p>
+</div>
+
+<h3 class="section"><span class="num">1.1</span> What is an LLM?</h3>
+<div class="grid-3">
+  <div class="card purple">
+    <h4>Architecture</h4>
+    <p>Transformer-based neural network. Self-attention heads learn relationships between tokens across long sequences.</p>
+  </div>
+  <div class="card teal">
+    <h4>Training</h4>
+    <p>Pre-trained on billions of text tokens via next-token prediction (causal LM). Then fine-tuned with RLHF for helpfulness.</p>
+  </div>
+  <div class="card coral">
+    <h4>Inference</h4>
+    <p>Given a prompt, the model generates tokens auto-regressively — each new token is conditioned on everything before it.</p>
+  </div>
+</div>
+
+<h3 class="section"><span class="num">1.2</span> Key Concepts You Must Know</h3>
+<div class="grid-2">
+  <div>
+    <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Concept</th><th>What It Means</th></tr></thead>
+      <tbody>
+        <tr><td><span class="tag purple">Context Window</span></td><td>Max tokens the model sees at once. GPT-4: 128k, Gemini 1.5: 1M, Claude: 200k.</td></tr>
+        <tr><td><span class="tag green">Temperature</span></td><td>Randomness of output. 0 = deterministic, 1+ = creative/random.</td></tr>
+        <tr><td><span class="tag amber">Top-P / Top-K</span></td><td>Sampling strategies that control token selection diversity.</td></tr>
+        <tr><td><span class="tag red">Hallucination</span></td><td>Model confidently states false info. A core problem RAG solves.</td></tr>
+        <tr><td><span class="tag purple">System Prompt</span></td><td>Hidden instruction that sets role, tone, and constraints.</td></tr>
+        <tr><td><span class="tag green">Token</span></td><td>Roughly ~4 chars. "PayPal" = 2 tokens. GPT-4 costs per 1k tokens.</td></tr>
+        <tr><td><span class="tag amber">Latent Space</span></td><td>High-dimensional space where meaning is encoded numerically.</td></tr>
+        <tr><td><span class="tag red">Knowledge Cutoff</span></td><td>Date after which the model has no training data.</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+  <div>
+<div class="flow"><span class="fg-purple">LLM FORWARD PASS (simplified)</span>
+
+<span class="fg-dim">Input:  </span><span class="fg-amber">"What is PayPal's refund policy?"</span>
+
+<span class="fg-teal">1. Tokenize</span>
+   <span class="fg-dim">→ ["What", " is", " Pay", "Pal", "'s", " refund", ...]</span>
+
+<span class="fg-teal">2. Embed tokens</span>
+   <span class="fg-dim">→ each token → 768-dim vector</span>
+
+<span class="fg-teal">3. Transformer blocks (×N layers)</span>
+   <span class="fg-dim">→ self-attention across all tokens</span>
+   <span class="fg-dim">→ feed-forward layers</span>
+   <span class="fg-dim">→ layer norm</span>
+
+<span class="fg-teal">4. Output logits</span>
+   <span class="fg-dim">→ probability over 50k vocab tokens</span>
+
+<span class="fg-teal">5. Sample next token</span>
+   <span class="fg-dim">→ "PayPal" | "The" | "Refunds" ...</span>
+
+<span class="fg-dim">→ repeat until [EOS] token</span></div>
+  </div>
+</div>
+
+<h3 class="section"><span class="num">1.3</span> Popular LLMs Compared</h3>
+<div class="tbl-wrap">
+<table>
+  <thead><tr><th>Model</th><th>Maker</th><th>Context</th><th>Strengths</th><th>Best For</th></tr></thead>
+  <tbody>
+    <tr><td><strong>GPT-4o</strong></td><td>OpenAI</td><td>128k</td><td>Multimodal, tool use</td><td>General-purpose production</td></tr>
+    <tr><td><strong>Claude 3.5 Sonnet</strong></td><td>Anthropic</td><td>200k</td><td>Long context, coding, analysis</td><td>Documents, code generation</td></tr>
+    <tr><td><strong>Gemini 1.5 Pro</strong></td><td>Google</td><td>1M</td><td>Massive context, multimodal</td><td>Entire codebases in context</td></tr>
+    <tr><td><strong>Llama 3.1 70B</strong></td><td>Meta</td><td>128k</td><td>Open weights, self-hostable</td><td>Privacy-first, on-premise</td></tr>
+    <tr><td><strong>Mistral 7B</strong></td><td>Mistral</td><td>32k</td><td>Fast, small, efficient</td><td>Edge deployment, low cost</td></tr>
+    <tr><td><strong>Mixtral 8x7B</strong></td><td>Mistral</td><td>32k</td><td>MoE architecture, great quality/cost</td><td>Mid-tier production</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h3 class="section"><span class="num">1.4</span> LLM Limitations (Why RAG Exists)</h3>
+<div class="grid-3">
+  <div class="card coral">
+    <h4>🧊 Stale Knowledge</h4>
+    <p>Training data has a cutoff. Cannot answer about events after that date.</p>
+  </div>
+  <div class="card coral">
+    <h4>🎭 Hallucination</h4>
+    <p>Generates plausible-sounding but factually wrong answers with full confidence.</p>
+  </div>
+  <div class="card coral">
+    <h4>🔒 No Private Data</h4>
+    <p>Knows nothing about your company docs, internal systems, or proprietary databases.</p>
+  </div>
+</div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     CH 2 — EMBEDDINGS
+════════════════════════════════════════════════════════ -->
+<div id="embeddings">
+<div class="chapter">
+  <span class="chapter-num teal">Chapter 02</span>
+  <h2>Embeddings — Meaning as Numbers</h2>
+</div>
+
+<div class="analogy">
+  <div class="label">Plain English Analogy</div>
+  <p>An embedding converts text into coordinates on a map. Similar texts live close together. "Dog" and "puppy" are neighbors. "Dog" and "refund policy" are far apart. Vector search finds the closest neighbors to your question.</p>
+</div>
+
+<h3 class="section"><span class="num">2.1</span> What is an Embedding?</h3>
+<div class="grid-2">
+  <div class="card teal">
+    <h4>Definition</h4>
+    <p>A dense numerical vector (list of floats) that captures semantic meaning. Two texts with similar meaning produce vectors that are close in high-dimensional space.</p>
+    <ul>
+      <li>text-embedding-3-small: 1536 dimensions</li>
+      <li>sentence-transformers: 384–768 dims</li>
+      <li>Cohere embed-v3: 1024 dims</li>
+    </ul>
+  </div>
+  <div>
+<div class="flow"><span class="fg-teal">Embedding Example</span>
+
+<span class="fg-amber">"PayPal refund takes 3 days"</span>
+   <span class="fg-dim">→ embed →</span> <span class="fg-text">[0.12, -0.87, 0.43, 0.91, ...]</span>
+                        <span class="fg-dim">(1536 floats)</span>
+
+<span class="fg-amber">"How long does a PayPal dispute take?"</span>
+   <span class="fg-dim">→ embed →</span> <span class="fg-text">[0.11, -0.84, 0.45, 0.89, ...]</span>
+                        <span class="fg-dim">(nearby! cosine sim ≈ 0.94)</span>
+
+<span class="fg-amber">"Best pizza in Fort Worth"</span>
+   <span class="fg-dim">→ embed →</span> <span class="fg-text">[0.72,  0.31, -0.52, 0.04, ...]</span>
+                        <span class="fg-dim">(far away — cosine sim ≈ 0.07)</span></div>
+  </div>
+</div>
+
+<h3 class="section"><span class="num">2.2</span> Similarity Metrics</h3>
+<div class="tbl-wrap">
+<table>
+  <thead><tr><th>Metric</th><th>Formula</th><th>Range</th><th>Best When</th></tr></thead>
+  <tbody>
+    <tr><td><span class="tag green">Cosine Similarity</span></td><td>cos(θ) = A·B / (|A||B|)</td><td>-1 to 1</td><td>Most common — direction matters, not magnitude</td></tr>
+    <tr><td><span class="tag purple">Dot Product</span></td><td>A · B = Σ aᵢbᵢ</td><td>-∞ to ∞</td><td>When vectors are normalized (equals cosine)</td></tr>
+    <tr><td><span class="tag amber">Euclidean (L2)</span></td><td>√Σ(aᵢ-bᵢ)²</td><td>0 to ∞</td><td>When absolute position matters</td></tr>
+    <tr><td><span class="tag red">Manhattan (L1)</span></td><td>Σ|aᵢ-bᵢ|</td><td>0 to ∞</td><td>Sparse vectors, outlier-robust</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h3 class="section"><span class="num">2.3</span> Embedding Models</h3>
+<pre><span class="lang">python</span><span class="c"># OpenAI — most popular, closed source</span>
+<span class="k">from</span> openai <span class="k">import</span> OpenAI
+client = OpenAI()
+response = client.<span class="f">embeddings.create</span>(
+    input=<span class="s">"PayPal dispute resolution policy"</span>,
+    model=<span class="s">"text-embedding-3-small"</span>  <span class="c"># 1536 dims, $0.02 / 1M tokens</span>
+)
+vector = response.data[<span class="n">0</span>].embedding  <span class="c"># list of 1536 floats</span>
+
+<span class="c"># HuggingFace sentence-transformers — free, local</span>
+<span class="k">from</span> sentence_transformers <span class="k">import</span> SentenceTransformer
+model = SentenceTransformer(<span class="s">'all-MiniLM-L6-v2'</span>)  <span class="c"># 384 dims, fast</span>
+vectors = model.<span class="f">encode</span>([<span class="s">"sentence one"</span>, <span class="s">"sentence two"</span>])
+
+<span class="c"># Cohere — great multilingual support</span>
+<span class="k">import</span> cohere
+co = cohere.<span class="f">Client</span>(<span class="s">"API_KEY"</span>)
+response = co.<span class="f">embed</span>(
+    texts=[<span class="s">"your text here"</span>],
+    model=<span class="s">"embed-english-v3.0"</span>,
+    input_type=<span class="s">"search_document"</span>  <span class="c"># or "search_query"</span>
+)</pre>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     CH 3 — VECTOR DATABASE
+════════════════════════════════════════════════════════ -->
+<div id="vectordb">
+<div class="chapter">
+  <span class="chapter-num coral">Chapter 03</span>
+  <h2>Vector Databases</h2>
+</div>
+
+<div class="analogy">
+  <div class="label">Plain English Analogy</div>
+  <p>A vector database is like a library that doesn't organize books alphabetically — it organizes them by vibe. Ask "give me something similar to Harry Potter" and it returns all the fantasy adventure books nearby, even if they have completely different titles.</p>
+</div>
+
+<h3 class="section"><span class="num">3.1</span> How ANN Search Works</h3>
+<div class="flow"><span class="fg-coral">APPROXIMATE NEAREST NEIGHBOR (ANN)</span>
+
+  <span class="fg-dim">Brute force O(n·d) too slow at millions of vectors</span>
+  <span class="fg-dim">ANN trades tiny accuracy loss for massive speed gain</span>
+
+<span class="fg-teal">HNSW</span> (Hierarchical Navigable Small World)  ← most popular
+  <span class="fg-dim">→ builds a graph of vectors at multiple zoom levels</span>
+  <span class="fg-dim">→ navigates from coarse layer to fine layer to find neighbors</span>
+  <span class="fg-dim">→ O(log n) query time</span>  <span class="fg-amber">Pinecone, Weaviate, Qdrant use this</span>
+
+<span class="fg-teal">IVF</span> (Inverted File Index)
+  <span class="fg-dim">→ clusters vectors with k-means, searches only relevant clusters</span>
+  <span class="fg-dim">→ good for very large datasets (1B+ vectors)</span>
+
+<span class="fg-teal">LSH</span> (Locality Sensitive Hashing)
+  <span class="fg-dim">→ hashes similar vectors to same bucket</span>
+  <span class="fg-dim">→ fast but lower recall</span></div>
+
+<h3 class="section"><span class="num">3.2</span> Vector Database Comparison</h3>
+<div class="tbl-wrap">
+<table>
+  <thead><tr><th>Database</th><th>Type</th><th>Best For</th><th>Filters</th><th>Scale</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>Pinecone</strong></td>
+      <td><span class="tag purple">Managed Cloud</span></td>
+      <td>Production, fast setup, serverless</td>
+      <td>Metadata filters</td>
+      <td>Billions of vectors</td>
+    </tr>
+    <tr>
+      <td><strong>Weaviate</strong></td>
+      <td><span class="tag green">Open Source</span></td>
+      <td>Hybrid search, GraphQL API, self-host</td>
+      <td>BM25 + vector hybrid</td>
+      <td>100M+</td>
+    </tr>
+    <tr>
+      <td><strong>Qdrant</strong></td>
+      <td><span class="tag green">Open Source</span></td>
+      <td>High perf, Rust-based, payload filtering</td>
+      <td>Rich structured filters</td>
+      <td>100M+</td>
+    </tr>
+    <tr>
+      <td><strong>ChromaDB</strong></td>
+      <td><span class="tag green">Open Source</span></td>
+      <td>Local dev, prototyping, embedded mode</td>
+      <td>Basic where filters</td>
+      <td>&lt;10M (dev)</td>
+    </tr>
+    <tr>
+      <td><strong>pgvector</strong></td>
+      <td><span class="tag amber">Extension</span></td>
+      <td>Already use PostgreSQL, SQL + vectors</td>
+      <td>Full SQL WHERE</td>
+      <td>10M–50M</td>
+    </tr>
+    <tr>
+      <td><strong>FAISS</strong></td>
+      <td><span class="tag purple">Library</span></td>
+      <td>Research, offline batch, custom infra</td>
+      <td>None (build own)</td>
+      <td>Billions (GPU)</td>
+    </tr>
+    <tr>
+      <td><strong>Milvus</strong></td>
+      <td><span class="tag green">Open Source</span></td>
+      <td>Enterprise scale, Kubernetes native</td>
+      <td>Scalar + vector</td>
+      <td>Billions</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<h3 class="section"><span class="num">3.3</span> Code — ChromaDB (Local Dev)</h3>
+<pre><span class="lang">python · chromadb</span><span class="k">import</span> chromadb
+
+client = chromadb.<span class="f">Client</span>()
+collection = client.<span class="f">create_collection</span>(<span class="s">"paypal_docs"</span>)
+
+<span class="c"># Store documents (auto-embeds with default model)</span>
+collection.<span class="f">add</span>(
+    documents=[
+        <span class="s">"PayPal refunds are processed in 3-5 business days."</span>,
+        <span class="s">"Disputes must be filed within 180 days of the transaction."</span>,
+        <span class="s">"Seller protection covers eligible unauthorized transactions."</span>
+    ],
+    ids=[<span class="s">"doc1"</span>, <span class="s">"doc2"</span>, <span class="s">"doc3"</span>],
+    metadatas=[
+        {<span class="s">"source"</span>:<span class="s">"refunds.pdf"</span>, <span class="s">"page"</span>:<span class="n">3</span>},
+        {<span class="s">"source"</span>:<span class="s">"disputes.pdf"</span>, <span class="s">"page"</span>:<span class="n">1</span>},
+        {<span class="s">"source"</span>:<span class="s">"seller.pdf"</span>,  <span class="s">"page"</span>:<span class="n">7</span>},
+    ]
+)
+
+<span class="c"># Query: semantic search</span>
+results = collection.<span class="f">query</span>(
+    query_texts=[<span class="s">"How long does a refund take?"</span>],
+    n_results=<span class="n">2</span>,
+    where={<span class="s">"source"</span>: <span class="s">"refunds.pdf"</span>}  <span class="c"># optional metadata filter</span>
+)
+<span class="f">print</span>(results[<span class="s">'documents'</span>])  <span class="c"># top 2 matching chunks</span></pre>
+
+<h3 class="section"><span class="num">3.4</span> Code — Pinecone (Production)</h3>
+<pre><span class="lang">python · pinecone</span><span class="k">from</span> pinecone <span class="k">import</span> Pinecone, ServerlessSpec
+<span class="k">from</span> openai <span class="k">import</span> OpenAI
+
+pc = <span class="f">Pinecone</span>(api_key=<span class="s">"YOUR_KEY"</span>)
+openai_client = <span class="f">OpenAI</span>()
+
+<span class="c"># Create index (1536 dims for text-embedding-3-small)</span>
+pc.<span class="f">create_index</span>(
+    name=<span class="s">"paypal-knowledge"</span>,
+    dimension=<span class="n">1536</span>,
+    metric=<span class="s">"cosine"</span>,
+    spec=<span class="f">ServerlessSpec</span>(cloud=<span class="s">"aws"</span>, region=<span class="s">"us-east-1"</span>)
+)
+index = pc.<span class="f">Index</span>(<span class="s">"paypal-knowledge"</span>)
+
+<span class="c"># Embed and upsert</span>
+<span class="k">def</span> <span class="f">embed</span>(text):
+    <span class="k">return</span> openai_client.embeddings.<span class="f">create</span>(
+        input=text, model=<span class="s">"text-embedding-3-small"</span>
+    ).data[<span class="n">0</span>].embedding
+
+index.<span class="f">upsert</span>(vectors=[
+    {<span class="s">"id"</span>: <span class="s">"doc1"</span>, <span class="s">"values"</span>: <span class="f">embed</span>(<span class="s">"PayPal refunds..."</span>),
+     <span class="s">"metadata"</span>: {<span class="s">"text"</span>: <span class="s">"PayPal refunds..."</span>, <span class="s">"source"</span>: <span class="s">"refunds.pdf"</span>}},
+])
+
+<span class="c"># Query</span>
+query_vec = <span class="f">embed</span>(<span class="s">"How long does a PayPal refund take?"</span>)
+results = index.<span class="f">query</span>(vector=query_vec, top_k=<span class="n">3</span>, include_metadata=<span class="k">True</span>)
+<span class="k">for</span> match <span class="k">in</span> results.matches:
+    <span class="f">print</span>(match.score, match.metadata[<span class="s">"text"</span>])</pre>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     CH 4 — RAG
+════════════════════════════════════════════════════════ -->
+<div id="rag">
+<div class="chapter">
+  <span class="chapter-num amber">Chapter 04</span>
+  <h2>RAG — Retrieval-Augmented Generation</h2>
+</div>
+
+<div class="analogy">
+  <div class="label">Plain English Analogy</div>
+  <p>RAG is an open-book exam. The LLM (student) no longer has to rely purely on memory. Before answering, it looks up relevant pages from a knowledge base (the book), then writes an answer grounded in real text.</p>
+</div>
+
+<h3 class="section"><span class="num">4.1</span> The RAG Architecture</h3>
+<div class="diagram-card">
+<h4>End-to-end RAG Flow</h4>
+<div class="flow"><span class="fg-dim">═══ INDEXING PHASE (offline, one-time) ══════════════════════</span>
+
+  <span class="fg-amber">📄 Source Documents</span>
+         │
+         ▼
+  <span class="fg-teal">[Chunking]</span>          Split text into overlapping segments
+         │
+         ▼
+  <span class="fg-teal">[Embedding Model]</span>   Convert each chunk → dense vector
+         │
+         ▼
+  <span class="fg-teal">[Vector Database]</span>   Store vectors + original text + metadata
+
+<span class="fg-dim">═══ QUERY PHASE (real-time, per request) ════════════════════</span>
+
+  <span class="fg-purple">❓ User Question</span>
+         │
+         ▼
+  <span class="fg-teal">[Same Embedding Model]</span>   Embed the question → query vector
+         │
+         ▼
+  <span class="fg-teal">[ANN Search]</span>             Find top-K similar chunks in VectorDB
+         │
+         ▼
+  <span class="fg-teal">[Context Assembly]</span>       Format retrieved chunks into a prompt
+         │
+         ▼
+  <span class="fg-purple">🤖 LLM</span>                   Generate grounded answer from context
+         │
+         ▼
+  <span class="fg-amber">✅ Answer + Sources</span></div>
+</div>
+
+<h3 class="section"><span class="num">4.2</span> Minimal RAG in 30 Lines</h3>
+<pre><span class="lang">python · langchain + openai + chromadb</span><span class="k">from</span> langchain.document_loaders <span class="k">import</span> PyPDFLoader
+<span class="k">from</span> langchain.text_splitter <span class="k">import</span> RecursiveCharacterTextSplitter
+<span class="k">from</span> langchain.embeddings <span class="k">import</span> OpenAIEmbeddings
+<span class="k">from</span> langchain.vectorstores <span class="k">import</span> Chroma
+<span class="k">from</span> langchain.chat_models <span class="k">import</span> ChatOpenAI
+<span class="k">from</span> langchain.chains <span class="k">import</span> RetrievalQA
+
+<span class="c"># 1. Load document</span>
+loader = <span class="f">PyPDFLoader</span>(<span class="s">"paypal_policy.pdf"</span>)
+docs = loader.<span class="f">load</span>()
+
+<span class="c"># 2. Split into chunks</span>
+splitter = <span class="f">RecursiveCharacterTextSplitter</span>(
+    chunk_size=<span class="n">1000</span>, chunk_overlap=<span class="n">200</span>
+)
+chunks = splitter.<span class="f">split_documents</span>(docs)
+
+<span class="c"># 3. Embed + store</span>
+vectordb = Chroma.<span class="f">from_documents</span>(
+    chunks,
+    embedding=<span class="f">OpenAIEmbeddings</span>(),
+    persist_directory=<span class="s">"./chroma_db"</span>
+)
+
+<span class="c"># 4. Build RAG chain</span>
+qa = RetrievalQA.<span class="f">from_chain_type</span>(
+    llm=<span class="f">ChatOpenAI</span>(model=<span class="s">"gpt-4o"</span>, temperature=<span class="n">0</span>),
+    retriever=vectordb.<span class="f">as_retriever</span>(search_kwargs={<span class="s">"k"</span>: <span class="n">4</span>}),
+    return_source_documents=<span class="k">True</span>
+)
+
+<span class="c"># 5. Query</span>
+result = qa.<span class="f">invoke</span>(<span class="s">"What is PayPal's refund timeline?"</span>)
+<span class="f">print</span>(result[<span class="s">"result"</span>])       <span class="c"># LLM answer</span>
+<span class="f">print</span>(result[<span class="s">"source_documents"</span>])  <span class="c"># chunks used</span></pre>
+
+<h3 class="section"><span class="num">4.3</span> RAG vs Alternatives</h3>
+<div class="tbl-wrap">
+<table>
+  <thead><tr><th>Approach</th><th>How</th><th>Cost</th><th>Fresh Data</th><th>Best For</th></tr></thead>
+  <tbody>
+    <tr><td><span class="tag green">RAG</span></td><td>Retrieve at query time</td><td>Low</td><td>✅ Yes</td><td>Most document QA use cases</td></tr>
+    <tr><td><span class="tag purple">Fine-tuning</span></td><td>Retrain model weights</td><td>Very High</td><td>❌ No</td><td>Style/behavior adaptation</td></tr>
+    <tr><td><span class="tag amber">Long Context</span></td><td>Stuff all docs in prompt</td><td>Medium</td><td>✅ Yes</td><td>Small corpora (&lt;200k tokens)</td></tr>
+    <tr><td><span class="tag red">Prompt Engineering</span></td><td>Craft better instructions</td><td>Free</td><td>❌ No</td><td>Quick wins, known data</td></tr>
+    <tr><td><span class="tag green">Hybrid RAG + FT</span></td><td>Both combined</td><td>High</td><td>✅ Yes</td><td>Best results, enterprise</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h3 class="section"><span class="num">4.4</span> Advanced RAG Techniques</h3>
+<div class="grid-3">
+  <div class="card teal">
+    <h4>Hybrid Search</h4>
+    <p>Combine BM25 keyword search + vector search. Re-rank with RRF (Reciprocal Rank Fusion). Catches exact matches that semantic search misses.</p>
+  </div>
+  <div class="card purple">
+    <h4>HyDE</h4>
+    <p>Hypothetical Document Embeddings. Ask LLM to generate a hypothetical answer, embed that, use it as the query vector. Better for abstract questions.</p>
+  </div>
+  <div class="card coral">
+    <h4>Multi-Query Retrieval</h4>
+    <p>Generate 3–5 paraphrases of the query. Retrieve for each. Deduplicate results. Reduces sensitivity to exact phrasing.</p>
+  </div>
+  <div class="card amber">
+    <h4>Re-ranking</h4>
+    <p>Use a cross-encoder (Cohere Rerank, BGE reranker) to re-score the top-K results. Cross-encoders see both query + doc together.</p>
+  </div>
+  <div class="card teal">
+    <h4>Parent-Child Chunking</h4>
+    <p>Retrieve small child chunks for precision, but return their parent chunk for context. Best of both worlds.</p>
+  </div>
+  <div class="card purple">
+    <h4>Self-RAG</h4>
+    <p>Model decides whether to retrieve at all. Generates reflection tokens like [Retrieve], [Relevant], [Supported] to guide the process.</p>
+  </div>
+</div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     CH 5 — PIPELINES
+════════════════════════════════════════════════════════ -->
+<div id="pipelines">
+<div class="chapter">
+  <span class="chapter-num">Chapter 05</span>
+  <h2>Pipelines — Connecting the Pieces</h2>
+</div>
+
+<h3 class="section"><span class="num">5.1</span> LangChain LCEL Pipeline</h3>
+<pre><span class="lang">python · langchain expression language (LCEL)</span><span class="k">from</span> langchain.schema.runnable <span class="k">import</span> RunnablePassthrough
+<span class="k">from</span> langchain.prompts <span class="k">import</span> ChatPromptTemplate
+<span class="k">from</span> langchain.chat_models <span class="k">import</span> ChatOpenAI
+<span class="k">from</span> langchain.embeddings <span class="k">import</span> OpenAIEmbeddings
+<span class="k">from</span> langchain.vectorstores <span class="k">import</span> Qdrant
+
+<span class="c"># Setup</span>
+vectorstore = Qdrant.<span class="f">from_existing_collection</span>(
+    embedding=<span class="f">OpenAIEmbeddings</span>(), collection_name=<span class="s">"paypal_docs"</span>
+)
+retriever = vectorstore.<span class="f">as_retriever</span>(search_kwargs={<span class="s">"k"</span>: <span class="n">5</span>})
+
+<span class="c"># Prompt template</span>
+prompt = ChatPromptTemplate.<span class="f">from_template</span>(<span class="s">"""
+You are a PayPal support agent. Use only the context below.
+If the answer is not in context, say "I don't have that info."
+
+Context:
+{context}
+
+Question: {question}
+Answer:"""</span>)
+
+<span class="c"># LCEL chain (pipe syntax)</span>
+chain = (
+    {<span class="s">"context"</span>: retriever | (<span class="k">lambda</span> docs: <span class="s">"\n\n"</span>.<span class="f">join</span>(d.page_content <span class="k">for</span> d <span class="k">in</span> docs)),
+     <span class="s">"question"</span>: RunnablePassthrough()}
+    | prompt
+    | <span class="f">ChatOpenAI</span>(model=<span class="s">"gpt-4o"</span>, temperature=<span class="n">0</span>)
+)
+
+response = chain.<span class="f">invoke</span>(<span class="s">"How do I dispute a charge?"</span>)
+<span class="f">print</span>(response.content)</pre>
+
+<h3 class="section"><span class="num">5.2</span> LlamaIndex Pipeline</h3>
+<pre><span class="lang">python · llamaindex</span><span class="k">from</span> llama_index.core <span class="k">import</span> VectorStoreIndex, SimpleDirectoryReader
+<span class="k">from</span> llama_index.core.node_parser <span class="k">import</span> SentenceSplitter
+<span class="k">from</span> llama_index.llms.openai <span class="k">import</span> OpenAI
+<span class="k">from</span> llama_index.embeddings.openai <span class="k">import</span> OpenAIEmbedding
+
+<span class="c"># Load all docs from folder</span>
+documents = SimpleDirectoryReader(<span class="s">"./policy_docs"</span>).<span class="f">load_data</span>()
+
+<span class="c"># Parse into nodes (chunks)</span>
+parser = <span class="f">SentenceSplitter</span>(chunk_size=<span class="n">1024</span>, chunk_overlap=<span class="n">64</span>)
+nodes = parser.<span class="f">get_nodes_from_documents</span>(documents)
+
+<span class="c"># Index</span>
+index = VectorStoreIndex.<span class="f">from_documents</span>(
+    documents,
+    transformations=[parser],
+    embed_model=<span class="f">OpenAIEmbedding</span>(model=<span class="s">"text-embedding-3-small"</span>)
+)
+
+<span class="c"># Query Engine</span>
+query_engine = index.<span class="f">as_query_engine</span>(
+    llm=<span class="f">OpenAI</span>(model=<span class="s">"gpt-4o"</span>),
+    similarity_top_k=<span class="n">4</span>,
+    streaming=<span class="k">True</span>
+)
+response = query_engine.<span class="f">query</span>(<span class="s">"What is seller protection?"</span>)
+response.<span class="f">print_response_stream</span>()</pre>
+
+<h3 class="section"><span class="num">5.3</span> Framework Comparison</h3>
+<div class="tbl-wrap">
+<table>
+  <thead><tr><th>Framework</th><th>Strengths</th><th>Weaknesses</th><th>Best For</th></tr></thead>
+  <tbody>
+    <tr><td><strong>LangChain</strong></td><td>Largest ecosystem, LCEL pipelines, massive community</td><td>Heavy, fast-changing API, over-abstracted</td><td>General RAG, agents, chains</td></tr>
+    <tr><td><strong>LlamaIndex</strong></td><td>Best for document indexing, metadata filters, query routing</td><td>Less flexible for custom pipelines</td><td>Document QA, complex indexes</td></tr>
+    <tr><td><strong>Haystack</strong></td><td>Production-focused, modular, great for enterprise</td><td>Steeper learning curve</td><td>Enterprise search pipelines</td></tr>
+    <tr><td><strong>Raw API</strong></td><td>Full control, no magic, debuggable</td><td>More boilerplate</td><td>Custom needs, learning</td></tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     CH 6 — CHUNKING
+════════════════════════════════════════════════════════ -->
+<div id="chunking">
+<div class="chapter">
+  <span class="chapter-num teal">Chapter 06</span>
+  <h2>Chunking Strategies</h2>
+</div>
+
+<div class="callout info">
+  <div class="icon">💡</div>
+  <p>Chunking is one of the most impactful decisions in RAG. Too small = lost context. Too large = noisy retrieval. The optimal chunk size depends on your documents and query type.</p>
+</div>
+
+<h3 class="section"><span class="num">6.1</span> Strategy Reference</h3>
+<div class="tbl-wrap">
+<table>
+  <thead><tr><th>Strategy</th><th>How It Works</th><th>Best For</th><th>Typical Size</th></tr></thead>
+  <tbody>
+    <tr><td><span class="tag purple">Fixed Size</span></td><td>Split every N chars with M char overlap</td><td>General use, fast to implement</td><td>500–1500 chars, 10–20% overlap</td></tr>
+    <tr><td><span class="tag green">Recursive</span></td><td>Try newline, sentence, word splits in order</td><td>Most text documents, default choice</td><td>1000 chars, 200 overlap</td></tr>
+    <tr><td><span class="tag amber">Semantic</span></td><td>Split when embedding similarity drops</td><td>Narratives, heterogeneous docs</td><td>Variable</td></tr>
+    <tr><td><span class="tag red">Sentence</span></td><td>Split at sentence boundaries (SpaCy/NLTK)</td><td>QA over factual text</td><td>3–10 sentences</td></tr>
+    <tr><td><span class="tag purple">Markdown/HTML</span></td><td>Split at headers, sections</td><td>Documentation, wikis, HTML pages</td><td>Per section</td></tr>
+    <tr><td><span class="tag green">Parent-Child</span></td><td>Small chunks for retrieval, large for context</td><td>Best accuracy + context balance</td><td>Child: 200, Parent: 1500</td></tr>
+    <tr><td><span class="tag amber">RAPTOR</span></td><td>Recursive tree — chunks → summaries → meta</td><td>Long documents, multi-level queries</td><td>Multi-level</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h3 class="section"><span class="num">6.2</span> Code — All Major Chunking Methods</h3>
+<pre><span class="lang">python · langchain text splitters</span><span class="k">from</span> langchain.text_splitter <span class="k">import</span> (
+    RecursiveCharacterTextSplitter,
+    CharacterTextSplitter,
+    MarkdownHeaderTextSplitter,
+    SentenceTransformersTokenTextSplitter,
+    HTMLHeaderTextSplitter
+)
+
+<span class="c"># ── Option 1: Recursive (recommended default) ──────────</span>
+splitter = <span class="f">RecursiveCharacterTextSplitter</span>(
+    chunk_size=<span class="n">1000</span>,
+    chunk_overlap=<span class="n">200</span>,
+    separators=[<span class="s">"\n\n"</span>, <span class="s">"\n"</span>, <span class="s">". "</span>, <span class="s">" "</span>, <span class="s">""</span>]  <span class="c"># tries each in order</span>
+)
+
+<span class="c"># ── Option 2: Markdown-aware ───────────────────────────</span>
+md_splitter = <span class="f">MarkdownHeaderTextSplitter</span>(headers_to_split_on=[
+    (<span class="s">"#"</span>,   <span class="s">"h1"</span>),
+    (<span class="s">"##"</span>,  <span class="s">"h2"</span>),
+    (<span class="s">"###"</span>, <span class="s">"h3"</span>)
+])
+chunks = md_splitter.<span class="f">split_text</span>(markdown_content)
+<span class="c"># Each chunk gets metadata: {"h1": "Refunds", "h2": "Timeline"}</span>
+
+<span class="c"># ── Option 3: Token-based ──────────────────────────────</span>
+tok_splitter = <span class="f">SentenceTransformersTokenTextSplitter</span>(
+    chunk_overlap=<span class="n">30</span>,   <span class="c"># tokens, not chars</span>
+    tokens_per_chunk=<span class="n">256</span>
+)
+
+<span class="c"># ── Option 4: HTML-aware ──────────────────────────────</span>
+html_splitter = <span class="f">HTMLHeaderTextSplitter</span>(headers_to_split_on=[
+    (<span class="s">"h1"</span>, <span class="s">"Header 1"</span>), (<span class="s">"h2"</span>, <span class="s">"Header 2"</span>)
+])</pre>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     CH 7 — ENHANCE LLMs
+════════════════════════════════════════════════════════ -->
+<div id="enhance">
+<div class="chapter">
+  <span class="chapter-num coral">Chapter 07</span>
+  <h2>Enhancing LLMs — Techniques</h2>
+</div>
+
+<h3 class="section"><span class="num">7.1</span> Prompt Engineering Techniques</h3>
+<div class="grid-2">
+  <div>
+    <div class="card purple">
+      <h4>Chain-of-Thought (CoT)</h4>
+      <p>Add "Think step by step" to your prompt. Dramatically improves reasoning on math, logic, multi-step problems. Activates internal scratchpad.</p>
+    </div>
+    <div style="height:10px"></div>
+    <div class="card teal">
+      <h4>Few-Shot Prompting</h4>
+      <p>Provide 2–5 examples of input → output in the prompt. The model pattern-matches to your examples. Best for formatting, classification, extraction.</p>
+    </div>
+    <div style="height:10px"></div>
+    <div class="card coral">
+      <h4>System Prompt Design</h4>
+      <p>Set role, constraints, output format, tone, and persona in the system message. Use XML tags to structure multi-part prompts. Be explicit, not implicit.</p>
+    </div>
+  </div>
+  <div>
+<pre><span class="lang">python · prompting patterns</span><span class="c"># Chain-of-Thought</span>
+prompt = <span class="s">"""
+You are a financial analyst. Think step by step,
+then provide your final answer labeled "Answer:".
+
+Q: Is this transaction pattern suspicious?
+Data: {transaction_data}
+"""</span>
+
+<span class="c"># Few-Shot Classification</span>
+prompt = <span class="s">"""
+Classify the support ticket intent:
+
+Ticket: "My refund hasn't arrived"
+Intent: REFUND_STATUS
+
+Ticket: "I can't log into my account"
+Intent: LOGIN_ISSUE
+
+Ticket: "{user_ticket}"
+Intent:"""</span>
+
+<span class="c"># Structured Output</span>
+prompt = <span class="s">"""
+Extract info from the ticket. 
+Respond ONLY as JSON:
+{
+  "intent": "...",
+  "urgency": "low|medium|high",
+  "account_mentioned": true|false
+}"""</span></pre>
+  </div>
+</div>
+
+<h3 class="section"><span class="num">7.2</span> Fine-Tuning</h3>
+<div class="callout warn">
+  <div class="icon">⚠️</div>
+  <p>Fine-tuning changes the model's weights permanently. Use it for style/behavior, not knowledge — it doesn't reliably inject new facts. Always try RAG and prompt engineering first.</p>
+</div>
+<div class="tbl-wrap">
+<table>
+  <thead><tr><th>Method</th><th>What Changes</th><th>Cost</th><th>When To Use</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Full Fine-Tune</strong></td><td>All parameters</td><td>Very High (GPU $$)</td><td>Domain-specific base model</td></tr>
+    <tr><td><strong>LoRA</strong></td><td>Low-rank adapter matrices</td><td>Low (fits on 1 GPU)</td><td>Most fine-tuning tasks</td></tr>
+    <tr><td><strong>QLoRA</strong></td><td>LoRA on quantized 4-bit model</td><td>Very Low (RTX 3090)</td><td>Consumer hardware fine-tuning</td></tr>
+    <tr><td><strong>RLHF</strong></td><td>Reward model + PPO</td><td>Very High</td><td>Alignment, helpfulness (OpenAI-style)</td></tr>
+    <tr><td><strong>DPO</strong></td><td>Direct pref optimization</td><td>Medium</td><td>Simpler RLHF alternative</td></tr>
+    <tr><td><strong>OpenAI Fine-tune</strong></td><td>GPT-3.5/4o weights (API)</td><td>$/$$ per token</td><td>Quick production fine-tune</td></tr>
+  </tbody>
+</table>
+</div>
+
+<pre><span class="lang">python · qlora fine-tuning with HuggingFace</span><span class="k">from</span> transformers <span class="k">import</span> AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
+<span class="k">from</span> peft <span class="k">import</span> LoraConfig, get_peft_model, TaskType
+<span class="k">from</span> trl <span class="k">import</span> SFTTrainer
+<span class="k">import</span> torch
+
+<span class="c"># 1. Load 4-bit quantized model (QLoRA)</span>
+bnb_config = <span class="f">BitsAndBytesConfig</span>(
+    load_in_4bit=<span class="k">True</span>,
+    bnb_4bit_compute_dtype=torch.bfloat16,
+    bnb_4bit_use_double_quant=<span class="k">True</span>
+)
+model = AutoModelForCausalLM.<span class="f">from_pretrained</span>(
+    <span class="s">"meta-llama/Llama-3.1-8B-Instruct"</span>,
+    quantization_config=bnb_config,
+    device_map=<span class="s">"auto"</span>
+)
+
+<span class="c"># 2. Add LoRA adapter</span>
+lora_config = <span class="f">LoraConfig</span>(
+    r=<span class="n">16</span>,              <span class="c"># rank — higher = more params, better quality</span>
+    lora_alpha=<span class="n">32</span>,
+    target_modules=[<span class="s">"q_proj"</span>, <span class="s">"v_proj"</span>],  <span class="c"># which layers to adapt</span>
+    lora_dropout=<span class="n">0.05</span>,
+    task_type=TaskType.CAUSAL_LM
+)
+model = <span class="f">get_peft_model</span>(model, lora_config)
+model.<span class="f">print_trainable_parameters</span>()  <span class="c"># usually ~1% of total params</span>
+
+<span class="c"># 3. Train with SFT Trainer</span>
+trainer = <span class="f">SFTTrainer</span>(
+    model=model, train_dataset=dataset,
+    dataset_text_field=<span class="s">"text"</span>, max_seq_length=<span class="n">2048</span>
+)
+trainer.<span class="f">train</span>()</pre>
+
+<h3 class="section"><span class="num">7.3</span> Agentic Patterns (Tool Use)</h3>
+<div class="grid-2">
+  <div class="card teal">
+    <h4>ReAct Pattern</h4>
+    <p>Reason → Act → Observe loop. LLM decides when to call a tool, reads the output, decides next step. Used in LangChain Agents, AutoGPT, etc.</p>
+  </div>
+  <div class="card purple">
+    <h4>Tool Calling (Function Calling)</h4>
+    <p>OpenAI/Anthropic native APIs let you define tools as JSON schemas. Model returns structured tool calls. You execute, return result, model continues.</p>
+  </div>
+</div>
+<pre><span class="lang">python · openai tool calling</span>tools = [{
+    <span class="s">"type"</span>: <span class="s">"function"</span>,
+    <span class="s">"function"</span>: {
+        <span class="s">"name"</span>: <span class="s">"search_paypal_docs"</span>,
+        <span class="s">"description"</span>: <span class="s">"Search PayPal policy documents"</span>,
+        <span class="s">"parameters"</span>: {
+            <span class="s">"type"</span>: <span class="s">"object"</span>,
+            <span class="s">"properties"</span>: {<span class="s">"query"</span>: {<span class="s">"type"</span>: <span class="s">"string"</span>}},
+            <span class="s">"required"</span>: [<span class="s">"query"</span>]
+        }
+    }
+}]
+
+response = client.chat.completions.<span class="f">create</span>(
+    model=<span class="s">"gpt-4o"</span>,
+    messages=[{<span class="s">"role"</span>: <span class="s">"user"</span>, <span class="s">"content"</span>: <span class="s">"What's the dispute window?"</span>}],
+    tools=tools,
+    tool_choice=<span class="s">"auto"</span>
+)
+
+<span class="c"># Model returns tool_call if it needs to search</span>
+<span class="k">if</span> response.choices[<span class="n">0</span>].message.tool_calls:
+    tool_call = response.choices[<span class="n">0</span>].message.tool_calls[<span class="n">0</span>]
+    query = tool_call.function.arguments  <span class="c"># JSON string</span>
+    <span class="c"># → call your vector search here</span>
+    <span class="c"># → send result back as tool message</span>
+    <span class="c"># → get final answer from model</span></pre>
+
+<h3 class="section"><span class="num">7.4</span> Guardrails &amp; Safety</h3>
+<div class="grid-3">
+  <div class="card coral">
+    <h4>Input Guardrails</h4>
+    <p>Classify / filter user input. Detect prompt injection, PII, jailbreak attempts before hitting the LLM.</p>
+  </div>
+  <div class="card coral">
+    <h4>Output Guardrails</h4>
+    <p>Validate LLM output before returning. Check for hallucinations, restricted topics, malformed JSON, PII leakage.</p>
+  </div>
+  <div class="card coral">
+    <h4>Libraries</h4>
+    <p><strong>Guardrails AI</strong> — schema validation. <strong>NeMo Guardrails</strong> — Nvidia's safety framework. <strong>Rebuff</strong> — prompt injection detection.</p>
+  </div>
+</div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     CH 8 — EVALUATION
+════════════════════════════════════════════════════════ -->
+<div id="eval">
+<div class="chapter">
+  <span class="chapter-num amber">Chapter 08</span>
+  <h2>Evaluation — Measuring Quality</h2>
+</div>
+
+<h3 class="section"><span class="num">8.1</span> RAG Evaluation Metrics</h3>
+<div class="tbl-wrap">
+<table>
+  <thead><tr><th>Metric</th><th>Measures</th><th>Formula / Method</th><th>Library</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Faithfulness</strong></td><td>Is the answer grounded in retrieved context?</td><td>LLM-as-judge: decompose claims, verify each vs context</td><td>RAGAS</td></tr>
+    <tr><td><strong>Answer Relevance</strong></td><td>Does answer address the question?</td><td>Cosine sim of answer embedding vs question</td><td>RAGAS</td></tr>
+    <tr><td><strong>Context Recall</strong></td><td>Were all needed chunks retrieved?</td><td>% of ground truth sentences found in context</td><td>RAGAS</td></tr>
+    <tr><td><strong>Context Precision</strong></td><td>Are retrieved chunks actually relevant?</td><td>% of retrieved chunks that are relevant</td><td>RAGAS</td></tr>
+    <tr><td><strong>MRR</strong></td><td>Rank of first relevant chunk</td><td>1 / rank of first relevant result</td><td>Custom</td></tr>
+    <tr><td><strong>BLEU / ROUGE</strong></td><td>Text overlap with reference</td><td>N-gram overlap (not ideal for RAG)</td><td>evaluate</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h3 class="section"><span class="num">8.2</span> RAGAS Evaluation</h3>
+<pre><span class="lang">python · ragas</span><span class="k">from</span> ragas <span class="k">import</span> evaluate
+<span class="k">from</span> ragas.metrics <span class="k">import</span> (
+    faithfulness,
+    answer_relevancy,
+    context_recall,
+    context_precision
+)
+<span class="k">from</span> datasets <span class="k">import</span> Dataset
+
+<span class="c"># Prepare eval dataset</span>
+eval_data = {
+    <span class="s">"question"</span>: [<span class="s">"What is the refund timeline?"</span>],
+    <span class="s">"answer"</span>: [<span class="s">"PayPal refunds take 3-5 business days."</span>],
+    <span class="s">"contexts"</span>: [[<span class="s">"Refunds are processed in 3-5 business days..."</span>]],
+    <span class="s">"ground_truth"</span>: [<span class="s">"3-5 business days"</span>]
+}
+dataset = Dataset.<span class="f">from_dict</span>(eval_data)
+
+<span class="c"># Run evaluation</span>
+results = <span class="f">evaluate</span>(
+    dataset=dataset,
+    metrics=[faithfulness, answer_relevancy, context_recall, context_precision]
+)
+<span class="f">print</span>(results.to_pandas())
+<span class="c"># faithfulness: 0.92  answer_relevancy: 0.88  context_recall: 0.95</span></pre>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     CH 9 — PRODUCTION PATTERNS
+════════════════════════════════════════════════════════ -->
+<div id="patterns">
+<div class="chapter">
+  <span class="chapter-num">Chapter 09</span>
+  <h2>Production Patterns</h2>
+</div>
+
+<h3 class="section"><span class="num">9.1</span> Full Production Stack</h3>
+<div class="flow"><span class="fg-purple">PRODUCTION RAG ARCHITECTURE</span>
+
+  <span class="fg-dim">User</span>
+    │
+    ▼
+  <span class="fg-teal">API Gateway</span>          Rate limiting, auth, logging
+    │
+    ▼
+  <span class="fg-teal">Input Guardrails</span>     PII detection, injection check
+    │
+    ├─────────────────────────────────────────────┐
+    ▼                                             ▼
+  <span class="fg-purple">Cache Layer</span>          Redis / semantic cache   <span class="fg-purple">Query Router</span>   classify intent
+    │  (hit → return)                            │
+    │                                            ▼
+    │                                  <span class="fg-teal">Query Transform</span>    HyDE / multi-query
+    │                                            │
+    │                                            ▼
+    │                                  <span class="fg-teal">Hybrid Retrieval</span>  vector + BM25
+    │                                            │
+    │                                            ▼
+    │                                  <span class="fg-teal">Reranker</span>          cross-encoder
+    │                                            │
+    └────────────────────────┬───────────────────┘
+                             ▼
+                   <span class="fg-amber">Context Assembly</span>        pack top-K chunks
+                             │
+                             ▼
+                   <span class="fg-amber">LLM Generation</span>          streaming response
+                             │
+                             ▼
+                   <span class="fg-teal">Output Guardrails</span>       hallucination check
+                             │
+                             ▼
+                   <span class="fg-teal">Observability</span>           log trace + eval
+                             │
+                             ▼
+                   <span class="fg-dim">User ✅</span></div>
+
+<h3 class="section"><span class="num">9.2</span> Semantic Caching</h3>
+<pre><span class="lang">python · semantic cache with redis + langchain</span><span class="k">from</span> langchain.cache <span class="k">import</span> RedisSemanticCache
+<span class="k">from</span> langchain.globals <span class="k">import</span> set_llm_cache
+<span class="k">from</span> langchain.embeddings <span class="k">import</span> OpenAIEmbeddings
+<span class="k">import</span> langchain
+
+<span class="c"># Semantic cache — cache answers to similar questions</span>
+<span class="c"># "What's the refund time?" ≈ "How long do refunds take?"</span>
+<span class="f">set_llm_cache</span>(<span class="f">RedisSemanticCache</span>(
+    redis_url=<span class="s">"redis://localhost:6379"</span>,
+    embedding=<span class="f">OpenAIEmbeddings</span>(),
+    score_threshold=<span class="n">0.1</span>   <span class="c"># lower = stricter match required</span>
+))
+
+<span class="c"># All LLM calls now check cache first</span>
+<span class="c"># Saves cost + latency on repeated/similar questions</span></pre>
+
+<h3 class="section"><span class="num">9.3</span> Observability Stack</h3>
+<div class="grid-3">
+  <div class="card purple">
+    <h4>LangSmith</h4>
+    <p>LangChain's tracing platform. See every prompt, retrieval step, LLM call, and latency. Free tier available.</p>
+  </div>
+  <div class="card teal">
+    <h4>Langfuse</h4>
+    <p>Open source LLM observability. Traces, scores, evals, cost tracking. Self-hostable.</p>
+  </div>
+  <div class="card coral">
+    <h4>Arize / Phoenix</h4>
+    <p>ML observability for LLMs. Drift detection, embedding clustering, RAG trace analysis.</p>
+  </div>
+</div>
+
+<h3 class="section"><span class="num">9.4</span> Cost Optimization Tips</h3>
+<div class="grid-2">
+  <div class="card amber">
+    <h4>📦 Reduce Token Usage</h4>
+    <ul>
+      <li>Compress context: summarize chunks before injecting</li>
+      <li>Use smaller models for classification tasks</li>
+      <li>Limit K in retrieval (4 chunks often beats 10)</li>
+      <li>Cache repeated queries semantically</li>
+    </ul>
+  </div>
+  <div class="card amber">
+    <h4>⚡ Reduce Latency</h4>
+    <ul>
+      <li>Stream responses (first-token latency matters)</li>
+      <li>Parallelize retrieval + pre-processing</li>
+      <li>Use local embedding models (no network hop)</li>
+      <li>Async Python (httpx, asyncio) end-to-end</li>
+    </ul>
+  </div>
+</div>
+
+<h3 class="section"><span class="num">9.5</span> Decision Cheat Sheet</h3>
+<div class="tbl-wrap">
+<table>
+  <thead><tr><th>Problem</th><th>Solution</th></tr></thead>
+  <tbody>
+    <tr><td>LLM doesn't know my company docs</td><td><span class="tag green">RAG with VectorDB</span></td></tr>
+    <tr><td>LLM gives wrong answers on specific domain</td><td><span class="tag purple">Fine-tuning (LoRA/QLoRA)</span></td></tr>
+    <tr><td>LLM format is wrong (JSON/XML)</td><td><span class="tag amber">Few-shot prompting + output parsing</span></td></tr>
+    <tr><td>LLM needs to call APIs / search web</td><td><span class="tag green">Tool use / function calling</span></td></tr>
+    <tr><td>LLM response is too slow</td><td><span class="tag amber">Semantic cache + streaming + smaller model</span></td></tr>
+    <tr><td>LLM hallucinates too much</td><td><span class="tag green">RAG + faithfulness guardrails + temperature=0</span></td></tr>
+    <tr><td>LLM misses recent events</td><td><span class="tag purple">RAG with fresh index + web search tool</span></td></tr>
+    <tr><td>Need multi-step reasoning</td><td><span class="tag red">Chain-of-Thought + ReAct agents</span></td></tr>
+    <tr><td>LLM too expensive</td><td><span class="tag amber">Cache + smaller models + prompt compression</span></td></tr>
+    <tr><td>Need open-source / on-premise</td><td><span class="tag purple">Llama 3.1 + Ollama + pgvector</span></td></tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+<!-- ═══ FOOTER ═══ -->
+<footer>
+  <p>RAG · LLM · VectorDB · Complete Guide · Built with ♥ for deep learning</p>
+</footer>
+
+</div><!-- .wrap -->
+
+<script>
+// Smooth scroll for TOC buttons
+document.querySelectorAll('a.toc-btn').forEach(a => {
+  a.addEventListener('click', e => {
+    e.preventDefault();
+    const id = a.getAttribute('href').slice(1);
+    document.getElementById(id)?.scrollIntoView({behavior:'smooth'});
+  });
+});
+</script>
+</body>
+</html>
