@@ -1,0 +1,1342 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Data Pipelines · Cleanup · LLM Feeding — Complete Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0b0d12;
+  --bg-2:#11151c;
+  --surface:#161b24;
+  --surface-2:#1c222c;
+  --border:#262d3a;
+  --border-soft:#1f2530;
+  --text:#e6e9ef;
+  --text-dim:#9aa3b2;
+  --text-mute:#6b7385;
+  --teal:#1D9E75;
+  --teal-2:#28c595;
+  --purple:#7F77DD;
+  --coral:#D85A30;
+  --amber:#BA7517;
+  --amber-2:#e0a64a;
+  --blue:#4a9eff;
+  --code-bg:#0e1218;
+  --code-key:#7F77DD;
+  --code-fn:#28c595;
+  --code-str:#e0a64a;
+  --code-num:#D85A30;
+  --code-com:#5b6477;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:
+    radial-gradient(1200px 600px at 10% -10%,rgba(127,119,221,.10),transparent 60%),
+    radial-gradient(900px 500px at 110% 10%,rgba(29,158,117,.08),transparent 60%),
+    var(--bg);
+  color:var(--text);
+  font-family:'Manrope',sans-serif;
+  font-size:14px;
+  line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1300px;margin:0 auto;padding:48px 28px 80px}
+
+/* HEADER */
+header.top{
+  display:flex;align-items:flex-end;justify-content:space-between;
+  border-bottom:1px solid var(--border);
+  padding-bottom:28px;margin-bottom:44px;gap:20px;flex-wrap:wrap;
+}
+.header-left h1{
+  font-family:'Instrument Serif',serif;
+  font-size:clamp(26px,4vw,44px);
+  font-weight:400;line-height:1.1;margin:0 0 8px;letter-spacing:-.02em;
+}
+.header-left h1 em{
+  font-style:italic;
+  background:linear-gradient(120deg,var(--teal-2),var(--blue));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.header-left p{color:var(--text-dim);font-size:13.5px;margin:0;max-width:580px;line-height:1.6;}
+.header-right{display:flex;flex-direction:column;align-items:flex-end;gap:8px;}
+.badge{
+  font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.1em;
+  text-transform:uppercase;padding:4px 10px;border-radius:3px;
+  border:1px solid var(--border);color:var(--text-mute);
+}
+
+/* TOC */
+.toc-bar{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:40px;}
+.toc-btn{
+  padding:6px 14px;border-radius:4px;border:1px solid var(--border);
+  background:var(--surface);color:var(--text-dim);font-size:11.5px;
+  font-family:'Manrope',sans-serif;cursor:pointer;transition:all .18s;text-decoration:none;
+}
+.toc-btn:hover{border-color:var(--teal);color:var(--teal-2);}
+.toc-btn.teal{border-color:rgba(29,158,117,.3);color:var(--teal-2);background:rgba(29,158,117,.06);}
+.toc-btn.purple{border-color:rgba(127,119,221,.3);color:var(--purple);background:rgba(127,119,221,.06);}
+.toc-btn.coral{border-color:rgba(216,90,48,.3);color:var(--coral);background:rgba(216,90,48,.06);}
+.toc-btn.amber{border-color:rgba(224,166,74,.3);color:var(--amber-2);background:rgba(186,117,23,.06);}
+.toc-btn.blue{border-color:rgba(74,158,255,.3);color:var(--blue);background:rgba(74,158,255,.06);}
+
+/* CHAPTER */
+.chapter{
+  display:flex;align-items:center;gap:14px;
+  margin:52px 0 20px;padding-bottom:14px;
+  border-bottom:1px solid var(--border-soft);
+}
+.chapter-num{
+  font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.12em;
+  text-transform:uppercase;padding:3px 10px;border-radius:3px;
+  background:rgba(127,119,221,.12);color:var(--purple);border:1px solid rgba(127,119,221,.25);
+  white-space:nowrap;
+}
+.chapter-num.teal{background:rgba(29,158,117,.1);color:var(--teal-2);border-color:rgba(29,158,117,.25);}
+.chapter-num.coral{background:rgba(216,90,48,.1);color:var(--coral);border-color:rgba(216,90,48,.25);}
+.chapter-num.amber{background:rgba(224,166,74,.1);color:var(--amber-2);border-color:rgba(224,166,74,.25);}
+.chapter-num.blue{background:rgba(74,158,255,.1);color:var(--blue);border-color:rgba(74,158,255,.25);}
+.chapter h2{
+  font-family:'Instrument Serif',serif;font-weight:400;
+  font-size:clamp(18px,2.5vw,26px);margin:0;letter-spacing:-.01em;
+}
+
+/* SECTION */
+h3.section{
+  font-family:'Manrope',sans-serif;font-weight:700;font-size:12px;
+  letter-spacing:.09em;text-transform:uppercase;color:var(--text-dim);
+  margin:28px 0 10px;display:flex;align-items:center;gap:8px;
+}
+h3.section .num{
+  font-family:'JetBrains Mono',monospace;font-size:10px;
+  color:var(--text-mute);letter-spacing:.08em;
+}
+
+/* GRIDS */
+.grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(360px,1fr));gap:16px;margin-bottom:16px;}
+.grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px;margin-bottom:16px;}
+.grid-4{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:16px;}
+
+/* CARDS */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:18px 20px;}
+.card.teal{border-left:3px solid var(--teal);}
+.card.purple{border-left:3px solid var(--purple);}
+.card.coral{border-left:3px solid var(--coral);}
+.card.amber{border-left:3px solid var(--amber-2);}
+.card.blue{border-left:3px solid var(--blue);}
+.card h4{
+  font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--text-dim);margin:0 0 10px;
+}
+.card p{margin:0;color:var(--text-dim);font-size:13px;line-height:1.6;}
+.card ul{margin:6px 0 0;padding-left:16px;color:var(--text-dim);font-size:13px;}
+.card ul li{margin-bottom:4px;}
+
+/* ANALOGY */
+.analogy{
+  background:linear-gradient(135deg,rgba(127,119,221,.07),rgba(29,158,117,.05));
+  border:1px solid rgba(127,119,221,.2);border-radius:8px;padding:18px 22px;margin:14px 0;
+}
+.analogy .label{
+  font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.15em;
+  text-transform:uppercase;color:var(--purple);margin-bottom:6px;
+}
+.analogy p{margin:0;font-size:13.5px;color:var(--text-dim);line-height:1.65;}
+
+/* FLOW / ASCII DIAGRAMS */
+.flow{
+  background:var(--code-bg);border:1px solid var(--border);border-radius:8px;
+  padding:20px 24px;font-family:'JetBrains Mono',monospace;font-size:12.5px;
+  line-height:1.75;overflow-x:auto;margin:10px 0;white-space:pre;
+}
+.flow .fg-teal{color:var(--teal-2);}
+.flow .fg-purple{color:var(--purple);}
+.flow .fg-coral{color:var(--coral);}
+.flow .fg-amber{color:var(--amber-2);}
+.flow .fg-blue{color:var(--blue);}
+.flow .fg-dim{color:var(--text-mute);}
+.flow .fg-text{color:var(--text-dim);}
+
+/* TABLE */
+.tbl-wrap{overflow-x:auto;margin:10px 0;}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+thead th{
+  background:var(--surface-2);color:var(--text-dim);
+  font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.09em;text-transform:uppercase;
+  padding:10px 14px;text-align:left;border-bottom:1px solid var(--border);border-top:1px solid var(--border);
+}
+tbody td{padding:10px 14px;border-bottom:1px solid var(--border-soft);color:var(--text-dim);vertical-align:top;}
+tbody tr:hover td{background:rgba(255,255,255,.02);}
+.tag{display:inline-block;padding:2px 8px;border-radius:3px;font-size:11px;font-family:'JetBrains Mono',monospace;}
+.tag.green{background:rgba(40,197,149,.12);color:var(--teal-2);}
+.tag.purple{background:rgba(127,119,221,.12);color:var(--purple);}
+.tag.red{background:rgba(216,90,48,.12);color:var(--coral);}
+.tag.amber{background:rgba(224,166,74,.12);color:var(--amber-2);}
+.tag.blue{background:rgba(74,158,255,.12);color:var(--blue);}
+
+/* CODE */
+pre{
+  background:var(--code-bg);border:1px solid var(--border);border-radius:7px;
+  padding:18px 20px;overflow-x:auto;margin:10px 0;
+  font-family:'JetBrains Mono',monospace;font-size:12.5px;line-height:1.7;
+}
+.lang{
+  display:block;font-size:9px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--text-mute);margin-bottom:10px;padding-bottom:8px;
+  border-bottom:1px solid var(--border-soft);
+}
+.k{color:var(--code-key);}
+.f{color:var(--code-fn);}
+.s{color:var(--code-str);}
+.n{color:var(--code-num);}
+.c{color:var(--code-com);}
+.t{color:var(--text);}
+.b{color:var(--blue);}
+
+/* CALLOUT */
+.callout{
+  display:flex;gap:12px;align-items:flex-start;
+  border-radius:7px;padding:14px 16px;margin:12px 0;font-size:13px;
+}
+.callout.info{background:rgba(74,158,255,.07);border:1px solid rgba(74,158,255,.2);}
+.callout.tip{background:rgba(29,158,117,.08);border:1px solid rgba(29,158,117,.2);}
+.callout.warn{background:rgba(216,90,48,.08);border:1px solid rgba(216,90,48,.2);}
+.callout .icon{font-size:15px;line-height:1;flex-shrink:0;padding-top:1px;}
+.callout p{margin:0;line-height:1.6;color:var(--text-dim);}
+
+/* DIAGRAM CARD */
+.diagram-card{
+  background:var(--surface);border:1px solid var(--border);border-radius:10px;
+  padding:26px;margin:16px 0;
+}
+.diagram-card h4{
+  font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--text-mute);margin:0 0 18px;
+}
+
+/* BEFORE/AFTER */
+.ba-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:10px 0;}
+.ba-box{border-radius:7px;padding:14px 16px;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.7;}
+.ba-box.before{background:rgba(216,90,48,.07);border:1px solid rgba(216,90,48,.2);}
+.ba-box.after{background:rgba(29,158,117,.07);border:1px solid rgba(29,158,117,.2);}
+.ba-label{font-size:9px;letter-spacing:.15em;text-transform:uppercase;margin-bottom:8px;font-family:'JetBrains Mono',monospace;}
+.ba-box.before .ba-label{color:var(--coral);}
+.ba-box.after .ba-label{color:var(--teal-2);}
+.ba-box .bad{color:#e05555;}
+.ba-box .good{color:var(--teal-2);}
+.ba-box .dim{color:var(--text-mute);}
+
+/* STEP LIST */
+.steps{list-style:none;margin:0;padding:0;}
+.steps li{display:flex;gap:14px;padding:12px 0;border-bottom:1px solid var(--border-soft);}
+.steps li:last-child{border-bottom:none;}
+.step-num{
+  width:26px;height:26px;border-radius:50%;background:rgba(127,119,221,.15);
+  border:1px solid rgba(127,119,221,.3);color:var(--purple);
+  font-family:'JetBrains Mono',monospace;font-size:11px;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;
+}
+.step-num.teal{background:rgba(29,158,117,.12);border-color:rgba(29,158,117,.3);color:var(--teal-2);}
+.step-num.blue{background:rgba(74,158,255,.12);border-color:rgba(74,158,255,.3);color:var(--blue);}
+.step-body strong{color:var(--text);font-size:13.5px;}
+.step-body p{margin:4px 0 0;color:var(--text-dim);font-size:13px;line-height:1.55;}
+
+/* PILL */
+.pill{
+  display:inline-block;padding:2px 10px;border-radius:20px;font-size:11px;
+  font-family:'JetBrains Mono',monospace;margin:2px;
+}
+.pill.teal{background:rgba(29,158,117,.15);color:var(--teal-2);border:1px solid rgba(29,158,117,.25);}
+.pill.purple{background:rgba(127,119,221,.15);color:var(--purple);border:1px solid rgba(127,119,221,.25);}
+.pill.coral{background:rgba(216,90,48,.15);color:var(--coral);border:1px solid rgba(216,90,48,.25);}
+.pill.amber{background:rgba(224,166,74,.15);color:var(--amber-2);border:1px solid rgba(224,166,74,.25);}
+
+/* SPACER */
+.gap{height:12px;}
+
+footer{margin-top:64px;padding-top:24px;border-top:1px solid var(--border);}
+footer p{color:var(--text-mute);font-size:12px;text-align:center;}
+[id]{scroll-margin-top:20px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- ═══ HEADER ═══ -->
+<header class="top">
+  <div class="header-left">
+    <h1>Data Pipelines, Cleanup<br><em>&amp; Feeding LLMs</em></h1>
+    <p>A complete engineering guide — from raw messy data, through every cleaning and transformation step, to feeding structured knowledge into large language models that actually work.</p>
+  </div>
+  <div class="header-right">
+    <span class="badge">complete guide</span>
+    <span class="badge">2025 edition</span>
+  </div>
+</header>
+
+<!-- ═══ TOC ═══ -->
+<div class="toc-bar">
+  <a href="#intro"    class="toc-btn purple">01 · What is a Pipeline?</a>
+  <a href="#sources"  class="toc-btn teal">02 · Data Sources</a>
+  <a href="#cleanup"  class="toc-btn coral">03 · Data Cleanup</a>
+  <a href="#transform" class="toc-btn amber">04 · Transformation</a>
+  <a href="#formats"  class="toc-btn blue">05 · Formats for LLMs</a>
+  <a href="#feeding"  class="toc-btn purple">06 · Feeding to LLM</a>
+  <a href="#finetune" class="toc-btn teal">07 · Fine-tune Pipelines</a>
+  <a href="#rag-pipe" class="toc-btn coral">08 · RAG Pipelines</a>
+  <a href="#orchestrate" class="toc-btn amber">09 · Orchestration</a>
+  <a href="#patterns" class="toc-btn blue">10 · Production Patterns</a>
+</div>
+
+
+<!-- ═══════════════════════════════════════
+     CH 1 — WHAT IS A PIPELINE
+════════════════════════════════════════════ -->
+<div id="intro">
+<div class="chapter">
+  <span class="chapter-num">Chapter 01</span>
+  <h2>What is a Data Pipeline?</h2>
+</div>
+
+<div class="analogy">
+  <div class="label">Plain English Analogy</div>
+  <p>A data pipeline is like a factory assembly line. Raw materials (messy data) come in one end. Each station cleans, shapes, or adds to the product. What comes out the other end is a finished good (clean, structured data ready for your LLM). Skip a station and you ship a broken product.</p>
+</div>
+
+<h3 class="section"><span class="num">1.1</span> The Big Picture</h3>
+<div class="diagram-card">
+<h4>Full Pipeline — Raw Data → LLM Output</h4>
+<div class="flow"><span class="fg-dim">┌─────────────────────────────────────────────────────────────────────┐</span>
+<span class="fg-dim">│</span>                    <span class="fg-blue">DATA PIPELINE FOR LLMs</span>                           <span class="fg-dim">│</span>
+<span class="fg-dim">└─────────────────────────────────────────────────────────────────────┘</span>
+
+  <span class="fg-amber">📦 RAW SOURCES</span>
+  PDFs · CSVs · Databases · APIs · HTML · JSON · Logs · S3
+
+         │
+         ▼
+  <span class="fg-coral">🧹 INGESTION</span>         Extract text, parse structure, handle encoding
+         │
+         ▼
+  <span class="fg-coral">🔍 VALIDATION</span>        Schema checks, null detection, duplicate flags
+         │
+         ▼
+  <span class="fg-coral">🧽 CLEANING</span>          Fix nulls, remove noise, normalize text, dedupe
+         │
+         ▼
+  <span class="fg-purple">⚙️  TRANSFORMATION</span>   Chunk, enrich, embed, tag, summarize
+         │
+         ▼
+  <span class="fg-teal">📐 FORMATTING</span>        Shape data into what the LLM expects
+         │
+         ├──────────────────────┬──────────────────────┐
+         ▼                      ▼                      ▼
+  <span class="fg-teal">🗄️ VectorDB</span>       <span class="fg-teal">Fine-tune Dataset</span>    <span class="fg-teal">Prompt Context</span>
+  (RAG pipeline)    (JSONL training)     (direct injection)
+         │                      │                      │
+         └──────────────────────┴──────────────────────┘
+                                │
+                                ▼
+                       <span class="fg-blue">🤖 LLM generates answer</span></div>
+</div>
+
+<h3 class="section"><span class="num">1.2</span> Types of Pipelines</h3>
+<div class="grid-3">
+  <div class="card purple">
+    <h4>Batch Pipeline</h4>
+    <p>Processes data in scheduled runs. Nightly ETL jobs, weekly index rebuilds. Simple, predictable, good for most RAG setups.</p>
+    <ul>
+      <li>Tools: Airflow, Prefect, cron</li>
+      <li>Latency: minutes to hours</li>
+      <li>Best for: documents, CSVs, archives</li>
+    </ul>
+  </div>
+  <div class="card teal">
+    <h4>Streaming Pipeline</h4>
+    <p>Processes events in real-time as they arrive. New support ticket → instantly indexed → LLM can answer about it within seconds.</p>
+    <ul>
+      <li>Tools: Kafka, Flink, Kinesis</li>
+      <li>Latency: milliseconds to seconds</li>
+      <li>Best for: live data, events, logs</li>
+    </ul>
+  </div>
+  <div class="card coral">
+    <h4>On-Demand Pipeline</h4>
+    <p>Triggered by user action or API call. User uploads a PDF → pipeline runs immediately → LLM can answer about it.</p>
+    <ul>
+      <li>Tools: FastAPI, Lambda, Cloud Run</li>
+      <li>Latency: seconds</li>
+      <li>Best for: user uploads, webhooks</li>
+    </ul>
+  </div>
+</div>
+</div>
+
+
+<!-- ═══════════════════════════════════════
+     CH 2 — DATA SOURCES
+════════════════════════════════════════════ -->
+<div id="sources">
+<div class="chapter">
+  <span class="chapter-num teal">Chapter 02</span>
+  <h2>Data Sources &amp; Ingestion</h2>
+</div>
+
+<h3 class="section"><span class="num">2.1</span> Loading from Every Source Type</h3>
+
+<pre><span class="lang">python · loading data from different sources</span><span class="c"># ── PDFs ─────────────────────────────────────────────────</span>
+<span class="k">import</span> pypdf
+reader = pypdf.<span class="f">PdfReader</span>(<span class="s">"report.pdf"</span>)
+text = <span class="s">"\n"</span>.<span class="f">join</span>(page.<span class="f">extract_text</span>() <span class="k">for</span> page <span class="k">in</span> reader.pages)
+
+<span class="c"># Better: pdfplumber (handles tables, columns)</span>
+<span class="k">import</span> pdfplumber
+<span class="k">with</span> pdfplumber.<span class="f">open</span>(<span class="s">"report.pdf"</span>) <span class="k">as</span> pdf:
+    text = <span class="s">"\n"</span>.<span class="f">join</span>(p.<span class="f">extract_text</span>() <span class="k">or</span> <span class="s">""</span> <span class="k">for</span> p <span class="k">in</span> pdf.pages)
+
+<span class="c"># ── CSV / Excel ───────────────────────────────────────────</span>
+<span class="k">import</span> pandas <span class="k">as</span> pd
+df = pd.<span class="f">read_csv</span>(<span class="s">"data.csv"</span>)               <span class="c"># CSV</span>
+df = pd.<span class="f">read_excel</span>(<span class="s">"data.xlsx"</span>)            <span class="c"># Excel</span>
+df = pd.<span class="f">read_json</span>(<span class="s">"data.json"</span>)             <span class="c"># JSON</span>
+df = pd.<span class="f">read_parquet</span>(<span class="s">"data.parquet"</span>)       <span class="c"># Parquet (fast, typed)</span>
+
+<span class="c"># ── HTML / Web ────────────────────────────────────────────</span>
+<span class="k">import</span> requests
+<span class="k">from</span> bs4 <span class="k">import</span> BeautifulSoup
+html = requests.<span class="f">get</span>(<span class="s">"https://example.com/docs"</span>).text
+soup = <span class="f">BeautifulSoup</span>(html, <span class="s">"html.parser"</span>)
+text = soup.<span class="f">get_text</span>(separator=<span class="s">"\n"</span>, strip=<span class="k">True</span>)
+
+<span class="c"># ── SQL Database ──────────────────────────────────────────</span>
+<span class="k">import</span> sqlalchemy <span class="k">as</span> sa
+engine = sa.<span class="f">create_engine</span>(<span class="s">"postgresql://user:pass@host/db"</span>)
+df = pd.<span class="f">read_sql</span>(<span class="s">"SELECT * FROM support_tickets"</span>, engine)
+
+<span class="c"># ── REST API ──────────────────────────────────────────────</span>
+<span class="k">import</span> requests
+data = requests.<span class="f">get</span>(
+    <span class="s">"https://api.example.com/articles"</span>,
+    headers={<span class="s">"Authorization"</span>: <span class="s">"Bearer TOKEN"</span>},
+    params={<span class="s">"page"</span>: <span class="n">1</span>, <span class="s">"limit"</span>: <span class="n">100</span>}
+).<span class="f">json</span>()
+
+<span class="c"># ── S3 / Cloud Storage ────────────────────────────────────</span>
+<span class="k">import</span> boto3, io
+s3 = boto3.<span class="f">client</span>(<span class="s">"s3"</span>)
+obj = s3.<span class="f">get_object</span>(Bucket=<span class="s">"my-bucket"</span>, Key=<span class="s">"docs/policy.pdf"</span>)
+text = obj[<span class="s">"Body"</span>].<span class="f">read</span>()  <span class="c"># bytes → pass to pypdf or pdfplumber</span>
+
+<span class="c"># ── Word / DOCX ───────────────────────────────────────────</span>
+<span class="k">from</span> docx <span class="k">import</span> Document
+doc = <span class="f">Document</span>(<span class="s">"report.docx"</span>)
+text = <span class="s">"\n"</span>.<span class="f">join</span>(p.text <span class="k">for</span> p <span class="k">in</span> doc.paragraphs <span class="k">if</span> p.text.<span class="f">strip</span>())</pre>
+
+<h3 class="section"><span class="num">2.2</span> LangChain Document Loaders (One-Liners)</h3>
+<pre><span class="lang">python · langchain loaders</span><span class="k">from</span> langchain.document_loaders <span class="k">import</span> (
+    PyPDFLoader, CSVLoader, WebBaseLoader,
+    NotionDirectoryLoader, ConfluenceLoader,
+    DirectoryLoader, JSONLoader, UnstructuredEmailLoader
+)
+
+<span class="c"># PDF</span>
+docs = <span class="f">PyPDFLoader</span>(<span class="s">"policy.pdf"</span>).<span class="f">load</span>()
+
+<span class="c"># Entire folder of mixed files</span>
+docs = <span class="f">DirectoryLoader</span>(<span class="s">"./docs/"</span>, glob=<span class="s">"**/*.{pdf,txt,md}"</span>).<span class="f">load</span>()
+
+<span class="c"># JSON with a specific field</span>
+docs = <span class="f">JSONLoader</span>(
+    file_path=<span class="s">"data.json"</span>,
+    jq_schema=<span class="s">".records[].content"</span>   <span class="c"># jq path to the text field</span>
+).<span class="f">load</span>()
+
+<span class="c"># Web page</span>
+docs = <span class="f">WebBaseLoader</span>(<span class="s">"https://docs.example.com"</span>).<span class="f">load</span>()
+
+<span class="c"># Email files</span>
+docs = <span class="f">UnstructuredEmailLoader</span>(<span class="s">"inbox.mbox"</span>).<span class="f">load</span>()</pre>
+</div>
+
+
+<!-- ═══════════════════════════════════════
+     CH 3 — DATA CLEANUP
+════════════════════════════════════════════ -->
+<div id="cleanup">
+<div class="chapter">
+  <span class="chapter-num coral">Chapter 03</span>
+  <h2>Data Cleanup — Every Technique</h2>
+</div>
+
+<div class="callout warn">
+  <div class="icon">⚠️</div>
+  <p><strong>Garbage in, garbage out.</strong> An LLM trained or fed on dirty data will hallucinate, contradict itself, and give wrong answers. Cleaning is 80% of the work and 100% of the impact.</p>
+</div>
+
+<h3 class="section"><span class="num">3.1</span> The Dirt Taxonomy</h3>
+<div class="grid-4">
+  <div class="card coral"><h4>Structural</h4><p>Missing columns, wrong dtypes, schema mismatches, malformed JSON, broken encoding.</p></div>
+  <div class="card coral"><h4>Content</h4><p>Null values, duplicates, contradictory records, stale/outdated info.</p></div>
+  <div class="card coral"><h4>Text Noise</h4><p>HTML tags, special chars, extra whitespace, headers/footers, boilerplate repeated text.</p></div>
+  <div class="card coral"><h4>Semantic</h4><p>Inconsistent terminology, abbreviations, different date formats, unit mismatches.</p></div>
+</div>
+
+<h3 class="section"><span class="num">3.2</span> Text Cleaning — The Core Functions</h3>
+<pre><span class="lang">python · text cleaning utilities</span><span class="k">import</span> re, unicodedata
+<span class="k">from</span> bs4 <span class="k">import</span> BeautifulSoup
+
+<span class="k">def</span> <span class="f">clean_text</span>(text: str) -> str:
+    <span class="s">"""Master text cleaner — run every chunk through this."""</span>
+
+    <span class="c"># 1. Remove HTML tags</span>
+    text = BeautifulSoup(text, <span class="s">"html.parser"</span>).<span class="f">get_text</span>(separator=<span class="s">" "</span>)
+
+    <span class="c"># 2. Normalize unicode (ＡＢＣ → ABC, café → cafe)</span>
+    text = unicodedata.<span class="f">normalize</span>(<span class="s">"NFKD"</span>, text)
+    text = text.<span class="f">encode</span>(<span class="s">"ascii"</span>, <span class="s">"ignore"</span>).<span class="f">decode</span>(<span class="s">"ascii"</span>)
+
+    <span class="c"># 3. Remove boilerplate patterns</span>
+    text = re.<span class="f">sub</span>(<span class="s">r"Page \d+ of \d+"</span>, <span class="s">""</span>, text)          <span class="c"># PDF page numbers</span>
+    text = re.<span class="f">sub</span>(<span class="s">r"CONFIDENTIAL|DRAFT|INTERNAL USE ONLY"</span>,<span class="s">""</span>,text,flags=re.I)
+
+    <span class="c"># 4. Remove URLs (optional — keep if domain-relevant)</span>
+    text = re.<span class="f">sub</span>(<span class="s">r"https?://\S+"</span>, <span class="s">"[URL]"</span>, text)
+
+    <span class="c"># 5. Normalize whitespace</span>
+    text = re.<span class="f">sub</span>(<span class="s">r"\n{3,}"</span>, <span class="s">"\n\n"</span>, text)    <span class="c"># max 2 blank lines</span>
+    text = re.<span class="f">sub</span>(<span class="s">r"[ \t]{2,}"</span>, <span class="s">" "</span>, text)    <span class="c"># collapse spaces/tabs</span>
+    text = re.<span class="f">sub</span>(<span class="s">r"[^\S\n]+"</span>, <span class="s">" "</span>, text)    <span class="c"># collapse non-newline whitespace</span>
+
+    <span class="c"># 6. Remove special chars (keep sentence punctuation)</span>
+    text = re.<span class="f">sub</span>(<span class="s">r"[^\w\s\.\,\!\?\;\:\'\"\-\(\)\n]"</span>, <span class="s">""</span>, text)
+
+    <span class="c"># 7. Strip edges</span>
+    <span class="k">return</span> text.<span class="f">strip</span>()
+
+
+<span class="c"># ── Remove repeated boilerplate across pages ──────────────</span>
+<span class="k">from</span> collections <span class="k">import</span> Counter
+
+<span class="k">def</span> <span class="f">remove_repeated_phrases</span>(pages: list[str], threshold=<span class="n">0.7</span>) -> list[str]:
+    <span class="s">"""Remove lines that appear in >70% of pages (headers/footers)."""</span>
+    all_lines = [line <span class="k">for</span> page <span class="k">in</span> pages <span class="k">for</span> line <span class="k">in</span> page.<span class="f">splitlines</span>()]
+    counts = <span class="f">Counter</span>(l.<span class="f">strip</span>() <span class="k">for</span> l <span class="k">in</span> all_lines <span class="k">if</span> l.<span class="f">strip</span>())
+    boilerplate = {l <span class="k">for</span> l, c <span class="k">in</span> counts.<span class="f">items</span>() <span class="k">if</span> c / len(pages) > threshold}
+    cleaned = []
+    <span class="k">for</span> page <span class="k">in</span> pages:
+        lines = [l <span class="k">for</span> l <span class="k">in</span> page.<span class="f">splitlines</span>() <span class="k">if</span> l.<span class="f">strip</span>() <span class="k">not</span> <span class="k">in</span> boilerplate]
+        cleaned.<span class="f">append</span>(<span class="s">"\n"</span>.<span class="f">join</span>(lines))
+    <span class="k">return</span> cleaned</pre>
+
+<h3 class="section"><span class="num">3.3</span> DataFrame Cleaning (Structured Data)</h3>
+<pre><span class="lang">python · pandas data cleaning</span><span class="k">import</span> pandas <span class="k">as</span> pd
+<span class="k">import</span> numpy <span class="k">as</span> np
+
+df = pd.<span class="f">read_csv</span>(<span class="s">"support_tickets.csv"</span>)
+
+<span class="c"># ── 1. Inspect first ─────────────────────────────────────</span>
+<span class="f">print</span>(df.<span class="f">info</span>())           <span class="c"># dtypes + null counts</span>
+<span class="f">print</span>(df.<span class="f">isnull</span>().<span class="f">sum</span>())   <span class="c"># nulls per column</span>
+<span class="f">print</span>(df.<span class="f">describe</span>())       <span class="c"># stats for numerics</span>
+<span class="f">print</span>(df.<span class="f">duplicated</span>().<span class="f">sum</span>()) <span class="c"># duplicate row count</span>
+
+<span class="c"># ── 2. Handle nulls ───────────────────────────────────────</span>
+df[<span class="s">"description"</span>]  = df[<span class="s">"description"</span>].<span class="f">fillna</span>(<span class="s">""</span>)      <span class="c"># text: empty string</span>
+df[<span class="s">"priority"</span>]     = df[<span class="s">"priority"</span>].<span class="f">fillna</span>(<span class="s">"medium"</span>)   <span class="c"># categorical: default</span>
+df[<span class="s">"amount"</span>]       = df[<span class="s">"amount"</span>].<span class="f">fillna</span>(df[<span class="s">"amount"</span>].<span class="f">median</span>()) <span class="c"># numeric: median</span>
+df = df.<span class="f">dropna</span>(subset=[<span class="s">"ticket_id"</span>, <span class="s">"created_at"</span>])  <span class="c"># drop if key cols null</span>
+
+<span class="c"># ── 3. Remove duplicates ──────────────────────────────────</span>
+df = df.<span class="f">drop_duplicates</span>(subset=[<span class="s">"ticket_id"</span>])          <span class="c"># by key</span>
+df = df.<span class="f">drop_duplicates</span>(subset=[<span class="s">"description"</span>], keep=<span class="s">"first"</span>) <span class="c"># near-dupes by text</span>
+
+<span class="c"># ── 4. Fix dtypes ─────────────────────────────────────────</span>
+df[<span class="s">"created_at"</span>] = pd.<span class="f">to_datetime</span>(df[<span class="s">"created_at"</span>], errors=<span class="s">"coerce"</span>)
+df[<span class="s">"amount"</span>]     = pd.<span class="f">to_numeric</span>(df[<span class="s">"amount"</span>], errors=<span class="s">"coerce"</span>)
+df[<span class="s">"priority"</span>]   = df[<span class="s">"priority"</span>].<span class="f">astype</span>(<span class="s">"category"</span>)
+
+<span class="c"># ── 5. Normalize text columns ─────────────────────────────</span>
+df[<span class="s">"description"</span>] = (
+    df[<span class="s">"description"</span>]
+    .<span class="f">str</span>.<span class="f">lower</span>()                    <span class="c"># lowercase</span>
+    .<span class="f">str</span>.<span class="f">strip</span>()                    <span class="c"># trim whitespace</span>
+    .<span class="f">str</span>.<span class="f">replace</span>(<span class="s">r"\s+"</span>, <span class="s">" "</span>, regex=<span class="k">True</span>)  <span class="c"># collapse spaces</span>
+)
+
+<span class="c"># ── 6. Remove outliers (IQR method) ──────────────────────</span>
+Q1, Q3 = df[<span class="s">"amount"</span>].<span class="f">quantile</span>([<span class="n">0.25</span>, <span class="n">0.75</span>])
+IQR = Q3 - Q1
+df = df[df[<span class="s">"amount"</span>].<span class="f">between</span>(Q1 - <span class="n">1.5</span>*IQR, Q3 + <span class="n">1.5</span>*IQR)]
+
+<span class="c"># ── 7. Filter short/empty text (bad for LLMs) ────────────</span>
+df = df[df[<span class="s">"description"</span>].<span class="f">str</span>.<span class="f">len</span>() > <span class="n">20</span>]   <span class="c"># at least 20 chars</span>
+df = df[df[<span class="s">"description"</span>].<span class="f">str</span>.<span class="f">split</span>().<span class="f">str</span>.<span class="f">len</span>() > <span class="n">5</span>]  <span class="c"># at least 5 words</span></pre>
+
+<h3 class="section"><span class="num">3.4</span> Before / After — What Cleaning Does</h3>
+<div class="ba-grid">
+  <div class="ba-box before">
+    <div class="ba-label">❌ Before Cleaning</div>
+    <span class="bad">PayPal Inc.  |  PayPal  |  paypal</span>   <span class="dim">← same company, 3 names</span>
+<span class="bad">Amount: "$1,200.00"</span>                    <span class="dim">← string, not number</span>
+<span class="bad">Date: "01/15/23" | "2023-01-15"</span>       <span class="dim">← 2 date formats</span>
+<span class="bad">Description: ""</span>                        <span class="dim">← null → LLM confuses</span>
+<span class="bad">Ticket: "call us at 1-800-..." (×40)</span>  <span class="dim">← boilerplate repeated</span>
+<span class="bad">"&lt;p&gt;Hello &amp;amp; welcome&lt;/p&gt;"</span>          <span class="dim">← HTML in text field</span>
+<span class="bad">"\u200b invisible\u200b char"</span>          <span class="dim">← zero-width spaces</span>
+  </div>
+  <div class="ba-box after">
+    <div class="ba-label">✅ After Cleaning</div>
+    <span class="good">PayPal</span>                                <span class="dim">← normalized entity</span>
+<span class="good">1200.0</span>                                  <span class="dim">← float</span>
+<span class="good">2023-01-15</span>                              <span class="dim">← ISO 8601</span>
+<span class="good">"No description provided."</span>             <span class="dim">← meaningful default</span>
+<span class="dim">← removed entirely</span>
+<span class="good">"Hello and welcome"</span>                    <span class="dim">← plain text</span>
+<span class="good">"invisible char"</span>                       <span class="dim">← unicode normalized</span>
+  </div>
+</div>
+
+<h3 class="section"><span class="num">3.5</span> Near-Duplicate Detection</h3>
+<pre><span class="lang">python · deduplication — MinHash + exact hash</span><span class="k">import</span> hashlib
+<span class="k">from</span> datasketch <span class="k">import</span> MinHash, MinHashLSH
+
+<span class="c"># ── Exact deduplication via content hash ─────────────────</span>
+<span class="k">def</span> <span class="f">hash_text</span>(text):
+    <span class="k">return</span> hashlib.<span class="f">md5</span>(text.<span class="f">encode</span>()).<span class="f">hexdigest</span>()
+
+seen = <span class="f">set</span>()
+unique_docs = []
+<span class="k">for</span> doc <span class="k">in</span> documents:
+    h = <span class="f">hash_text</span>(doc.page_content)
+    <span class="k">if</span> h <span class="k">not</span> <span class="k">in</span> seen:
+        seen.<span class="f">add</span>(h)
+        unique_docs.<span class="f">append</span>(doc)
+
+<span class="c"># ── Near-duplicate via MinHash LSH (80% similar = duplicate)</span>
+lsh = <span class="f">MinHashLSH</span>(threshold=<span class="n">0.8</span>, num_perm=<span class="n">128</span>)
+minhashes = {}
+
+<span class="k">for</span> i, doc <span class="k">in</span> <span class="f">enumerate</span>(documents):
+    m = <span class="f">MinHash</span>(num_perm=<span class="n">128</span>)
+    <span class="k">for</span> word <span class="k">in</span> doc.page_content.<span class="f">lower</span>().<span class="f">split</span>():
+        m.<span class="f">update</span>(word.<span class="f">encode</span>())
+    lsh.<span class="f">insert</span>(<span class="f">f"doc_{i}"</span>, m)
+    minhashes[<span class="f">f"doc_{i}"</span>] = m
+
+<span class="c"># Query: find near-duplicates of first doc</span>
+result = lsh.<span class="f">query</span>(minhashes[<span class="s">"doc_0"</span>])
+<span class="f">print</span>(<span class="s">"Near-duplicates:"</span>, result)</pre>
+</div>
+
+
+<!-- ═══════════════════════════════════════
+     CH 4 — TRANSFORMATION
+════════════════════════════════════════════ -->
+<div id="transform">
+<div class="chapter">
+  <span class="chapter-num amber">Chapter 04</span>
+  <h2>Transformation — Shaping Data for AI</h2>
+</div>
+
+<h3 class="section"><span class="num">4.1</span> Text Normalization Pipeline</h3>
+<pre><span class="lang">python · full normalization chain</span><span class="k">import</span> spacy
+<span class="k">import</span> re
+
+nlp = spacy.<span class="f">load</span>(<span class="s">"en_core_web_sm"</span>)
+
+<span class="k">def</span> <span class="f">normalize_for_llm</span>(text: str) -> str:
+    <span class="c"># Expand contractions</span>
+    contractions = {<span class="s">"don't"</span>:<span class="s">"do not"</span>,<span class="s">"can't"</span>:<span class="s">"cannot"</span>,<span class="s">"I'm"</span>:<span class="s">"I am"</span>}
+    <span class="k">for</span> k, v <span class="k">in</span> contractions.<span class="f">items</span>():
+        text = text.<span class="f">replace</span>(k, v)
+
+    <span class="c"># Standardize currency/numbers</span>
+    text = re.<span class="f">sub</span>(<span class="s">r"\$\s*(\d+[\d,\.]*)"</span>, <span class="k">lambda</span> m: m.<span class="f">group</span>(<span class="n">0</span>).<span class="f">replace</span>(<span class="s">","</span>,<span class="s">""</span>), text)
+
+    <span class="c"># Expand abbreviations</span>
+    abbrevs = {<span class="s">"e.g."</span>:<span class="s">"for example"</span>,<span class="s">"i.e."</span>:<span class="s">"that is"</span>,<span class="s">"etc."</span>:<span class="s">"etcetera"</span>}
+    <span class="k">for</span> k, v <span class="k">in</span> abbrevs.<span class="f">items</span>():
+        text = text.<span class="f">replace</span>(k, v)
+
+    <span class="c"># Resolve coreference (basic: proper nouns)</span>
+    <span class="c"># Full coreference needs neuralcoref or spacy-experimental</span>
+
+    <span class="k">return</span> text.<span class="f">strip</span>()
+
+
+<span class="k">def</span> <span class="f">extract_entities</span>(text: str) -> dict:
+    <span class="s">"""Extract structured metadata from unstructured text."""</span>
+    doc = nlp(text)
+    <span class="k">return</span> {
+        <span class="s">"persons"</span>:       [e.text <span class="k">for</span> e <span class="k">in</span> doc.ents <span class="k">if</span> e.label_ == <span class="s">"PERSON"</span>],
+        <span class="s">"organizations"</span>: [e.text <span class="k">for</span> e <span class="k">in</span> doc.ents <span class="k">if</span> e.label_ == <span class="s">"ORG"</span>],
+        <span class="s">"dates"</span>:         [e.text <span class="k">for</span> e <span class="k">in</span> doc.ents <span class="k">if</span> e.label_ == <span class="s">"DATE"</span>],
+        <span class="s">"money"</span>:         [e.text <span class="k">for</span> e <span class="k">in</span> doc.ents <span class="k">if</span> e.label_ == <span class="s">"MONEY"</span>],
+    }</pre>
+
+<h3 class="section"><span class="num">4.2</span> LLM-Assisted Cleaning (Use AI to Clean Data for AI)</h3>
+<pre><span class="lang">python · use gpt-4o to clean and structure messy records</span><span class="k">from</span> openai <span class="k">import</span> OpenAI
+<span class="k">import</span> json
+
+client = <span class="f">OpenAI</span>()
+
+<span class="k">def</span> <span class="f">llm_clean_record</span>(raw_text: str) -> dict:
+    <span class="s">"""Use an LLM to extract structured fields from messy text."""</span>
+    response = client.chat.completions.<span class="f">create</span>(
+        model=<span class="s">"gpt-4o-mini"</span>,    <span class="c"># cheap model for cleaning tasks</span>
+        temperature=<span class="n">0</span>,
+        messages=[{
+            <span class="s">"role"</span>: <span class="s">"system"</span>,
+            <span class="s">"content"</span>: <span class="s">"""Extract structured data from the raw text.
+Return ONLY valid JSON with these fields:
+{
+  "summary": "1-2 sentence clean summary",
+  "intent": "refund|dispute|login|general",
+  "urgency": "low|medium|high",
+  "amount": null or number,
+  "cleaned_text": "cleaned version of input"
+}"""</span>
+        },{
+            <span class="s">"role"</span>: <span class="s">"user"</span>,
+            <span class="s">"content"</span>: raw_text
+        }]
+    )
+    <span class="k">return</span> json.<span class="f">loads</span>(response.choices[<span class="n">0</span>].message.content)
+
+<span class="c"># Process in batches</span>
+results = [<span class="f">llm_clean_record</span>(text) <span class="k">for</span> text <span class="k">in</span> raw_texts[:<span class="n">100</span>]]</pre>
+
+<h3 class="section"><span class="num">4.3</span> Enrichment — Adding Metadata</h3>
+<pre><span class="lang">python · enrich documents with metadata before indexing</span><span class="k">from</span> langchain.schema <span class="k">import</span> Document
+<span class="k">import</span> hashlib
+<span class="k">from</span> datetime <span class="k">import</span> datetime
+
+<span class="k">def</span> <span class="f">enrich_document</span>(text: str, source: str, extra: dict = {}) -> Document:
+    <span class="s">"""Wrap cleaned text into a LangChain Document with rich metadata."""</span>
+    <span class="k">return</span> <span class="f">Document</span>(
+        page_content=text,
+        metadata={
+            <span class="s">"source"</span>:       source,
+            <span class="s">"char_count"</span>:   <span class="f">len</span>(text),
+            <span class="s">"word_count"</span>:   <span class="f">len</span>(text.<span class="f">split</span>()),
+            <span class="s">"content_hash"</span>: hashlib.<span class="f">md5</span>(text.<span class="f">encode</span>()).<span class="f">hexdigest</span>()[:<span class="n">8</span>],
+            <span class="s">"indexed_at"</span>:   datetime.<span class="f">utcnow</span>().<span class="f">isoformat</span>(),
+            **extra  <span class="c"># e.g. {"department": "finance", "language": "en"}</span>
+        }
+    )
+
+<span class="c"># Metadata enables filtered retrieval later:</span>
+<span class="c"># vectordb.query(q, where={"department": "finance", "language": "en"})</span></pre>
+</div>
+
+
+<!-- ═══════════════════════════════════════
+     CH 5 — FORMATS FOR LLMs
+════════════════════════════════════════════ -->
+<div id="formats">
+<div class="chapter">
+  <span class="chapter-num blue">Chapter 05</span>
+  <h2>Formats — What LLMs Expect</h2>
+</div>
+
+<h3 class="section"><span class="num">5.1</span> Format Decision Tree</h3>
+<div class="flow"><span class="fg-blue">What are you doing with the data?</span>
+
+  ├─ <span class="fg-amber">Fine-tuning the model?</span>
+  │     └─ <span class="fg-teal">JSONL</span>  (one JSON object per line, chat format)
+  │
+  ├─ <span class="fg-amber">Building a RAG system?</span>
+  │     └─ <span class="fg-teal">Document + Metadata</span>  (chunked text + rich metadata dict)
+  │
+  ├─ <span class="fg-amber">Injecting into a single prompt?</span>
+  │     ├─ Structured data (table/CSV) → <span class="fg-teal">Markdown table or XML</span>
+  │     ├─ Key-value data             → <span class="fg-teal">JSON block in prompt</span>
+  │     └─ Long text                  → <span class="fg-teal">Summarized + cited</span>
+  │
+  └─ <span class="fg-amber">Structured output from LLM?</span>
+        └─ <span class="fg-teal">JSON Schema in system prompt</span> + parse response</div>
+
+<h3 class="section"><span class="num">5.2</span> JSONL — Fine-tuning Format</h3>
+<pre><span class="lang">jsonl · openai chat fine-tune format (one line = one example)</span><span class="c">// System + User + Assistant format (most common)</span>
+{<span class="s">"messages"</span>:[{<span class="s">"role"</span>:<span class="s">"system"</span>,<span class="s">"content"</span>:<span class="s">"You are a PayPal support agent."</span>},{<span class="s">"role"</span>:<span class="s">"user"</span>,<span class="s">"content"</span>:<span class="s">"My refund hasn't arrived."</span>},{<span class="s">"role"</span>:<span class="s">"assistant"</span>,<span class="s">"content"</span>:<span class="s">"I'm sorry to hear that. Refunds typically take 3-5 business days..."</span>}]}
+{<span class="s">"messages"</span>:[{<span class="s">"role"</span>:<span class="s">"system"</span>,<span class="s">"content"</span>:<span class="s">"You are a PayPal support agent."</span>},{<span class="s">"role"</span>:<span class="s">"user"</span>,<span class="s">"content"</span>:<span class="s">"How do I dispute a charge?"</span>},{<span class="s">"role"</span>:<span class="s">"assistant"</span>,<span class="s">"content"</span>:<span class="s">"To dispute a charge: 1. Go to Activity... 2. Click the transaction..."</span>}]}</pre>
+
+<pre><span class="lang">python · build fine-tune JSONL from a CSV of Q&A pairs</span><span class="k">import</span> json, pandas <span class="k">as</span> pd
+
+df = pd.<span class="f">read_csv</span>(<span class="s">"qa_pairs.csv"</span>)  <span class="c"># columns: question, answer</span>
+
+SYSTEM = <span class="s">"You are a helpful PayPal customer support agent. Be concise and accurate."</span>
+
+<span class="k">with</span> <span class="f">open</span>(<span class="s">"train.jsonl"</span>, <span class="s">"w"</span>) <span class="k">as</span> f:
+    <span class="k">for</span> _, row <span class="k">in</span> df.<span class="f">iterrows</span>():
+        example = {
+            <span class="s">"messages"</span>: [
+                {<span class="s">"role"</span>: <span class="s">"system"</span>,    <span class="s">"content"</span>: SYSTEM},
+                {<span class="s">"role"</span>: <span class="s">"user"</span>,      <span class="s">"content"</span>: row[<span class="s">"question"</span>]},
+                {<span class="s">"role"</span>: <span class="s">"assistant"</span>, <span class="s">"content"</span>: row[<span class="s">"answer"</span>]},
+            ]
+        }
+        f.<span class="f">write</span>(json.<span class="f">dumps</span>(example) + <span class="s">"\n"</span>)
+
+<span class="f">print</span>(<span class="s">f"Wrote {len(df)} training examples to train.jsonl"</span>)</pre>
+
+<h3 class="section"><span class="num">5.3</span> Injecting Structured Data into Prompts</h3>
+<pre><span class="lang">python · format different data types for prompt injection</span><span class="k">import</span> pandas <span class="k">as</span> pd, json
+
+<span class="c"># ── Option 1: Markdown Table (LLMs read this well) ────────</span>
+<span class="k">def</span> <span class="f">df_to_markdown</span>(df: pd.DataFrame, max_rows=<span class="n">20</span>) -> str:
+    <span class="k">return</span> df.<span class="f">head</span>(max_rows).<span class="f">to_markdown</span>(index=<span class="k">False</span>)
+
+<span class="c"># ── Option 2: JSON (for complex nested data) ──────────────</span>
+<span class="k">def</span> <span class="f">df_to_json_context</span>(df: pd.DataFrame, max_rows=<span class="n">20</span>) -> str:
+    records = df.<span class="f">head</span>(max_rows).<span class="f">to_dict</span>(<span class="s">"records"</span>)
+    <span class="k">return</span> json.<span class="f">dumps</span>(records, indent=<span class="n">2</span>, default=str)
+
+<span class="c"># ── Option 3: XML tags (Anthropic Claude prefers these) ───</span>
+<span class="k">def</span> <span class="f">build_prompt_with_context</span>(question: str, data: str) -> str:
+    <span class="k">return</span> <span class="s">f"""
+&lt;context&gt;
+{data}
+&lt;/context&gt;
+
+&lt;question&gt;
+{question}
+&lt;/question&gt;
+
+Answer based only on the context above. If the answer is not in the context, say "I don't know."
+"""</span>
+
+<span class="c"># Usage:</span>
+context = <span class="f">df_to_markdown</span>(transactions_df)
+prompt  = <span class="f">build_prompt_with_context</span>(<span class="s">"What was the largest transaction?"</span>, context)</pre>
+</div>
+
+
+<!-- ═══════════════════════════════════════
+     CH 6 — FEEDING TO LLM
+════════════════════════════════════════════ -->
+<div id="feeding">
+<div class="chapter">
+  <span class="chapter-num">Chapter 06</span>
+  <h2>Feeding Clean Data to the LLM</h2>
+</div>
+
+<h3 class="section"><span class="num">6.1</span> The Three Feeding Strategies</h3>
+<div class="grid-3">
+  <div class="card purple">
+    <h4>Direct Injection</h4>
+    <p>Stuff cleaned data directly into the prompt context. Simple but limited by context window size. Best for small datasets or single records.</p>
+    <p style="margin-top:8px"><span class="pill purple">max ~200k tokens</span></p>
+  </div>
+  <div class="card teal">
+    <h4>RAG Retrieval</h4>
+    <p>Index clean data into a vector database. Retrieve only the relevant chunks at query time. Scales to millions of documents.</p>
+    <p style="margin-top:8px"><span class="pill teal">unlimited scale</span></p>
+  </div>
+  <div class="card coral">
+    <h4>Fine-tuning</h4>
+    <p>Train the model on your cleaned JSONL dataset. The knowledge becomes part of the weights. Expensive but gives best behavior.</p>
+    <p style="margin-top:8px"><span class="pill coral">permanent knowledge</span></p>
+  </div>
+</div>
+
+<h3 class="section"><span class="num">6.2</span> Token Budget Management</h3>
+<pre><span class="lang">python · fit data within context window</span><span class="k">import</span> tiktoken
+
+enc = tiktoken.<span class="f">encoding_for_model</span>(<span class="s">"gpt-4o"</span>)
+
+<span class="k">def</span> <span class="f">count_tokens</span>(text: str) -> int:
+    <span class="k">return</span> <span class="f">len</span>(enc.<span class="f">encode</span>(text))
+
+<span class="k">def</span> <span class="f">truncate_to_budget</span>(chunks: list[str], max_tokens=<span class="n">6000</span>) -> str:
+    <span class="s">"""Greedily pack chunks until token budget is reached."""</span>
+    selected, total = [], <span class="n">0</span>
+    <span class="k">for</span> chunk <span class="k">in</span> chunks:
+        t = <span class="f">count_tokens</span>(chunk)
+        <span class="k">if</span> total + t > max_tokens:
+            <span class="k">break</span>
+        selected.<span class="f">append</span>(chunk)
+        total += t
+    <span class="k">return</span> <span class="s">"\n\n---\n\n"</span>.<span class="f">join</span>(selected)
+
+<span class="c"># Context window budgets (rule of thumb: leave 2k for output)</span>
+BUDGETS = {
+    <span class="s">"gpt-4o"</span>:           <span class="n">126_000</span>,
+    <span class="s">"claude-3-5-sonnet"</span>:<span class="n">198_000</span>,
+    <span class="s">"gemini-1.5-pro"</span>:   <span class="n">998_000</span>,
+    <span class="s">"gpt-3.5-turbo"</span>:     <span class="n">14_000</span>,
+}</pre>
+
+<h3 class="section"><span class="num">6.3</span> Streaming Responses</h3>
+<pre><span class="lang">python · stream LLM output as data comes in</span><span class="k">from</span> openai <span class="k">import</span> OpenAI
+client = <span class="f">OpenAI</span>()
+
+<span class="k">def</span> <span class="f">stream_answer</span>(context: str, question: str):
+    stream = client.chat.completions.<span class="f">create</span>(
+        model=<span class="s">"gpt-4o"</span>,
+        stream=<span class="k">True</span>,
+        messages=[
+            {<span class="s">"role"</span>: <span class="s">"system"</span>, <span class="s">"content"</span>: <span class="s">"Answer from the context only."</span>},
+            {<span class="s">"role"</span>: <span class="s">"user"</span>,   <span class="s">"content"</span>: <span class="s">f"Context:\n{context}\n\nQ: {question}"</span>},
+        ]
+    )
+    <span class="k">for</span> chunk <span class="k">in</span> stream:
+        delta = chunk.choices[<span class="n">0</span>].delta.content
+        <span class="k">if</span> delta:
+            <span class="f">print</span>(delta, end=<span class="s">""</span>, flush=<span class="k">True</span>)  <span class="c"># print token by token</span>
+
+<span class="c"># FastAPI streaming endpoint:</span>
+<span class="k">from</span> fastapi <span class="k">import</span> FastAPI
+<span class="k">from</span> fastapi.responses <span class="k">import</span> StreamingResponse
+
+app = <span class="f">FastAPI</span>()
+
+@app.<span class="f">post</span>(<span class="s">"/chat"</span>)
+<span class="k">async def</span> <span class="f">chat</span>(payload: dict):
+    <span class="k">async def</span> <span class="f">generate</span>():
+        stream = client.chat.completions.<span class="f">create</span>(stream=<span class="k">True</span>, ...)
+        <span class="k">async for</span> chunk <span class="k">in</span> stream:
+            <span class="k">if</span> chunk.choices[<span class="n">0</span>].delta.content:
+                <span class="k">yield</span> chunk.choices[<span class="n">0</span>].delta.content
+    <span class="k">return</span> <span class="f">StreamingResponse</span>(<span class="f">generate</span>(), media_type=<span class="s">"text/plain"</span>)</pre>
+</div>
+
+
+<!-- ═══════════════════════════════════════
+     CH 7 — FINE-TUNE PIPELINE
+════════════════════════════════════════════ -->
+<div id="finetune">
+<div class="chapter">
+  <span class="chapter-num teal">Chapter 07</span>
+  <h2>Fine-tune Data Pipeline</h2>
+</div>
+
+<h3 class="section"><span class="num">7.1</span> End-to-End Fine-tune Pipeline</h3>
+<div class="diagram-card">
+<h4>From Raw Data to Fine-tuned Model</h4>
+<div class="flow"><span class="fg-amber">Raw Data</span> (CSVs, logs, docs, Q&amp;A exports)
+       │
+       ▼
+<span class="fg-coral">[1. Clean]</span>      Remove noise, fix nulls, filter short text
+       │
+       ▼
+<span class="fg-coral">[2. Format]</span>     Convert every row → chat message JSON object
+       │                {role: system/user/assistant, content: ...}
+       ▼
+<span class="fg-coral">[3. Filter]</span>     Remove duplicates, filter low-quality examples
+       │                min_words > 10, answer_quality_score > 0.7
+       ▼
+<span class="fg-coral">[4. Split]</span>      80% train / 10% val / 10% test  → 3 JSONL files
+       │
+       ▼
+<span class="fg-coral">[5. Validate]</span>   Check JSONL schema, token counts, balance
+       │
+       ▼
+<span class="fg-purple">[6. Upload]</span>     Push to OpenAI / HuggingFace Hub / local trainer
+       │
+       ▼
+<span class="fg-teal">[7. Train]</span>      Fine-tune job runs (minutes to hours)
+       │
+       ▼
+<span class="fg-teal">[8. Evaluate]</span>   Test on held-out set, compare vs base model
+       │
+       ▼
+<span class="fg-blue">✅ Fine-tuned Model</span>   Deploy via API or self-host</div>
+</div>
+
+<h3 class="section"><span class="num">7.2</span> Full Fine-tune Data Pipeline Code</h3>
+<pre><span class="lang">python · complete fine-tune pipeline</span><span class="k">import</span> pandas <span class="k">as</span> pd, json, re
+<span class="k">from</span> sklearn.model_selection <span class="k">import</span> train_test_split
+<span class="k">import</span> tiktoken
+
+<span class="c"># ── Step 1: Load and clean ────────────────────────────────</span>
+df = pd.<span class="f">read_csv</span>(<span class="s">"support_tickets.csv"</span>)
+df = df.<span class="f">dropna</span>(subset=[<span class="s">"question"</span>, <span class="s">"answer"</span>])
+df[<span class="s">"question"</span>] = df[<span class="s">"question"</span>].<span class="f">str</span>.<span class="f">strip</span>()
+df[<span class="s">"answer"</span>]   = df[<span class="s">"answer"</span>].<span class="f">str</span>.<span class="f">strip</span>()
+
+<span class="c"># ── Step 2: Quality filters ───────────────────────────────</span>
+df = df[df[<span class="s">"question"</span>].<span class="f">str</span>.<span class="f">split</span>().<span class="f">str</span>.<span class="f">len</span>() >= <span class="n">5</span>]   <span class="c"># min 5 words</span>
+df = df[df[<span class="s">"answer"</span>].<span class="f">str</span>.<span class="f">split</span>().<span class="f">str</span>.<span class="f">len</span>() >= <span class="n">10</span>]   <span class="c"># min 10 words answer</span>
+df = df.<span class="f">drop_duplicates</span>(subset=[<span class="s">"question"</span>])
+
+<span class="c"># ── Step 3: Build JSONL examples ─────────────────────────</span>
+SYSTEM = <span class="s">"You are a PayPal customer support specialist. Be helpful, accurate, and concise."</span>
+enc = tiktoken.<span class="f">encoding_for_model</span>(<span class="s">"gpt-4o"</span>)
+
+<span class="k">def</span> <span class="f">build_example</span>(row) -> dict | <span class="k">None</span>:
+    msgs = [
+        {<span class="s">"role"</span>:<span class="s">"system"</span>,    <span class="s">"content"</span>: SYSTEM},
+        {<span class="s">"role"</span>:<span class="s">"user"</span>,      <span class="s">"content"</span>: row[<span class="s">"question"</span>]},
+        {<span class="s">"role"</span>:<span class="s">"assistant"</span>, <span class="s">"content"</span>: row[<span class="s">"answer"</span>]},
+    ]
+    total_tokens = <span class="f">sum</span>(<span class="f">len</span>(enc.<span class="f">encode</span>(m[<span class="s">"content"</span>])) <span class="k">for</span> m <span class="k">in</span> msgs)
+    <span class="k">if</span> total_tokens > <span class="n">4096</span>: <span class="k">return</span> <span class="k">None</span>  <span class="c"># skip too-long examples</span>
+    <span class="k">return</span> {<span class="s">"messages"</span>: msgs}
+
+examples = [r <span class="k">for</span> _, row <span class="k">in</span> df.<span class="f">iterrows</span>() <span class="k">if</span> (r:=<span class="f">build_example</span>(row))]
+
+<span class="c"># ── Step 4: Train/val/test split ──────────────────────────</span>
+train, temp  = train_test_split(examples, test_size=<span class="n">0.2</span>, random_state=<span class="n">42</span>)
+val,   test  = train_test_split(temp,     test_size=<span class="n">0.5</span>, random_state=<span class="n">42</span>)
+
+<span class="k">def</span> <span class="f">write_jsonl</span>(data, path):
+    <span class="k">with</span> <span class="f">open</span>(path, <span class="s">"w"</span>) <span class="k">as</span> f:
+        <span class="k">for</span> ex <span class="k">in</span> data: f.<span class="f">write</span>(json.<span class="f">dumps</span>(ex) + <span class="s">"\n"</span>)
+
+<span class="f">write_jsonl</span>(train, <span class="s">"train.jsonl"</span>)
+<span class="f">write_jsonl</span>(val,   <span class="s">"val.jsonl"</span>)
+<span class="f">write_jsonl</span>(test,  <span class="s">"test.jsonl"</span>)
+<span class="f">print</span>(<span class="s">f"Train: {len(train)} | Val: {len(val)} | Test: {len(test)}"</span>)
+
+<span class="c"># ── Step 5: Upload to OpenAI and start fine-tune ──────────</span>
+<span class="k">from</span> openai <span class="k">import</span> OpenAI
+client = <span class="f">OpenAI</span>()
+
+train_file = client.files.<span class="f">create</span>(<span class="f">open</span>(<span class="s">"train.jsonl"</span>,<span class="s">"rb"</span>), purpose=<span class="s">"fine-tune"</span>)
+val_file   = client.files.<span class="f">create</span>(<span class="f">open</span>(<span class="s">"val.jsonl"</span>,  <span class="s">"rb"</span>), purpose=<span class="s">"fine-tune"</span>)
+
+job = client.fine_tuning.jobs.<span class="f">create</span>(
+    training_file=train_file.id,
+    validation_file=val_file.id,
+    model=<span class="s">"gpt-4o-mini-2024-07-18"</span>,
+    hyperparameters={<span class="s">"n_epochs"</span>: <span class="n">3</span>}
+)
+<span class="f">print</span>(<span class="s">f"Job ID: {job.id}"</span>)  <span class="c"># poll with client.fine_tuning.jobs.retrieve(job.id)</span></pre>
+</div>
+
+
+<!-- ═══════════════════════════════════════
+     CH 8 — RAG PIPELINE
+════════════════════════════════════════════ -->
+<div id="rag-pipe">
+<div class="chapter">
+  <span class="chapter-num coral">Chapter 08</span>
+  <h2>RAG Ingestion Pipeline</h2>
+</div>
+
+<h3 class="section"><span class="num">8.1</span> Production RAG Ingestion</h3>
+<pre><span class="lang">python · complete rag ingestion pipeline</span><span class="k">from</span> pathlib <span class="k">import</span> Path
+<span class="k">import</span> hashlib, json, re
+<span class="k">from</span> langchain.document_loaders <span class="k">import</span> PyPDFLoader, TextLoader
+<span class="k">from</span> langchain.text_splitter <span class="k">import</span> RecursiveCharacterTextSplitter
+<span class="k">from</span> langchain.embeddings <span class="k">import</span> OpenAIEmbeddings
+<span class="k">from</span> langchain.vectorstores <span class="k">import</span> Qdrant
+<span class="k">from</span> qdrant_client <span class="k">import</span> QdrantClient
+<span class="k">from</span> qdrant_client.models <span class="k">import</span> Distance, VectorParams
+
+<span class="c"># ── 1. Config ─────────────────────────────────────────────</span>
+CHUNK_SIZE    = <span class="n">1000</span>
+CHUNK_OVERLAP = <span class="n">200</span>
+EMBED_MODEL   = <span class="s">"text-embedding-3-small"</span>
+COLLECTION    = <span class="s">"paypal_knowledge"</span>
+
+<span class="c"># ── 2. Initialize Qdrant ──────────────────────────────────</span>
+client = <span class="f">QdrantClient</span>(<span class="s">"localhost"</span>, port=<span class="n">6333</span>)
+client.recreate_collection(
+    collection_name=COLLECTION,
+    vectors_config=<span class="f">VectorParams</span>(size=<span class="n">1536</span>, distance=Distance.COSINE)
+)
+
+<span class="c"># ── 3. Track processed files (incremental updates) ────────</span>
+<span class="k">def</span> <span class="f">file_hash</span>(path): <span class="k">return</span> hashlib.<span class="f">md5</span>(Path(path).<span class="f">read_bytes</span>()).<span class="f">hexdigest</span>()
+
+processed = {}  <span class="c"># in prod: persist to Redis or SQLite</span>
+
+<span class="c"># ── 4. Ingestion function ─────────────────────────────────</span>
+embeddings = <span class="f">OpenAIEmbeddings</span>(model=EMBED_MODEL)
+splitter   = <span class="f">RecursiveCharacterTextSplitter</span>(
+    chunk_size=CHUNK_SIZE, chunk_overlap=CHUNK_OVERLAP
+)
+
+<span class="k">def</span> <span class="f">ingest_file</span>(path: str):
+    fhash = <span class="f">file_hash</span>(path)
+    <span class="k">if</span> processed.<span class="f">get</span>(path) == fhash:
+        <span class="f">print</span>(<span class="s">f"Skipping (unchanged): {path}"</span>); <span class="k">return</span>
+
+    <span class="c"># Load</span>
+    loader = <span class="f">PyPDFLoader</span>(path) <span class="k">if</span> path.<span class="f">endswith</span>(<span class="s">".pdf"</span>) <span class="k">else</span> <span class="f">TextLoader</span>(path)
+    raw_docs = loader.<span class="f">load</span>()
+
+    <span class="c"># Clean text</span>
+    <span class="k">for</span> doc <span class="k">in</span> raw_docs:
+        doc.page_content = <span class="f">clean_text</span>(doc.page_content)     <span class="c"># your clean_text()</span>
+        doc.page_content = re.<span class="f">sub</span>(<span class="s">r"\n{3,}"</span>, <span class="s">"\n\n"</span>, doc.page_content)
+
+    <span class="c"># Filter empty pages</span>
+    raw_docs = [d <span class="k">for</span> d <span class="k">in</span> raw_docs <span class="k">if</span> <span class="f">len</span>(d.page_content.<span class="f">split</span>()) > <span class="n">20</span>]
+
+    <span class="c"># Chunk</span>
+    chunks = splitter.<span class="f">split_documents</span>(raw_docs)
+
+    <span class="c"># Enrich metadata</span>
+    <span class="k">for</span> i, chunk <span class="k">in</span> <span class="f">enumerate</span>(chunks):
+        chunk.metadata[<span class="s">"file_hash"</span>]   = fhash
+        chunk.metadata[<span class="s">"chunk_index"</span>] = i
+        chunk.metadata[<span class="s">"word_count"</span>]  = <span class="f">len</span>(chunk.page_content.<span class="f">split</span>())
+
+    <span class="c"># Embed + store</span>
+    Qdrant.<span class="f">from_documents</span>(chunks, embeddings,
+        url=<span class="s">"http://localhost:6333"</span>, collection_name=COLLECTION)
+
+    processed[path] = fhash
+    <span class="f">print</span>(<span class="s">f"Indexed {len(chunks)} chunks from {path}"</span>)
+
+<span class="c"># ── 5. Run on a folder ────────────────────────────────────</span>
+<span class="k">for</span> p <span class="k">in</span> Path(<span class="s">"./docs"</span>).<span class="f">rglob</span>(<span class="s">"*.pdf"</span>):
+    <span class="f">ingest_file</span>(<span class="f">str</span>(p))</pre>
+</div>
+
+
+<!-- ═══════════════════════════════════════
+     CH 9 — ORCHESTRATION
+════════════════════════════════════════════ -->
+<div id="orchestrate">
+<div class="chapter">
+  <span class="chapter-num amber">Chapter 09</span>
+  <h2>Orchestration — Automating Pipelines</h2>
+</div>
+
+<h3 class="section"><span class="num">9.1</span> Prefect Pipeline (Modern, Pythonic)</h3>
+<pre><span class="lang">python · prefect 2.x pipeline</span><span class="k">from</span> prefect <span class="k">import</span> flow, task
+<span class="k">from</span> prefect.schedules <span class="k">import</span> CronSchedule
+<span class="k">import</span> pandas <span class="k">as</span> pd
+
+@<span class="f">task</span>(retries=<span class="n">3</span>, retry_delay_seconds=<span class="n">60</span>)
+<span class="k">def</span> <span class="f">extract</span>(source: str) -> pd.DataFrame:
+    <span class="s">"""Pull raw data from source."""</span>
+    <span class="k">return</span> pd.<span class="f">read_csv</span>(source)
+
+@<span class="f">task</span>
+<span class="k">def</span> <span class="f">clean</span>(df: pd.DataFrame) -> pd.DataFrame:
+    <span class="s">"""Run all cleaning steps."""</span>
+    df = df.<span class="f">dropna</span>(subset=[<span class="s">"text"</span>])
+    df[<span class="s">"text"</span>] = df[<span class="s">"text"</span>].<span class="f">apply</span>(clean_text)
+    df = df[df[<span class="s">"text"</span>].<span class="f">str</span>.<span class="f">split</span>().<span class="f">str</span>.<span class="f">len</span>() > <span class="n">10</span>]
+    <span class="k">return</span> df
+
+@<span class="f">task</span>
+<span class="k">def</span> <span class="f">embed_and_index</span>(df: pd.DataFrame):
+    <span class="s">"""Embed and store in vector DB."""</span>
+    <span class="k">for</span> _, row <span class="k">in</span> df.<span class="f">iterrows</span>():
+        <span class="f">ingest_file</span>(row[<span class="s">"path"</span>])  <span class="c"># your ingest function</span>
+
+@<span class="f">task</span>
+<span class="k">def</span> <span class="f">notify</span>(count: int):
+    <span class="f">print</span>(<span class="s">f"Pipeline complete. Indexed {count} documents."</span>)
+    <span class="c"># send Slack / email notification here</span>
+
+@<span class="f">flow</span>(name=<span class="s">"llm-data-pipeline"</span>, schedule=<span class="f">CronSchedule</span>(cron=<span class="s">"0 2 * * *"</span>))
+<span class="k">def</span> <span class="f">llm_pipeline</span>(source: str = <span class="s">"s3://bucket/data.csv"</span>):
+    raw   = <span class="f">extract</span>(source)
+    clean_df = <span class="f">clean</span>(raw)
+    <span class="f">embed_and_index</span>(clean_df)
+    <span class="f">notify</span>(<span class="f">len</span>(clean_df))
+
+<span class="c"># Run: prefect deployment build pipeline.py:llm_pipeline --apply</span></pre>
+
+<h3 class="section"><span class="num">9.2</span> Orchestration Tools Compared</h3>
+<div class="tbl-wrap">
+<table>
+  <thead><tr><th>Tool</th><th>Best For</th><th>Setup</th><th>Key Feature</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Prefect</strong></td><td>Modern Python-first pipelines</td><td>Easy</td><td>Native retries, UI, cloud managed</td></tr>
+    <tr><td><strong>Apache Airflow</strong></td><td>Enterprise, complex DAGs</td><td>Complex</td><td>Industry standard, huge ecosystem</td></tr>
+    <tr><td><strong>Dagster</strong></td><td>Data-asset focused pipelines</td><td>Medium</td><td>Asset lineage, type checking</td></tr>
+    <tr><td><strong>Luigi</strong></td><td>Simple dependency pipelines</td><td>Easy</td><td>Lightweight, pure Python</td></tr>
+    <tr><td><strong>cron + Python</strong></td><td>Simple scheduled scripts</td><td>Trivial</td><td>Zero infra, good for small teams</td></tr>
+    <tr><td><strong>AWS Step Functions</strong></td><td>Serverless, event-driven</td><td>Medium</td><td>Native AWS integration</td></tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+
+<!-- ═══════════════════════════════════════
+     CH 10 — PRODUCTION PATTERNS
+════════════════════════════════════════════ -->
+<div id="patterns">
+<div class="chapter">
+  <span class="chapter-num blue">Chapter 10</span>
+  <h2>Production Patterns &amp; Best Practices</h2>
+</div>
+
+<h3 class="section"><span class="num">10.1</span> Data Quality Checks — Automated</h3>
+<pre><span class="lang">python · great expectations — automated data validation</span><span class="k">import</span> great_expectations <span class="k">as</span> ge
+
+df = ge.<span class="f">from_pandas</span>(your_dataframe)
+
+<span class="c"># Define expectations (auto-validated every pipeline run)</span>
+df.<span class="f">expect_column_to_exist</span>(<span class="s">"text"</span>)
+df.<span class="f">expect_column_values_to_not_be_null</span>(<span class="s">"text"</span>)
+df.<span class="f">expect_column_value_lengths_to_be_between</span>(<span class="s">"text"</span>, min_value=<span class="n">50</span>)
+df.<span class="f">expect_column_values_to_be_unique</span>(<span class="s">"id"</span>)
+df.<span class="f">expect_column_values_to_be_in_set</span>(<span class="s">"language"</span>, [<span class="s">"en"</span>, <span class="s">"es"</span>, <span class="s">"fr"</span>])
+df.<span class="f">expect_table_row_count_to_be_between</span>(min_value=<span class="n">100</span>, max_value=<span class="n">1_000_000</span>)
+
+results = df.<span class="f">validate</span>()
+<span class="k">if not</span> results[<span class="s">"success"</span>]:
+    <span class="k">raise</span> <span class="f">ValueError</span>(<span class="s">f"Data quality check FAILED: {results['statistics']}"</span>)</pre>
+
+<h3 class="section"><span class="num">10.2</span> Incremental Updates (Don't Re-index Everything)</h3>
+<pre><span class="lang">python · incremental ingestion with change detection</span><span class="k">import</span> sqlite3, hashlib
+<span class="k">from</span> pathlib <span class="k">import</span> Path
+
+<span class="c"># Track what's been indexed in SQLite</span>
+conn = sqlite3.<span class="f">connect</span>(<span class="s">"pipeline_state.db"</span>)
+conn.<span class="f">execute</span>(<span class="s">"""CREATE TABLE IF NOT EXISTS indexed_files
+    (path TEXT PRIMARY KEY, hash TEXT, indexed_at TEXT)"""</span>)
+
+<span class="k">def</span> <span class="f">needs_reindex</span>(path: str) -> bool:
+    current_hash = hashlib.<span class="f">md5</span>(Path(path).<span class="f">read_bytes</span>()).<span class="f">hexdigest</span>()
+    row = conn.<span class="f">execute</span>(
+        <span class="s">"SELECT hash FROM indexed_files WHERE path=?"</span>, (path,)
+    ).<span class="f">fetchone</span>()
+    <span class="k">return</span> <span class="k">not</span> row <span class="k">or</span> row[<span class="n">0</span>] != current_hash
+
+<span class="k">def</span> <span class="f">mark_indexed</span>(path: str):
+    h = hashlib.<span class="f">md5</span>(Path(path).<span class="f">read_bytes</span>()).<span class="f">hexdigest</span>()
+    conn.<span class="f">execute</span>(<span class="s">"INSERT OR REPLACE INTO indexed_files VALUES (?,?,datetime('now'))"</span>,(path,h))
+    conn.<span class="f">commit</span>()
+
+<span class="c"># Only re-index changed files</span>
+<span class="k">for</span> p <span class="k">in</span> Path(<span class="s">"./docs"</span>).<span class="f">rglob</span>(<span class="s">"*"</span>):
+    <span class="k">if</span> <span class="f">needs_reindex</span>(<span class="f">str</span>(p)):
+        <span class="f">ingest_file</span>(<span class="f">str</span>(p))
+        <span class="f">mark_indexed</span>(<span class="f">str</span>(p))</pre>
+
+<h3 class="section"><span class="num">10.3</span> The Complete Decision Map</h3>
+<div class="tbl-wrap">
+<table>
+  <thead><tr><th>Situation</th><th>Solution</th></tr></thead>
+  <tbody>
+    <tr><td>PDF has garbled text / scanned images</td><td><span class="tag amber">Use OCR: pytesseract or AWS Textract</span></td></tr>
+    <tr><td>Data has 40% nulls in key column</td><td><span class="tag red">Don't impute — filter out or use LLM to fill</span></td></tr>
+    <tr><td>Same doc keeps re-embedding</td><td><span class="tag green">Content hash check before ingestion</span></td></tr>
+    <tr><td>LLM answers from wrong time period</td><td><span class="tag blue">Add date metadata + filter by date in retrieval</span></td></tr>
+    <tr><td>LLM ignores retrieved context</td><td><span class="tag purple">Put context first, question last; use XML tags</span></td></tr>
+    <tr><td>Chunks cut sentences in half</td><td><span class="tag green">Use SentenceSplitter, not fixed-char splits</span></td></tr>
+    <tr><td>Too slow to embed 1M docs</td><td><span class="tag amber">Async batching + use local embeddings (all-MiniLM)</span></td></tr>
+    <tr><td>Fine-tune making up facts</td><td><span class="tag red">Switch to RAG — FT doesn't inject facts reliably</span></td></tr>
+    <tr><td>Context window keeps overflowing</td><td><span class="tag green">Summarize chunks before injection + trim to budget</span></td></tr>
+    <tr><td>Data has PII (SSNs, emails)</td><td><span class="tag red">Redact before ingestion — never send PII to cloud LLMs</span></td></tr>
+  </tbody>
+</table>
+</div>
+
+<h3 class="section"><span class="num">10.4</span> PII Redaction Before Feeding LLM</h3>
+<pre><span class="lang">python · redact PII before sending to any cloud LLM</span><span class="k">import</span> re
+
+<span class="k">def</span> <span class="f">redact_pii</span>(text: str) -> str:
+    <span class="s">"""Remove PII before sending to cloud LLM APIs."""</span>
+
+    <span class="c"># Emails</span>
+    text = re.<span class="f">sub</span>(<span class="s">r"[\w\.-]+@[\w\.-]+\.\w+"</span>, <span class="s">"[EMAIL]"</span>, text)
+
+    <span class="c"># Phone numbers (US format + international)</span>
+    text = re.<span class="f">sub</span>(<span class="s">r"(\+?\d[\d\-\.\s]{7,}\d)"</span>, <span class="s">"[PHONE]"</span>, text)
+
+    <span class="c"># SSN</span>
+    text = re.<span class="f">sub</span>(<span class="s">r"\b\d{3}-\d{2}-\d{4}\b"</span>, <span class="s">"[SSN]"</span>, text)
+
+    <span class="c"># Credit card numbers</span>
+    text = re.<span class="f">sub</span>(<span class="s">r"\b(?:\d{4}[\s\-]?){3}\d{4}\b"</span>, <span class="s">"[CARD]"</span>, text)
+
+    <span class="c"># IP addresses</span>
+    text = re.<span class="f">sub</span>(<span class="s">r"\b(?:\d{1,3}\.){3}\d{1,3}\b"</span>, <span class="s">"[IP]"</span>, text)
+
+    <span class="c"># Use spaCy NER for names (more accurate)</span>
+    <span class="k">import</span> spacy
+    nlp = spacy.<span class="f">load</span>(<span class="s">"en_core_web_sm"</span>)
+    doc = nlp(text)
+    <span class="k">for</span> ent <span class="k">in</span> reversed(doc.ents):  <span class="c"># reversed to preserve char offsets</span>
+        <span class="k">if</span> ent.label_ <span class="k">in</span> [<span class="s">"PERSON"</span>, <span class="s">"GPE"</span>]:
+            text = text[:ent.start_char] + <span class="s">f"[{ent.label_}]"</span> + text[ent.end_char:]
+    <span class="k">return</span> text
+
+<span class="c"># Better alternative: Microsoft Presidio (production-grade)</span>
+<span class="c"># from presidio_analyzer import AnalyzerEngine</span>
+<span class="c"># from presidio_anonymizer import AnonymizerEngine</span></pre>
+
+<h3 class="section"><span class="num">10.5</span> Async Batch Embedding (10x Faster)</h3>
+<pre><span class="lang">python · async parallel embedding for large datasets</span><span class="k">import</span> asyncio, openai
+<span class="k">from</span> tenacity <span class="k">import</span> retry, stop_after_attempt, wait_exponential
+
+client = openai.<span class="f">AsyncOpenAI</span>()
+
+@<span class="f">retry</span>(stop=<span class="f">stop_after_attempt</span>(<span class="n">3</span>), wait=<span class="f">wait_exponential</span>(min=<span class="n">1</span>, max=<span class="n">10</span>))
+<span class="k">async def</span> <span class="f">embed_batch</span>(texts: list[str]) -> list[list[float]]:
+    <span class="s">"""Embed a batch of texts with automatic retry on rate limit."""</span>
+    response = <span class="k">await</span> client.embeddings.<span class="f">create</span>(
+        input=texts, model=<span class="s">"text-embedding-3-small"</span>
+    )
+    <span class="k">return</span> [r.embedding <span class="k">for</span> r <span class="k">in</span> response.data]
+
+<span class="k">async def</span> <span class="f">embed_all</span>(texts: list[str], batch_size=<span class="n">100</span>) -> list[list[float]]:
+    <span class="s">"""Embed millions of texts in parallel batches."""</span>
+    batches = [texts[i:i+batch_size] <span class="k">for</span> i <span class="k">in</span> <span class="f">range</span>(<span class="n">0</span>, <span class="f">len</span>(texts), batch_size)]
+    tasks   = [<span class="f">embed_batch</span>(b) <span class="k">for</span> b <span class="k">in</span> batches]
+    results = <span class="k">await</span> asyncio.<span class="f">gather</span>(*tasks)
+    <span class="k">return</span> [vec <span class="k">for</span> batch <span class="k">in</span> results <span class="k">for</span> vec <span class="k">in</span> batch]
+
+<span class="c"># Run it</span>
+vectors = asyncio.<span class="f">run</span>(<span class="f">embed_all</span>(all_texts))
+<span class="f">print</span>(<span class="s">f"Embedded {len(vectors)} texts"</span>)</pre>
+
+<h3 class="section"><span class="num">10.6</span> Monitoring Your Pipeline</h3>
+<div class="grid-3">
+  <div class="card blue">
+    <h4>Track These Metrics</h4>
+    <ul>
+      <li>Documents ingested / hr</li>
+      <li>Embedding cost ($) per batch</li>
+      <li>Chunk count per doc</li>
+      <li>Average chunk quality score</li>
+      <li>Pipeline failure rate</li>
+    </ul>
+  </div>
+  <div class="card blue">
+    <h4>Alert On</h4>
+    <ul>
+      <li>Null rate &gt; 5% in key columns</li>
+      <li>Batch size drops by 30%+</li>
+      <li>Embedding API errors</li>
+      <li>Vector DB storage &gt; 80%</li>
+      <li>Pipeline duration 2x baseline</li>
+    </ul>
+  </div>
+  <div class="card blue">
+    <h4>Tools</h4>
+    <ul>
+      <li>Prometheus + Grafana</li>
+      <li>Datadog / New Relic</li>
+      <li>Prefect UI (built-in)</li>
+      <li>Custom SQLite log table</li>
+      <li>Slack webhook alerts</li>
+    </ul>
+  </div>
+</div>
+</div>
+
+<footer>
+  <p>Data Pipelines · Cleanup · LLM Feeding — Complete Engineering Guide · 2025</p>
+</footer>
+
+</div><!-- .wrap -->
+
+<script>
+document.querySelectorAll('a.toc-btn').forEach(a => {
+  a.addEventListener('click', e => {
+    e.preventDefault();
+    const id = a.getAttribute('href').slice(1);
+    document.getElementById(id)?.scrollIntoView({behavior:'smooth'});
+  });
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,729 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Visualization · Matplotlib &amp; Seaborn for EDA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0c11;--bg-2:#0f131a;--surface:#161b24;--border:#262d3a;--border-soft:#1f2530;--text:#e8ebf1;--text-dim:#9aa3b2;--text-mute:#6b7385;--teal-2:#28c595;--purple-2:#9d96e6;--coral-2:#ec7548;--amber-2:#e0a64a;--accent:#28c595;--code-bg:#0e1218;--out-bg:#0b1015;--code-key:#7F77DD;--code-fn:#28c595;--code-str:#e0a64a;--code-num:#ec7548;--code-com:#5b6477}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-size:15.5px;line-height:1.75;-webkit-font-smoothing:antialiased;letter-spacing:.005em}
+.book{max-width:840px;margin:0 auto;padding:0 28px}
+.cover{min-height:88vh;display:flex;flex-direction:column;justify-content:center;padding:60px 0 80px;background:radial-gradient(800px 500px at 20% 30%, rgba(40,197,149,.12), transparent 60%);border-bottom:1px solid var(--border-soft);margin-bottom:60px}
+.cover .crest{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:var(--accent);margin-bottom:24px;font-weight:600}
+.cover h1{font-family:'Fraunces',serif;font-weight:400;font-style:italic;font-size:108px;line-height:.92;letter-spacing:-.03em;margin:0 0 18px;background:linear-gradient(180deg,#fff 0%,#a9b3c4 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.cover .sub{font-family:'Fraunces',serif;font-weight:300;font-size:26px;line-height:1.35;letter-spacing:-.01em;color:var(--text-dim);max-width:620px;margin:0 0 40px}
+.cover .meta{display:flex;gap:32px;flex-wrap:wrap;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-mute);text-transform:uppercase;letter-spacing:.14em;padding-top:28px;border-top:1px solid var(--border-soft)}
+.cover .meta b{color:var(--text-dim);font-weight:500}
+.series-nav{display:inline-flex;gap:10px;flex-wrap:wrap;margin-bottom:32px}
+.series-nav .item{font-family:'JetBrains Mono',monospace;font-size:10.5px;padding:5px 11px;border-radius:999px;border:1px solid var(--border);background:var(--surface);color:var(--text-mute);text-transform:uppercase;letter-spacing:.1em}
+.series-nav .item.done{color:var(--text-dim)}
+.series-nav .item.done::before{content:"✓ ";color:var(--accent)}
+.series-nav .item.active{background:rgba(40,197,149,.1);border-color:var(--accent);color:var(--accent)}
+.toc-page{padding:40px 0 80px;border-bottom:1px solid var(--border-soft);margin-bottom:80px}
+.toc-page h2{font-family:'Fraunces',serif;font-style:italic;font-weight:400;font-size:42px;letter-spacing:-.015em;margin:0 0 8px}
+.toc-page .toc-intro{color:var(--text-dim);font-size:14.5px;margin:0 0 36px;max-width:620px}
+.toc-list{list-style:none;padding:0;margin:0}
+.toc-list li{display:flex;justify-content:space-between;align-items:baseline;gap:14px;padding:9px 0;border-bottom:1px dotted var(--border-soft)}
+.toc-list a{color:var(--text-dim);text-decoration:none;font-size:14.5px;flex:1;display:flex;align-items:baseline;gap:16px}
+.toc-list a:hover{color:var(--accent)}
+.toc-list .ch{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--accent);min-width:30px}
+.toc-list .desc{font-size:12px;color:var(--text-mute);font-style:italic}
+.chapter{padding:60px 0;scroll-margin-top:24px}
+.chapter+.chapter{border-top:1px solid var(--border-soft)}
+.ch-header{margin-bottom:32px}
+.ch-num{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;color:var(--accent);letter-spacing:.1em;display:block;margin-bottom:8px}
+.ch-title{font-family:'Fraunces',serif;font-style:italic;font-weight:400;font-size:46px;line-height:1.05;letter-spacing:-.02em;margin:0;color:var(--text)}
+.dropcap::first-letter{font-family:'Fraunces',serif;font-style:italic;font-weight:400;font-size:62px;float:left;line-height:.85;margin:8px 12px 0 0;color:var(--accent)}
+h3.section{font-family:'Fraunces',serif;font-weight:500;font-size:24px;letter-spacing:-.01em;margin:42px 0 12px;color:var(--text)}
+h3.section .num{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text-mute);font-weight:400;margin-right:10px}
+h4.sub{font-size:15px;font-weight:600;margin:22px 0 8px;color:var(--text);letter-spacing:-.005em}
+p{margin:0 0 14px;color:var(--text)}
+.lead{font-size:17px;color:var(--text-dim);margin-bottom:20px;font-family:'Fraunces',serif;font-weight:300;line-height:1.55;font-style:italic}
+ul,ol{margin:0 0 16px;padding-left:24px;color:var(--text-dim)}
+li{margin-bottom:6px}
+b,strong{color:var(--text);font-weight:600}
+em{font-style:italic;color:var(--text)}
+pre{background:var(--code-bg);border:1px solid var(--border-soft);border-radius:8px 8px 0 0;padding:14px 16px;font-family:'JetBrains Mono',monospace;font-size:12.5px;line-height:1.65;overflow-x:auto;margin:14px 0 0;color:#cdd4e0;position:relative}
+pre:not(.out):not(:has(+ pre.out)){border-radius:8px;margin-bottom:18px}
+pre.out{background:var(--out-bg);border:1px dashed var(--border);border-top:0;border-radius:0 0 8px 8px;margin-top:0;margin-bottom:18px;color:#a9b3c4;font-size:12px}
+pre.out::before{content:"OUTPUT";position:absolute;top:6px;right:12px;font-size:9px;color:var(--text-mute);letter-spacing:.14em;font-weight:600;font-family:'JetBrains Mono',monospace}
+pre.solo{border-radius:8px;margin-bottom:18px}
+code{font-family:'JetBrains Mono',monospace}
+:not(pre)>code{background:rgba(40,197,149,.08);padding:1px 6px;border-radius:4px;border:1px solid rgba(40,197,149,.15);color:var(--accent);font-size:13px}
+.k{color:var(--code-key)}.f{color:var(--code-fn)}.s{color:var(--code-str)}.n{color:var(--code-num)}.c{color:var(--code-com);font-style:italic}.o{color:#cdd4e0}
+.note{display:flex;gap:16px;margin:18px 0;padding:14px 18px;border-radius:8px;background:var(--surface);border-left:3px solid var(--note-accent,var(--purple-2));font-size:14.5px}
+.note .lbl{font-family:'JetBrains Mono',monospace;font-size:10.5px;text-transform:uppercase;letter-spacing:.12em;color:var(--note-accent,var(--purple-2));font-weight:600;flex-shrink:0;min-width:96px}
+.note p{margin:0;color:var(--text-dim);font-size:14px}
+.note.intuition{--note-accent:var(--amber-2)}
+.note.warn{--note-accent:var(--coral-2)}
+.note.tip{--note-accent:var(--teal-2)}
+.app{background:linear-gradient(180deg,rgba(40,197,149,.05),transparent);border:1px solid var(--border-soft);border-left:3px solid var(--accent);border-radius:8px;padding:14px 18px;margin:18px 0}
+.app .lbl{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--accent);text-transform:uppercase;letter-spacing:.14em;font-weight:600;margin-bottom:6px}
+.app p{margin:0;color:var(--text-dim);font-size:13.5px;line-height:1.6}
+.figure{margin:24px 0 28px;background:var(--surface);border:1px solid var(--border-soft);border-radius:10px;padding:24px}
+.figure svg{display:block;margin:0 auto;width:100%;height:auto;max-width:760px}
+.fig-caption{text-align:center;font-size:12.5px;color:var(--text-mute);font-style:italic;margin-top:14px;font-family:'Fraunces',serif}
+.fig-caption b{color:var(--text);font-style:normal;font-weight:600;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.04em;margin-right:6px}
+table.tbl{width:100%;border-collapse:collapse;font-size:13.5px;margin:16px 0 18px;background:var(--surface);border-radius:8px;overflow:hidden;border:1px solid var(--border-soft)}
+table.tbl th,table.tbl td{text-align:left;padding:10px 14px;border-bottom:1px solid var(--border-soft);vertical-align:top}
+table.tbl th{color:var(--text-mute);font-weight:500;font-family:'JetBrains Mono',monospace;font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;background:var(--bg-2)}
+table.tbl td:first-child{color:var(--text);font-weight:500}
+table.tbl tr:last-child td{border-bottom:none}
+table.tbl code{font-size:12.5px}
+.colophon{margin:80px 0 40px;padding:36px 0;border-top:1px solid var(--border-soft);text-align:center}
+.colophon .mark{font-family:'Fraunces',serif;font-style:italic;font-size:36px;color:var(--accent);margin:0 0 10px}
+.colophon p{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-mute);text-transform:uppercase;letter-spacing:.14em;margin:0}
+@media (max-width:680px){.cover h1{font-size:62px}.cover .sub{font-size:18px}.ch-title{font-size:32px}h3.section{font-size:20px}.book{padding:0 18px}}
+@media print{body{background:#fff;color:#111}.cover h1{color:#111;-webkit-text-fill-color:#111}.chapter{page-break-before:always;border-top:none}pre,pre.out,.note,.figure,table.tbl,.app{background:#fff;border-color:#ddd;break-inside:avoid}pre{background:#f7f7f9}.k{color:#7c3aed}.f{color:#0d8a5b}.s{color:#a5650a}.n{color:#b14a26}.c{color:#888}}
+</style>
+</head>
+<body>
+<div class="book">
+
+<section class="cover">
+  <div class="crest">⌗ the foundations · book 4 of 5</div>
+  <div class="series-nav">
+    <span class="item done">NumPy</span>
+    <span class="item done">Pandas</span>
+    <span class="item done">Polars</span>
+    <span class="item active">Visualization</span>
+    <span class="item">Project</span>
+  </div>
+  <h1>Visualization.</h1>
+  <p class="sub">Matplotlib for the engine. Seaborn for the language. Together they turn raw tables into the pictures that drive every decision you'll make about your data.</p>
+  <div class="meta">
+    <span><b>12</b> chapters</span>
+    <span>Matplotlib · Seaborn</span>
+    <span>EDA-first</span>
+    <span><b>2026</b> edition</span>
+  </div>
+</section>
+
+<section class="toc-page" id="toc">
+  <h2>Contents</h2>
+  <p class="toc-intro">An EDA-first tour of plotting in Python. Matplotlib first because Seaborn sits on top. Then Seaborn, where the real productivity lives. By the end you'll have a checklist for "what to plot when" that turns any new dataset into a story.</p>
+  <ul class="toc-list">
+    <li><a href="#c1"><span class="ch">01</span><span>Why visualize</span></a><span class="desc">the Anscombe lesson</span></li>
+    <li><a href="#c2"><span class="ch">02</span><span>Matplotlib — the engine</span></a><span class="desc">figure, axes, the OO API</span></li>
+    <li><a href="#c3"><span class="ch">03</span><span>The plot types you'll use</span></a><span class="desc">line, scatter, bar, hist, box</span></li>
+    <li><a href="#c4"><span class="ch">04</span><span>Customizing</span></a><span class="desc">styles, colors, annotations</span></li>
+    <li><a href="#c5"><span class="ch">05</span><span>Seaborn — statistical visuals</span></a><span class="desc">the layer that thinks in DataFrames</span></li>
+    <li><a href="#c6"><span class="ch">06</span><span>Distributions</span></a><span class="desc">hist, kde, ecdf, box, violin</span></li>
+    <li><a href="#c7"><span class="ch">07</span><span>Relationships</span></a><span class="desc">scatter, line, regression, heatmap</span></li>
+    <li><a href="#c8"><span class="ch">08</span><span>Categorical comparisons</span></a><span class="desc">bar, point, strip, swarm</span></li>
+    <li><a href="#c9"><span class="ch">09</span><span>Multi-panel plots</span></a><span class="desc">FacetGrid, pairplot, jointplot</span></li>
+    <li><a href="#c10"><span class="ch">10</span><span>The EDA playbook</span></a><span class="desc">what to plot, in what order</span></li>
+    <li><a href="#c11"><span class="ch">11</span><span>Presentation-ready plots</span></a><span class="desc">from "fine" to "publishable"</span></li>
+    <li><a href="#c12"><span class="ch">12</span><span>Mistakes &amp; how to avoid them</span></a><span class="desc">a checklist for honest plots</span></li>
+  </ul>
+</section>
+
+<section class="chapter" id="c1">
+  <div class="ch-header"><span class="ch-num">CHAPTER 01</span><h2 class="ch-title">Why visualize</h2></div>
+  <p class="lead">Summary statistics lie. Pictures don't. The most famous lesson in data visualization is also the most important one.</p>
+
+  <p class="dropcap">In 1973, statistician Francis Anscombe published four small datasets that became immortal. Each has the same number of points, the same mean for both variables, the same variance, the same correlation, and the same regression line. By every numerical summary they are identical. Plot them and you immediately see they're radically different: one is a clean line, one is a perfect curve, one is a line dragged off course by a single outlier, and one is a vertical pillar that shouldn't have a regression line at all. The numbers agreed. The pictures disagreed. Pictures were right.</p>
+
+  <div class="figure">
+    <svg viewBox="0 0 720 200" xmlns="http://www.w3.org/2000/svg">
+      <g font-family="JetBrains Mono" font-size="10">
+        <g transform="translate(10,10)">
+          <rect width="160" height="160" fill="#161b24" stroke="#262d3a"/>
+          <text x="80" y="14" text-anchor="middle" fill="#9aa3b2">I — linear</text>
+          <circle cx="30" cy="130" r="3" fill="#28c595"/><circle cx="45" cy="118" r="3" fill="#28c595"/><circle cx="60" cy="110" r="3" fill="#28c595"/><circle cx="75" cy="90" r="3" fill="#28c595"/><circle cx="90" cy="80" r="3" fill="#28c595"/><circle cx="105" cy="65" r="3" fill="#28c595"/><circle cx="120" cy="55" r="3" fill="#28c595"/><circle cx="135" cy="40" r="3" fill="#28c595"/>
+          <line x1="20" y1="140" x2="150" y2="32" stroke="#9d96e6" stroke-width="1" opacity="0.7"/>
+        </g>
+        <g transform="translate(190,10)">
+          <rect width="160" height="160" fill="#161b24" stroke="#262d3a"/>
+          <text x="80" y="14" text-anchor="middle" fill="#9aa3b2">II — quadratic</text>
+          <circle cx="25" cy="120" r="3" fill="#28c595"/><circle cx="40" cy="95" r="3" fill="#28c595"/><circle cx="55" cy="75" r="3" fill="#28c595"/><circle cx="70" cy="55" r="3" fill="#28c595"/><circle cx="90" cy="45" r="3" fill="#28c595"/><circle cx="110" cy="50" r="3" fill="#28c595"/><circle cx="125" cy="70" r="3" fill="#28c595"/><circle cx="140" cy="100" r="3" fill="#28c595"/>
+          <line x1="20" y1="140" x2="150" y2="32" stroke="#9d96e6" stroke-width="1" opacity="0.7"/>
+        </g>
+        <g transform="translate(370,10)">
+          <rect width="160" height="160" fill="#161b24" stroke="#262d3a"/>
+          <text x="80" y="14" text-anchor="middle" fill="#9aa3b2">III — outlier</text>
+          <circle cx="25" cy="120" r="3" fill="#28c595"/><circle cx="40" cy="115" r="3" fill="#28c595"/><circle cx="55" cy="108" r="3" fill="#28c595"/><circle cx="70" cy="100" r="3" fill="#28c595"/><circle cx="85" cy="90" r="3" fill="#28c595"/><circle cx="100" cy="85" r="3" fill="#28c595"/><circle cx="115" cy="80" r="3" fill="#28c595"/>
+          <circle cx="100" cy="30" r="4" fill="#ec7548"/>
+          <line x1="20" y1="140" x2="150" y2="32" stroke="#9d96e6" stroke-width="1" opacity="0.7"/>
+        </g>
+        <g transform="translate(550,10)">
+          <rect width="160" height="160" fill="#161b24" stroke="#262d3a"/>
+          <text x="80" y="14" text-anchor="middle" fill="#9aa3b2">IV — pillar</text>
+          <circle cx="40" cy="120" r="3" fill="#28c595"/><circle cx="40" cy="100" r="3" fill="#28c595"/><circle cx="40" cy="80" r="3" fill="#28c595"/><circle cx="40" cy="60" r="3" fill="#28c595"/><circle cx="40" cy="130" r="3" fill="#28c595"/><circle cx="40" cy="110" r="3" fill="#28c595"/><circle cx="40" cy="90" r="3" fill="#28c595"/>
+          <circle cx="130" cy="40" r="4" fill="#ec7548"/>
+          <line x1="20" y1="140" x2="150" y2="32" stroke="#9d96e6" stroke-width="1" opacity="0.7"/>
+        </g>
+      </g>
+    </svg>
+    <div class="fig-caption"><b>Figure 1.1</b>Anscombe's quartet. All four datasets share mean, variance, correlation, and regression line — yet they're obviously different the moment you plot them.</div>
+  </div>
+
+  <h3 class="section"><span class="num">1.1</span>Two kinds of plotting</h3>
+  <ul>
+    <li><b>Exploration.</b> Plots you make to <em>understand</em>. Fast, ugly, many, throwaway.</li>
+    <li><b>Presentation.</b> Plots you make to <em>communicate</em>. Slow, polished, few, durable.</li>
+  </ul>
+  <p>Most of this book is exploration — that's where the reps happen. Chapters 11 and 12 cover the transition to presentation quality.</p>
+
+  <h3 class="section"><span class="num">1.2</span>The Python plotting stack</h3>
+  <table class="tbl">
+    <thead><tr><th>Tool</th><th>What it is</th><th>Use for</th></tr></thead>
+    <tbody>
+      <tr><td><b>Matplotlib</b></td><td>the engine — low-level, infinitely customizable</td><td>custom figures, exact control</td></tr>
+      <tr><td><b>Seaborn</b></td><td>statistical layer over matplotlib</td><td>EDA, fast plots from DataFrames</td></tr>
+      <tr><td><b>Plotly / Bokeh</b></td><td>interactive, web-based</td><td>dashboards, interactive exploration</td></tr>
+      <tr><td><b>Altair</b></td><td>declarative grammar-of-graphics</td><td>concise specifications, web embedding</td></tr>
+    </tbody>
+  </table>
+  <p>This book focuses on Matplotlib + Seaborn — the combination 90% of Python data work uses.</p>
+
+  <div class="app">
+    <div class="lbl">Application</div>
+    <p>Every dataset hides surprises in its tails, its outliers, its skew. Numerical summaries average those surprises away. Make plotting your first move on any new data — before you compute, before you model, before you write a single conclusion.</p>
+  </div>
+</section>
+
+<section class="chapter" id="c2">
+  <div class="ch-header"><span class="ch-num">CHAPTER 02</span><h2 class="ch-title">Matplotlib — the engine</h2></div>
+  <p class="lead">Two APIs, only one of which you should use. Pick the right one and matplotlib stops feeling chaotic.</p>
+
+  <h3 class="section"><span class="num">2.1</span>Setup</h3>
+<pre><span class="k">import</span> matplotlib.pyplot <span class="k">as</span> plt
+<span class="k">import</span> numpy <span class="k">as</span> np
+<span class="c"># In Jupyter, this is automatic. In scripts, end with plt.show()</span></pre>
+
+  <h3 class="section"><span class="num">2.2</span>Figure and axes — the mental model</h3>
+  <p>A <b>figure</b> is the canvas. An <b>axes</b> is a single plot living inside it ("axes" is singular here — a quirk of matplotlib's vocabulary). A figure can contain one or many axes. Every plot happens on some axes.</p>
+
+  <h3 class="section"><span class="num">2.3</span>The two APIs</h3>
+
+  <h4 class="sub">pyplot API — implicit, MATLAB-style</h4>
+<pre>plt.<span class="f">plot</span>([<span class="n">1</span>, <span class="n">2</span>, <span class="n">3</span>], [<span class="n">1</span>, <span class="n">4</span>, <span class="n">9</span>])
+plt.<span class="f">xlabel</span>(<span class="s">"x"</span>); plt.<span class="f">ylabel</span>(<span class="s">"y"</span>); plt.<span class="f">title</span>(<span class="s">"squared"</span>)
+plt.<span class="f">show</span>()</pre>
+  <p>Fine for quick interactive use. Becomes awkward fast: which figure is "current"? Where do customizations apply?</p>
+
+  <h4 class="sub">Object-oriented API — explicit</h4>
+<pre>fig, ax = plt.<span class="f">subplots</span>(figsize=(<span class="n">8</span>, <span class="n">5</span>))
+ax.<span class="f">plot</span>([<span class="n">1</span>, <span class="n">2</span>, <span class="n">3</span>], [<span class="n">1</span>, <span class="n">4</span>, <span class="n">9</span>])
+ax.<span class="f">set_xlabel</span>(<span class="s">"x"</span>); ax.<span class="f">set_ylabel</span>(<span class="s">"y"</span>); ax.<span class="f">set_title</span>(<span class="s">"squared"</span>)</pre>
+  <p>Use this one. <em>Always.</em> Every action targets a specific <code>ax</code>, customizations are unambiguous, and growing from one plot to many takes one extra argument.</p>
+
+  <div class="note tip">
+    <span class="lbl">the rule</span>
+    <p>Always start with <code>fig, ax = plt.subplots()</code>. Two more characters than <code>plt.plot</code> — and it saves you from rewriting your code the moment you want a second subplot or a custom size.</p>
+  </div>
+
+  <h3 class="section"><span class="num">2.4</span>Multiple subplots</h3>
+<pre>fig, axes = plt.<span class="f">subplots</span>(<span class="n">2</span>, <span class="n">3</span>, figsize=(<span class="n">12</span>, <span class="n">6</span>))
+
+axes[<span class="n">0</span>, <span class="n">0</span>].<span class="f">plot</span>(x, y1)
+axes[<span class="n">0</span>, <span class="n">1</span>].<span class="f">scatter</span>(x, y2)
+axes[<span class="n">1</span>, <span class="n">2</span>].<span class="f">hist</span>(y3)
+
+<span class="c"># Loop pattern</span>
+<span class="k">for</span> ax, col <span class="k">in</span> <span class="f">zip</span>(axes.flat, df.columns):
+    ax.<span class="f">hist</span>(df[col]); ax.<span class="f">set_title</span>(col)
+
+fig.<span class="f">tight_layout</span>()</pre>
+
+  <h3 class="section"><span class="num">2.5</span>The anatomy of an axes</h3>
+<pre>ax.<span class="f">set_xlim</span>(<span class="n">0</span>, <span class="n">10</span>); ax.<span class="f">set_ylim</span>(<span class="n">0</span>, <span class="n">100</span>)
+ax.<span class="f">set_xlabel</span>(<span class="s">"time (s)"</span>); ax.<span class="f">set_ylabel</span>(<span class="s">"value"</span>)
+ax.<span class="f">set_title</span>(<span class="s">"my plot"</span>)
+ax.<span class="f">grid</span>(<span class="k">True</span>, alpha=<span class="n">0.3</span>)
+ax.<span class="f">legend</span>()
+ax.<span class="f">spines</span>[<span class="s">"top"</span>].<span class="f">set_visible</span>(<span class="k">False</span>)
+ax.<span class="f">spines</span>[<span class="s">"right"</span>].<span class="f">set_visible</span>(<span class="k">False</span>)</pre>
+
+  <h3 class="section"><span class="num">2.6</span>Saving</h3>
+<pre>fig.<span class="f">savefig</span>(<span class="s">"plot.png"</span>, dpi=<span class="n">150</span>, bbox_inches=<span class="s">"tight"</span>)
+fig.<span class="f">savefig</span>(<span class="s">"plot.pdf"</span>)        <span class="c"># vector — perfect for print</span>
+fig.<span class="f">savefig</span>(<span class="s">"plot.svg"</span>)        <span class="c"># vector — perfect for web</span></pre>
+
+  <div class="app">
+    <div class="lbl">Application</div>
+    <p>Once you commit to the OO API, every matplotlib weirdness in Stack Overflow ("why doesn't my title appear?", "why is my second plot blank?") disappears. The few extra characters per line pay back in clarity by the third plot of any session.</p>
+  </div>
+</section>
+
+<section class="chapter" id="c3">
+  <div class="ch-header"><span class="ch-num">CHAPTER 03</span><h2 class="ch-title">The plot types you'll use</h2></div>
+  <p class="lead">Five plot types cover ninety percent of all visualization. Master them and the rest is variation.</p>
+
+  <h3 class="section"><span class="num">3.1</span>Line plot — change over a continuous axis</h3>
+<pre>fig, ax = plt.<span class="f">subplots</span>()
+ax.<span class="f">plot</span>(dates, revenue, label=<span class="s">"revenue"</span>, color=<span class="s">"#28c595"</span>, linewidth=<span class="n">2</span>)
+ax.<span class="f">plot</span>(dates, costs,   label=<span class="s">"costs"</span>,   color=<span class="s">"#ec7548"</span>, linestyle=<span class="s">"--"</span>)
+ax.<span class="f">legend</span>()
+ax.<span class="f">set_ylabel</span>(<span class="s">"USD millions"</span>)</pre>
+  <p>Best for time series, ordered sequences, anything where the x-axis has natural continuity.</p>
+
+  <h3 class="section"><span class="num">3.2</span>Scatter plot — two-variable relationships</h3>
+<pre>ax.<span class="f">scatter</span>(df[<span class="s">"age"</span>], df[<span class="s">"income"</span>], alpha=<span class="n">0.4</span>, s=<span class="n">20</span>)</pre>
+  <p>Set <code>alpha</code> below 1 whenever you have more than a few hundred points — without transparency, dense clusters look identical to sparse ones.</p>
+
+  <h3 class="section"><span class="num">3.3</span>Bar chart — comparing categories</h3>
+<pre>ax.<span class="f">bar</span>(categories, values, color=<span class="s">"#28c595"</span>)
+ax.<span class="f">barh</span>(categories, values)        <span class="c"># horizontal — better with many or long labels</span></pre>
+  <p>Always sort bars by value unless the categories have a natural order (months, weekdays, ratings). Unordered bars waste the reader's attention.</p>
+
+  <h3 class="section"><span class="num">3.4</span>Histogram — distribution of one variable</h3>
+<pre>ax.<span class="f">hist</span>(df[<span class="s">"price"</span>], bins=<span class="n">30</span>, color=<span class="s">"#9d96e6"</span>, edgecolor=<span class="s">"white"</span>)</pre>
+  <p>The bin count matters. Too few and you miss the shape; too many and the histogram becomes noisy. Default of 10 is usually wrong — try 30 first.</p>
+
+  <h3 class="section"><span class="num">3.5</span>Box plot — distribution summary across groups</h3>
+<pre>ax.<span class="f">boxplot</span>([df[df[<span class="s">"region"</span>] == r][<span class="s">"sales"</span>] <span class="k">for</span> r <span class="k">in</span> regions], labels=regions)</pre>
+  <p>Compresses a lot of information — median, quartiles, range, outliers — into a small footprint. Seaborn makes this much easier (Chapter 6).</p>
+
+  <h3 class="section"><span class="num">3.6</span>The chart-type cheatsheet</h3>
+  <table class="tbl">
+    <thead><tr><th>Question</th><th>Right plot</th></tr></thead>
+    <tbody>
+      <tr><td>What's the distribution of X?</td><td>histogram, KDE, ECDF</td></tr>
+      <tr><td>Does X change over time?</td><td>line plot</td></tr>
+      <tr><td>Is X related to Y?</td><td>scatter (+ regression line)</td></tr>
+      <tr><td>How does X differ by category?</td><td>bar (means), box (full distribution)</td></tr>
+      <tr><td>How does X relate to Y across categories?</td><td>scatter with hue, FacetGrid</td></tr>
+      <tr><td>What's the correlation structure?</td><td>heatmap, pairplot</td></tr>
+    </tbody>
+  </table>
+
+  <div class="app">
+    <div class="lbl">Application</div>
+    <p>Three rules that eliminate most bad visualizations you'd otherwise make: never use pie charts, never use 3-D bars, never use dual-axis line plots with two different scales. Apply these consistently and your charts immediately get more honest.</p>
+  </div>
+</section>
+
+<section class="chapter" id="c4">
+  <div class="ch-header"><span class="ch-num">CHAPTER 04</span><h2 class="ch-title">Customizing</h2></div>
+  <p class="lead">Style, color, annotation. Knowing where the knobs are is the difference between a default-looking plot and something a colleague will trust.</p>
+
+  <h3 class="section"><span class="num">4.1</span>Styles — instant good defaults</h3>
+<pre>plt.style.<span class="f">use</span>(<span class="s">"seaborn-v0_8-whitegrid"</span>)   <span class="c"># clean, modern</span>
+plt.style.<span class="f">use</span>(<span class="s">"ggplot"</span>)                   <span class="c"># R-flavored</span>
+plt.style.<span class="f">use</span>(<span class="s">"dark_background"</span>)          <span class="c"># for dark slides</span>
+plt.style.<span class="f">available</span>                           <span class="c"># list all built-in styles</span></pre>
+  <p>Importing seaborn at the top of a notebook also changes matplotlib's defaults to something noticeably better. Worth doing every session.</p>
+
+  <h3 class="section"><span class="num">4.2</span>Colors — palettes and rules</h3>
+<pre>ax.<span class="f">plot</span>(x, y, color=<span class="s">"#28c595"</span>)
+ax.<span class="f">plot</span>(x, y, color=<span class="s">"tab:blue"</span>)
+ax.<span class="f">scatter</span>(x, y, c=values, cmap=<span class="s">"viridis"</span>)        <span class="c"># sequential</span>
+ax.<span class="f">scatter</span>(x, y, c=values, cmap=<span class="s">"RdBu_r"</span>)         <span class="c"># diverging</span></pre>
+  <p>Three rules:</p>
+  <ul>
+    <li><b>Don't use rainbow.</b> "jet" looks pretty but distorts perception. Use <code>viridis</code> or <code>plasma</code>.</li>
+    <li><b>Sequential for ordered data, diverging for data centered on zero.</b> Never the reverse.</li>
+    <li><b>Encode the same variable consistently.</b> If East is teal in one plot, East stays teal everywhere.</li>
+  </ul>
+
+  <h3 class="section"><span class="num">4.3</span>Labels, titles, fonts</h3>
+<pre>ax.<span class="f">set_xlabel</span>(<span class="s">"date"</span>, fontsize=<span class="n">12</span>)
+ax.<span class="f">set_ylabel</span>(<span class="s">"revenue (M USD)"</span>, fontsize=<span class="n">12</span>)
+ax.<span class="f">set_title</span>(<span class="s">"Quarterly revenue"</span>, fontsize=<span class="n">14</span>, fontweight=<span class="s">"bold"</span>)
+
+<span class="c"># Global defaults</span>
+plt.<span class="f">rcParams</span>[<span class="s">"font.size"</span>] = <span class="n">12</span>
+plt.<span class="f">rcParams</span>[<span class="s">"figure.dpi"</span>] = <span class="n">100</span>
+plt.<span class="f">rcParams</span>[<span class="s">"axes.spines.top"</span>] = <span class="k">False</span>
+plt.<span class="f">rcParams</span>[<span class="s">"axes.spines.right"</span>] = <span class="k">False</span></pre>
+
+  <h3 class="section"><span class="num">4.4</span>Annotations — point things out</h3>
+<pre>ax.<span class="f">annotate</span>(
+    <span class="s">"all-time high"</span>,
+    xy=(date_peak, value_peak),
+    xytext=(date_peak, value_peak + <span class="n">10</span>),
+    arrowprops={<span class="s">"arrowstyle"</span>: <span class="s">"-&gt;"</span>, <span class="s">"color"</span>: <span class="s">"#6b7385"</span>},
+    fontsize=<span class="n">11</span>,
+)
+ax.<span class="f">axhline</span>(target, color=<span class="s">"#ec7548"</span>, linestyle=<span class="s">"--"</span>, label=<span class="s">"target"</span>)
+ax.<span class="f">axvline</span>(launch_date, color=<span class="s">"#9d96e6"</span>, linestyle=<span class="s">"--"</span>)</pre>
+  <p>One labeled annotation often communicates more than a paragraph of caption. Add one to every chart that's going somewhere outside your notebook.</p>
+
+  <h3 class="section"><span class="num">4.5</span>Layout</h3>
+<pre>fig, axes = plt.<span class="f">subplots</span>(<span class="n">2</span>, <span class="n">2</span>, figsize=(<span class="n">10</span>, <span class="n">8</span>),
+                          sharex=<span class="k">True</span>, sharey=<span class="k">True</span>)
+fig.<span class="f">suptitle</span>(<span class="s">"By region"</span>, fontsize=<span class="n">14</span>)
+fig.<span class="f">tight_layout</span>()</pre>
+
+  <div class="note tip">
+    <span class="lbl">defaults to set once</span>
+    <p>Put this at the top of your notebooks: <code>sns.set_theme(style="whitegrid")</code> for clean defaults; <code>plt.rcParams["figure.figsize"] = (8, 5)</code> for a sensible default size; and the spine hides above. Set them once — every chart benefits.</p>
+  </div>
+</section>
+
+<section class="chapter" id="c5">
+  <div class="ch-header"><span class="ch-num">CHAPTER 05</span><h2 class="ch-title">Seaborn — statistical visuals</h2></div>
+  <p class="lead">A layer on top of matplotlib that knows about DataFrames. Where matplotlib makes you build a plot piece by piece, seaborn lets you describe what you want and figures out the rest.</p>
+
+  <h3 class="section"><span class="num">5.1</span>Setup</h3>
+<pre><span class="k">import</span> seaborn <span class="k">as</span> sns
+<span class="k">import</span> matplotlib.pyplot <span class="k">as</span> plt
+sns.<span class="f">set_theme</span>(style=<span class="s">"whitegrid"</span>, palette=<span class="s">"deep"</span>)</pre>
+
+  <h3 class="section"><span class="num">5.2</span>The big idea — data + variable names</h3>
+<pre>sns.<span class="f">scatterplot</span>(data=df, x=<span class="s">"age"</span>, y=<span class="s">"income"</span>, hue=<span class="s">"region"</span>)</pre>
+  <p>Three things make seaborn dramatically more productive than matplotlib for EDA:</p>
+  <ol>
+    <li><b>It accepts a DataFrame and column names.</b> No <code>df["x"].values</code>, no manual filtering.</li>
+    <li><b>The <code>hue</code>, <code>size</code>, <code>style</code> arguments</b> automatically encode another column. Categorical coloring for free.</li>
+    <li><b>It computes statistics for you.</b> Confidence intervals, regression lines, density estimates — built in.</li>
+  </ol>
+
+  <h3 class="section"><span class="num">5.3</span>The function families</h3>
+  <table class="tbl">
+    <thead><tr><th>Family</th><th>Functions</th><th>Use for</th></tr></thead>
+    <tbody>
+      <tr><td>relational</td><td><code>scatterplot</code>, <code>lineplot</code>, <code>relplot</code></td><td>two-variable relationships</td></tr>
+      <tr><td>distribution</td><td><code>histplot</code>, <code>kdeplot</code>, <code>ecdfplot</code>, <code>displot</code></td><td>shape of one variable</td></tr>
+      <tr><td>categorical</td><td><code>barplot</code>, <code>boxplot</code>, <code>violinplot</code>, <code>stripplot</code>, <code>swarmplot</code>, <code>catplot</code></td><td>variable across groups</td></tr>
+      <tr><td>regression</td><td><code>regplot</code>, <code>lmplot</code>, <code>residplot</code></td><td>fits and residuals</td></tr>
+      <tr><td>matrix</td><td><code>heatmap</code>, <code>clustermap</code></td><td>2-D summaries</td></tr>
+      <tr><td>multi-panel</td><td><code>FacetGrid</code>, <code>pairplot</code>, <code>jointplot</code>, <code>PairGrid</code></td><td>grids of related plots</td></tr>
+    </tbody>
+  </table>
+
+  <h3 class="section"><span class="num">5.4</span>Axes-level vs figure-level</h3>
+<pre><span class="c"># Axes-level — your default, composes with matplotlib</span>
+fig, ax = plt.<span class="f">subplots</span>()
+sns.<span class="f">scatterplot</span>(data=df, x=<span class="s">"x"</span>, y=<span class="s">"y"</span>, ax=ax)
+ax.<span class="f">set_title</span>(<span class="s">"my plot"</span>)
+
+<span class="c"># Figure-level — creates its own figure, multi-panel ready</span>
+sns.<span class="f">relplot</span>(data=df, x=<span class="s">"x"</span>, y=<span class="s">"y"</span>, col=<span class="s">"region"</span>, kind=<span class="s">"scatter"</span>)</pre>
+
+  <div class="note tip">
+    <span class="lbl">default to axes-level</span>
+    <p>Axes-level functions compose with regular matplotlib code. Only reach for figure-level functions when you specifically want their multi-panel magic.</p>
+  </div>
+
+  <div class="app">
+    <div class="lbl">Application</div>
+    <p>Seaborn was designed by someone who'd done a lot of EDA and gotten tired of typing the same matplotlib boilerplate. Every shortcut it provides is a paper cut someone fixed. Use it for exploration; you'll move 3-5× faster than equivalent matplotlib.</p>
+  </div>
+</section>
+
+<section class="chapter" id="c6">
+  <div class="ch-header"><span class="ch-num">CHAPTER 06</span><h2 class="ch-title">Distributions</h2></div>
+  <p class="lead">The shape of a single variable. Always start here — you can't reason about a column you haven't seen the distribution of.</p>
+
+  <h3 class="section"><span class="num">6.1</span>histplot — the workhorse</h3>
+<pre>sns.<span class="f">histplot</span>(data=df, x=<span class="s">"price"</span>, bins=<span class="n">30</span>)
+
+<span class="c"># Compare distributions by category</span>
+sns.<span class="f">histplot</span>(data=df, x=<span class="s">"price"</span>, hue=<span class="s">"region"</span>, multiple=<span class="s">"stack"</span>)
+sns.<span class="f">histplot</span>(data=df, x=<span class="s">"price"</span>, hue=<span class="s">"region"</span>, multiple=<span class="s">"dodge"</span>)
+sns.<span class="f">histplot</span>(data=df, x=<span class="s">"price"</span>, hue=<span class="s">"region"</span>, element=<span class="s">"step"</span>, stat=<span class="s">"density"</span>)</pre>
+  <p>The <code>multiple</code> argument controls how categories show: <code>"stack"</code>, <code>"dodge"</code>, <code>"layer"</code>, or <code>"fill"</code>. Each tells a different story; pick the one matching your question.</p>
+
+  <h3 class="section"><span class="num">6.2</span>kdeplot — smoothed density</h3>
+<pre>sns.<span class="f">kdeplot</span>(data=df, x=<span class="s">"price"</span>, hue=<span class="s">"region"</span>, fill=<span class="k">True</span>, alpha=<span class="n">0.3</span>)</pre>
+  <p>Better than a histogram for <em>comparing</em> distributions across groups; worse for seeing exact counts.</p>
+
+  <h3 class="section"><span class="num">6.3</span>ecdfplot — empirical CDF</h3>
+<pre>sns.<span class="f">ecdfplot</span>(data=df, x=<span class="s">"price"</span>, hue=<span class="s">"region"</span>)</pre>
+  <p>Underused but excellent. An ECDF shows "what fraction of values is ≤ x" — no bins, no smoothing, no choice to make. The most honest way to plot a distribution.</p>
+
+  <h3 class="section"><span class="num">6.4</span>boxplot &amp; violinplot — distribution summaries</h3>
+<pre>sns.<span class="f">boxplot</span>(data=df, x=<span class="s">"region"</span>, y=<span class="s">"price"</span>)
+sns.<span class="f">violinplot</span>(data=df, x=<span class="s">"region"</span>, y=<span class="s">"price"</span>, inner=<span class="s">"quartile"</span>)</pre>
+  <p>Box plots show quartiles and outliers. Violins show full density. Use violins when shape matters (bimodal? skewed?) and boxes when quartiles suffice.</p>
+
+  <h3 class="section"><span class="num">6.5</span>The distribution checklist for a new variable</h3>
+  <ol>
+    <li><b>histplot</b> — is the distribution unimodal? skewed? are there gaps?</li>
+    <li><b>describe()</b> — what are min, max, quartiles? do they make sense?</li>
+    <li><b>ecdfplot or boxplot</b> — where are the outliers?</li>
+    <li><b>If grouped:</b> kde or violin to compare across categories</li>
+  </ol>
+
+  <div class="app">
+    <div class="lbl">Application</div>
+    <p>Three minutes per numeric column at the start of any analysis. Look at each distribution. Note what surprises you — the skews, outliers, gaps, multi-modality. These notes become the questions that drive everything that follows.</p>
+  </div>
+</section>
+
+<section class="chapter" id="c7">
+  <div class="ch-header"><span class="ch-num">CHAPTER 07</span><h2 class="ch-title">Relationships</h2></div>
+  <p class="lead">How two or three or four variables relate. The middle of any analysis where the real findings live.</p>
+
+  <h3 class="section"><span class="num">7.1</span>scatterplot — the foundation</h3>
+<pre>sns.<span class="f">scatterplot</span>(data=df, x=<span class="s">"age"</span>, y=<span class="s">"income"</span>)
+sns.<span class="f">scatterplot</span>(data=df, x=<span class="s">"age"</span>, y=<span class="s">"income"</span>, hue=<span class="s">"region"</span>)
+sns.<span class="f">scatterplot</span>(data=df, x=<span class="s">"age"</span>, y=<span class="s">"income"</span>,
+                hue=<span class="s">"region"</span>, size=<span class="s">"tenure"</span>, sizes=(<span class="n">20</span>, <span class="n">200</span>))</pre>
+  <p>Diminishing returns: four-variable scatterplots are still readable; five gets crowded; six becomes art. Don't push past four without a reason.</p>
+
+  <h3 class="section"><span class="num">7.2</span>lineplot — over an ordered variable</h3>
+<pre>sns.<span class="f">lineplot</span>(data=df, x=<span class="s">"date"</span>, y=<span class="s">"revenue"</span>, hue=<span class="s">"region"</span>)
+
+<span class="c"># Automatic confidence intervals from repeated measurements</span>
+sns.<span class="f">lineplot</span>(data=df, x=<span class="s">"day"</span>, y=<span class="s">"value"</span>, hue=<span class="s">"experiment"</span>, errorbar=<span class="s">"ci"</span>)</pre>
+  <p>Seaborn's <code>lineplot</code> automatically aggregates and adds confidence bands when you have repeated x-values. This one feature replaces a lot of manual groupby-then-plot code.</p>
+
+  <h3 class="section"><span class="num">7.3</span>regplot &amp; lmplot — regression</h3>
+<pre>sns.<span class="f">regplot</span>(data=df, x=<span class="s">"age"</span>, y=<span class="s">"income"</span>)
+<span class="c"># scatter + linear regression line + 95% CI band</span>
+
+sns.<span class="f">regplot</span>(data=df, x=<span class="s">"age"</span>, y=<span class="s">"income"</span>, order=<span class="n">2</span>)
+sns.<span class="f">regplot</span>(data=df, x=<span class="s">"age"</span>, y=<span class="s">"income"</span>, lowess=<span class="k">True</span>)
+
+<span class="c"># lmplot = regplot but figure-level — splits by category</span>
+sns.<span class="f">lmplot</span>(data=df, x=<span class="s">"age"</span>, y=<span class="s">"income"</span>, hue=<span class="s">"region"</span>, col=<span class="s">"plan"</span>)</pre>
+
+  <h3 class="section"><span class="num">7.4</span>heatmap — correlation structure</h3>
+<pre>corr = df.<span class="f">corr</span>(numeric_only=<span class="k">True</span>)
+
+sns.<span class="f">heatmap</span>(corr, annot=<span class="k">True</span>, fmt=<span class="s">".2f"</span>, cmap=<span class="s">"RdBu_r"</span>,
+            center=<span class="n">0</span>, vmin=-<span class="n">1</span>, vmax=<span class="n">1</span>, square=<span class="k">True</span>)</pre>
+  <p>The classic correlation heatmap. Always center diverging palettes on zero with <code>center=0</code> — otherwise positive and negative correlations get the same visual weight and the picture lies.</p>
+
+  <div class="app">
+    <div class="lbl">Application</div>
+    <p>The first plot of any unfamiliar dataset should be a correlation heatmap. It tells you which variables move together — and that map of relationships guides every scatter plot you make next.</p>
+  </div>
+</section>
+
+<section class="chapter" id="c8">
+  <div class="ch-header"><span class="ch-num">CHAPTER 08</span><h2 class="ch-title">Categorical comparisons</h2></div>
+  <p class="lead">How a numeric variable differs across categories. The bread-and-butter of business analytics.</p>
+
+  <h3 class="section"><span class="num">8.1</span>barplot — means with error bars</h3>
+<pre>sns.<span class="f">barplot</span>(data=df, x=<span class="s">"region"</span>, y=<span class="s">"sales"</span>, errorbar=<span class="s">"ci"</span>)
+sns.<span class="f">barplot</span>(data=df, x=<span class="s">"region"</span>, y=<span class="s">"sales"</span>, hue=<span class="s">"product"</span>)</pre>
+  <p>Default: seaborn computes means. Pass <code>estimator=np.median</code> or any callable for a different summary. Pass <code>errorbar=None</code> to hide bars when they're not the point.</p>
+
+  <h3 class="section"><span class="num">8.2</span>countplot — frequency of categories</h3>
+<pre>sns.<span class="f">countplot</span>(data=df, y=<span class="s">"region"</span>, order=df[<span class="s">"region"</span>].<span class="f">value_counts</span>().index)
+<span class="c"># horizontal + sorted = readable</span></pre>
+
+  <h3 class="section"><span class="num">8.3</span>boxplot &amp; violinplot per group</h3>
+<pre>sns.<span class="f">boxplot</span>(data=df, x=<span class="s">"region"</span>, y=<span class="s">"sales"</span>, hue=<span class="s">"product"</span>)
+sns.<span class="f">violinplot</span>(data=df, x=<span class="s">"region"</span>, y=<span class="s">"sales"</span>, hue=<span class="s">"product"</span>, split=<span class="k">True</span>)</pre>
+  <p><code>split=True</code> on violinplot is a small miracle when comparing exactly two categories per group — half-violins per side, very readable.</p>
+
+  <h3 class="section"><span class="num">8.4</span>stripplot &amp; swarmplot — every point</h3>
+<pre>sns.<span class="f">stripplot</span>(data=df, x=<span class="s">"region"</span>, y=<span class="s">"sales"</span>, alpha=<span class="n">0.3</span>)
+sns.<span class="f">swarmplot</span>(data=df, x=<span class="s">"region"</span>, y=<span class="s">"sales"</span>)
+
+<span class="c"># Common pattern — box plus all points</span>
+sns.<span class="f">boxplot</span>(data=df, x=<span class="s">"region"</span>, y=<span class="s">"sales"</span>)
+sns.<span class="f">stripplot</span>(data=df, x=<span class="s">"region"</span>, y=<span class="s">"sales"</span>, color=<span class="s">"black"</span>, alpha=<span class="n">0.3</span>)</pre>
+
+  <h3 class="section"><span class="num">8.5</span>pointplot — group means connected</h3>
+<pre>sns.<span class="f">pointplot</span>(data=df, x=<span class="s">"quarter"</span>, y=<span class="s">"sales"</span>, hue=<span class="s">"region"</span>)</pre>
+
+  <h3 class="section"><span class="num">8.6</span>catplot — the figure-level umbrella</h3>
+<pre>sns.<span class="f">catplot</span>(data=df, x=<span class="s">"region"</span>, y=<span class="s">"sales"</span>,
+            kind=<span class="s">"box"</span>,        <span class="c"># or "bar", "violin", "strip", "swarm", "point"</span>
+            col=<span class="s">"product"</span>)</pre>
+  <p>One function that wraps all the categorical plots with multi-panel faceting via <code>col</code> and <code>row</code>.</p>
+
+  <div class="note warn">
+    <span class="lbl">order matters</span>
+    <p>Categorical bars default to data order. Pass <code>order=["small", "medium", "large"]</code> for ordinal data, or <code>order=df.groupby("x")["y"].mean().sort_values().index</code> for ranked bars. Alphabetical order is almost never what you want.</p>
+  </div>
+</section>
+
+<section class="chapter" id="c9">
+  <div class="ch-header"><span class="ch-num">CHAPTER 09</span><h2 class="ch-title">Multi-panel plots</h2></div>
+  <p class="lead">Grids of related plots. The most powerful EDA tools in seaborn — and the ones that pay back fastest.</p>
+
+  <h3 class="section"><span class="num">9.1</span>pairplot — every variable against every other</h3>
+<pre>sns.<span class="f">pairplot</span>(df, hue=<span class="s">"region"</span>)
+sns.<span class="f">pairplot</span>(df, vars=[<span class="s">"age"</span>, <span class="s">"income"</span>, <span class="s">"tenure"</span>], hue=<span class="s">"churn"</span>,
+             diag_kind=<span class="s">"kde"</span>, plot_kws={<span class="s">"alpha"</span>: <span class="n">0.5</span>})</pre>
+  <p>Diagonal: distributions. Off-diagonal: scatter plots of all pairs. One line gives you an overview of an entire numeric DataFrame. Slow on wide datasets — restrict with <code>vars=</code>.</p>
+
+  <h3 class="section"><span class="num">9.2</span>jointplot — one pair, with marginals</h3>
+<pre>sns.<span class="f">jointplot</span>(data=df, x=<span class="s">"age"</span>, y=<span class="s">"income"</span>, kind=<span class="s">"scatter"</span>)
+sns.<span class="f">jointplot</span>(data=df, x=<span class="s">"age"</span>, y=<span class="s">"income"</span>, kind=<span class="s">"hex"</span>)        <span class="c"># for many points</span>
+sns.<span class="f">jointplot</span>(data=df, x=<span class="s">"age"</span>, y=<span class="s">"income"</span>, kind=<span class="s">"reg"</span>)</pre>
+  <p>The center shows the joint distribution; the margins show each variable's own. Best for examining a single important pair.</p>
+
+  <h3 class="section"><span class="num">9.3</span>FacetGrid — manual paneling</h3>
+<pre>g = sns.<span class="f">FacetGrid</span>(df, col=<span class="s">"region"</span>, row=<span class="s">"product"</span>,
+                  margin_titles=<span class="k">True</span>, height=<span class="n">3</span>)
+g.<span class="f">map_dataframe</span>(sns.scatterplot, x=<span class="s">"age"</span>, y=<span class="s">"income"</span>)
+g.<span class="f">add_legend</span>()</pre>
+
+  <h3 class="section"><span class="num">9.4</span>The figure-level functions revisited</h3>
+<pre>sns.<span class="f">relplot</span>(data=df, x=<span class="s">"age"</span>, y=<span class="s">"income"</span>, hue=<span class="s">"plan"</span>, col=<span class="s">"region"</span>, kind=<span class="s">"scatter"</span>)
+sns.<span class="f">displot</span>(data=df, x=<span class="s">"price"</span>, hue=<span class="s">"region"</span>, col=<span class="s">"product"</span>, kind=<span class="s">"hist"</span>)
+sns.<span class="f">catplot</span>(data=df, x=<span class="s">"region"</span>, y=<span class="s">"sales"</span>, col=<span class="s">"product"</span>, kind=<span class="s">"box"</span>)</pre>
+  <p>These three handle 90% of multi-panel needs. Pass <code>col=</code> to split into columns, <code>row=</code> for rows, <code>col_wrap=N</code> to wrap a long list into a grid.</p>
+
+  <div class="app">
+    <div class="lbl">Application</div>
+    <p>Faceting reveals interactions that single plots hide. "Does age affect income equally in every region?" becomes obvious from a scatterplot faceted by region. The same question is invisible from one global scatter. This is why <code>col=</code> exists.</p>
+  </div>
+</section>
+
+<section class="chapter" id="c10">
+  <div class="ch-header"><span class="ch-num">CHAPTER 10</span><h2 class="ch-title">The EDA playbook</h2></div>
+  <p class="lead">A repeatable sequence for the first hour with any new dataset. Less guesswork, more discovery.</p>
+
+  <h3 class="section"><span class="num">10.1</span>Step 1 — shape, dtypes, missingness</h3>
+<pre>df.shape
+df.dtypes
+df.<span class="f">head</span>()
+df.<span class="f">isna</span>().<span class="f">sum</span>().<span class="f">sort_values</span>(ascending=<span class="k">False</span>)
+df.<span class="f">describe</span>(include=<span class="s">"all"</span>)</pre>
+  <p>Five lines that prevent half the bugs you'd otherwise hit. Don't skip them even when you "know" the dataset.</p>
+
+  <h3 class="section"><span class="num">10.2</span>Step 2 — distribution of every numeric column</h3>
+<pre>num_cols = df.<span class="f">select_dtypes</span>(include=<span class="s">"number"</span>).columns
+fig, axes = plt.<span class="f">subplots</span>(<span class="f">len</span>(num_cols) // <span class="n">3</span> + <span class="n">1</span>, <span class="n">3</span>, figsize=(<span class="n">14</span>, <span class="n">8</span>))
+<span class="k">for</span> ax, col <span class="k">in</span> <span class="f">zip</span>(axes.flat, num_cols):
+    sns.<span class="f">histplot</span>(df[col], ax=ax, bins=<span class="n">30</span>)
+    ax.<span class="f">set_title</span>(col)
+fig.<span class="f">tight_layout</span>()</pre>
+  <p>One grid showing every numeric distribution. Look for skews, outliers, gaps, suspicious zeros, multi-modality. Write down what surprises you.</p>
+
+  <h3 class="section"><span class="num">10.3</span>Step 3 — frequency of every categorical</h3>
+<pre>cat_cols = df.<span class="f">select_dtypes</span>(include=[<span class="s">"object"</span>, <span class="s">"category"</span>]).columns
+<span class="k">for</span> col <span class="k">in</span> cat_cols:
+    <span class="f">print</span>(col, <span class="s">":"</span>, df[col].<span class="f">nunique</span>(), <span class="s">"unique"</span>)
+    <span class="f">print</span>(df[col].<span class="f">value_counts</span>().<span class="f">head</span>(<span class="n">10</span>))</pre>
+  <p>For each categorical, the top values and the count of uniques. Spot dirty values (capitalization variants, typos, encoding artifacts), check cardinality (is "user_id" actually categorical or just high-cardinality?).</p>
+
+  <h3 class="section"><span class="num">10.4</span>Step 4 — correlation heatmap</h3>
+<pre>sns.<span class="f">heatmap</span>(df.<span class="f">corr</span>(numeric_only=<span class="k">True</span>), annot=<span class="k">True</span>, fmt=<span class="s">".2f"</span>,
+            cmap=<span class="s">"RdBu_r"</span>, center=<span class="n">0</span>, square=<span class="k">True</span>)</pre>
+  <p>The map for the next stage. Strong correlations → make scatter plots. Surprising correlations → investigate why.</p>
+
+  <h3 class="section"><span class="num">10.5</span>Step 5 — pairplot of suspects</h3>
+<pre>sns.<span class="f">pairplot</span>(df[[<span class="s">"target"</span>, <span class="s">"feature_a"</span>, <span class="s">"feature_b"</span>, <span class="s">"feature_c"</span>]],
+             hue=<span class="s">"target"</span>, diag_kind=<span class="s">"kde"</span>)</pre>
+  <p>Pick the 5-8 most interesting columns from steps 2-4 and pairplot them. Patterns jump out.</p>
+
+  <h3 class="section"><span class="num">10.6</span>Step 6 — target vs each predictor</h3>
+<pre><span class="c"># For a numeric target</span>
+<span class="k">for</span> col <span class="k">in</span> num_cols:
+    sns.<span class="f">regplot</span>(data=df, x=col, y=<span class="s">"target"</span>); plt.<span class="f">show</span>()
+
+<span class="c"># For a categorical target</span>
+<span class="k">for</span> col <span class="k">in</span> num_cols:
+    sns.<span class="f">kdeplot</span>(data=df, x=col, hue=<span class="s">"target"</span>, fill=<span class="k">True</span>); plt.<span class="f">show</span>()</pre>
+  <p>This is where features that matter for prediction reveal themselves.</p>
+
+  <h3 class="section"><span class="num">10.7</span>Step 7 — write the findings</h3>
+  <p>Open a markdown cell. Write three to five sentences for each surprise you've found. "Price is right-skewed, with a long tail of luxury items above $1000." "Region affects price strongly — West is 40% higher than East." "Tenure correlates 0.62 with revenue but only in the Premium plan."</p>
+  <p>This list is the deliverable of the EDA phase. Everything downstream — modeling, business decisions, dashboards — flows from it.</p>
+
+  <div class="app">
+    <div class="lbl">Application</div>
+    <p>The playbook works on any tabular dataset, in any domain. Run it for an hour on a new dataset and you'll know more about it than most people who've worked with it for months. The discipline of writing findings — not just looking at charts — is what turns plotting into insight.</p>
+  </div>
+</section>
+
+<section class="chapter" id="c11">
+  <div class="ch-header"><span class="ch-num">CHAPTER 11</span><h2 class="ch-title">Presentation-ready plots</h2></div>
+  <p class="lead">The same plot that worked for your eyes during EDA needs work before it lands in a slide deck. Five upgrades make the difference.</p>
+
+  <h3 class="section"><span class="num">11.1</span>Upgrade 1 — a real title and labels</h3>
+  <p>EDA: <code>ax.set_title("price")</code>. Presentation: <code>ax.set_title("Median price is 22% higher in Q4 than any other quarter")</code>. The title carries the conclusion, not the variable name. The reader knows what the plot is at a glance.</p>
+
+  <h3 class="section"><span class="num">11.2</span>Upgrade 2 — remove chart junk</h3>
+<pre>ax.<span class="f">spines</span>[<span class="s">"top"</span>].<span class="f">set_visible</span>(<span class="k">False</span>)
+ax.<span class="f">spines</span>[<span class="s">"right"</span>].<span class="f">set_visible</span>(<span class="k">False</span>)
+ax.<span class="f">grid</span>(axis=<span class="s">"y"</span>, alpha=<span class="n">0.3</span>)        <span class="c"># grid on one axis only</span>
+ax.<span class="f">tick_params</span>(length=<span class="n">0</span>)             <span class="c"># no tick marks</span></pre>
+  <p>Everything that doesn't carry information is noise. Tufte's data-ink ratio: maximize the ink that shows your numbers, minimize everything else.</p>
+
+  <h3 class="section"><span class="num">11.3</span>Upgrade 3 — direct labels instead of legends</h3>
+<pre><span class="k">for</span> region, group <span class="k">in</span> df.<span class="f">groupby</span>(<span class="s">"region"</span>):
+    ax.<span class="f">plot</span>(group[<span class="s">"date"</span>], group[<span class="s">"value"</span>], label=region)
+    <span class="c"># Place the label at the end of the line</span>
+    ax.<span class="f">annotate</span>(region, xy=(group[<span class="s">"date"</span>].iloc[-<span class="n">1</span>], group[<span class="s">"value"</span>].iloc[-<span class="n">1</span>]),
+                xytext=(<span class="n">5</span>, <span class="n">0</span>), textcoords=<span class="s">"offset points"</span>, fontsize=<span class="n">10</span>)</pre>
+  <p>For line plots, putting the label right next to the line is far easier to read than a legend in the corner. The reader's eye doesn't have to bounce.</p>
+
+  <h3 class="section"><span class="num">11.4</span>Upgrade 4 — color with purpose</h3>
+  <p>In EDA, color encodes a category. In presentation, color directs attention. Make the line you're talking about bold and saturated, and gray out the rest:</p>
+<pre><span class="k">for</span> region, group <span class="k">in</span> df.<span class="f">groupby</span>(<span class="s">"region"</span>):
+    color = <span class="s">"#28c595"</span> <span class="k">if</span> region == <span class="s">"West"</span> <span class="k">else</span> <span class="s">"#cccccc"</span>
+    lw = <span class="n">2.5</span> <span class="k">if</span> region == <span class="s">"West"</span> <span class="k">else</span> <span class="n">1</span>
+    ax.<span class="f">plot</span>(group[<span class="s">"date"</span>], group[<span class="s">"value"</span>], color=color, linewidth=lw)</pre>
+
+  <h3 class="section"><span class="num">11.5</span>Upgrade 5 — annotate the takeaway</h3>
+<pre>ax.<span class="f">annotate</span>(
+    <span class="s">"+40% YoY"</span>,
+    xy=(growth_point_x, growth_point_y),
+    xytext=(<span class="n">10</span>, <span class="n">20</span>), textcoords=<span class="s">"offset points"</span>,
+    fontsize=<span class="n">12</span>, fontweight=<span class="s">"bold"</span>,
+    arrowprops={<span class="s">"arrowstyle"</span>: <span class="s">"-&gt;"</span>, <span class="s">"color"</span>: <span class="s">"#6b7385"</span>},
+)</pre>
+  <p>The chart should narrate itself. If the reader has to compute "this is 40% higher than that," you've outsourced your job. Do the math, write the conclusion on the chart.</p>
+
+  <h3 class="section"><span class="num">11.6</span>Save for the medium</h3>
+<pre>fig.<span class="f">savefig</span>(<span class="s">"chart.png"</span>, dpi=<span class="n">200</span>, bbox_inches=<span class="s">"tight"</span>)        <span class="c"># slides</span>
+fig.<span class="f">savefig</span>(<span class="s">"chart.pdf"</span>, bbox_inches=<span class="s">"tight"</span>)                <span class="c"># print</span>
+fig.<span class="f">savefig</span>(<span class="s">"chart.svg"</span>, bbox_inches=<span class="s">"tight"</span>)                <span class="c"># web</span></pre>
+
+  <div class="app">
+    <div class="lbl">Application</div>
+    <p>Promote a chart from EDA to presentation when you decide it's worth a stranger's ten seconds. Most charts you make will never be promoted; the few that matter deserve all five upgrades. The investment ratio is roughly 10:1 — that's the price of communication.</p>
+  </div>
+</section>
+
+<section class="chapter" id="c12">
+  <div class="ch-header"><span class="ch-num">CHAPTER 12</span><h2 class="ch-title">Mistakes &amp; how to avoid them</h2></div>
+  <p class="lead">A short field guide to plots that look fine but mislead the reader. Knowing these makes you a better consumer of other people's charts too.</p>
+
+  <h3 class="section"><span class="num">12.1</span>Mistake 1 — truncated y-axes</h3>
+  <p>A bar chart of "support ratings: 4.7 vs 4.8" with the y-axis starting at 4.5 makes a 2% gap look like a chasm. Bars should start at zero. Lines and scatter can start anywhere — but always pause and ask "would my axis range deceive someone?"</p>
+
+  <h3 class="section"><span class="num">12.2</span>Mistake 2 — overplotting in dense scatter</h3>
+  <p>10,000 scatter points stacked on top of each other look like 1,000. Solutions: <code>alpha=0.2</code>, hex bins (<code>jointplot kind="hex"</code>), 2-D KDE, or subsampling.</p>
+
+  <h3 class="section"><span class="num">12.3</span>Mistake 3 — dual-axis line charts</h3>
+  <p>"Revenue on the left axis, customer count on the right" — the two scales create false correlations. Either two stacked plots sharing an x-axis, or normalize both to the same scale (percent change from a baseline) on a single axis.</p>
+
+  <h3 class="section"><span class="num">12.4</span>Mistake 4 — rainbow palettes for ordered data</h3>
+  <p>The "jet" colormap is non-monotonic in perceived lightness — values that look equally bright actually represent different numbers. Use <code>viridis</code>, <code>plasma</code>, <code>cividis</code> for sequential data, <code>RdBu_r</code> centered on zero for diverging.</p>
+
+  <h3 class="section"><span class="num">12.5</span>Mistake 5 — pie charts beyond three slices</h3>
+  <p>Human eyes can't reliably compare angles. With three slices it's fine. With seven it's a guessing game. Use a sorted bar chart instead — every time.</p>
+
+  <h3 class="section"><span class="num">12.6</span>Mistake 6 — categorical bars in alphabetical order</h3>
+  <p>The default sort. Almost never useful. Sort by value (for "which is highest?"), or by an ordinal scale (small/medium/large), or by time (Jan/Feb/Mar). Alphabetical sort is the absence of a decision.</p>
+
+  <h3 class="section"><span class="num">12.7</span>Mistake 7 — missing units</h3>
+  <p>"Revenue" or "Revenue (M USD)"? "Time" or "Time (seconds)"? Always include units in axis labels. The reader shouldn't have to guess whether your y-axis is in thousands or millions.</p>
+
+  <h3 class="section"><span class="num">12.8</span>Mistake 8 — too many lines on one plot</h3>
+  <p>Above five lines, a line chart becomes a tangled mess. Solutions: facet (small multiples), highlight one line and gray the rest, or use a heatmap of <code>(group × time)</code>.</p>
+
+  <h3 class="section"><span class="num">12.9</span>Mistake 9 — not handling missing data visibly</h3>
+  <p>If 30% of values are NaN, your histogram silently drops them and your reader can't tell. Plot a separate "% missing" bar or note the count in the title. Hiding missingness hides the most important fact about your data.</p>
+
+  <h3 class="section"><span class="num">12.10</span>What to do next</h3>
+  <p>You now have a complete plotting toolkit. To go from "knows" to "fluent":</p>
+  <ol>
+    <li><b>Plot first.</b> Make plotting your first move on any new dataset.</li>
+    <li><b>Save your one-liners.</b> Build a personal cheatsheet of the seaborn calls you use most.</li>
+    <li><b>Read more plots.</b> Critique published charts — what works, what misleads, what could be clearer.</li>
+    <li><b>Move on to Book 5.</b> Apply everything end-to-end on a real Kaggle dataset.</li>
+  </ol>
+
+  <div class="note tip">
+    <span class="lbl">parting word</span>
+    <p>Visualization isn't decoration — it's analysis. Every chart is a question answered. Make plots quickly, look at them honestly, and write down what they show. That single habit, more than any specific library skill, separates analysts who find things from analysts who don't.</p>
+  </div>
+</section>
+
+<section class="colophon">
+  <div class="mark">⌗</div>
+  <p>end of Book 4 · Visualization · next: the Project</p>
+</section>
+
+</div>
+</body>
+</html>

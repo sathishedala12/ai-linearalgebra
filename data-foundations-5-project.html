@@ -1,0 +1,816 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>The Project · End-to-end EDA on House Prices</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0c11;--bg-2:#0f131a;--surface:#161b24;--border:#262d3a;--border-soft:#1f2530;--text:#e8ebf1;--text-dim:#9aa3b2;--text-mute:#6b7385;--teal-2:#28c595;--purple-2:#9d96e6;--coral-2:#ec7548;--amber-2:#e0a64a;--accent:#28c595;--code-bg:#0e1218;--out-bg:#0b1015;--code-key:#7F77DD;--code-fn:#28c595;--code-str:#e0a64a;--code-num:#ec7548;--code-com:#5b6477}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-size:15.5px;line-height:1.75;-webkit-font-smoothing:antialiased;letter-spacing:.005em}
+.book{max-width:840px;margin:0 auto;padding:0 28px}
+.cover{min-height:88vh;display:flex;flex-direction:column;justify-content:center;padding:60px 0 80px;background:radial-gradient(800px 500px at 20% 30%, rgba(40,197,149,.12), transparent 60%);border-bottom:1px solid var(--border-soft);margin-bottom:60px}
+.cover .crest{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:var(--accent);margin-bottom:24px;font-weight:600}
+.cover h1{font-family:'Fraunces',serif;font-weight:400;font-style:italic;font-size:108px;line-height:.92;letter-spacing:-.03em;margin:0 0 18px;background:linear-gradient(180deg,#fff 0%,#a9b3c4 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.cover .sub{font-family:'Fraunces',serif;font-weight:300;font-size:26px;line-height:1.35;letter-spacing:-.01em;color:var(--text-dim);max-width:620px;margin:0 0 40px}
+.cover .meta{display:flex;gap:32px;flex-wrap:wrap;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-mute);text-transform:uppercase;letter-spacing:.14em;padding-top:28px;border-top:1px solid var(--border-soft)}
+.cover .meta b{color:var(--text-dim);font-weight:500}
+.series-nav{display:inline-flex;gap:10px;flex-wrap:wrap;margin-bottom:32px}
+.series-nav .item{font-family:'JetBrains Mono',monospace;font-size:10.5px;padding:5px 11px;border-radius:999px;border:1px solid var(--border);background:var(--surface);color:var(--text-mute);text-transform:uppercase;letter-spacing:.1em}
+.series-nav .item.done{color:var(--text-dim)}
+.series-nav .item.done::before{content:"✓ ";color:var(--accent)}
+.series-nav .item.active{background:rgba(40,197,149,.1);border-color:var(--accent);color:var(--accent)}
+.toc-page{padding:40px 0 80px;border-bottom:1px solid var(--border-soft);margin-bottom:80px}
+.toc-page h2{font-family:'Fraunces',serif;font-style:italic;font-weight:400;font-size:42px;letter-spacing:-.015em;margin:0 0 8px}
+.toc-page .toc-intro{color:var(--text-dim);font-size:14.5px;margin:0 0 36px;max-width:620px}
+.toc-list{list-style:none;padding:0;margin:0}
+.toc-list li{display:flex;justify-content:space-between;align-items:baseline;gap:14px;padding:9px 0;border-bottom:1px dotted var(--border-soft)}
+.toc-list a{color:var(--text-dim);text-decoration:none;font-size:14.5px;flex:1;display:flex;align-items:baseline;gap:16px}
+.toc-list a:hover{color:var(--accent)}
+.toc-list .ch{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--accent);min-width:30px}
+.toc-list .desc{font-size:12px;color:var(--text-mute);font-style:italic}
+.chapter{padding:60px 0;scroll-margin-top:24px}
+.chapter+.chapter{border-top:1px solid var(--border-soft)}
+.ch-header{margin-bottom:32px}
+.ch-num{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;color:var(--accent);letter-spacing:.1em;display:block;margin-bottom:8px}
+.ch-title{font-family:'Fraunces',serif;font-style:italic;font-weight:400;font-size:46px;line-height:1.05;letter-spacing:-.02em;margin:0;color:var(--text)}
+.dropcap::first-letter{font-family:'Fraunces',serif;font-style:italic;font-weight:400;font-size:62px;float:left;line-height:.85;margin:8px 12px 0 0;color:var(--accent)}
+h3.section{font-family:'Fraunces',serif;font-weight:500;font-size:24px;letter-spacing:-.01em;margin:42px 0 12px;color:var(--text)}
+h3.section .num{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text-mute);font-weight:400;margin-right:10px}
+h4.sub{font-size:15px;font-weight:600;margin:22px 0 8px;color:var(--text);letter-spacing:-.005em}
+p{margin:0 0 14px;color:var(--text)}
+.lead{font-size:17px;color:var(--text-dim);margin-bottom:20px;font-family:'Fraunces',serif;font-weight:300;line-height:1.55;font-style:italic}
+ul,ol{margin:0 0 16px;padding-left:24px;color:var(--text-dim)}
+li{margin-bottom:6px}
+b,strong{color:var(--text);font-weight:600}
+em{font-style:italic;color:var(--text)}
+pre{background:var(--code-bg);border:1px solid var(--border-soft);border-radius:8px 8px 0 0;padding:14px 16px;font-family:'JetBrains Mono',monospace;font-size:12.5px;line-height:1.65;overflow-x:auto;margin:14px 0 0;color:#cdd4e0;position:relative}
+pre:not(.out):not(:has(+ pre.out)){border-radius:8px;margin-bottom:18px}
+pre.out{background:var(--out-bg);border:1px dashed var(--border);border-top:0;border-radius:0 0 8px 8px;margin-top:0;margin-bottom:18px;color:#a9b3c4;font-size:12px}
+pre.out::before{content:"OUTPUT";position:absolute;top:6px;right:12px;font-size:9px;color:var(--text-mute);letter-spacing:.14em;font-weight:600;font-family:'JetBrains Mono',monospace}
+pre.solo{border-radius:8px;margin-bottom:18px}
+code{font-family:'JetBrains Mono',monospace}
+:not(pre)>code{background:rgba(40,197,149,.08);padding:1px 6px;border-radius:4px;border:1px solid rgba(40,197,149,.15);color:var(--accent);font-size:13px}
+.k{color:var(--code-key)}.f{color:var(--code-fn)}.s{color:var(--code-str)}.n{color:var(--code-num)}.c{color:var(--code-com);font-style:italic}.o{color:#cdd4e0}
+.note{display:flex;gap:16px;margin:18px 0;padding:14px 18px;border-radius:8px;background:var(--surface);border-left:3px solid var(--note-accent,var(--purple-2));font-size:14.5px}
+.note .lbl{font-family:'JetBrains Mono',monospace;font-size:10.5px;text-transform:uppercase;letter-spacing:.12em;color:var(--note-accent,var(--purple-2));font-weight:600;flex-shrink:0;min-width:96px}
+.note p{margin:0;color:var(--text-dim);font-size:14px}
+.note.intuition{--note-accent:var(--amber-2)}
+.note.warn{--note-accent:var(--coral-2)}
+.note.tip{--note-accent:var(--teal-2)}
+.note.finding{--note-accent:var(--teal-2)}
+.note.finding .lbl::before{content:"⌗ "}
+.app{background:linear-gradient(180deg,rgba(40,197,149,.05),transparent);border:1px solid var(--border-soft);border-left:3px solid var(--accent);border-radius:8px;padding:14px 18px;margin:18px 0}
+.app .lbl{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--accent);text-transform:uppercase;letter-spacing:.14em;font-weight:600;margin-bottom:6px}
+.app p{margin:0;color:var(--text-dim);font-size:13.5px;line-height:1.6}
+table.tbl{width:100%;border-collapse:collapse;font-size:13.5px;margin:16px 0 18px;background:var(--surface);border-radius:8px;overflow:hidden;border:1px solid var(--border-soft)}
+table.tbl th,table.tbl td{text-align:left;padding:10px 14px;border-bottom:1px solid var(--border-soft);vertical-align:top}
+table.tbl th{color:var(--text-mute);font-weight:500;font-family:'JetBrains Mono',monospace;font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;background:var(--bg-2)}
+table.tbl td:first-child{color:var(--text);font-weight:500}
+table.tbl tr:last-child td{border-bottom:none}
+table.tbl code{font-size:12.5px}
+.colophon{margin:80px 0 40px;padding:36px 0;border-top:1px solid var(--border-soft);text-align:center}
+.colophon .mark{font-family:'Fraunces',serif;font-style:italic;font-size:36px;color:var(--accent);margin:0 0 10px}
+.colophon p{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-mute);text-transform:uppercase;letter-spacing:.14em;margin:0}
+@media (max-width:680px){.cover h1{font-size:62px}.cover .sub{font-size:18px}.ch-title{font-size:32px}h3.section{font-size:20px}.book{padding:0 18px}}
+@media print{body{background:#fff;color:#111}.cover h1{color:#111;-webkit-text-fill-color:#111}.chapter{page-break-before:always;border-top:none}pre,pre.out,.note,.figure,table.tbl,.app{background:#fff;border-color:#ddd;break-inside:avoid}pre{background:#f7f7f9}.k{color:#7c3aed}.f{color:#0d8a5b}.s{color:#a5650a}.n{color:#b14a26}.c{color:#888}}
+</style>
+</head>
+<body>
+<div class="book">
+
+<section class="cover">
+  <div class="crest">⌗ the foundations · book 5 of 5</div>
+  <div class="series-nav">
+    <span class="item done">NumPy</span>
+    <span class="item done">Pandas</span>
+    <span class="item done">Polars</span>
+    <span class="item done">Visualization</span>
+    <span class="item active">Project</span>
+  </div>
+  <h1>The Project.</h1>
+  <p class="sub">An end-to-end exploratory data analysis on a real Kaggle dataset. Every concept from the first four books, applied. The notebook you'd actually run.</p>
+  <div class="meta">
+    <span><b>11</b> chapters</span>
+    <span>House Prices (Ames)</span>
+    <span>EDA · findings · feature ideas</span>
+    <span><b>2026</b> edition</span>
+  </div>
+</section>
+
+<section class="toc-page" id="toc">
+  <h2>Contents</h2>
+  <p class="toc-intro">A walk through a real EDA from blank notebook to a written-up findings document. The dataset is Kaggle's Ames Iowa "House Prices" — small enough to be approachable, rich enough to demonstrate everything: missing data, skew, outliers, categorical encoding, multicollinearity, target transformation. By the end, you have a template you can reuse on any tabular dataset.</p>
+  <ul class="toc-list">
+    <li><a href="#c1"><span class="ch">01</span><span>The project</span></a><span class="desc">dataset, question, success</span></li>
+    <li><a href="#c2"><span class="ch">02</span><span>First look</span></a><span class="desc">load, shape, types, glimpse</span></li>
+    <li><a href="#c3"><span class="ch">03</span><span>The missingness story</span></a><span class="desc">what's missing, and why it's not random</span></li>
+    <li><a href="#c4"><span class="ch">04</span><span>The target — SalePrice</span></a><span class="desc">a right-skewed log-normal target</span></li>
+    <li><a href="#c5"><span class="ch">05</span><span>Numeric features</span></a><span class="desc">distributions and correlations</span></li>
+    <li><a href="#c6"><span class="ch">06</span><span>Categorical features</span></a><span class="desc">value counts and price by group</span></li>
+    <li><a href="#c7"><span class="ch">07</span><span>Bivariate deep dive</span></a><span class="desc">the top predictors in detail</span></li>
+    <li><a href="#c8"><span class="ch">08</span><span>Outliers &amp; skew</span></a><span class="desc">what to fix, what to keep</span></li>
+    <li><a href="#c9"><span class="ch">09</span><span>Feature engineering ideas</span></a><span class="desc">what EDA hands the modeler</span></li>
+    <li><a href="#c10"><span class="ch">10</span><span>The findings document</span></a><span class="desc">the deliverable that matters</span></li>
+    <li><a href="#c11"><span class="ch">11</span><span>From EDA to modeling</span></a><span class="desc">handing off to the next stage</span></li>
+  </ul>
+</section>
+
+<section class="chapter" id="c1">
+  <div class="ch-header"><span class="ch-num">CHAPTER 01</span><h2 class="ch-title">The project</h2></div>
+  <p class="lead">Before opening the data, set the frame: what's the question, what's the dataset, what does success look like? Five minutes of planning saves an hour of wandering.</p>
+
+  <p class="dropcap">The Kaggle "House Prices — Advanced Regression Techniques" competition uses the Ames Iowa Housing dataset, compiled by Dean De Cock. It contains 1,460 training rows and 79 features describing residential homes sold in Ames, Iowa between 2006 and 2010. The target is <code>SalePrice</code> — the final sale price in dollars. The competition asks for the lowest root-mean-squared-error on the log of the price. We're not going to compete; we're going to do the part that comes <em>before</em> any model: understand what's actually in this data.</p>
+
+  <h3 class="section"><span class="num">1.1</span>The question</h3>
+  <p>The framing question for this EDA: <b>"If we wanted to predict the sale price of a house in this dataset, which features would matter most, and what would we have to do to use them?"</b> Every chart and every summary that follows is in service of that question.</p>
+
+  <h3 class="section"><span class="num">1.2</span>The dataset at a glance</h3>
+  <table class="tbl">
+    <thead><tr><th>Property</th><th>Value</th></tr></thead>
+    <tbody>
+      <tr><td>Source</td><td>Kaggle — "House Prices — Advanced Regression Techniques"</td></tr>
+      <tr><td>File</td><td><code>train.csv</code> (1.46 MB)</td></tr>
+      <tr><td>Rows</td><td>1,460 home sales</td></tr>
+      <tr><td>Columns</td><td>81 (79 features + Id + SalePrice)</td></tr>
+      <tr><td>Time range</td><td>2006 – 2010</td></tr>
+      <tr><td>Target</td><td><code>SalePrice</code> in USD</td></tr>
+      <tr><td>Metric</td><td>RMSE on log(SalePrice)</td></tr>
+    </tbody>
+  </table>
+
+  <h3 class="section"><span class="num">1.3</span>Setup</h3>
+<pre><span class="k">import</span> pandas <span class="k">as</span> pd
+<span class="k">import</span> numpy <span class="k">as</span> np
+<span class="k">import</span> matplotlib.pyplot <span class="k">as</span> plt
+<span class="k">import</span> seaborn <span class="k">as</span> sns
+
+sns.<span class="f">set_theme</span>(style=<span class="s">"whitegrid"</span>, palette=<span class="s">"deep"</span>)
+plt.<span class="f">rcParams</span>[<span class="s">"figure.dpi"</span>] = <span class="n">100</span>
+plt.<span class="f">rcParams</span>[<span class="s">"axes.spines.top"</span>] = <span class="k">False</span>
+plt.<span class="f">rcParams</span>[<span class="s">"axes.spines.right"</span>] = <span class="k">False</span>
+pd.<span class="f">set_option</span>(<span class="s">"display.max_columns"</span>, <span class="n">100</span>)</pre>
+
+  <h3 class="section"><span class="num">1.4</span>What success looks like</h3>
+  <p>EDA is "done" when:</p>
+  <ul>
+    <li>You can name the top 5-10 features most related to the target.</li>
+    <li>You know where the missing data is and whether it's missing-at-random.</li>
+    <li>You've identified outliers and decided what to do about them.</li>
+    <li>You've decided whether the target needs transformation.</li>
+    <li>You have a written list of feature-engineering ideas to try.</li>
+  </ul>
+  <p>That list is the deliverable. Everything else is process.</p>
+
+  <div class="app">
+    <div class="lbl">Application</div>
+    <p>Treat every new dataset like a new city. The EDA is the walk-around — you're learning the neighborhoods, noticing where things are clustered, finding the surprises. The model comes later. People who skip the walk-around build worse models, not faster ones.</p>
+  </div>
+</section>
+
+<section class="chapter" id="c2">
+  <div class="ch-header"><span class="ch-num">CHAPTER 02</span><h2 class="ch-title">First look</h2></div>
+  <p class="lead">The first ten minutes. Load, check the shape, check the types, glance at the head. Don't skip a step.</p>
+
+  <h3 class="section"><span class="num">2.1</span>Load</h3>
+<pre>df = pd.<span class="f">read_csv</span>(<span class="s">"train.csv"</span>)
+df.shape</pre>
+<pre class="out">(1460, 81)</pre>
+  <p>1,460 rows, 81 columns. Small enough that everything below runs in seconds; wide enough to need a strategy for which columns to look at first.</p>
+
+  <h3 class="section"><span class="num">2.2</span>Types and memory</h3>
+<pre>df.<span class="f">info</span>()</pre>
+<pre class="out">&lt;class 'pandas.core.frame.DataFrame'&gt;
+RangeIndex: 1460 entries, 0 to 1459
+Columns: 81 entries, Id to SalePrice
+dtypes: float64(3), int64(35), object(43)
+memory usage: 923.7+ KB</pre>
+
+  <p>43 object (string) columns, 38 numeric. Roughly half the data is categorical — which is honest for housing, since "Neighborhood," "Style," "Roof Material," "Garage Type" are all genuine categories.</p>
+
+  <h3 class="section"><span class="num">2.3</span>A glance at the head</h3>
+<pre>df.<span class="f">head</span>(<span class="n">3</span>).T          <span class="c"># transposed so all columns are readable</span></pre>
+
+  <p>Transposing <code>head()</code> when you have many columns is a small trick that helps a lot. You see 81 rows × 3 columns instead of 3 rows × 81 unreadable columns.</p>
+
+  <h3 class="section"><span class="num">2.4</span>Numeric summary</h3>
+<pre>df.<span class="f">describe</span>().T.<span class="f">round</span>(<span class="n">2</span>)</pre>
+  <p>Eyeball the means, medians, and ranges. Things to notice immediately:</p>
+  <ul>
+    <li><b>SalePrice</b> ranges from $34,900 to $755,000 — huge spread.</li>
+    <li><b>LotArea</b> max is 215,245 sq ft. That's five acres. Outlier? Or a real luxury property?</li>
+    <li><b>YearBuilt</b> ranges 1872–2010. Some genuinely old houses.</li>
+    <li><b>OverallQual</b> goes 1–10 — an ordinal scale.</li>
+  </ul>
+
+  <h3 class="section"><span class="num">2.5</span>Categorical summary</h3>
+<pre>df.<span class="f">describe</span>(include=<span class="s">"object"</span>).T</pre>
+
+  <p>For object columns this shows count, unique count, top value, and its frequency. Useful for spotting low-cardinality categoricals ("PavedDrive" has 3 values) versus high-cardinality ones ("Neighborhood" has 25).</p>
+
+  <div class="note finding">
+    <span class="lbl">finding 1</span>
+    <p>The dataset is moderately wide (81 columns) but small (1,460 rows). Half the features are categorical. The target spans more than 20× from min to max — strong skew is likely. Numeric features include a mix of counts, sizes, years, and 1-10 quality scales.</p>
+  </div>
+</section>
+
+<section class="chapter" id="c3">
+  <div class="ch-header"><span class="ch-num">CHAPTER 03</span><h2 class="ch-title">The missingness story</h2></div>
+  <p class="lead">Almost every column in this dataset is fine. A handful are catastrophically missing — and those almost always tell a structural story.</p>
+
+  <h3 class="section"><span class="num">3.1</span>How much is missing, per column?</h3>
+<pre>missing = df.<span class="f">isna</span>().<span class="f">sum</span>().<span class="f">sort_values</span>(ascending=<span class="k">False</span>)
+missing = missing[missing &gt; <span class="n">0</span>]
+(<span class="n">100</span> * missing / <span class="f">len</span>(df)).<span class="f">round</span>(<span class="n">1</span>)</pre>
+<pre class="out">PoolQC          99.5
+MiscFeature     96.3
+Alley           93.8
+Fence           80.8
+FireplaceQu     47.3
+LotFrontage     17.7
+GarageYrBlt      5.5
+GarageCond       5.5
+GarageType       5.5
+GarageFinish     5.5
+GarageQual       5.5
+BsmtExposure     2.6
+BsmtFinType2     2.6
+BsmtFinType1     2.5
+BsmtCond         2.5
+BsmtQual         2.5
+MasVnrArea       0.5
+MasVnrType       0.5
+Electrical       0.1</pre>
+
+  <h3 class="section"><span class="num">3.2</span>Read the data dictionary</h3>
+  <p>The Kaggle competition page ships a <code>data_description.txt</code> file. Always read it. The first thing it tells us about the heavily-missing columns:</p>
+
+  <table class="tbl">
+    <thead><tr><th>Column</th><th>What NA means per the docs</th></tr></thead>
+    <tbody>
+      <tr><td><code>PoolQC</code></td><td>"NA" = No Pool</td></tr>
+      <tr><td><code>MiscFeature</code></td><td>"NA" = None</td></tr>
+      <tr><td><code>Alley</code></td><td>"NA" = No alley access</td></tr>
+      <tr><td><code>Fence</code></td><td>"NA" = No fence</td></tr>
+      <tr><td><code>FireplaceQu</code></td><td>"NA" = No fireplace</td></tr>
+      <tr><td><code>GarageType</code> et al.</td><td>"NA" = No garage</td></tr>
+      <tr><td><code>BsmtQual</code> et al.</td><td>"NA" = No basement</td></tr>
+    </tbody>
+  </table>
+
+  <div class="note finding">
+    <span class="lbl">finding 2</span>
+    <p>Most of the missingness in this dataset is <em>structural</em>: the value isn't missing, the feature doesn't apply. 99.5% of houses don't have a pool, so PoolQC is NA for them. These columns shouldn't be dropped or imputed with the column mean — they should be filled with a sentinel like "None" that captures the real meaning.</p>
+  </div>
+
+  <h3 class="section"><span class="num">3.3</span>The two genuine missing-data columns</h3>
+  <p>Two columns have missingness that isn't structural:</p>
+  <ul>
+    <li><b>LotFrontage</b> (17.7% missing) — these houses really have a frontage; it just wasn't recorded.</li>
+    <li><b>Electrical</b> (one missing value) — a data-entry mistake; impute with the mode.</li>
+  </ul>
+
+<pre><span class="c"># Quick check: does LotFrontage missingness correlate with Neighborhood?</span>
+df.<span class="f">assign</span>(missing_lf=df[<span class="s">"LotFrontage"</span>].<span class="f">isna</span>())\
+  .<span class="f">groupby</span>(<span class="s">"Neighborhood"</span>)[<span class="s">"missing_lf"</span>].<span class="f">mean</span>().<span class="f">sort_values</span>(ascending=<span class="k">False</span>).<span class="f">head</span>()</pre>
+<pre class="out">Neighborhood
+NPkVill    0.444
+Mitchel    0.388
+NWAmes     0.337
+SWISU      0.300
+Sawyer     0.293</pre>
+
+  <p>Some neighborhoods have much more missing LotFrontage than others — not random. A group-wise median imputation (median LotFrontage per neighborhood) makes more sense than a global median.</p>
+
+  <h3 class="section"><span class="num">3.4</span>The missingness map</h3>
+<pre>fig, ax = plt.<span class="f">subplots</span>(figsize=(<span class="n">10</span>, <span class="n">8</span>))
+sns.<span class="f">heatmap</span>(df.<span class="f">isna</span>().<span class="f">iloc</span>[:, missing.index.<span class="f">tolist</span>()],
+            cbar=<span class="k">False</span>, ax=ax, yticklabels=<span class="k">False</span>)
+ax.<span class="f">set_title</span>(<span class="s">"Missingness map (rows × columns with any NA)"</span>)</pre>
+  <p>This single chart shows whether missing values cluster in rows (some houses are systematically incomplete) or columns (some features are systematically rare). For Ames, the missingness is column-aligned, which matches our structural reading.</p>
+
+  <div class="note finding">
+    <span class="lbl">finding 3</span>
+    <p>Plan: fill structural NAs in PoolQC, MiscFeature, Alley, Fence, FireplaceQu, the Garage* and Bsmt* groups with the string "None" or the value 0 where the data type calls for it. Impute LotFrontage by neighborhood median. Impute Electrical with the mode. No column needs to be dropped.</p>
+  </div>
+</section>
+
+<section class="chapter" id="c4">
+  <div class="ch-header"><span class="ch-num">CHAPTER 04</span><h2 class="ch-title">The target — SalePrice</h2></div>
+  <p class="lead">Before exploring features, understand the thing you're trying to predict. Skew, range, distribution shape — these decisions cascade into everything that follows.</p>
+
+  <h3 class="section"><span class="num">4.1</span>The five-number summary</h3>
+<pre>df[<span class="s">"SalePrice"</span>].<span class="f">describe</span>().<span class="f">round</span>()</pre>
+<pre class="out">count      1460
+mean     180921
+std       79443
+min       34900
+25%      129975
+50%      163000
+75%      214000
+max      755000</pre>
+
+  <p>Mean (180k) is well above median (163k) — classic right-skew. The max is more than 20× the min. The 75th percentile is 214k but the max is 755k — meaning there's a long tail of expensive houses.</p>
+
+  <h3 class="section"><span class="num">4.2</span>The distribution</h3>
+<pre>fig, axes = plt.<span class="f">subplots</span>(<span class="n">1</span>, <span class="n">2</span>, figsize=(<span class="n">12</span>, <span class="n">4</span>))
+sns.<span class="f">histplot</span>(df[<span class="s">"SalePrice"</span>], bins=<span class="n">40</span>, ax=axes[<span class="n">0</span>])
+axes[<span class="n">0</span>].<span class="f">set_title</span>(f<span class="s">"SalePrice — skew = {df['SalePrice'].skew():.2f}"</span>)
+
+sns.<span class="f">histplot</span>(np.<span class="f">log1p</span>(df[<span class="s">"SalePrice"</span>]), bins=<span class="n">40</span>, ax=axes[<span class="n">1</span>])
+axes[<span class="n">1</span>].<span class="f">set_title</span>(f<span class="s">"log(SalePrice) — skew = {np.log1p(df['SalePrice']).skew():.2f}"</span>)
+fig.<span class="f">tight_layout</span>()</pre>
+
+  <p>Skewness measures asymmetry: 0 is symmetric, positive means a right tail. The raw SalePrice has skew ≈ 1.88 — heavily right-skewed. After log transformation, skew drops to about 0.12 — essentially symmetric.</p>
+
+  <div class="note finding">
+    <span class="lbl">finding 4</span>
+    <p>SalePrice is right-skewed (skew ≈ 1.88). <code>log1p(SalePrice)</code> is approximately normal (skew ≈ 0.12). The Kaggle metric is RMSE on log(SalePrice) — confirming that modeling on the log scale is the right approach. Predictions will be made in log space and exponentiated back.</p>
+  </div>
+
+  <h3 class="section"><span class="num">4.3</span>Why log matters</h3>
+  <p>Modeling SalePrice directly with a linear model would weight a $50k error on a $200k house the same as a $50k error on a $700k house. Modeling log(SalePrice) instead means a 10% error matters equally everywhere — which matches both intuition and the competition metric.</p>
+
+  <h3 class="section"><span class="num">4.4</span>The outliers in the target</h3>
+<pre>df.<span class="f">nlargest</span>(<span class="n">10</span>, <span class="s">"SalePrice"</span>)[[<span class="s">"SalePrice"</span>, <span class="s">"GrLivArea"</span>, <span class="s">"OverallQual"</span>, <span class="s">"Neighborhood"</span>]]</pre>
+  <p>The most expensive houses are all in NoRidge and NridgHt with above-grade living area over 4000 sq ft and overall quality 10. These aren't data errors — they're real luxury properties. Keep them, but watch how the model handles them.</p>
+
+  <h3 class="section"><span class="num">4.5</span>Save the target choice</h3>
+<pre>y = np.<span class="f">log1p</span>(df[<span class="s">"SalePrice"</span>])
+df_features = df.<span class="f">drop</span>(columns=[<span class="s">"SalePrice"</span>, <span class="s">"Id"</span>])</pre>
+  <p>From here on, when we talk about "the target," we mean <code>log1p(SalePrice)</code>.</p>
+</section>
+
+<section class="chapter" id="c5">
+  <div class="ch-header"><span class="ch-num">CHAPTER 05</span><h2 class="ch-title">Numeric features</h2></div>
+  <p class="lead">38 numeric columns is too many to plot one-by-one. The strategy: an overview grid, then a correlation ranking, then deep dives on the strongest.</p>
+
+  <h3 class="section"><span class="num">5.1</span>Distribution grid</h3>
+<pre>num_cols = df_features.<span class="f">select_dtypes</span>(include=np.number).columns.<span class="f">tolist</span>()
+
+fig, axes = plt.<span class="f">subplots</span>(<span class="n">10</span>, <span class="n">4</span>, figsize=(<span class="n">14</span>, <span class="n">22</span>))
+<span class="k">for</span> ax, col <span class="k">in</span> <span class="f">zip</span>(axes.flat, num_cols):
+    sns.<span class="f">histplot</span>(df_features[col], bins=<span class="n">30</span>, ax=ax)
+    ax.<span class="f">set_title</span>(col, fontsize=<span class="n">10</span>)
+    ax.<span class="f">set_xlabel</span>(<span class="s">""</span>)
+fig.<span class="f">tight_layout</span>()</pre>
+
+  <p>One look reveals a lot:</p>
+  <ul>
+    <li><b>Several "year" columns</b> — YearBuilt, YearRemodAdd, GarageYrBlt — left-skewed (most houses are recent).</li>
+    <li><b>Many area columns</b> — GrLivArea, LotArea, TotalBsmtSF, 1stFlrSF — right-skewed like the target.</li>
+    <li><b>Several columns are mostly zero</b> — BsmtFinSF2, 2ndFlrSF, PoolArea, MiscVal, LowQualFinSF. These are effectively "presence + amount" features.</li>
+    <li><b>OverallQual, OverallCond</b> — discrete 1-10 ordinal scales.</li>
+  </ul>
+
+  <h3 class="section"><span class="num">5.2</span>Correlation ranking</h3>
+<pre>corr = df.<span class="f">corr</span>(numeric_only=<span class="k">True</span>)[<span class="s">"SalePrice"</span>].<span class="f">sort_values</span>(ascending=<span class="k">False</span>)
+corr.<span class="f">head</span>(<span class="n">15</span>)</pre>
+<pre class="out">SalePrice       1.000
+OverallQual     0.791
+GrLivArea       0.709
+GarageCars      0.640
+GarageArea      0.623
+TotalBsmtSF     0.614
+1stFlrSF        0.606
+FullBath        0.561
+TotRmsAbvGrd    0.534
+YearBuilt       0.523
+YearRemodAdd    0.507
+GarageYrBlt     0.486
+MasVnrArea      0.477
+Fireplaces      0.467
+BsmtFinSF1      0.386</pre>
+
+  <p>The headlines: <b>OverallQual</b> (0.79) is the single best predictor — the 1-10 quality rating captures almost everything. <b>GrLivArea</b> (0.71) is second. <b>GarageCars/GarageArea/TotalBsmtSF/1stFlrSF</b> all sit in the 0.60-0.64 range.</p>
+
+  <div class="note finding">
+    <span class="lbl">finding 5</span>
+    <p>Top predictors (correlation with SalePrice): OverallQual, GrLivArea, GarageCars, GarageArea, TotalBsmtSF, 1stFlrSF, FullBath, YearBuilt. Quality and size dominate. Year built shows up — newer houses sell higher, but the relationship is weaker than for size.</p>
+  </div>
+
+  <h3 class="section"><span class="num">5.3</span>The correlation heatmap among predictors</h3>
+<pre>top = corr.<span class="f">head</span>(<span class="n">15</span>).index.<span class="f">tolist</span>()
+fig, ax = plt.<span class="f">subplots</span>(figsize=(<span class="n">10</span>, <span class="n">8</span>))
+sns.<span class="f">heatmap</span>(df[top].<span class="f">corr</span>(), annot=<span class="k">True</span>, fmt=<span class="s">".2f"</span>,
+            cmap=<span class="s">"RdBu_r"</span>, center=<span class="n">0</span>, square=<span class="k">True</span>, ax=ax)</pre>
+
+  <p>Several clusters of high inter-correlation jump out:</p>
+  <ul>
+    <li><b>Garage cluster:</b> GarageCars, GarageArea, GarageYrBlt are all ~0.85+ correlated with each other.</li>
+    <li><b>Basement / first floor:</b> TotalBsmtSF and 1stFlrSF are ~0.82.</li>
+    <li><b>Year cluster:</b> YearBuilt, YearRemodAdd, GarageYrBlt cluster together.</li>
+  </ul>
+
+  <div class="note finding">
+    <span class="lbl">finding 6</span>
+    <p>Heavy multicollinearity among the top predictors. Garage* features are near-duplicates. So are TotalBsmtSF and 1stFlrSF. Linear models will struggle without regularization; tree-based models won't care. Either way, dropping or combining these into a single "size" feature is worth trying.</p>
+  </div>
+</section>
+
+<section class="chapter" id="c6">
+  <div class="ch-header"><span class="ch-num">CHAPTER 06</span><h2 class="ch-title">Categorical features</h2></div>
+  <p class="lead">43 categorical columns. Same divide-and-conquer approach: cardinality first, then price by group for the most promising.</p>
+
+  <h3 class="section"><span class="num">6.1</span>Cardinality survey</h3>
+<pre>cat_cols = df_features.<span class="f">select_dtypes</span>(include=<span class="s">"object"</span>).columns.<span class="f">tolist</span>()
+card = df_features[cat_cols].<span class="f">nunique</span>().<span class="f">sort_values</span>(ascending=<span class="k">False</span>)
+card</pre>
+<pre class="out">Neighborhood    25
+Exterior2nd     16
+Exterior1st     15
+SaleType         9
+Condition1       9
+Condition2       8
+HouseStyle       8
+RoofMatl         8
+Functional       7
+...</pre>
+
+  <p>Neighborhood is by far the highest-cardinality categorical (25 levels). Most others have 4-10 levels. None are dangerously high — every feature here is one-hot-encodable without exploding the feature space.</p>
+
+  <h3 class="section"><span class="num">6.2</span>Quality is hiding in object columns</h3>
+  <p>Many of the "object" columns are actually <em>ordinal</em> — they encode quality on a scale like Ex / Gd / TA / Fa / Po. The data dictionary helps:</p>
+<pre>quality_cols = [<span class="s">"ExterQual"</span>, <span class="s">"ExterCond"</span>, <span class="s">"BsmtQual"</span>, <span class="s">"BsmtCond"</span>,
+                <span class="s">"HeatingQC"</span>, <span class="s">"KitchenQual"</span>, <span class="s">"FireplaceQu"</span>, <span class="s">"GarageQual"</span>, <span class="s">"GarageCond"</span>]
+
+quality_map = {<span class="s">"Ex"</span>: <span class="n">5</span>, <span class="s">"Gd"</span>: <span class="n">4</span>, <span class="s">"TA"</span>: <span class="n">3</span>, <span class="s">"Fa"</span>: <span class="n">2</span>, <span class="s">"Po"</span>: <span class="n">1</span>, <span class="k">None</span>: <span class="n">0</span>}
+
+<span class="k">for</span> col <span class="k">in</span> quality_cols:
+    df_features[f<span class="s">"{col}_n"</span>] = df_features[col].<span class="f">map</span>(quality_map).<span class="f">fillna</span>(<span class="n">0</span>)</pre>
+
+  <p>Converting these to ordered integers lets them participate in correlation analysis:</p>
+<pre>quality_corr = df_features[[f<span class="s">"{c}_n"</span> <span class="k">for</span> c <span class="k">in</span> quality_cols]]\
+                  .<span class="f">corrwith</span>(np.<span class="f">log1p</span>(df[<span class="s">"SalePrice"</span>]))\
+                  .<span class="f">sort_values</span>(ascending=<span class="k">False</span>)
+quality_corr</pre>
+<pre class="out">ExterQual_n     0.682
+KitchenQual_n   0.659
+BsmtQual_n      0.621
+HeatingQC_n     0.428
+FireplaceQu_n   0.521
+GarageQual_n    0.273
+GarageCond_n    0.263
+ExterCond_n     0.119
+BsmtCond_n      0.213</pre>
+
+  <div class="note finding">
+    <span class="lbl">finding 7</span>
+    <p>Several "quality" columns — ExterQual, KitchenQual, BsmtQual — when converted to ordinal integers correlate 0.6+ with log price. These are nearly as predictive as GrLivArea. They have to be encoded as ordered integers, not one-hot.</p>
+  </div>
+
+  <h3 class="section"><span class="num">6.3</span>Price by neighborhood</h3>
+<pre>fig, ax = plt.<span class="f">subplots</span>(figsize=(<span class="n">12</span>, <span class="n">5</span>))
+order = df.<span class="f">groupby</span>(<span class="s">"Neighborhood"</span>)[<span class="s">"SalePrice"</span>].<span class="f">median</span>().<span class="f">sort_values</span>().index
+sns.<span class="f">boxplot</span>(data=df, x=<span class="s">"Neighborhood"</span>, y=<span class="s">"SalePrice"</span>, order=order, ax=ax)
+ax.<span class="f">tick_params</span>(axis=<span class="s">"x"</span>, rotation=<span class="n">45</span>)
+ax.<span class="f">set_title</span>(<span class="s">"Sale price by neighborhood (sorted by median)"</span>)</pre>
+
+  <p>Median price varies from ~$90k (MeadowV, IDOTRR, BrDale) to ~$320k (NoRidge, NridgHt, StoneBr). A 3.5× spread before anything else is considered — neighborhood is essentially a separate market within the city.</p>
+
+  <div class="note finding">
+    <span class="lbl">finding 8</span>
+    <p>Neighborhood alone explains an enormous share of price variation — median price ranges 3.5× across 25 neighborhoods. This is a feature to keep raw (one-hot encoded) and consider as a grouping variable for imputation and interaction features.</p>
+  </div>
+
+  <h3 class="section"><span class="num">6.4</span>The categorical-vs-price grid</h3>
+<pre>fig, axes = plt.<span class="f">subplots</span>(<span class="n">3</span>, <span class="n">3</span>, figsize=(<span class="n">14</span>, <span class="n">10</span>))
+top_cats = [<span class="s">"MSZoning"</span>, <span class="s">"HouseStyle"</span>, <span class="s">"Foundation"</span>, <span class="s">"CentralAir"</span>,
+            <span class="s">"GarageType"</span>, <span class="s">"SaleCondition"</span>, <span class="s">"BldgType"</span>, <span class="s">"LandContour"</span>, <span class="s">"LotShape"</span>]
+<span class="k">for</span> ax, col <span class="k">in</span> <span class="f">zip</span>(axes.flat, top_cats):
+    order = df.<span class="f">groupby</span>(col)[<span class="s">"SalePrice"</span>].<span class="f">median</span>().<span class="f">sort_values</span>().index
+    sns.<span class="f">boxplot</span>(data=df, x=col, y=<span class="s">"SalePrice"</span>, order=order, ax=ax)
+    ax.<span class="f">set_title</span>(col)
+fig.<span class="f">tight_layout</span>()</pre>
+
+  <p>Some of these matter a lot (Foundation, CentralAir, SaleCondition); others barely move the needle (LotShape). The grid lets you eyeball nine at once and pick which to keep digging on.</p>
+</section>
+
+<section class="chapter" id="c7">
+  <div class="ch-header"><span class="ch-num">CHAPTER 07</span><h2 class="ch-title">Bivariate deep dive</h2></div>
+  <p class="lead">Six features cleared the bar in earlier chapters. Now plot each against the target carefully — looking for nonlinearity, outliers, and the kind of subtle shape that doesn't show in a correlation number.</p>
+
+  <h3 class="section"><span class="num">7.1</span>OverallQual vs SalePrice</h3>
+<pre>fig, ax = plt.<span class="f">subplots</span>(figsize=(<span class="n">8</span>, <span class="n">5</span>))
+sns.<span class="f">boxplot</span>(data=df, x=<span class="s">"OverallQual"</span>, y=<span class="s">"SalePrice"</span>, ax=ax)
+ax.<span class="f">set_title</span>(<span class="s">"Price climbs steeply at higher quality — note exponential shape"</span>)</pre>
+
+  <p>The relationship is monotonic but accelerating: going from quality 5 to 6 adds ~$30k, but going from 9 to 10 adds ~$200k. This is exactly the curvature that taking <code>log(SalePrice)</code> straightens out.</p>
+
+  <h3 class="section"><span class="num">7.2</span>GrLivArea vs SalePrice</h3>
+<pre>fig, ax = plt.<span class="f">subplots</span>(figsize=(<span class="n">8</span>, <span class="n">5</span>))
+sns.<span class="f">regplot</span>(data=df, x=<span class="s">"GrLivArea"</span>, y=<span class="s">"SalePrice"</span>,
+            scatter_kws={<span class="s">"alpha"</span>: <span class="n">0.3</span>}, line_kws={<span class="s">"color"</span>: <span class="s">"#ec7548"</span>}, ax=ax)
+ax.<span class="f">set_title</span>(<span class="s">"GrLivArea vs SalePrice"</span>)</pre>
+
+  <p>Strongly linear — until you spot two giant houses (GrLivArea &gt; 4000) selling for under $200k. Those are anomalies that pull the line. Worth investigating:</p>
+<pre>df[(df[<span class="s">"GrLivArea"</span>] &gt; <span class="n">4000</span>) &amp; (df[<span class="s">"SalePrice"</span>] &lt; <span class="n">300000</span>)][[
+    <span class="s">"GrLivArea"</span>, <span class="s">"SalePrice"</span>, <span class="s">"OverallQual"</span>, <span class="s">"SaleCondition"</span>, <span class="s">"Neighborhood"</span>
+]]</pre>
+<pre class="out">     GrLivArea  SalePrice  OverallQual SaleCondition Neighborhood
+523       4676     184750           10       Partial      Edwards
+1298      5642     160000           10       Partial      Edwards</pre>
+
+  <p>Both are "Partial" sale condition — houses sold before construction was complete. The data dictionary says this is unusual; Dean De Cock explicitly recommends removing them. They're not outliers in the data; they're contractually different transactions.</p>
+
+  <div class="note finding">
+    <span class="lbl">finding 9</span>
+    <p>Two extreme outliers (rows 523 and 1298) are "Partial" sale condition — houses sold mid-construction. Per the dataset author's notes, these should be excluded from training. After removal, GrLivArea vs SalePrice is highly linear.</p>
+  </div>
+
+  <h3 class="section"><span class="num">7.3</span>TotalBsmtSF and 1stFlrSF — combine them</h3>
+<pre>fig, axes = plt.<span class="f">subplots</span>(<span class="n">1</span>, <span class="n">2</span>, figsize=(<span class="n">12</span>, <span class="n">4</span>))
+sns.<span class="f">regplot</span>(data=df, x=<span class="s">"TotalBsmtSF"</span>, y=<span class="s">"SalePrice"</span>, ax=axes[<span class="n">0</span>], scatter_kws={<span class="s">"alpha"</span>: <span class="n">0.3</span>})
+sns.<span class="f">regplot</span>(data=df, x=<span class="s">"1stFlrSF"</span>, y=<span class="s">"SalePrice"</span>, ax=axes[<span class="n">1</span>], scatter_kws={<span class="s">"alpha"</span>: <span class="n">0.3</span>})</pre>
+  <p>Both are strongly linear with the target. Both are 0.82-correlated with each other. A simple feature engineering idea: <code>TotalSF = TotalBsmtSF + 1stFlrSF + 2ndFlrSF</code> — total square footage.</p>
+
+  <h3 class="section"><span class="num">7.4</span>YearBuilt vs SalePrice</h3>
+<pre>fig, ax = plt.<span class="f">subplots</span>(figsize=(<span class="n">10</span>, <span class="n">5</span>))
+sns.<span class="f">scatterplot</span>(data=df, x=<span class="s">"YearBuilt"</span>, y=<span class="s">"SalePrice"</span>, alpha=<span class="n">0.3</span>, ax=ax)
+sns.<span class="f">regplot</span>(data=df, x=<span class="s">"YearBuilt"</span>, y=<span class="s">"SalePrice"</span>, scatter=<span class="k">False</span>,
+            lowess=<span class="k">True</span>, line_kws={<span class="s">"color"</span>: <span class="s">"#ec7548"</span>}, ax=ax)
+ax.<span class="f">set_title</span>(<span class="s">"Sale price by year built"</span>)</pre>
+  <p>The lowess line tells the story: prices are roughly flat for houses built 1900-1950, climb slightly through 1980, then climb steeply after 2000. The relationship isn't linear — newer is worth more, but disproportionately so for the newest houses. A "house age" feature (YrSold - YearBuilt) would also work and might be easier for a linear model.</p>
+
+  <h3 class="section"><span class="num">7.5</span>SaleCondition</h3>
+<pre>sns.<span class="f">boxplot</span>(data=df, x=<span class="s">"SaleCondition"</span>, y=<span class="s">"SalePrice"</span>,
+            order=df.<span class="f">groupby</span>(<span class="s">"SaleCondition"</span>)[<span class="s">"SalePrice"</span>].<span class="f">median</span>().<span class="f">sort_values</span>().index)</pre>
+  <p>Six sale conditions: Normal (most), Partial, Family, Abnormal, Alloca, AdjLand. Partial sales are systematically different (those incomplete construction sales). Modeling on "Normal" sales only might be a useful baseline to compare against modeling on all sales.</p>
+
+  <div class="note finding">
+    <span class="lbl">finding 10</span>
+    <p>The top numeric predictors are all linear with log price after appropriate cleanup. YearBuilt is mildly nonlinear; consider YrSold-YearBuilt instead. TotalBsmtSF + 1stFlrSF + 2ndFlrSF combine naturally into a TotalSF feature. SaleCondition matters; restricting to Normal sales is a sensible robustness check.</p>
+  </div>
+</section>
+
+<section class="chapter" id="c8">
+  <div class="ch-header"><span class="ch-num">CHAPTER 08</span><h2 class="ch-title">Outliers &amp; skew</h2></div>
+  <p class="lead">Two separate problems often discussed as one. Outliers are <em>wrong</em> or <em>special</em> rows. Skew is a property of a distribution. Different fixes for each.</p>
+
+  <h3 class="section"><span class="num">8.1</span>The outlier checklist</h3>
+  <p>Three categories. Treat each differently:</p>
+  <ul>
+    <li><b>Data errors</b> — a price of $1, a year of 9999, a square footage of -50. Fix or drop. Always.</li>
+    <li><b>Structural anomalies</b> — the Partial sales above. Drop if they're not the population you care about.</li>
+    <li><b>Genuine extremes</b> — the $755k luxury house. Keep. Use models that handle them well (regularized linear or gradient boosting).</li>
+  </ul>
+
+  <h3 class="section"><span class="num">8.2</span>Checking each top feature</h3>
+<pre>top_features = [<span class="s">"GrLivArea"</span>, <span class="s">"LotArea"</span>, <span class="s">"TotalBsmtSF"</span>, <span class="s">"1stFlrSF"</span>, <span class="s">"GarageArea"</span>]
+fig, axes = plt.<span class="f">subplots</span>(<span class="n">1</span>, <span class="f">len</span>(top_features), figsize=(<span class="n">15</span>, <span class="n">4</span>))
+<span class="k">for</span> ax, col <span class="k">in</span> <span class="f">zip</span>(axes, top_features):
+    sns.<span class="f">boxplot</span>(y=df[col], ax=ax)
+    ax.<span class="f">set_title</span>(col)</pre>
+
+  <p>LotArea has a few extreme outliers (the five-acre lot). They're real properties, not errors. Note them, but don't drop them. A log transformation on LotArea is more useful than removing them.</p>
+
+  <h3 class="section"><span class="num">8.3</span>Skew survey across all numeric features</h3>
+<pre>skewness = df_features[num_cols].<span class="f">skew</span>().<span class="f">sort_values</span>(ascending=<span class="k">False</span>)
+skewness[skewness.<span class="f">abs</span>() &gt; <span class="n">1</span>]              <span class="c"># columns with notable skew</span></pre>
+<pre class="out">MiscVal         24.5
+PoolArea        14.8
+LotArea         12.2
+3SsnPorch       10.3
+LowQualFinSF     9.0
+KitchenAbvGr     4.5
+BsmtFinSF2       4.3
+ScreenPorch      4.1
+BsmtHalfBath     4.1
+EnclosedPorch    3.1
+MasVnrArea       2.7
+LotFrontage      2.2
+OpenPorchSF      2.4
+2ndFlrSF         0.8</pre>
+
+  <p>Many features are heavily right-skewed. For linear models, log-transforming them often helps. For tree-based models, it doesn't matter — trees are invariant to monotonic transformations of features.</p>
+
+  <h3 class="section"><span class="num">8.4</span>The fix — log1p for positive skewed features</h3>
+<pre>skewed = skewness[skewness.<span class="f">abs</span>() &gt; <span class="n">0.75</span>].index.<span class="f">tolist</span>()
+
+<span class="k">for</span> col <span class="k">in</span> skewed:
+    <span class="k">if</span> (df_features[col] &gt;= <span class="n">0</span>).<span class="f">all</span>():
+        df_features[col] = np.<span class="f">log1p</span>(df_features[col])</pre>
+  <p><code>log1p(x) = log(1 + x)</code> handles zero values cleanly. Use it whenever you might log-transform something that can be zero.</p>
+
+  <div class="note finding">
+    <span class="lbl">finding 11</span>
+    <p>About 25 numeric features are notably skewed. For a linear model: log-transform all positive ones with skew &gt; 0.75. For tree-based models: don't bother. The Partial-sale outliers (rows 523, 1298) should be dropped regardless.</p>
+  </div>
+</section>
+
+<section class="chapter" id="c9">
+  <div class="ch-header"><span class="ch-num">CHAPTER 09</span><h2 class="ch-title">Feature engineering ideas</h2></div>
+  <p class="lead">EDA hands the modeler a list. Each idea below was discovered through the previous chapters — not invented from thin air.</p>
+
+  <h3 class="section"><span class="num">9.1</span>Combine related areas</h3>
+<pre>df_features[<span class="s">"TotalSF"</span>] = (
+    df_features[<span class="s">"TotalBsmtSF"</span>] + df_features[<span class="s">"1stFlrSF"</span>] + df_features[<span class="s">"2ndFlrSF"</span>]
+)
+df_features[<span class="s">"TotalBath"</span>] = (
+    df_features[<span class="s">"FullBath"</span>] + <span class="n">0.5</span> * df_features[<span class="s">"HalfBath"</span>]
+    + df_features[<span class="s">"BsmtFullBath"</span>] + <span class="n">0.5</span> * df_features[<span class="s">"BsmtHalfBath"</span>]
+)
+df_features[<span class="s">"TotalPorchSF"</span>] = (
+    df_features[<span class="s">"OpenPorchSF"</span>] + df_features[<span class="s">"EnclosedPorch"</span>]
+    + df_features[<span class="s">"3SsnPorch"</span>] + df_features[<span class="s">"ScreenPorch"</span>] + df_features[<span class="s">"WoodDeckSF"</span>]
+)</pre>
+  <p>Where multiple columns measure the same conceptual thing, sum them. <code>TotalSF</code> typically becomes the single strongest predictor in the model.</p>
+
+  <h3 class="section"><span class="num">9.2</span>Age and remodel age</h3>
+<pre>df_features[<span class="s">"HouseAge"</span>]    = df[<span class="s">"YrSold"</span>] - df_features[<span class="s">"YearBuilt"</span>]
+df_features[<span class="s">"RemodelAge"</span>]  = df[<span class="s">"YrSold"</span>] - df_features[<span class="s">"YearRemodAdd"</span>]
+df_features[<span class="s">"IsRemodeled"</span>] = (df_features[<span class="s">"YearBuilt"</span>] != df_features[<span class="s">"YearRemodAdd"</span>]).<span class="f">astype</span>(<span class="f">int</span>)</pre>
+
+  <h3 class="section"><span class="num">9.3</span>Presence flags from mostly-zero features</h3>
+<pre>df_features[<span class="s">"HasPool"</span>]       = (df_features[<span class="s">"PoolArea"</span>] &gt; <span class="n">0</span>).<span class="f">astype</span>(<span class="f">int</span>)
+df_features[<span class="s">"HasGarage"</span>]     = (df_features[<span class="s">"GarageArea"</span>] &gt; <span class="n">0</span>).<span class="f">astype</span>(<span class="f">int</span>)
+df_features[<span class="s">"HasBasement"</span>]   = (df_features[<span class="s">"TotalBsmtSF"</span>] &gt; <span class="n">0</span>).<span class="f">astype</span>(<span class="f">int</span>)
+df_features[<span class="s">"HasFireplace"</span>]  = (df_features[<span class="s">"Fireplaces"</span>] &gt; <span class="n">0</span>).<span class="f">astype</span>(<span class="f">int</span>)
+df_features[<span class="s">"Has2ndFloor"</span>]   = (df_features[<span class="s">"2ndFlrSF"</span>] &gt; <span class="n">0</span>).<span class="f">astype</span>(<span class="f">int</span>)</pre>
+  <p>The mostly-zero columns from chapter 5 carry two pieces of information: whether the feature exists at all, and (if it does) how big it is. Splitting them into a flag plus a size lets models use both.</p>
+
+  <h3 class="section"><span class="num">9.4</span>Quality interactions</h3>
+<pre>df_features[<span class="s">"QualBySF"</span>]    = df_features[<span class="s">"OverallQual"</span>] * df_features[<span class="s">"TotalSF"</span>]
+df_features[<span class="s">"QualByAge"</span>]   = df_features[<span class="s">"OverallQual"</span>] * df_features[<span class="s">"HouseAge"</span>]</pre>
+  <p>A high-quality 4000-sq-ft house is worth more per square foot than a low-quality one of the same size. Interaction features capture that.</p>
+
+  <h3 class="section"><span class="num">9.5</span>Neighborhood tier</h3>
+<pre>neighborhood_median = df.<span class="f">groupby</span>(<span class="s">"Neighborhood"</span>)[<span class="s">"SalePrice"</span>].<span class="f">median</span>()
+tiers = pd.<span class="f">qcut</span>(neighborhood_median, <span class="n">3</span>, labels=[<span class="s">"low"</span>, <span class="s">"mid"</span>, <span class="s">"high"</span>])
+df_features[<span class="s">"NeighborhoodTier"</span>] = df_features[<span class="s">"Neighborhood"</span>].<span class="f">map</span>(tiers)</pre>
+  <p>For models that struggle with 25-level categoricals, collapsing to a 3-level "tier" preserves most of the signal at a fraction of the feature cost.</p>
+
+  <h3 class="section"><span class="num">9.6</span>The full engineering list</h3>
+  <p>Every idea above came directly from a finding in chapters 3-8. The discipline is to be able to point to <em>why</em> each engineered feature exists. If you can't, drop it — it's adding noise.</p>
+
+  <table class="tbl">
+    <thead><tr><th>Feature</th><th>From finding</th></tr></thead>
+    <tbody>
+      <tr><td>TotalSF, TotalBath, TotalPorchSF</td><td>Multiple columns measure the same concept; multicollinearity</td></tr>
+      <tr><td>HouseAge, RemodelAge, IsRemodeled</td><td>Year columns are easier as deltas; remodel-vs-original matters</td></tr>
+      <tr><td>HasPool, HasGarage, HasBasement, HasFireplace</td><td>Mostly-zero columns carry presence-plus-size information</td></tr>
+      <tr><td>QualBySF, QualByAge</td><td>Quality and size interact — luxury per sq ft is higher</td></tr>
+      <tr><td>NeighborhoodTier</td><td>25-level categorical compressed to 3 levels for simpler models</td></tr>
+      <tr><td>log1p of skewed numerics</td><td>Skew survey identified ~25 right-skewed features</td></tr>
+      <tr><td>Ordinal mapping of quality columns</td><td>Quality columns are ordered, not nominal</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section class="chapter" id="c10">
+  <div class="ch-header"><span class="ch-num">CHAPTER 10</span><h2 class="ch-title">The findings document</h2></div>
+  <p class="lead">The actual deliverable. Not a notebook full of charts — a written summary your future self (and your colleagues) can read in five minutes.</p>
+
+  <h3 class="section"><span class="num">10.1</span>What it looks like</h3>
+  <p>Open a markdown cell at the top of your notebook. Write this:</p>
+
+<pre class="solo"><span class="c">## Ames House Prices — EDA Summary</span>
+
+<span class="c">### Dataset</span>
+- 1,460 rows, 81 columns, target = SalePrice (USD)
+- 38 numeric, 43 categorical features
+- Years: 2006–2010, location: Ames Iowa
+
+<span class="c">### Target</span>
+- Right-skewed (skew 1.88); log1p transform brings to skew 0.12
+- Model on log1p(SalePrice), exponentiate predictions back
+- Range: $34,900 to $755,000
+
+<span class="c">### Missingness</span>
+- Mostly structural — NA means "feature absent" per the data dictionary
+- PoolQC, MiscFeature, Alley, Fence, FireplaceQu, Garage*, Bsmt* → fill with "None"/0
+- LotFrontage (17.7% missing) → impute by neighborhood median
+- Electrical (one missing) → impute with mode
+
+<span class="c">### Top predictors (correlation with log price)</span>
+1. OverallQual (0.79) — single best feature
+2. GrLivArea (0.71) — strong linear after Partial-sale outlier removal
+3. TotalSF [engineered] (~0.83 expected) — sum of basement + floors
+4. ExterQual, KitchenQual, BsmtQual (0.62–0.68) — ordinal-encode these
+5. GarageCars / GarageArea (0.64 / 0.62) — highly correlated; pick one
+6. YearBuilt (0.52) — slightly nonlinear; use HouseAge = YrSold - YearBuilt
+
+<span class="c">### Categorical insight</span>
+- Neighborhood: 25 levels, 3.5× spread in median price
+- Quality columns (Ex/Gd/TA/Fa/Po) must be ordinal, not one-hot
+- SaleCondition matters: Partial sales are structurally different
+
+<span class="c">### Outliers</span>
+- Drop rows 523 and 1298 — Partial sale, GrLivArea > 4000, low price
+- Keep all genuine luxury outliers — they're not errors
+
+<span class="c">### Feature engineering ideas</span>
+- TotalSF = TotalBsmtSF + 1stFlrSF + 2ndFlrSF
+- TotalBath = FullBath + 0.5*HalfBath + BsmtFullBath + 0.5*BsmtHalfBath
+- HouseAge, RemodelAge, IsRemodeled
+- HasPool / HasGarage / HasBasement / HasFireplace flags
+- QualBySF and QualByAge interactions
+- NeighborhoodTier (low/mid/high from median price)
+- log1p the ~25 skewed numeric features
+
+<span class="c">### Modeling notes</span>
+- Two model families to try: regularized linear (Ridge/Lasso/ElasticNet) and gradient boosting
+- Linear models need the log transforms and ordinal encodings
+- GBM doesn't care about transforms but benefits from interaction features
+- Cross-validate carefully: only 1460 rows total
+- Evaluation: RMSE on log(SalePrice), per the Kaggle metric</pre>
+
+  <h3 class="section"><span class="num">10.2</span>Why this document matters</h3>
+  <p>Three reasons it's the most valuable artifact of any EDA:</p>
+  <ul>
+    <li><b>Persistence.</b> Notebooks get long; charts get scrolled past. Three paragraphs at the top survive every refactor.</li>
+    <li><b>Communication.</b> A colleague reading this knows what you know in five minutes. A chart-only notebook takes them an hour.</li>
+    <li><b>Forcing function.</b> Writing "Top predictors:" makes you confront whether you actually have a top-5 list. Most beginner EDA notebooks have lots of charts and no conclusions.</li>
+  </ul>
+
+  <div class="note tip">
+    <span class="lbl">the discipline</span>
+    <p>Write findings as you go. Every chart should produce at least one bullet. If a chart doesn't produce a bullet, ask whether it was worth making. Over time this discipline replaces "I should make more plots" with "I should write more conclusions."</p>
+  </div>
+</section>
+
+<section class="chapter" id="c11">
+  <div class="ch-header"><span class="ch-num">CHAPTER 11</span><h2 class="ch-title">From EDA to modeling</h2></div>
+  <p class="lead">The EDA is done. What changes for the modeling stage, and what doesn't.</p>
+
+  <h3 class="section"><span class="num">11.1</span>The handoff</h3>
+  <p>Modeling starts where EDA leaves off. The notebook you'd open next looks like:</p>
+<pre><span class="c"># 1. Read the original train.csv fresh — don't carry EDA-stage transforms</span>
+df = pd.<span class="f">read_csv</span>(<span class="s">"train.csv"</span>)
+
+<span class="c"># 2. Apply the cleaning rules from the EDA findings</span>
+df = df.<span class="f">drop</span>(index=[<span class="n">523</span>, <span class="n">1298</span>])                          <span class="c"># Partial-sale outliers</span>
+<span class="k">for</span> col <span class="k">in</span> structural_na_cols:
+    df[col] = df[col].<span class="f">fillna</span>(<span class="s">"None"</span>)
+df[<span class="s">"LotFrontage"</span>] = df.<span class="f">groupby</span>(<span class="s">"Neighborhood"</span>)[<span class="s">"LotFrontage"</span>].<span class="f">transform</span>(
+    <span class="k">lambda</span> x: x.<span class="f">fillna</span>(x.<span class="f">median</span>())
+)
+df[<span class="s">"Electrical"</span>] = df[<span class="s">"Electrical"</span>].<span class="f">fillna</span>(df[<span class="s">"Electrical"</span>].<span class="f">mode</span>()[<span class="n">0</span>])
+
+<span class="c"># 3. Engineer features per the EDA list</span>
+df[<span class="s">"TotalSF"</span>]    = df[<span class="s">"TotalBsmtSF"</span>] + df[<span class="s">"1stFlrSF"</span>] + df[<span class="s">"2ndFlrSF"</span>]
+df[<span class="s">"TotalBath"</span>]  = df[<span class="s">"FullBath"</span>] + <span class="n">0.5</span>*df[<span class="s">"HalfBath"</span>] \
+                  + df[<span class="s">"BsmtFullBath"</span>] + <span class="n">0.5</span>*df[<span class="s">"BsmtHalfBath"</span>]
+df[<span class="s">"HouseAge"</span>]   = df[<span class="s">"YrSold"</span>] - df[<span class="s">"YearBuilt"</span>]
+<span class="c"># ... etc.</span>
+
+<span class="c"># 4. Split features and target</span>
+y = np.<span class="f">log1p</span>(df.<span class="f">pop</span>(<span class="s">"SalePrice"</span>))
+X = df.<span class="f">drop</span>(columns=[<span class="s">"Id"</span>])
+
+<span class="c"># 5. Encode categoricals, log-transform skewed numerics, etc.</span>
+<span class="k">from</span> sklearn.preprocessing <span class="k">import</span> OneHotEncoder, OrdinalEncoder
+<span class="k">from</span> sklearn.compose <span class="k">import</span> ColumnTransformer
+<span class="c"># ... preprocessing pipeline ...</span></pre>
+
+  <h3 class="section"><span class="num">11.2</span>What still lives in EDA territory</h3>
+  <p>Even during modeling, you'll return to EDA techniques constantly:</p>
+  <ul>
+    <li><b>Residual plots</b> — after fitting a model, plot residuals vs each feature. Find structure the model missed.</li>
+    <li><b>Feature importance bar charts</b> — sanity-check that the model's top features match your EDA's top predictors.</li>
+    <li><b>Partial dependence plots</b> — how does the predicted price change as one feature varies?</li>
+    <li><b>Error analysis</b> — which rows did the model get most wrong, and why?</li>
+  </ul>
+  <p>EDA isn't a phase you finish — it's a mode you return to whenever the model surprises you.</p>
+
+  <h3 class="section"><span class="num">11.3</span>Reusing this template</h3>
+  <p>The notebook structure that produced this book's findings reuses on any tabular dataset:</p>
+  <ol>
+    <li>Load + shape + dtypes + head</li>
+    <li>Missingness analysis with reference to the data dictionary</li>
+    <li>Target variable — distribution, skew, transformation</li>
+    <li>Numeric features — distribution grid + correlation ranking + heatmap</li>
+    <li>Categorical features — cardinality + ordinal vs nominal + price-by-group</li>
+    <li>Top-feature deep dives — regplot per predictor, looking for nonlinearity and outliers</li>
+    <li>Outlier and skew checks — three categories of outlier, log1p for skewed numerics</li>
+    <li>Feature engineering — every idea traced to a specific finding</li>
+    <li>Findings document — the written deliverable</li>
+  </ol>
+
+  <h3 class="section"><span class="num">11.4</span>You've finished the series</h3>
+  <p>From numerical arrays through labeled tables through fast tables through visualizations to a complete EDA. The whole stack of foundational Python data tools, with one project tying them together. Now:</p>
+  <ol>
+    <li><b>Open a notebook on a dataset you care about.</b> Run through the playbook. Discover what's there.</li>
+    <li><b>Write findings as you go.</b> The bullet list is the deliverable; the charts are the support.</li>
+    <li><b>Build the muscle.</b> The tenth EDA you do is dramatically faster and sharper than the first. There's no substitute for reps.</li>
+    <li><b>Move on to modeling.</b> The sklearn book in this library picks up where this one ends.</li>
+  </ol>
+
+  <div class="note tip">
+    <span class="lbl">parting word</span>
+    <p>The best data work isn't about exotic tools or clever tricks. It's about looking at the data honestly, writing down what you see, and noticing what surprises you. Every chart in this book is a tool for that habit. Every finding is the discipline that turns plotting into understanding. Keep doing it on real data — that's what makes it stick.</p>
+  </div>
+</section>
+
+<section class="colophon">
+  <div class="mark">⌗</div>
+  <p>end of Book 5 · the project · end of the series</p>
+</section>
+
+</div>
+</body>
+</html>

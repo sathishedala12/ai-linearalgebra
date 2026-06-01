@@ -1,0 +1,1325 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Polars · The Complete Foundations Book</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a0c11; --bg-2:#0f131a; --surface:#161b24; --surface-2:#1c222c;
+  --border:#262d3a; --border-soft:#1f2530;
+  --text:#e8ebf1; --text-dim:#9aa3b2; --text-mute:#6b7385;
+  --teal:#1D9E75; --teal-2:#28c595;
+  --purple:#7F77DD; --purple-2:#9d96e6;
+  --coral:#D85A30; --coral-2:#ec7548;
+  --amber:#BA7517; --amber-2:#e0a64a;
+  --accent:#28c595;       /* Data Foundations series accent */
+  --code-bg:#0e1218;
+  --out-bg:#0b1015;
+  --code-key:#7F77DD; --code-fn:#28c595; --code-str:#e0a64a;
+  --code-num:#ec7548; --code-com:#5b6477; --code-self:#9aa3b2;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;scroll-behavior:smooth}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:'Inter',sans-serif;
+  font-size:15.5px;
+  line-height:1.75;
+  -webkit-font-smoothing:antialiased;
+  letter-spacing:.005em;
+}
+.book{max-width:840px;margin:0 auto;padding:0 28px}
+.cover{
+  min-height:88vh;display:flex;flex-direction:column;justify-content:center;
+  padding:60px 0 80px;
+  background:radial-gradient(800px 500px at 20% 30%, rgba(40,197,149,.12), transparent 60%);
+  border-bottom:1px solid var(--border-soft);margin-bottom:60px;
+}
+.cover .crest{
+  font-family:'JetBrains Mono',monospace;font-size:11px;
+  letter-spacing:.3em;text-transform:uppercase;
+  color:var(--accent);margin-bottom:24px;font-weight:600;
+}
+.cover h1{
+  font-family:'Fraunces',serif;font-weight:400;font-style:italic;
+  font-size:108px;line-height:.92;letter-spacing:-.03em;margin:0 0 18px;
+  background:linear-gradient(180deg,#fff 0%,#a9b3c4 100%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.cover .sub{
+  font-family:'Fraunces',serif;font-weight:300;font-size:26px;
+  line-height:1.35;letter-spacing:-.01em;color:var(--text-dim);
+  max-width:620px;margin:0 0 40px;
+}
+.cover .meta{
+  display:flex;gap:32px;flex-wrap:wrap;
+  font-family:'JetBrains Mono',monospace;font-size:11px;
+  color:var(--text-mute);text-transform:uppercase;letter-spacing:.14em;
+  padding-top:28px;border-top:1px solid var(--border-soft);
+}
+.cover .meta b{color:var(--text-dim);font-weight:500}
+.series-nav{display:inline-flex;gap:10px;flex-wrap:wrap;margin-bottom:32px}
+.series-nav .item{
+  font-family:'JetBrains Mono',monospace;font-size:10.5px;
+  padding:5px 11px;border-radius:999px;
+  border:1px solid var(--border);background:var(--surface);
+  color:var(--text-mute);text-transform:uppercase;letter-spacing:.1em;
+}
+.series-nav .item.done{color:var(--text-dim)}
+.series-nav .item.done::before{content:"✓ ";color:var(--accent)}
+.series-nav .item.active{
+  background:rgba(40,197,149,.1);border-color:var(--accent);color:var(--accent);
+}
+.toc-page{padding:40px 0 80px;border-bottom:1px solid var(--border-soft);margin-bottom:80px}
+.toc-page h2{
+  font-family:'Fraunces',serif;font-style:italic;font-weight:400;
+  font-size:42px;letter-spacing:-.015em;margin:0 0 8px;color:var(--text);
+}
+.toc-page .toc-intro{color:var(--text-dim);font-size:14.5px;margin:0 0 36px;max-width:620px}
+.toc-list{list-style:none;padding:0;margin:0}
+.toc-list li{
+  display:flex;justify-content:space-between;align-items:baseline;gap:14px;
+  padding:9px 0;border-bottom:1px dotted var(--border-soft);
+}
+.toc-list a{
+  color:var(--text-dim);text-decoration:none;font-size:14.5px;
+  flex:1;display:flex;align-items:baseline;gap:16px;
+}
+.toc-list a:hover{color:var(--accent)}
+.toc-list .ch{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--accent);min-width:30px}
+.toc-list .desc{font-size:12px;color:var(--text-mute);font-style:italic}
+.chapter{padding:60px 0;scroll-margin-top:24px}
+.chapter + .chapter{border-top:1px solid var(--border-soft)}
+.ch-header{margin-bottom:32px}
+.ch-num{
+  font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;
+  color:var(--accent);letter-spacing:.1em;display:block;margin-bottom:8px;
+}
+.ch-title{
+  font-family:'Fraunces',serif;font-style:italic;font-weight:400;
+  font-size:46px;line-height:1.05;letter-spacing:-.02em;margin:0;color:var(--text);
+}
+.dropcap::first-letter{
+  font-family:'Fraunces',serif;font-style:italic;font-weight:400;
+  font-size:62px;float:left;line-height:.85;margin:8px 12px 0 0;color:var(--accent);
+}
+h3.section{
+  font-family:'Fraunces',serif;font-weight:500;font-size:24px;
+  letter-spacing:-.01em;margin:42px 0 12px;color:var(--text);
+}
+h3.section .num{
+  font-family:'JetBrains Mono',monospace;font-size:12px;
+  color:var(--text-mute);font-weight:400;margin-right:10px;
+}
+h4.sub{font-size:15px;font-weight:600;margin:22px 0 8px;color:var(--text);letter-spacing:-.005em}
+p{margin:0 0 14px;color:var(--text)}
+p + p{margin-top:0}
+.lead{
+  font-size:17px;color:var(--text-dim);margin-bottom:20px;
+  font-family:'Fraunces',serif;font-weight:300;line-height:1.55;font-style:italic;
+}
+ul,ol{margin:0 0 16px;padding-left:24px;color:var(--text-dim)}
+li{margin-bottom:6px}
+b,strong{color:var(--text);font-weight:600}
+em{font-style:italic;color:var(--text)}
+pre{
+  background:var(--code-bg);border:1px solid var(--border-soft);
+  border-radius:8px 8px 0 0;padding:14px 16px;
+  font-family:'JetBrains Mono',monospace;font-size:12.5px;line-height:1.65;
+  overflow-x:auto;margin:14px 0 0;color:#cdd4e0;position:relative;
+}
+pre:not(.out):not(:has(+ pre.out)){border-radius:8px;margin-bottom:18px}
+pre.out{
+  background:var(--out-bg);border:1px dashed var(--border);border-top:0;
+  border-radius:0 0 8px 8px;margin-top:0;margin-bottom:18px;
+  color:#a9b3c4;font-size:12px;
+}
+pre.out::before{
+  content:"OUTPUT";position:absolute;top:6px;right:12px;
+  font-size:9px;color:var(--text-mute);
+  letter-spacing:.14em;font-weight:600;font-family:'JetBrains Mono',monospace;
+}
+pre.solo{border-radius:8px;margin-bottom:18px}
+code{font-family:'JetBrains Mono',monospace}
+:not(pre) > code{
+  background:rgba(40,197,149,.08);padding:1px 6px;border-radius:4px;
+  border:1px solid rgba(40,197,149,.15);color:var(--accent);font-size:13px;
+}
+.k{color:var(--code-key)}.f{color:var(--code-fn)}.s{color:var(--code-str)}
+.n{color:var(--code-num)}.c{color:var(--code-com);font-style:italic}
+.sf{color:var(--code-self)}.o{color:#cdd4e0}
+.note{
+  display:flex;gap:16px;margin:18px 0;padding:14px 18px;border-radius:8px;
+  background:var(--surface);border-left:3px solid var(--note-accent,var(--purple-2));font-size:14.5px;
+}
+.note .lbl{
+  font-family:'JetBrains Mono',monospace;font-size:10.5px;
+  text-transform:uppercase;letter-spacing:.12em;
+  color:var(--note-accent,var(--purple-2));font-weight:600;flex-shrink:0;min-width:96px;
+}
+.note p{margin:0;color:var(--text-dim);font-size:14px}
+.note.intuition{--note-accent:var(--amber-2)}
+.note.warn{--note-accent:var(--coral-2)}
+.note.tip{--note-accent:var(--teal-2)}
+.app{
+  background:linear-gradient(180deg,rgba(40,197,149,.05),transparent);
+  border:1px solid var(--border-soft);border-left:3px solid var(--accent);
+  border-radius:8px;padding:14px 18px;margin:18px 0;
+}
+.app .lbl{
+  font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--accent);
+  text-transform:uppercase;letter-spacing:.14em;font-weight:600;margin-bottom:6px;
+}
+.app p{margin:0;color:var(--text-dim);font-size:13.5px;line-height:1.6}
+.figure{
+  margin:24px 0 28px;background:var(--surface);
+  border:1px solid var(--border-soft);border-radius:10px;padding:24px 24px 16px;
+}
+.figure svg{display:block;margin:0 auto;width:100%;height:auto;max-width:760px}
+.fig-caption{
+  text-align:center;font-size:12.5px;color:var(--text-mute);font-style:italic;
+  margin-top:14px;font-family:'Fraunces',serif;
+}
+.fig-caption b{
+  color:var(--text);font-style:normal;font-weight:600;
+  font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.04em;margin-right:6px;
+}
+table.tbl{
+  width:100%;border-collapse:collapse;font-size:13.5px;margin:16px 0 18px;
+  background:var(--surface);border-radius:8px;overflow:hidden;border:1px solid var(--border-soft);
+}
+table.tbl th,table.tbl td{
+  text-align:left;padding:10px 14px;border-bottom:1px solid var(--border-soft);vertical-align:top;
+}
+table.tbl th{
+  color:var(--text-mute);font-weight:500;
+  font-family:'JetBrains Mono',monospace;font-size:10.5px;
+  text-transform:uppercase;letter-spacing:.08em;background:var(--bg-2);
+}
+table.tbl td:first-child{color:var(--text);font-weight:500}
+table.tbl tr:last-child td{border-bottom:none}
+table.tbl code{font-size:12.5px}
+.colophon{margin:80px 0 40px;padding:36px 0;border-top:1px solid var(--border-soft);text-align:center}
+.colophon .mark{font-family:'Fraunces',serif;font-style:italic;font-size:36px;color:var(--accent);margin:0 0 10px}
+.colophon p{
+  font-family:'JetBrains Mono',monospace;font-size:11px;
+  color:var(--text-mute);text-transform:uppercase;letter-spacing:.14em;margin:0;
+}
+@media (max-width:680px){
+  .cover h1{font-size:62px}.cover .sub{font-size:18px}
+  .ch-title{font-size:32px}h3.section{font-size:20px}.book{padding:0 18px}
+}
+@media print{
+  body{background:#fff;color:#111}
+  .cover h1{color:#111;-webkit-text-fill-color:#111}
+  .chapter{page-break-before:always;border-top:none}
+  pre,pre.out,.note,.figure,table.tbl,.app{background:#fff;border-color:#ddd;break-inside:avoid}
+  pre{background:#f7f7f9}pre.out{background:#fbfcfd}
+  .k{color:#7c3aed}.f{color:#0d8a5b}.s{color:#a5650a}.n{color:#b14a26}.c{color:#888}
+}
+</style>
+</head>
+<body>
+<div class="book">
+
+<!-- ============ COVER ============ -->
+<section class="cover">
+  <div class="crest">⌗ the foundations · book 3 of 5</div>
+  <div class="series-nav">
+    <span class="item done">NumPy</span>
+    <span class="item done">Pandas</span>
+    <span class="item active">Polars</span>
+    <span class="item">Visualization</span>
+    <span class="item">Project</span>
+  </div>
+  <h1>Polars.</h1>
+  <p class="sub">Pandas patterns, written in Rust, designed around expressions and lazy evaluation. Ten times the speed, half the memory, twice the elegance.</p>
+  <div class="meta">
+    <span><b>12</b> chapters</span>
+    <span>expressions · lazy · streaming</span>
+    <span>same patterns, less pain</span>
+    <span><b>2026</b> edition</span>
+  </div>
+</section>
+
+<!-- ============ TOC ============ -->
+<section class="toc-page" id="toc">
+  <h2>Contents</h2>
+  <p class="toc-intro">Polars feels different from pandas at first — expressions instead of methods, immutable instead of mutable, lazy instead of eager — but the underlying operations are the same. Once the mental model clicks, you'll wish you'd switched sooner.</p>
+  <ul class="toc-list">
+    <li><a href="#c1"><span class="ch">01</span><span>Why Polars exists</span></a><span class="desc">speed, memory, modernity</span></li>
+    <li><a href="#c2"><span class="ch">02</span><span>The mental model — expressions</span></a><span class="desc">the one idea that changes everything</span></li>
+    <li><a href="#c3"><span class="ch">03</span><span>DataFrames &amp; Series</span></a><span class="desc">the data structures</span></li>
+    <li><a href="#c4"><span class="ch">04</span><span>Reading data</span></a><span class="desc">CSV, Parquet, JSON, databases</span></li>
+    <li><a href="#c5"><span class="ch">05</span><span>Select, filter, with_columns</span></a><span class="desc">the three verbs that do everything</span></li>
+    <li><a href="#c6"><span class="ch">06</span><span>when / then / otherwise</span></a><span class="desc">vectorized branching</span></li>
+    <li><a href="#c7"><span class="ch">07</span><span>GroupBy with expressions</span></a><span class="desc">far beyond pandas</span></li>
+    <li><a href="#c8"><span class="ch">08</span><span>Joins</span></a><span class="desc">familiar, fast, strict</span></li>
+    <li><a href="#c9"><span class="ch">09</span><span>Reshape — pivot &amp; unpivot</span></a><span class="desc">wide-long round trips</span></li>
+    <li><a href="#c10"><span class="ch">10</span><span>Window functions with .over()</span></a><span class="desc">the SQL feature pandas lacks</span></li>
+    <li><a href="#c11"><span class="ch">11</span><span>Lazy mode &amp; the optimizer</span></a><span class="desc">why Polars is fast</span></li>
+    <li><a href="#c12"><span class="ch">12</span><span>End-to-end &amp; when to choose</span></a><span class="desc">pandas vs Polars in practice</span></li>
+  </ul>
+</section>
+
+<!-- ============ CHAPTER 1 ============ -->
+<section class="chapter" id="c1">
+  <div class="ch-header">
+    <span class="ch-num">CHAPTER 01</span>
+    <h2 class="ch-title">Why Polars exists</h2>
+  </div>
+  <p class="lead">Pandas was built in 2008, single-threaded, on top of NumPy. Polars was built fifteen years later, multi-threaded, on top of Apache Arrow — and the difference shows up everywhere.</p>
+
+  <p class="dropcap">Polars is a DataFrame library written from scratch in Rust by Ritchie Vink, designed to solve the things pandas struggles with: single-thread execution, eager evaluation that wastes memory, mutable state that breaks composability, and an API that grew organically across fifteen years of additions. The result is a tool that feels like pandas redesigned with the benefit of hindsight — same operations, cleaner expression, and an order of magnitude faster on most workloads.</p>
+
+  <h3 class="section"><span class="num">1.1</span>The four things that make Polars fast</h3>
+  <ul>
+    <li><b>Rust core.</b> No Python interpreter overhead during operations. The hot loop is compiled native code.</li>
+    <li><b>Multithreading by default.</b> A groupby on eight cores uses eight cores. Pandas uses one.</li>
+    <li><b>Apache Arrow memory.</b> Columnar, cache-friendly, zero-copy interop with other Arrow-based tools (DuckDB, Spark, BigQuery).</li>
+    <li><b>Lazy evaluation with query optimization.</b> Polars can rearrange your operations — push filters before joins, drop unused columns early, fuse passes — before executing anything.</li>
+  </ul>
+
+  <h3 class="section"><span class="num">1.2</span>The benchmark you'll feel</h3>
+<pre><span class="k">import</span> pandas <span class="k">as</span> pd
+<span class="k">import</span> polars <span class="k">as</span> pl
+<span class="k">import</span> time
+
+<span class="c"># Same task: groupby + agg over 50M rows</span>
+df_pd = pd.<span class="f">read_parquet</span>(<span class="s">"sales_50m.parquet"</span>)
+t = time.<span class="f">perf_counter</span>()
+df_pd.<span class="f">groupby</span>(<span class="s">"region"</span>)[<span class="s">"amount"</span>].<span class="f">agg</span>([<span class="s">"sum"</span>, <span class="s">"mean"</span>, <span class="s">"count"</span>])
+<span class="f">print</span>(f<span class="s">"pandas: {time.perf_counter() - t:.2f}s"</span>)
+
+df_pl = pl.<span class="f">read_parquet</span>(<span class="s">"sales_50m.parquet"</span>)
+t = time.<span class="f">perf_counter</span>()
+df_pl.<span class="f">group_by</span>(<span class="s">"region"</span>).<span class="f">agg</span>(
+    pl.<span class="f">col</span>(<span class="s">"amount"</span>).<span class="f">sum</span>().<span class="f">alias</span>(<span class="s">"sum"</span>),
+    pl.<span class="f">col</span>(<span class="s">"amount"</span>).<span class="f">mean</span>().<span class="f">alias</span>(<span class="s">"mean"</span>),
+    pl.<span class="f">col</span>(<span class="s">"amount"</span>).<span class="f">count</span>().<span class="f">alias</span>(<span class="s">"count"</span>),
+)
+<span class="f">print</span>(f<span class="s">"polars: {time.perf_counter() - t:.2f}s"</span>)</pre>
+<pre class="out">pandas: 8.12s
+polars: 0.41s</pre>
+  <p>About 20× faster, with no tuning, on a default install. That ratio is roughly typical for groupby and join workloads. For other operations the gap is smaller — but Polars is almost never slower than pandas.</p>
+
+  <h3 class="section"><span class="num">1.3</span>What you give up</h3>
+  <p>Be honest. Switching costs are real:</p>
+  <ul>
+    <li><b>Ecosystem.</b> Every Python tutorial assumes pandas. scikit-learn takes pandas (or NumPy). Many internal tools at companies expect pandas DataFrames. You'll need to convert at boundaries.</li>
+    <li><b>Index.</b> Polars has no row index — only column data and row positions. This is mostly a feature, but if you relied heavily on pandas' index alignment, you'll re-think workflows.</li>
+    <li><b>API stability.</b> Polars is still pre-1.0 in some areas, and method names occasionally shift. Pandas is the stable, boring choice; Polars is the modern, evolving one.</li>
+    <li><b>Stack Overflow answers.</b> When you Google a problem, you get 100 pandas answers and 5 Polars ones. The gap is closing fast but still real.</li>
+  </ul>
+
+  <h3 class="section"><span class="num">1.4</span>Installing</h3>
+<pre class="solo">pip install polars
+<span class="c"># or for connectors</span>
+pip install <span class="s">"polars[pyarrow,fsspec,connectorx,xlsx2csv]"</span>
+
+<span class="k">import</span> polars <span class="k">as</span> pl
+pl.__version__</pre>
+
+  <div class="app">
+    <div class="lbl">When to learn Polars</div>
+    <p>Today. Even if you don't switch all your work right away, the patterns you learn from Polars (expressions, lazy, functional pipelines) sharpen your pandas code too. And once your datasets get big enough that pandas hurts, you'll already know the answer.</p>
+  </div>
+</section>
+
+<!-- ============ CHAPTER 2 — EXPRESSIONS ============ -->
+<section class="chapter" id="c2">
+  <div class="ch-header">
+    <span class="ch-num">CHAPTER 02</span>
+    <h2 class="ch-title">The mental model — expressions</h2>
+  </div>
+  <p class="lead">The one idea that makes Polars Polars. Get this and the rest of the library suddenly looks consistent.</p>
+
+  <p>In pandas, you operate on DataFrames directly: <code>df["col"] * 2</code> computes immediately. In Polars, you build <b>expressions</b> — lazy descriptions of what to compute — and then hand them to the DataFrame to evaluate.</p>
+
+  <h3 class="section"><span class="num">2.1</span>An expression is a recipe, not a value</h3>
+<pre><span class="k">import</span> polars <span class="k">as</span> pl
+
+expr = pl.<span class="f">col</span>(<span class="s">"price"</span>) * <span class="n">2</span>
+<span class="f">print</span>(expr)</pre>
+<pre class="out">[(col("price")) * (2)]</pre>
+  <p>That isn't computing anything yet. It's a description: "take the column named price and multiply it by 2." You then hand it to a DataFrame:</p>
+
+<pre>df = pl.<span class="f">DataFrame</span>({<span class="s">"price"</span>: [<span class="n">10</span>, <span class="n">20</span>, <span class="n">30</span>]})
+df.<span class="f">select</span>(pl.<span class="f">col</span>(<span class="s">"price"</span>) * <span class="n">2</span>)</pre>
+<pre class="out">shape: (3, 1)
+┌───────┐
+│ price │
+│ ---   │
+│ i64   │
+╞═══════╡
+│ 20    │
+│ 40    │
+│ 60    │
+└───────┘</pre>
+
+  <h3 class="section"><span class="num">2.2</span>Why this matters</h3>
+  <p>Because expressions are pure data, Polars can:</p>
+  <ul>
+    <li><b>Execute them in parallel.</b> Independent expressions on the same DataFrame run on separate threads automatically.</li>
+    <li><b>Reorder them for speed.</b> "Filter then sum" can become "sum only the rows that match the filter" if the optimizer notices.</li>
+    <li><b>Compose them.</b> An expression can be assigned to a variable, passed to a function, reused across multiple frames.</li>
+  </ul>
+
+  <h3 class="section"><span class="num">2.3</span>The four expression building blocks</h3>
+  <table class="tbl">
+    <thead><tr><th>Builder</th><th>Use</th></tr></thead>
+    <tbody>
+      <tr><td><code>pl.col("name")</code></td><td>reference a column</td></tr>
+      <tr><td><code>pl.lit(value)</code></td><td>a literal scalar</td></tr>
+      <tr><td><code>pl.col("a") + pl.col("b")</code></td><td>arithmetic between expressions</td></tr>
+      <tr><td><code>pl.col("x").alias("y")</code></td><td>rename the result</td></tr>
+    </tbody>
+  </table>
+
+  <h3 class="section"><span class="num">2.4</span>A worked example</h3>
+<pre>df = pl.<span class="f">DataFrame</span>({
+    <span class="s">"product"</span>: [<span class="s">"A"</span>, <span class="s">"B"</span>, <span class="s">"A"</span>, <span class="s">"C"</span>],
+    <span class="s">"price"</span>:   [<span class="n">10.0</span>, <span class="n">20.0</span>, <span class="n">15.0</span>, <span class="n">8.0</span>],
+    <span class="s">"qty"</span>:     [<span class="n">3</span>, <span class="n">2</span>, <span class="n">5</span>, <span class="n">7</span>],
+})
+
+df.<span class="f">select</span>(
+    pl.<span class="f">col</span>(<span class="s">"product"</span>),
+    pl.<span class="f">col</span>(<span class="s">"price"</span>),
+    (pl.<span class="f">col</span>(<span class="s">"price"</span>) * pl.<span class="f">col</span>(<span class="s">"qty"</span>)).<span class="f">alias</span>(<span class="s">"revenue"</span>),
+    (pl.<span class="f">col</span>(<span class="s">"price"</span>) * pl.<span class="f">col</span>(<span class="s">"qty"</span>) * <span class="n">1.08</span>).<span class="f">alias</span>(<span class="s">"revenue_with_tax"</span>),
+)</pre>
+<pre class="out">shape: (4, 4)
+┌─────────┬───────┬─────────┬──────────────────┐
+│ product │ price │ revenue │ revenue_with_tax │
+├─────────┼───────┼─────────┼──────────────────┤
+│ A       │ 10.0  │ 30.0    │ 32.4             │
+│ B       │ 20.0  │ 40.0    │ 43.2             │
+│ A       │ 15.0  │ 75.0    │ 81.0             │
+│ C       │ 8.0   │ 56.0    │ 60.48            │
+└─────────┴───────┴─────────┴──────────────────┘</pre>
+
+  <p>One <code>.select()</code> with four expressions. Polars runs the four computations in parallel. There's no temporary state, no mutation, no <code>df["revenue"] = ...</code> assignment leaking around.</p>
+
+  <h3 class="section"><span class="num">2.5</span>Compare to pandas</h3>
+<pre><span class="c"># Pandas — imperative, mutating</span>
+df[<span class="s">"revenue"</span>] = df[<span class="s">"price"</span>] * df[<span class="s">"qty"</span>]
+df[<span class="s">"revenue_with_tax"</span>] = df[<span class="s">"revenue"</span>] * <span class="n">1.08</span>
+
+<span class="c"># Polars — declarative, no mutation</span>
+df = df.<span class="f">with_columns</span>(
+    revenue=pl.<span class="f">col</span>(<span class="s">"price"</span>) * pl.<span class="f">col</span>(<span class="s">"qty"</span>),
+    revenue_with_tax=pl.<span class="f">col</span>(<span class="s">"price"</span>) * pl.<span class="f">col</span>(<span class="s">"qty"</span>) * <span class="n">1.08</span>,
+)</pre>
+
+  <p><code>with_columns</code> returns a new DataFrame; the old one is unchanged. Mutation isn't even an option — by design.</p>
+
+  <div class="note intuition">
+    <span class="lbl">key insight</span>
+    <p>An expression is to Polars what a SQL fragment is to a database: a tiny, composable bit of logic that can be optimized and parallelized. You write what you want, Polars decides how. Stop thinking about loops and start thinking about column transformations.</p>
+  </div>
+
+  <div class="app">
+    <div class="lbl">Application</div>
+    <p>Master <code>pl.col()</code> and you've mastered most of Polars. Every other concept — group_by, joins, windows, lazy — is just contexts in which expressions are evaluated. Same building block, different scope.</p>
+  </div>
+</section>
+
+<!-- ============ CHAPTER 3 — DATAFRAMES & SERIES ============ -->
+<section class="chapter" id="c3">
+  <div class="ch-header">
+    <span class="ch-num">CHAPTER 03</span>
+    <h2 class="ch-title">DataFrames &amp; Series</h2>
+  </div>
+  <p class="lead">The two data structures. Mostly look like pandas. The differences matter.</p>
+
+  <h3 class="section"><span class="num">3.1</span>Creating a DataFrame</h3>
+<pre>df = pl.<span class="f">DataFrame</span>({
+    <span class="s">"name"</span>: [<span class="s">"Alice"</span>, <span class="s">"Bob"</span>, <span class="s">"Carol"</span>],
+    <span class="s">"age"</span>:  [<span class="n">25</span>, <span class="n">32</span>, <span class="n">28</span>],
+    <span class="s">"city"</span>: [<span class="s">"Austin"</span>, <span class="s">"Dallas"</span>, <span class="s">"Houston"</span>],
+})
+df</pre>
+<pre class="out">shape: (3, 3)
+┌───────┬─────┬─────────┐
+│ name  │ age │ city    │
+│ ---   │ --- │ ---     │
+│ str   │ i64 │ str     │
+├───────┼─────┼─────────┤
+│ Alice │ 25  │ Austin  │
+│ Bob   │ 32  │ Dallas  │
+│ Carol │ 28  │ Houston │
+└───────┴─────┴─────────┘</pre>
+
+  <p>Notice the dtype row directly under the column names. Polars displays types prominently because types matter — there's no silent string/int confusion like pandas can have.</p>
+
+  <h3 class="section"><span class="num">3.2</span>Inspection</h3>
+<pre>df.shape         <span class="c"># (rows, cols)</span>
+df.columns       <span class="c"># list of column names</span>
+df.dtypes        <span class="c"># list of types</span>
+df.<span class="f">schema</span>        <span class="c"># {name: dtype} dict-like</span>
+df.<span class="f">head</span>()
+df.<span class="f">tail</span>()
+df.<span class="f">describe</span>()    <span class="c"># summary stats</span>
+df.<span class="f">glimpse</span>()     <span class="c"># transposed view — wonderful for wide tables</span>
+df.<span class="f">sample</span>(<span class="n">3</span>)
+df.estimated_size(<span class="s">"mb"</span>)</pre>
+
+  <div class="note tip">
+    <span class="lbl">try glimpse</span>
+    <p><code>df.glimpse()</code> prints each column on its own row with its dtype and the first few values. For wide tables (50+ columns) this is much more useful than <code>df.head()</code> truncated horizontally.</p>
+  </div>
+
+  <h3 class="section"><span class="num">3.3</span>Series — a column on its own</h3>
+<pre>s = pl.<span class="f">Series</span>(<span class="s">"age"</span>, [<span class="n">25</span>, <span class="n">32</span>, <span class="n">28</span>])
+s.dtype, <span class="f">len</span>(s), s.name</pre>
+<pre class="out">(Int64, 3, 'age')</pre>
+
+  <p>You'll work with Series less than in pandas — most operations stay in DataFrame-and-expression land. But when you need to extract a column for downstream code, <code>df["age"]</code> or <code>df.get_column("age")</code> gives you a Series.</p>
+
+  <h3 class="section"><span class="num">3.4</span>No row index</h3>
+  <p>The single biggest mental adjustment from pandas. Polars DataFrames don't have a row index — rows are just positions. You can add an integer column to act like one if you want, but most pandas operations that relied on the index translate to <em>columns</em> in Polars.</p>
+
+<pre><span class="c"># In pandas — set_index gives lookup by label</span>
+df_pd.<span class="f">set_index</span>(<span class="s">"customer_id"</span>).<span class="f">loc</span>[<span class="n">42</span>]
+
+<span class="c"># In Polars — just filter by column</span>
+df.<span class="f">filter</span>(pl.<span class="f">col</span>(<span class="s">"customer_id"</span>) == <span class="n">42</span>)</pre>
+
+  <h3 class="section"><span class="num">3.5</span>Types are strict</h3>
+  <p>Polars enforces types. There's no "object" dtype that hides whatever. Common types:</p>
+  <table class="tbl">
+    <thead><tr><th>Type</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td><code>Int8/16/32/64</code></td><td>signed integers</td></tr>
+      <tr><td><code>UInt8/16/32/64</code></td><td>unsigned</td></tr>
+      <tr><td><code>Float32/64</code></td><td>floating point</td></tr>
+      <tr><td><code>Boolean</code></td><td>True/False</td></tr>
+      <tr><td><code>String</code></td><td>UTF-8 text (was Utf8 in older versions)</td></tr>
+      <tr><td><code>Categorical</code></td><td>dictionary-encoded strings</td></tr>
+      <tr><td><code>Date / Datetime</code></td><td>date and timestamp types</td></tr>
+      <tr><td><code>Duration</code></td><td>time deltas</td></tr>
+      <tr><td><code>List(inner)</code></td><td>variable-length list per row</td></tr>
+      <tr><td><code>Struct</code></td><td>nested records</td></tr>
+    </tbody>
+  </table>
+
+  <p>The List and Struct types are why Polars handles nested data (JSON, parquet with nested fields) much better than pandas.</p>
+
+  <div class="app">
+    <div class="lbl">Application</div>
+    <p>The strict typing prevents an entire class of bugs you didn't realize you had in pandas — strings that were supposed to be ints, dates parsed as strings, mixed-type columns that silently degrade performance. Polars surfaces these at load time, not three steps into your aggregation.</p>
+  </div>
+</section>
+
+<!-- ============ CHAPTER 4 — READING ============ -->
+<section class="chapter" id="c4">
+  <div class="ch-header">
+    <span class="ch-num">CHAPTER 04</span>
+    <h2 class="ch-title">Reading data</h2>
+  </div>
+  <p class="lead">CSV, Parquet, JSON, Excel, databases, Arrow, even cloud storage. Same APIs as pandas, often much faster.</p>
+
+  <h3 class="section"><span class="num">4.1</span>read_csv</h3>
+<pre>df = pl.<span class="f">read_csv</span>(
+    <span class="s">"sales.csv"</span>,
+    separator=<span class="s">";"</span>,
+    has_header=<span class="k">True</span>,
+    null_values=[<span class="s">"N/A"</span>, <span class="s">""</span>, <span class="s">"-"</span>],
+    try_parse_dates=<span class="k">True</span>,             <span class="c"># auto-detect date columns</span>
+    schema_overrides={<span class="s">"id"</span>: pl.Int32, <span class="s">"price"</span>: pl.Float32},
+)</pre>
+
+  <p>Arguments mirror pandas with cleaner names. The biggest difference: Polars' <code>read_csv</code> is multi-threaded by default, often 5-20× faster than pandas on large files.</p>
+
+  <h3 class="section"><span class="num">4.2</span>Parquet, JSON, Excel, databases</h3>
+<pre>pl.<span class="f">read_parquet</span>(<span class="s">"data.parquet"</span>)
+pl.<span class="f">read_json</span>(<span class="s">"data.json"</span>)
+pl.<span class="f">read_ndjson</span>(<span class="s">"data.ndjson"</span>)              <span class="c"># newline-delimited JSON, common for logs</span>
+pl.<span class="f">read_excel</span>(<span class="s">"data.xlsx"</span>, sheet_name=<span class="s">"Q3"</span>)
+pl.<span class="f">read_database</span>(<span class="s">"SELECT * FROM orders"</span>, connection=<span class="s">"postgres://..."</span>)
+pl.<span class="f">from_arrow</span>(arrow_table)                <span class="c"># zero-copy from Arrow</span>
+pl.<span class="f">from_pandas</span>(pandas_df)                 <span class="c"># interop bridge</span></pre>
+
+  <h3 class="section"><span class="num">4.3</span>Lazy scanning</h3>
+  <p>The same readers have <code>scan_</code> variants that don't actually load the data — they create a LazyFrame describing the scan. Combined with the optimizer (Ch. 11), this lets you query files larger than RAM.</p>
+
+<pre>lf = pl.<span class="f">scan_csv</span>(<span class="s">"huge.csv"</span>)             <span class="c"># no data loaded yet</span>
+result = (
+    lf
+    .<span class="f">filter</span>(pl.<span class="f">col</span>(<span class="s">"amount"</span>) &gt; <span class="n">100</span>)        <span class="c"># predicate pushdown</span>
+    .<span class="f">select</span>(<span class="s">"customer_id"</span>, <span class="s">"amount"</span>)      <span class="c"># projection pushdown</span>
+    .<span class="f">group_by</span>(<span class="s">"customer_id"</span>)
+    .<span class="f">agg</span>(pl.<span class="f">col</span>(<span class="s">"amount"</span>).<span class="f">sum</span>())
+    .<span class="f">collect</span>()                              <span class="c"># NOW it executes</span>
+)</pre>
+
+  <p>That pipeline never loads the full CSV. Polars reads only the columns it needs and skips rows where amount ≤ 100 during the read.</p>
+
+  <h3 class="section"><span class="num">4.4</span>Writing</h3>
+<pre>df.<span class="f">write_csv</span>(<span class="s">"out.csv"</span>)
+df.<span class="f">write_parquet</span>(<span class="s">"out.parquet"</span>, compression=<span class="s">"zstd"</span>)
+df.<span class="f">write_ndjson</span>(<span class="s">"out.ndjson"</span>)
+df.<span class="f">write_excel</span>(<span class="s">"out.xlsx"</span>)
+df.<span class="f">write_database</span>(<span class="s">"orders_table"</span>, connection=<span class="s">"postgres://..."</span>)</pre>
+
+  <div class="note tip">
+    <span class="lbl">prefer parquet</span>
+    <p>Same advice as pandas — once you've cleaned data, save as parquet. With Polars + parquet + lazy scanning, you get column-pruning and predicate pushdown for free. A 100GB parquet file queried for two columns and a filter becomes a 5GB read.</p>
+  </div>
+</section>
+
+<!-- ============ CHAPTER 5 — SELECT/FILTER/WITH_COLUMNS ============ -->
+<section class="chapter" id="c5">
+  <div class="ch-header">
+    <span class="ch-num">CHAPTER 05</span>
+    <h2 class="ch-title">Select, filter, with_columns</h2>
+  </div>
+  <p class="lead">Three verbs do most of the work. Once you know them, building any pipeline is just stacking them.</p>
+
+  <h3 class="section"><span class="num">5.1</span>select — pick (and compute) columns</h3>
+<pre>df.<span class="f">select</span>(<span class="s">"name"</span>, <span class="s">"age"</span>)                       <span class="c"># keep just these</span>
+df.<span class="f">select</span>(pl.<span class="f">col</span>(<span class="s">"name"</span>), pl.<span class="f">col</span>(<span class="s">"age"</span>))         <span class="c"># same thing</span>
+df.<span class="f">select</span>(pl.all().<span class="f">exclude</span>(<span class="s">"city"</span>))             <span class="c"># everything except city</span>
+df.<span class="f">select</span>(pl.<span class="f">col</span>(pl.Int64))                     <span class="c"># all integer columns</span>
+df.<span class="f">select</span>(pl.<span class="f">col</span>(<span class="s">"^.*_id$"</span>))                    <span class="c"># regex on column names</span>
+
+<span class="c"># Select can also compute new columns (rare; usually use with_columns)</span>
+df.<span class="f">select</span>(
+    pl.<span class="f">col</span>(<span class="s">"name"</span>),
+    (pl.<span class="f">col</span>(<span class="s">"age"</span>) * <span class="n">12</span>).<span class="f">alias</span>(<span class="s">"age_in_months"</span>),
+)</pre>
+
+  <h3 class="section"><span class="num">5.2</span>filter — keep rows matching a condition</h3>
+<pre>df.<span class="f">filter</span>(pl.<span class="f">col</span>(<span class="s">"age"</span>) &gt; <span class="n">30</span>)
+df.<span class="f">filter</span>(pl.<span class="f">col</span>(<span class="s">"city"</span>).<span class="f">is_in</span>([<span class="s">"Austin"</span>, <span class="s">"Dallas"</span>]))
+
+<span class="c"># Multiple conditions — comma = AND, no parentheses headaches</span>
+df.<span class="f">filter</span>(
+    pl.<span class="f">col</span>(<span class="s">"age"</span>) &gt; <span class="n">25</span>,
+    pl.<span class="f">col</span>(<span class="s">"city"</span>) == <span class="s">"Austin"</span>,
+)
+
+<span class="c"># OR — use |</span>
+df.<span class="f">filter</span>(
+    (pl.<span class="f">col</span>(<span class="s">"age"</span>) &lt; <span class="n">30</span>) | (pl.<span class="f">col</span>(<span class="s">"city"</span>) == <span class="s">"Dallas"</span>)
+)</pre>
+
+  <div class="note tip">
+    <span class="lbl">no pandas paren-trap</span>
+    <p>Pandas requires every condition inside <code>&amp;</code> and <code>|</code> to be wrapped in parentheses or the operator precedence bites you. Polars sidesteps it: pass multiple positional args to <code>filter</code> and they're combined with AND automatically. No parentheses, no bugs.</p>
+  </div>
+
+  <h3 class="section"><span class="num">5.3</span>with_columns — add or replace columns</h3>
+  <p>This is the most-used verb in real Polars code. It returns a new DataFrame with extra (or modified) columns.</p>
+<pre>df.<span class="f">with_columns</span>(
+    age_doubled=pl.<span class="f">col</span>(<span class="s">"age"</span>) * <span class="n">2</span>,
+    age_bucket=(pl.<span class="f">col</span>(<span class="s">"age"</span>) // <span class="n">10</span>) * <span class="n">10</span>,
+    is_adult=pl.<span class="f">col</span>(<span class="s">"age"</span>) &gt;= <span class="n">18</span>,
+)</pre>
+
+  <p>Multiple expressions, run in parallel, no mutation. If a name already exists, it's replaced; if not, it's added.</p>
+
+  <h3 class="section"><span class="num">5.4</span>The pipeline pattern</h3>
+  <p>Real Polars code chains these together:</p>
+<pre>result = (
+    df
+    .<span class="f">filter</span>(pl.<span class="f">col</span>(<span class="s">"amount"</span>) &gt; <span class="n">0</span>)
+    .<span class="f">with_columns</span>(
+        revenue=pl.<span class="f">col</span>(<span class="s">"price"</span>) * pl.<span class="f">col</span>(<span class="s">"qty"</span>),
+        month=pl.<span class="f">col</span>(<span class="s">"date"</span>).<span class="f">dt</span>.<span class="f">month</span>(),
+    )
+    .<span class="f">select</span>(<span class="s">"customer_id"</span>, <span class="s">"month"</span>, <span class="s">"revenue"</span>)
+    .<span class="f">sort</span>(<span class="s">"revenue"</span>, descending=<span class="k">True</span>)
+)</pre>
+
+  <p>Each step is a small, named transformation. The pipeline reads top-to-bottom. The original <code>df</code> is unchanged.</p>
+
+  <h3 class="section"><span class="num">5.5</span>Other verbs worth knowing</h3>
+  <table class="tbl">
+    <thead><tr><th>Method</th><th>Effect</th></tr></thead>
+    <tbody>
+      <tr><td><code>.sort("col", descending=True)</code></td><td>sort by one or more columns</td></tr>
+      <tr><td><code>.unique()</code></td><td>drop duplicate rows</td></tr>
+      <tr><td><code>.unique(subset=["id"])</code></td><td>drop dups on specific columns</td></tr>
+      <tr><td><code>.drop("col")</code></td><td>remove columns</td></tr>
+      <tr><td><code>.rename({"old": "new"})</code></td><td>rename columns</td></tr>
+      <tr><td><code>.head(n)</code> / <code>.tail(n)</code></td><td>first/last n rows</td></tr>
+      <tr><td><code>.sample(n)</code></td><td>random rows</td></tr>
+      <tr><td><code>.limit(n)</code></td><td>alias for head</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ============ CHAPTER 6 — WHEN/THEN/OTHERWISE ============ -->
+<section class="chapter" id="c6">
+  <div class="ch-header">
+    <span class="ch-num">CHAPTER 06</span>
+    <h2 class="ch-title">when / then / otherwise</h2>
+  </div>
+  <p class="lead">Branching logic, vectorized. The Polars way to do what pandas does with <code>np.where</code> and <code>np.select</code>.</p>
+
+  <h3 class="section"><span class="num">6.1</span>The basic form</h3>
+<pre>df.<span class="f">with_columns</span>(
+    category=pl.<span class="f">when</span>(pl.<span class="f">col</span>(<span class="s">"amount"</span>) &gt; <span class="n">1000</span>)
+              .<span class="f">then</span>(pl.<span class="f">lit</span>(<span class="s">"large"</span>))
+              .<span class="f">otherwise</span>(pl.<span class="f">lit</span>(<span class="s">"small"</span>))
+)</pre>
+
+  <p>Read it like English: "when amount > 1000, then 'large', otherwise 'small'." The <code>pl.lit()</code> wraps a literal value so Polars treats it as an expression.</p>
+
+  <h3 class="section"><span class="num">6.2</span>Multiple branches — chained when</h3>
+<pre>df.<span class="f">with_columns</span>(
+    tier=pl.<span class="f">when</span>(pl.<span class="f">col</span>(<span class="s">"amount"</span>) &gt; <span class="n">10000</span>).<span class="f">then</span>(pl.<span class="f">lit</span>(<span class="s">"whale"</span>))
+          .<span class="f">when</span>(pl.<span class="f">col</span>(<span class="s">"amount"</span>) &gt; <span class="n">1000</span>).<span class="f">then</span>(pl.<span class="f">lit</span>(<span class="s">"big"</span>))
+          .<span class="f">when</span>(pl.<span class="f">col</span>(<span class="s">"amount"</span>) &gt; <span class="n">100</span>).<span class="f">then</span>(pl.<span class="f">lit</span>(<span class="s">"medium"</span>))
+          .<span class="f">otherwise</span>(pl.<span class="f">lit</span>(<span class="s">"small"</span>))
+)</pre>
+
+  <p>Conditions are evaluated top-to-bottom; the first match wins. Cleaner than pandas' <code>np.select</code> which takes parallel lists of conditions and choices.</p>
+
+  <h3 class="section"><span class="num">6.3</span>Using column values, not just literals</h3>
+<pre>df.<span class="f">with_columns</span>(
+    final_price=pl.<span class="f">when</span>(pl.<span class="f">col</span>(<span class="s">"discount_active"</span>))
+                  .<span class="f">then</span>(pl.<span class="f">col</span>(<span class="s">"price"</span>) * <span class="n">0.8</span>)
+                  .<span class="f">otherwise</span>(pl.<span class="f">col</span>(<span class="s">"price"</span>))
+)</pre>
+
+  <h3 class="section"><span class="num">6.4</span>Combined conditions</h3>
+<pre>df.<span class="f">with_columns</span>(
+    risk=pl.<span class="f">when</span>((pl.<span class="f">col</span>(<span class="s">"amount"</span>) &gt; <span class="n">10000</span>) &amp; pl.<span class="f">col</span>(<span class="s">"country"</span>).<span class="f">is_in</span>(SUSPICIOUS))
+          .<span class="f">then</span>(pl.<span class="f">lit</span>(<span class="s">"high"</span>))
+          .<span class="f">otherwise</span>(pl.<span class="f">lit</span>(<span class="s">"normal"</span>))
+)</pre>
+
+  <h3 class="section"><span class="num">6.5</span>String and date expression methods</h3>
+  <p>Like pandas' <code>.str</code> and <code>.dt</code> accessors, Polars exposes them on column expressions:</p>
+<pre>df.<span class="f">with_columns</span>(
+    name_clean=pl.<span class="f">col</span>(<span class="s">"name"</span>).<span class="f">str</span>.<span class="f">strip_chars</span>().<span class="f">str</span>.<span class="f">to_lowercase</span>(),
+    name_length=pl.<span class="f">col</span>(<span class="s">"name"</span>).<span class="f">str</span>.<span class="f">len_chars</span>(),
+    is_gmail=pl.<span class="f">col</span>(<span class="s">"email"</span>).<span class="f">str</span>.<span class="f">contains</span>(<span class="s">"@gmail"</span>),
+    extracted=pl.<span class="f">col</span>(<span class="s">"phone"</span>).<span class="f">str</span>.<span class="f">extract</span>(<span class="s">r"(\d{3})-(\d{3})-(\d{4})"</span>, <span class="n">1</span>),
+
+    year=pl.<span class="f">col</span>(<span class="s">"date"</span>).<span class="f">dt</span>.<span class="f">year</span>(),
+    month=pl.<span class="f">col</span>(<span class="s">"date"</span>).<span class="f">dt</span>.<span class="f">month</span>(),
+    weekday=pl.<span class="f">col</span>(<span class="s">"date"</span>).<span class="f">dt</span>.<span class="f">weekday</span>(),
+    days_ago=(pl.<span class="f">date</span>(<span class="n">2025</span>, <span class="n">1</span>, <span class="n">1</span>) - pl.<span class="f">col</span>(<span class="s">"date"</span>)).<span class="f">dt</span>.<span class="f">total_days</span>(),
+)</pre>
+
+  <div class="app">
+    <div class="lbl">Application</div>
+    <p>The <code>when/then/otherwise</code> chain is how you do tiered customer scoring, conditional pricing, fraud flagging, and any "categorize based on rules" task. Once it's a habit, you stop reaching for if/else and for loops entirely — branching logic on millions of rows runs as fast as arithmetic.</p>
+  </div>
+</section>
+
+<!-- ============ CHAPTER 7 — GROUPBY ============ -->
+<section class="chapter" id="c7">
+  <div class="ch-header">
+    <span class="ch-num">CHAPTER 07</span>
+    <h2 class="ch-title">GroupBy with expressions</h2>
+  </div>
+  <p class="lead">Same split-apply-combine pattern as pandas. Different syntax. Far more powerful because the "apply" step accepts arbitrary expressions.</p>
+
+  <h3 class="section"><span class="num">7.1</span>The basic shape</h3>
+<pre>df = pl.<span class="f">DataFrame</span>({
+    <span class="s">"region"</span>:  [<span class="s">"East"</span>, <span class="s">"West"</span>, <span class="s">"East"</span>, <span class="s">"South"</span>, <span class="s">"West"</span>, <span class="s">"East"</span>],
+    <span class="s">"product"</span>: [<span class="s">"A"</span>, <span class="s">"A"</span>, <span class="s">"B"</span>, <span class="s">"A"</span>, <span class="s">"B"</span>, <span class="s">"A"</span>],
+    <span class="s">"sales"</span>:   [<span class="n">100</span>, <span class="n">150</span>, <span class="n">200</span>, <span class="n">80</span>, <span class="n">130</span>, <span class="n">90</span>],
+    <span class="s">"units"</span>:   [<span class="n">10</span>, <span class="n">15</span>, <span class="n">18</span>, <span class="n">8</span>, <span class="n">12</span>, <span class="n">9</span>],
+})
+
+df.<span class="f">group_by</span>(<span class="s">"region"</span>).<span class="f">agg</span>(
+    pl.<span class="f">col</span>(<span class="s">"sales"</span>).<span class="f">sum</span>(),
+)</pre>
+<pre class="out">shape: (3, 2)
+┌────────┬───────┐
+│ region │ sales │
+├────────┼───────┤
+│ East   │ 390   │
+│ West   │ 280   │
+│ South  │ 80    │
+└────────┴───────┘</pre>
+
+  <h3 class="section"><span class="num">7.2</span>Many aggregations at once</h3>
+<pre>df.<span class="f">group_by</span>(<span class="s">"region"</span>).<span class="f">agg</span>(
+    pl.<span class="f">col</span>(<span class="s">"sales"</span>).<span class="f">sum</span>().<span class="f">alias</span>(<span class="s">"total_sales"</span>),
+    pl.<span class="f">col</span>(<span class="s">"sales"</span>).<span class="f">mean</span>().<span class="f">alias</span>(<span class="s">"avg_sales"</span>),
+    pl.<span class="f">col</span>(<span class="s">"sales"</span>).<span class="f">count</span>().<span class="f">alias</span>(<span class="s">"n_orders"</span>),
+    pl.<span class="f">col</span>(<span class="s">"units"</span>).<span class="f">sum</span>().<span class="f">alias</span>(<span class="s">"total_units"</span>),
+)</pre>
+
+  <p>Cleaner than pandas' named-aggregations — every aggregation is just an expression with an <code>.alias()</code>.</p>
+
+  <h3 class="section"><span class="num">7.3</span>Conditional aggregation — the killer feature</h3>
+  <p>Because the agg step accepts arbitrary expressions, you can do things that need <code>apply</code> in pandas:</p>
+<pre>df.<span class="f">group_by</span>(<span class="s">"region"</span>).<span class="f">agg</span>(
+    total_sales=pl.<span class="f">col</span>(<span class="s">"sales"</span>).<span class="f">sum</span>(),
+    sales_of_product_a=pl.<span class="f">col</span>(<span class="s">"sales"</span>).<span class="f">filter</span>(pl.<span class="f">col</span>(<span class="s">"product"</span>) == <span class="s">"A"</span>).<span class="f">sum</span>(),
+    largest_order=pl.<span class="f">col</span>(<span class="s">"sales"</span>).<span class="f">max</span>(),
+    n_unique_products=pl.<span class="f">col</span>(<span class="s">"product"</span>).<span class="f">n_unique</span>(),
+    top_product=pl.<span class="f">col</span>(<span class="s">"product"</span>).<span class="f">mode</span>().<span class="f">first</span>(),
+)</pre>
+<pre class="out">shape: (3, 6)
+┌────────┬─────────────┬────────────────────┬───────────────┬───────────────────┬─────────────┐
+│ region │ total_sales │ sales_of_product_a │ largest_order │ n_unique_products │ top_product │
+├────────┼─────────────┼────────────────────┼───────────────┼───────────────────┼─────────────┤
+│ East   │ 390         │ 190                │ 200           │ 2                 │ A           │
+│ West   │ 280         │ 150                │ 150           │ 2                 │ A           │
+│ South  │ 80          │ 80                 │ 80            │ 1                 │ A           │
+└────────┴─────────────┴────────────────────┴───────────────┴───────────────────┴─────────────┘</pre>
+
+  <p>Look at <code>sales_of_product_a</code>: a filter inside an aggregation. That's a conditional sum per group, written naturally. Pandas can do it, but you need a workaround like <code>df[df.product == "A"].groupby("region").sum()</code> — different DataFrame, separate operation.</p>
+
+  <h3 class="section"><span class="num">7.4</span>Multi-column grouping</h3>
+<pre>df.<span class="f">group_by</span>([<span class="s">"region"</span>, <span class="s">"product"</span>]).<span class="f">agg</span>(
+    pl.<span class="f">col</span>(<span class="s">"sales"</span>).<span class="f">sum</span>()
+)</pre>
+
+  <h3 class="section"><span class="num">7.5</span>Sort grouped output</h3>
+<pre>df.<span class="f">group_by</span>(<span class="s">"region"</span>, maintain_order=<span class="k">True</span>).<span class="f">agg</span>(
+    pl.<span class="f">col</span>(<span class="s">"sales"</span>).<span class="f">sum</span>()
+)</pre>
+  <p>By default, group order is unpredictable (it's determined by the parallel hash). Pass <code>maintain_order=True</code> to keep the order of first appearance — slightly slower but stable.</p>
+
+  <h3 class="section"><span class="num">7.6</span>Lists per group — the gateway to anything</h3>
+<pre>df.<span class="f">group_by</span>(<span class="s">"region"</span>).<span class="f">agg</span>(
+    all_products=pl.<span class="f">col</span>(<span class="s">"product"</span>),                <span class="c"># default: collect to list</span>
+    products_str=pl.<span class="f">col</span>(<span class="s">"product"</span>).<span class="f">str</span>.<span class="f">join</span>(<span class="s">", "</span>),
+    sales_list=pl.<span class="f">col</span>(<span class="s">"sales"</span>),
+)</pre>
+
+  <p>Without an aggregator, a column becomes a List type per group. Then you can apply List operations or explode back to rows. This is the escape hatch for anything weird.</p>
+
+  <div class="app">
+    <div class="lbl">Application</div>
+    <p>Once you've seen <code>pl.col("x").filter(...).sum()</code> in a group_by agg, pandas groupby starts feeling clumsy. The conditional-aggregate pattern alone replaces dozens of multi-step pipelines. Marketing analytics, cohort analysis, fraud rules — all become natural expressions.</p>
+  </div>
+</section>
+
+<!-- ============ CHAPTER 8 — JOINS ============ -->
+<section class="chapter" id="c8">
+  <div class="ch-header">
+    <span class="ch-num">CHAPTER 08</span>
+    <h2 class="ch-title">Joins</h2>
+  </div>
+  <p class="lead">Same four join types as pandas. Stricter behavior, parallel execution, and a few Polars-specific tricks.</p>
+
+  <h3 class="section"><span class="num">8.1</span>The basic call</h3>
+<pre>customers = pl.<span class="f">DataFrame</span>({
+    <span class="s">"customer_id"</span>: [<span class="n">1</span>, <span class="n">2</span>, <span class="n">3</span>],
+    <span class="s">"name"</span>: [<span class="s">"Alice"</span>, <span class="s">"Bob"</span>, <span class="s">"Carol"</span>],
+})
+
+orders = pl.<span class="f">DataFrame</span>({
+    <span class="s">"order_id"</span>: [<span class="n">100</span>, <span class="n">101</span>, <span class="n">102</span>, <span class="n">103</span>],
+    <span class="s">"customer_id"</span>: [<span class="n">1</span>, <span class="n">2</span>, <span class="n">2</span>, <span class="n">4</span>],
+    <span class="s">"amount"</span>: [<span class="n">50</span>, <span class="n">100</span>, <span class="n">75</span>, <span class="n">200</span>],
+})
+
+orders.<span class="f">join</span>(customers, on=<span class="s">"customer_id"</span>, how=<span class="s">"left"</span>)</pre>
+<pre class="out">shape: (4, 4)
+┌──────────┬─────────────┬────────┬───────┐
+│ order_id │ customer_id │ amount │ name  │
+├──────────┼─────────────┼────────┼───────┤
+│ 100      │ 1           │ 50     │ Alice │
+│ 101      │ 2           │ 100    │ Bob   │
+│ 102      │ 2           │ 75     │ Bob   │
+│ 103      │ 4           │ 200    │ null  │
+└──────────┴─────────────┴────────┴───────┘</pre>
+
+  <p>Notice <code>null</code> instead of <code>NaN</code> — Polars distinguishes null (missing) from NaN (not-a-number). For text and integer columns, you get proper nulls, not floating-point NaN sentinels.</p>
+
+  <h3 class="section"><span class="num">8.2</span>The join types</h3>
+  <table class="tbl">
+    <thead><tr><th><code>how=</code></th><th>Result</th></tr></thead>
+    <tbody>
+      <tr><td><code>"inner"</code></td><td>only rows matched in both</td></tr>
+      <tr><td><code>"left"</code></td><td>all left rows; right fills with null where unmatched</td></tr>
+      <tr><td><code>"right"</code></td><td>mirror of left</td></tr>
+      <tr><td><code>"full"</code></td><td>everything from both, null where unmatched (was "outer")</td></tr>
+      <tr><td><code>"semi"</code></td><td>left rows where a match exists (no right columns)</td></tr>
+      <tr><td><code>"anti"</code></td><td>left rows where no match exists</td></tr>
+      <tr><td><code>"cross"</code></td><td>cartesian product</td></tr>
+    </tbody>
+  </table>
+
+  <p><b>Semi and anti joins</b> are wonderful: "give me orders where the customer is in my VIP list" (semi) or "give me orders where the customer is NOT in my fraud list" (anti). Pandas can express these but requires extra steps.</p>
+
+<pre><span class="c"># Anti join — orders from customers NOT in our table</span>
+orders.<span class="f">join</span>(customers, on=<span class="s">"customer_id"</span>, how=<span class="s">"anti"</span>)</pre>
+<pre class="out">shape: (1, 3)
+┌──────────┬─────────────┬────────┐
+│ order_id │ customer_id │ amount │
+├──────────┼─────────────┼────────┤
+│ 103      │ 4           │ 200    │
+└──────────┴─────────────┴────────┘</pre>
+
+  <h3 class="section"><span class="num">8.3</span>Different key names</h3>
+<pre>orders.<span class="f">join</span>(customers, left_on=<span class="s">"customer_id"</span>, right_on=<span class="s">"id"</span>)</pre>
+
+  <h3 class="section"><span class="num">8.4</span>Multi-key join</h3>
+<pre>a.<span class="f">join</span>(b, on=[<span class="s">"region"</span>, <span class="s">"product"</span>])</pre>
+
+  <h3 class="section"><span class="num">8.5</span>Validation</h3>
+<pre>orders.<span class="f">join</span>(customers, on=<span class="s">"customer_id"</span>, validate=<span class="s">"m:1"</span>)
+<span class="c"># raises if customer_id is not unique in customers</span></pre>
+
+  <p>Same idea as pandas' <code>validate</code> argument, shorter syntax: <code>"1:1"</code>, <code>"1:m"</code>, <code>"m:1"</code>, <code>"m:m"</code>.</p>
+
+  <h3 class="section"><span class="num">8.6</span>Concatenating frames — vertical and horizontal</h3>
+<pre>pl.<span class="f">concat</span>([a, b], how=<span class="s">"vertical"</span>)         <span class="c"># stack rows</span>
+pl.<span class="f">concat</span>([a, b], how=<span class="s">"horizontal"</span>)       <span class="c"># side by side (same row count)</span>
+pl.<span class="f">concat</span>([a, b], how=<span class="s">"diagonal"</span>)         <span class="c"># vertical, filling missing columns with null</span></pre>
+
+  <p>The <code>"diagonal"</code> variant is excellent for stacking files that have <em>mostly</em> the same columns but not exactly — common when ingesting historical data where schemas drifted.</p>
+
+  <h3 class="section"><span class="num">8.7</span>asof joins — time-based matching</h3>
+  <p>For time-series data, <code>join_asof</code> matches each left row to the <em>most recent</em> right row before it. Crucial for things like attaching the latest price snapshot to each trade.</p>
+<pre>trades.<span class="f">sort</span>(<span class="s">"timestamp"</span>).<span class="f">join_asof</span>(
+    prices.<span class="f">sort</span>(<span class="s">"timestamp"</span>),
+    on=<span class="s">"timestamp"</span>,
+    by=<span class="s">"symbol"</span>,
+    strategy=<span class="s">"backward"</span>,        <span class="c"># match to latest price &lt;= trade time</span>
+)</pre>
+
+  <div class="app">
+    <div class="lbl">Application</div>
+    <p>The semi/anti joins replace a class of "I need to filter A by what's in B" patterns that pandas usually does with merge + boolean check. asof joins replace a category of hand-rolled "find latest record" code that's slow and bug-prone. Both belong in your standard toolkit.</p>
+  </div>
+</section>
+
+<!-- ============ CHAPTER 9 — RESHAPE ============ -->
+<section class="chapter" id="c9">
+  <div class="ch-header">
+    <span class="ch-num">CHAPTER 09</span>
+    <h2 class="ch-title">Reshape — pivot &amp; unpivot</h2>
+  </div>
+  <p class="lead">Wide to long, long to wide. Same idea as pandas. Different names, cleaner API.</p>
+
+  <h3 class="section"><span class="num">9.1</span>pivot — long to wide</h3>
+<pre>sales = pl.<span class="f">DataFrame</span>({
+    <span class="s">"region"</span>:  [<span class="s">"East"</span>, <span class="s">"East"</span>, <span class="s">"West"</span>, <span class="s">"West"</span>, <span class="s">"South"</span>, <span class="s">"South"</span>],
+    <span class="s">"product"</span>: [<span class="s">"A"</span>, <span class="s">"B"</span>, <span class="s">"A"</span>, <span class="s">"B"</span>, <span class="s">"A"</span>, <span class="s">"B"</span>],
+    <span class="s">"sales"</span>:   [<span class="n">100</span>, <span class="n">200</span>, <span class="n">150</span>, <span class="n">130</span>, <span class="n">80</span>, <span class="n">110</span>],
+})
+
+sales.<span class="f">pivot</span>(
+    on=<span class="s">"product"</span>,        <span class="c"># values become column names</span>
+    index=<span class="s">"region"</span>,      <span class="c"># stay as row identifiers</span>
+    values=<span class="s">"sales"</span>,
+    aggregate_function=<span class="s">"sum"</span>,
+)</pre>
+<pre class="out">shape: (3, 3)
+┌────────┬─────┬─────┐
+│ region │ A   │ B   │
+├────────┼─────┼─────┤
+│ East   │ 100 │ 200 │
+│ West   │ 150 │ 130 │
+│ South  │ 80  │ 110 │
+└────────┴─────┴─────┘</pre>
+
+  <h3 class="section"><span class="num">9.2</span>unpivot (formerly melt) — wide to long</h3>
+<pre>wide = pl.<span class="f">DataFrame</span>({
+    <span class="s">"region"</span>: [<span class="s">"East"</span>, <span class="s">"West"</span>, <span class="s">"South"</span>],
+    <span class="s">"A"</span>: [<span class="n">100</span>, <span class="n">150</span>, <span class="n">80</span>],
+    <span class="s">"B"</span>: [<span class="n">200</span>, <span class="n">130</span>, <span class="n">110</span>],
+})
+
+wide.<span class="f">unpivot</span>(
+    index=<span class="s">"region"</span>,
+    on=[<span class="s">"A"</span>, <span class="s">"B"</span>],
+    variable_name=<span class="s">"product"</span>,
+    value_name=<span class="s">"sales"</span>,
+)</pre>
+<pre class="out">shape: (6, 3)
+┌────────┬─────────┬───────┐
+│ region │ product │ sales │
+├────────┼─────────┼───────┤
+│ East   │ A       │ 100   │
+│ West   │ A       │ 150   │
+│ South  │ A       │ 80    │
+│ East   │ B       │ 200   │
+│ West   │ B       │ 130   │
+│ South  │ B       │ 110   │
+└────────┴─────────┴───────┘</pre>
+
+  <h3 class="section"><span class="num">9.3</span>Explode — one row per element of a list</h3>
+  <p>Polars has first-class List columns. To unfold a list column into multiple rows:</p>
+<pre>df = pl.<span class="f">DataFrame</span>({
+    <span class="s">"user"</span>: [<span class="s">"alice"</span>, <span class="s">"bob"</span>],
+    <span class="s">"tags"</span>: [[<span class="s">"red"</span>, <span class="s">"blue"</span>], [<span class="s">"green"</span>]],
+})
+df.<span class="f">explode</span>(<span class="s">"tags"</span>)</pre>
+<pre class="out">shape: (3, 2)
+┌───────┬───────┐
+│ user  │ tags  │
+├───────┼───────┤
+│ alice │ red   │
+│ alice │ blue  │
+│ bob   │ green │
+└───────┴───────┘</pre>
+
+  <p>The inverse of <code>explode</code> is <code>group_by(...).agg(pl.col("tags"))</code> — collect back into lists.</p>
+
+  <h3 class="section"><span class="num">9.4</span>Transpose</h3>
+<pre>df.<span class="f">transpose</span>(include_header=<span class="k">True</span>, header_name=<span class="s">"variable"</span>)</pre>
+
+  <p>Less common than pivot, but useful for quick "rotate this small table" jobs.</p>
+</section>
+
+<!-- ============ CHAPTER 10 — WINDOWS ============ -->
+<section class="chapter" id="c10">
+  <div class="ch-header">
+    <span class="ch-num">CHAPTER 10</span>
+    <h2 class="ch-title">Window functions with .over()</h2>
+  </div>
+  <p class="lead">Per-group computations that keep every original row. Pandas does this with <code>groupby().transform()</code>; Polars does it more naturally with <code>.over()</code>.</p>
+
+  <h3 class="section"><span class="num">10.1</span>The pattern</h3>
+<pre>df = pl.<span class="f">DataFrame</span>({
+    <span class="s">"region"</span>:  [<span class="s">"East"</span>, <span class="s">"East"</span>, <span class="s">"West"</span>, <span class="s">"West"</span>, <span class="s">"South"</span>],
+    <span class="s">"product"</span>: [<span class="s">"A"</span>,    <span class="s">"B"</span>,    <span class="s">"A"</span>,    <span class="s">"B"</span>,    <span class="s">"A"</span>],
+    <span class="s">"sales"</span>:   [<span class="n">100</span>,    <span class="n">200</span>,    <span class="n">150</span>,    <span class="n">130</span>,    <span class="n">80</span>],
+})
+
+df.<span class="f">with_columns</span>(
+    region_total=pl.<span class="f">col</span>(<span class="s">"sales"</span>).<span class="f">sum</span>().<span class="f">over</span>(<span class="s">"region"</span>),
+    share_of_region=pl.<span class="f">col</span>(<span class="s">"sales"</span>) / pl.<span class="f">col</span>(<span class="s">"sales"</span>).<span class="f">sum</span>().<span class="f">over</span>(<span class="s">"region"</span>),
+    rank_in_region=pl.<span class="f">col</span>(<span class="s">"sales"</span>).<span class="f">rank</span>(descending=<span class="k">True</span>).<span class="f">over</span>(<span class="s">"region"</span>),
+)</pre>
+<pre class="out">shape: (5, 6)
+┌────────┬─────────┬───────┬──────────────┬─────────────────┬────────────────┐
+│ region │ product │ sales │ region_total │ share_of_region │ rank_in_region │
+├────────┼─────────┼───────┼──────────────┼─────────────────┼────────────────┤
+│ East   │ A       │ 100   │ 300          │ 0.333           │ 2.0            │
+│ East   │ B       │ 200   │ 300          │ 0.666           │ 1.0            │
+│ West   │ A       │ 150   │ 280          │ 0.535           │ 1.0            │
+│ West   │ B       │ 130   │ 280          │ 0.464           │ 2.0            │
+│ South  │ A       │ 80    │ 80           │ 1.0             │ 1.0            │
+└────────┴─────────┴───────┴──────────────┴─────────────────┴────────────────┘</pre>
+
+  <p>Every original row preserved. Three new columns computed per-group. One pass, parallelized. This is the equivalent of SQL window functions and it's a joy to use.</p>
+
+  <h3 class="section"><span class="num">10.2</span>Multiple grouping columns</h3>
+<pre>df.<span class="f">with_columns</span>(
+    rank_in_region_product=pl.<span class="f">col</span>(<span class="s">"sales"</span>).<span class="f">rank</span>().<span class="f">over</span>([<span class="s">"region"</span>, <span class="s">"product"</span>])
+)</pre>
+
+  <h3 class="section"><span class="num">10.3</span>Cumulative within groups</h3>
+<pre>df.<span class="f">with_columns</span>(
+    running_total=pl.<span class="f">col</span>(<span class="s">"sales"</span>).<span class="f">cum_sum</span>().<span class="f">over</span>(<span class="s">"region"</span>),
+    lag_1=pl.<span class="f">col</span>(<span class="s">"sales"</span>).<span class="f">shift</span>(<span class="n">1</span>).<span class="f">over</span>(<span class="s">"region"</span>),
+    lead_1=pl.<span class="f">col</span>(<span class="s">"sales"</span>).<span class="f">shift</span>(-<span class="n">1</span>).<span class="f">over</span>(<span class="s">"region"</span>),
+)</pre>
+
+  <h3 class="section"><span class="num">10.4</span>Rolling windows</h3>
+<pre>df.<span class="f">sort</span>(<span class="s">"date"</span>).<span class="f">with_columns</span>(
+    rolling_7d=pl.<span class="f">col</span>(<span class="s">"sales"</span>).<span class="f">rolling_mean</span>(<span class="n">7</span>).<span class="f">over</span>(<span class="s">"product"</span>)
+)</pre>
+
+  <p>Rolling mean of the last 7 days, per product. Three concepts in one line.</p>
+
+  <h3 class="section"><span class="num">10.5</span>Why .over() beats pandas transform</h3>
+  <p>Pandas' <code>groupby().transform()</code> requires you to first select a column and then transform — you can't easily reference multiple columns inside the transform. Polars' <code>.over()</code> is just a modifier on any expression. You can write arbitrarily complex per-group calculations:</p>
+<pre>df.<span class="f">with_columns</span>(
+    weighted_avg=((pl.<span class="f">col</span>(<span class="s">"sales"</span>) * pl.<span class="f">col</span>(<span class="s">"weight"</span>)).<span class="f">sum</span>() /
+                  pl.<span class="f">col</span>(<span class="s">"weight"</span>).<span class="f">sum</span>()).<span class="f">over</span>(<span class="s">"region"</span>)
+)</pre>
+
+  <div class="app">
+    <div class="lbl">Application</div>
+    <p><code>.over()</code> is the operation you'll miss the most if you ever go back to pandas. Customer-cohort analysis, leaderboard ranking, percent-of-total per segment, leads and lags by partition — all become one-liners. SQL users will recognize this as a window function and feel at home immediately.</p>
+  </div>
+</section>
+
+<!-- ============ CHAPTER 11 — LAZY ============ -->
+<section class="chapter" id="c11">
+  <div class="ch-header">
+    <span class="ch-num">CHAPTER 11</span>
+    <h2 class="ch-title">Lazy mode &amp; the optimizer</h2>
+  </div>
+  <p class="lead">Where Polars stops being "pandas but faster" and starts being something fundamentally different. The optimizer turns your query plan into the most efficient execution it can find.</p>
+
+  <h3 class="section"><span class="num">11.1</span>Eager vs lazy</h3>
+  <p>Every Polars operation has two forms:</p>
+  <ul>
+    <li><b>Eager</b> — <code>pl.read_csv()</code>, <code>df.filter()</code>. Computes immediately, returns a DataFrame.</li>
+    <li><b>Lazy</b> — <code>pl.scan_csv()</code>, <code>lf.filter()</code>. Builds a query plan, returns a LazyFrame. Nothing executes until you call <code>.collect()</code>.</li>
+  </ul>
+
+  <h3 class="section"><span class="num">11.2</span>What lazy gets you</h3>
+
+  <div class="figure">
+    <svg viewBox="0 0 720 280" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="arrlazy" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto">
+          <path d="M0,0 L9,4.5 L0,9 z" fill="#9d96e6"/>
+        </marker>
+        <linearGradient id="boxg11" x1="0" x2="0" y1="0" y2="1">
+          <stop offset="0%" stop-color="#1c222c"/>
+          <stop offset="100%" stop-color="#11151c"/>
+        </linearGradient>
+      </defs>
+      <text x="360" y="20" text-anchor="middle" fill="#9aa3b2" font-family="Fraunces" font-style="italic" font-size="13">
+        your code → optimized plan → execution
+      </text>
+
+      <!-- Left: written -->
+      <g font-family="Inter" font-size="11">
+        <text x="100" y="48" text-anchor="middle" fill="#28c595" font-family="JetBrains Mono" font-size="10" font-weight="600">YOU WROTE</text>
+        <g transform="translate(20,60)">
+          <rect width="160" height="32" rx="6" fill="url(#boxg11)" stroke="#28c595"/>
+          <text x="80" y="20" text-anchor="middle" fill="#e8ebf1" font-size="11">scan_csv(huge.csv)</text>
+        </g>
+        <g transform="translate(20,100)">
+          <rect width="160" height="32" rx="6" fill="url(#boxg11)" stroke="#28c595"/>
+          <text x="80" y="20" text-anchor="middle" fill="#e8ebf1" font-size="11">select(50 columns)</text>
+        </g>
+        <g transform="translate(20,140)">
+          <rect width="160" height="32" rx="6" fill="url(#boxg11)" stroke="#28c595"/>
+          <text x="80" y="20" text-anchor="middle" fill="#e8ebf1" font-size="11">join(other_df)</text>
+        </g>
+        <g transform="translate(20,180)">
+          <rect width="160" height="32" rx="6" fill="url(#boxg11)" stroke="#28c595"/>
+          <text x="80" y="20" text-anchor="middle" fill="#e8ebf1" font-size="11">filter(amount &gt; 100)</text>
+        </g>
+        <g transform="translate(20,220)">
+          <rect width="160" height="32" rx="6" fill="url(#boxg11)" stroke="#28c595"/>
+          <text x="80" y="20" text-anchor="middle" fill="#e8ebf1" font-size="11">select(3 columns)</text>
+        </g>
+      </g>
+
+      <!-- arrow -->
+      <line x1="200" y1="140" x2="265" y2="140" stroke="#9d96e6" stroke-width="2" marker-end="url(#arrlazy)"/>
+      <text x="232" y="130" text-anchor="middle" fill="#9d96e6" font-size="10" font-style="italic">optimizer</text>
+
+      <!-- Right: optimized -->
+      <g font-family="Inter" font-size="11">
+        <text x="380" y="48" text-anchor="middle" fill="#e0a64a" font-family="JetBrains Mono" font-size="10" font-weight="600">POLARS DOES</text>
+        <g transform="translate(280,60)">
+          <rect width="200" height="32" rx="6" fill="url(#boxg11)" stroke="#e0a64a"/>
+          <text x="100" y="20" text-anchor="middle" fill="#e8ebf1" font-size="11">scan_csv(only 3 cols)</text>
+        </g>
+        <text x="497" y="78" fill="#e0a64a" font-family="JetBrains Mono" font-size="9">projection pushdown ←</text>
+
+        <g transform="translate(280,100)">
+          <rect width="200" height="32" rx="6" fill="url(#boxg11)" stroke="#e0a64a"/>
+          <text x="100" y="20" text-anchor="middle" fill="#e8ebf1" font-size="11">filter(amount &gt; 100)</text>
+        </g>
+        <text x="497" y="118" fill="#e0a64a" font-family="JetBrains Mono" font-size="9">predicate pushdown ←</text>
+
+        <g transform="translate(280,140)">
+          <rect width="200" height="32" rx="6" fill="url(#boxg11)" stroke="#e0a64a"/>
+          <text x="100" y="20" text-anchor="middle" fill="#e8ebf1" font-size="11">join(other_df)</text>
+        </g>
+        <text x="497" y="158" fill="#e0a64a" font-family="JetBrains Mono" font-size="9">join smaller frame ←</text>
+
+        <g transform="translate(280,180)">
+          <rect width="200" height="32" rx="6" fill="url(#boxg11)" stroke="#e0a64a"/>
+          <text x="100" y="20" text-anchor="middle" fill="#e8ebf1" font-size="11">result</text>
+        </g>
+        <text x="497" y="198" fill="#e0a64a" font-family="JetBrains Mono" font-size="9">parallel execution ←</text>
+      </g>
+
+      <text x="360" y="260" text-anchor="middle" fill="#9aa3b2" font-family="Fraunces" font-size="12" font-style="italic">
+        same code · 10–100× faster · fits in less memory
+      </text>
+    </svg>
+    <div class="fig-caption"><b>Figure 11.1</b>The lazy optimizer rearranges your operations. Filters get pushed to the file scan; only needed columns get read; joins happen on already-shrunk data. You don't write the optimization — you just write what you want.</div>
+  </div>
+
+  <h3 class="section"><span class="num">11.3</span>Using lazy mode</h3>
+<pre>lf = pl.<span class="f">scan_parquet</span>(<span class="s">"sales_2024.parquet"</span>)
+
+result = (
+    lf
+    .<span class="f">filter</span>(pl.<span class="f">col</span>(<span class="s">"amount"</span>) &gt; <span class="n">100</span>)
+    .<span class="f">join</span>(pl.<span class="f">scan_parquet</span>(<span class="s">"customers.parquet"</span>), on=<span class="s">"customer_id"</span>)
+    .<span class="f">group_by</span>(<span class="s">"region"</span>)
+    .<span class="f">agg</span>(
+        total=pl.<span class="f">col</span>(<span class="s">"amount"</span>).<span class="f">sum</span>(),
+        n=pl.<span class="f">col</span>(<span class="s">"order_id"</span>).<span class="f">count</span>(),
+    )
+    .<span class="f">sort</span>(<span class="s">"total"</span>, descending=<span class="k">True</span>)
+    .<span class="f">collect</span>()                          <span class="c"># <- materialize</span>
+)</pre>
+
+  <p>Without <code>.collect()</code>, none of those operations actually run. The optimizer sees the whole plan and decides how to execute it.</p>
+
+  <h3 class="section"><span class="num">11.4</span>Inspecting the query plan</h3>
+<pre>lf.<span class="f">explain</span>()                                <span class="c"># text query plan</span>
+lf.<span class="f">explain</span>(optimized=<span class="k">True</span>)                 <span class="c"># after optimization</span>
+lf.<span class="f">show_graph</span>()                             <span class="c"># visual (needs graphviz)</span></pre>
+
+<pre class="out">SORT BY [col("total")]
+  AGGREGATE
+    [col("amount").sum().alias("total"), col("order_id").count().alias("n")] BY [col("region")]
+    FROM
+    INNER JOIN ...
+      LEFT PLAN ON: [col("customer_id")]
+        FILTER [(col("amount")) &gt; (100)] FROM
+          Parquet SCAN sales_2024.parquet
+          PROJECT 4/12 COLUMNS
+          SELECTION: [(col("amount")) &gt; (100)]</pre>
+
+  <p>The <code>PROJECT 4/12 COLUMNS</code> line shows projection pushdown — only 4 of the 12 parquet columns were read. The <code>SELECTION:</code> line shows predicate pushdown — the amount > 100 filter happened at the file scan, not after.</p>
+
+  <h3 class="section"><span class="num">11.5</span>Streaming — out-of-memory data</h3>
+  <p>For data that's too big to fit in RAM even after filtering, use <code>collect(engine="streaming")</code> or write directly to disk:</p>
+<pre>(
+    pl.<span class="f">scan_parquet</span>(<span class="s">"terabyte_dataset/*.parquet"</span>)
+    .<span class="f">filter</span>(pl.<span class="f">col</span>(<span class="s">"event_type"</span>) == <span class="s">"purchase"</span>)
+    .<span class="f">group_by</span>(<span class="s">"user_id"</span>)
+    .<span class="f">agg</span>(pl.<span class="f">col</span>(<span class="s">"amount"</span>).<span class="f">sum</span>())
+    .<span class="f">sink_parquet</span>(<span class="s">"purchases_by_user.parquet"</span>)    <span class="c"># streams to disk</span>
+)</pre>
+
+  <p>Polars processes the data in chunks, never holding the whole thing in memory. With this, a laptop can crunch through datasets larger than its RAM.</p>
+
+  <h3 class="section"><span class="num">11.6</span>Eager-to-lazy and back</h3>
+<pre>df = pl.<span class="f">DataFrame</span>(...)
+lf = df.<span class="f">lazy</span>()                                <span class="c"># convert to lazy</span>
+df2 = lf.<span class="f">collect</span>()                              <span class="c"># back to eager</span></pre>
+
+  <p>Build interactively in eager mode, then convert to lazy for the final pipeline. You get the best of both: fast iteration during development, optimized execution in production.</p>
+
+  <div class="note tip">
+    <span class="lbl">when to use lazy</span>
+    <p>For any pipeline reading from disk and producing a smaller result, prefer <code>scan_*</code> + <code>.collect()</code> over <code>read_*</code>. For quick exploration in a notebook, eager mode is fine. As your pipelines mature, lazy becomes the default.</p>
+  </div>
+
+  <div class="app">
+    <div class="lbl">Application</div>
+    <p>Lazy mode + scan_parquet is the unlock that lets you query 100GB datasets on a 16GB laptop. The optimizer figures out which columns you actually need and reads only those. Predicate pushdown means filters happen during the file read. It's the difference between "I need to spin up Spark" and "I'll run it on my laptop and grab coffee."</p>
+  </div>
+</section>
+
+<!-- ============ CHAPTER 12 — E2E ============ -->
+<section class="chapter" id="c12">
+  <div class="ch-header">
+    <span class="ch-num">CHAPTER 12</span>
+    <h2 class="ch-title">End-to-end &amp; when to choose</h2>
+  </div>
+  <p class="lead">The same task as the pandas book, rewritten in Polars. Then guidance for picking which tool to use.</p>
+
+  <h3 class="section"><span class="num">12.1</span>The same pipeline</h3>
+  <p>"Top 5 customers by revenue per region in Q3 2024, with their favorite product." Three CSVs in, one parquet out.</p>
+
+<pre><span class="k">import</span> polars <span class="k">as</span> pl
+
+<span class="c"># All lazy — no data loaded until .collect()</span>
+orders    = pl.<span class="f">scan_csv</span>(<span class="s">"orders.csv"</span>, try_parse_dates=<span class="k">True</span>)
+customers = pl.<span class="f">scan_csv</span>(<span class="s">"customers.csv"</span>)
+products  = pl.<span class="f">scan_csv</span>(<span class="s">"products.csv"</span>)
+
+<span class="c"># Clean &amp; enrich</span>
+enriched = (
+    orders
+    .<span class="f">filter</span>(
+        pl.<span class="f">col</span>(<span class="s">"customer_id"</span>).<span class="f">is_not_null</span>(),
+        pl.<span class="f">col</span>(<span class="s">"amount"</span>) &gt; <span class="n">0</span>,
+        pl.<span class="f">col</span>(<span class="s">"order_date"</span>).<span class="f">is_between</span>(pl.<span class="f">date</span>(<span class="n">2024</span>, <span class="n">7</span>, <span class="n">1</span>), pl.<span class="f">date</span>(<span class="n">2024</span>, <span class="n">9</span>, <span class="n">30</span>)),
+    )
+    .<span class="f">join</span>(customers.<span class="f">with_columns</span>(pl.<span class="f">col</span>(<span class="s">"region"</span>).<span class="f">str</span>.<span class="f">strip_chars</span>().<span class="f">str</span>.<span class="f">to_titlecase</span>()),
+          on=<span class="s">"customer_id"</span>, how=<span class="s">"left"</span>, validate=<span class="s">"m:1"</span>)
+    .<span class="f">join</span>(products,  on=<span class="s">"product_id"</span>,  how=<span class="s">"left"</span>, validate=<span class="s">"m:1"</span>)
+)
+
+<span class="c"># Per-customer rollup, with favorite product as a window operation</span>
+per_customer = (
+    enriched
+    .<span class="f">with_columns</span>(
+        product_sales=pl.<span class="f">col</span>(<span class="s">"amount"</span>).<span class="f">sum</span>().<span class="f">over</span>([<span class="s">"customer_id"</span>, <span class="s">"product_name"</span>]),
+    )
+    .<span class="f">group_by</span>(<span class="s">"region"</span>, <span class="s">"customer_id"</span>, <span class="s">"customer_name"</span>)
+    .<span class="f">agg</span>(
+        revenue=pl.<span class="f">col</span>(<span class="s">"amount"</span>).<span class="f">sum</span>(),
+        n_orders=pl.<span class="f">col</span>(<span class="s">"order_id"</span>).<span class="f">count</span>(),
+        favorite_product=pl.<span class="f">col</span>(<span class="s">"product_name"</span>)
+            .<span class="f">sort_by</span>(pl.<span class="f">col</span>(<span class="s">"product_sales"</span>), descending=<span class="k">True</span>)
+            .<span class="f">first</span>(),
+    )
+)
+
+<span class="c"># Top 5 per region</span>
+top5 = (
+    per_customer
+    .<span class="f">with_columns</span>(rank=pl.<span class="f">col</span>(<span class="s">"revenue"</span>).<span class="f">rank</span>(descending=<span class="k">True</span>).<span class="f">over</span>(<span class="s">"region"</span>))
+    .<span class="f">filter</span>(pl.<span class="f">col</span>(<span class="s">"rank"</span>) &lt;= <span class="n">5</span>)
+    .<span class="f">sort</span>(<span class="s">"region"</span>, <span class="s">"rank"</span>)
+    .<span class="f">collect</span>()
+)
+
+top5.<span class="f">write_parquet</span>(<span class="s">"top5_q3_2024.parquet"</span>)</pre>
+
+  <p>Same outcome as the pandas version. The differences:</p>
+  <ul>
+    <li><b>Lazy everything.</b> Three files scanned, two joins, a window function, a filter — none of it actually runs until <code>.collect()</code>.</li>
+    <li><b>Window function instead of merge.</b> "Favorite product" is done with <code>sort_by + first</code> inside an aggregation, no separate join needed.</li>
+    <li><b>Rank via .over().</b> Top-5-per-group is one expression — no <code>groupby().head()</code> dance.</li>
+    <li><b>Faster.</b> On a million-row dataset, this typically runs in a quarter the time of the pandas version, using less memory.</li>
+  </ul>
+
+  <h3 class="section"><span class="num">12.2</span>When to use Polars vs pandas</h3>
+  <table class="tbl">
+    <thead><tr><th>Situation</th><th>Reach for</th></tr></thead>
+    <tbody>
+      <tr><td>Quick exploration in a notebook</td><td>Either — go with what you know</td></tr>
+      <tr><td>Data fits comfortably in RAM (&lt; 1GB)</td><td>Pandas — ecosystem advantage outweighs speed</td></tr>
+      <tr><td>Data is 1-50GB on one machine</td><td>Polars — the sweet spot</td></tr>
+      <tr><td>Data is larger than RAM</td><td>Polars lazy + sink, or DuckDB</td></tr>
+      <tr><td>Feeding scikit-learn / PyTorch</td><td>Pandas (or convert at the boundary)</td></tr>
+      <tr><td>ETL pipelines</td><td>Polars — speed and memory wins compound daily</td></tr>
+      <tr><td>Time-series finance</td><td>Polars — asof joins and window functions shine</td></tr>
+      <tr><td>You need a specific niche library</td><td>Pandas — ecosystem still wins on niches</td></tr>
+    </tbody>
+  </table>
+
+  <h3 class="section"><span class="num">12.3</span>Interop — use both</h3>
+<pre><span class="k">import</span> polars <span class="k">as</span> pl
+<span class="k">import</span> pandas <span class="k">as</span> pd
+
+<span class="c"># Polars → pandas</span>
+df_pl.<span class="f">to_pandas</span>()
+
+<span class="c"># pandas → Polars</span>
+pl.<span class="f">from_pandas</span>(df_pd)
+
+<span class="c"># NumPy</span>
+df_pl.<span class="f">to_numpy</span>()
+pl.<span class="f">from_numpy</span>(arr, schema=[<span class="s">"a"</span>, <span class="s">"b"</span>])
+
+<span class="c"># Arrow — zero-copy</span>
+df_pl.<span class="f">to_arrow</span>()
+pl.<span class="f">from_arrow</span>(arrow_table)</pre>
+
+  <p>The boundary cost is low, especially through Arrow. A common pragmatic pattern: Polars for heavy ETL, convert to pandas only when handing off to a library that requires it.</p>
+
+  <h3 class="section"><span class="num">12.4</span>What to do next</h3>
+  <ol>
+    <li><b>Use it on a real task.</b> Rewrite one pandas script you have today in Polars. Note where it felt different — that's your learning surface.</li>
+    <li><b>Read the user guide.</b> It's short, well-written, and free at <code>docs.pola.rs</code>.</li>
+    <li><b>Get comfortable with lazy.</b> Force yourself to use <code>scan_*</code> + <code>.collect()</code> for the next few projects. The optimizer becomes a friend.</li>
+    <li><b>Move on to visualization.</b> Once you can shape and aggregate data fluently, the next missing piece is visualizing it. Book 4 covers Matplotlib and Seaborn — designed to work seamlessly with both pandas and Polars output.</li>
+  </ol>
+
+  <div class="note tip">
+    <span class="lbl">parting word</span>
+    <p>Polars is what you'd build if you started over today knowing what pandas got right and what it got wrong. The expression model, immutability, lazy execution, and Rust core compound into a tool that's measurably better at almost everything pandas does. The only real reason to not use it is the ecosystem — and that gap is closing every release.</p>
+  </div>
+</section>
+
+<!-- COLOPHON -->
+<section class="colophon">
+  <div class="mark">⌗</div>
+  <p>end of Book 3 · Polars · next: Visualization</p>
+</section>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,1319 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Data Pipelines — Explained with Real Examples</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0b0d12;
+  --bg-2:#11151c;
+  --surface:#161b24;
+  --surface-2:#1c222c;
+  --surface-3:#202736;
+  --border:#262d3a;
+  --border-soft:#1f2530;
+  --text:#e6e9ef;
+  --text-dim:#9aa3b2;
+  --text-mute:#6b7385;
+  --teal:#1D9E75;
+  --teal-2:#28c595;
+  --purple:#7F77DD;
+  --coral:#D85A30;
+  --amber:#BA7517;
+  --amber-2:#e0a64a;
+  --blue:#4a9eff;
+  --pink:#e066b0;
+  --code-bg:#0e1218;
+  --code-key:#7F77DD;
+  --code-fn:#28c595;
+  --code-str:#e0a64a;
+  --code-num:#D85A30;
+  --code-com:#5b6477;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:
+    radial-gradient(1400px 700px at 5% -5%,rgba(127,119,221,.09),transparent 55%),
+    radial-gradient(800px 500px at 105% 15%,rgba(29,158,117,.07),transparent 55%),
+    var(--bg);
+  color:var(--text);
+  font-family:'Manrope',sans-serif;
+  font-size:14px;
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1300px;margin:0 auto;padding:48px 28px 80px}
+
+/* ── HEADER ── */
+header.top{
+  border-bottom:1px solid var(--border);
+  padding-bottom:32px;margin-bottom:44px;
+}
+.header-eyebrow{
+  font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.15em;
+  text-transform:uppercase;color:var(--teal-2);margin-bottom:12px;
+}
+header.top h1{
+  font-family:'Instrument Serif',serif;
+  font-size:clamp(28px,4.5vw,52px);
+  font-weight:400;line-height:1.08;margin:0 0 14px;letter-spacing:-.025em;
+}
+header.top h1 em{
+  font-style:italic;
+  background:linear-gradient(125deg,var(--teal-2) 0%,var(--blue) 50%,var(--purple) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.header-desc{
+  color:var(--text-dim);font-size:14px;max-width:660px;line-height:1.7;margin:0 0 20px;
+}
+.header-pills{display:flex;gap:8px;flex-wrap:wrap;}
+.hpill{
+  font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.1em;
+  text-transform:uppercase;padding:4px 12px;border-radius:20px;
+  border:1px solid var(--border);color:var(--text-mute);
+}
+
+/* ── TOC ── */
+.toc-bar{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:44px;}
+.toc-btn{
+  padding:7px 15px;border-radius:5px;border:1px solid var(--border);
+  background:var(--surface);color:var(--text-dim);font-size:11.5px;
+  font-family:'Manrope',sans-serif;cursor:pointer;transition:all .18s;text-decoration:none;
+  white-space:nowrap;
+}
+.toc-btn:hover,.toc-btn.active{border-color:var(--teal);color:var(--teal-2);background:rgba(29,158,117,.06);}
+
+/* ── CHAPTER ── */
+.chapter{
+  display:flex;align-items:center;gap:14px;
+  margin:60px 0 22px;padding-bottom:16px;
+  border-bottom:2px solid var(--border-soft);
+}
+.ch-num{
+  font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.14em;
+  text-transform:uppercase;padding:4px 12px;border-radius:4px;white-space:nowrap;
+}
+.ch-num.purple{background:rgba(127,119,221,.12);color:var(--purple);border:1px solid rgba(127,119,221,.25);}
+.ch-num.teal{background:rgba(29,158,117,.1);color:var(--teal-2);border:1px solid rgba(29,158,117,.25);}
+.ch-num.coral{background:rgba(216,90,48,.1);color:var(--coral);border:1px solid rgba(216,90,48,.25);}
+.ch-num.amber{background:rgba(224,166,74,.1);color:var(--amber-2);border:1px solid rgba(224,166,74,.25);}
+.ch-num.blue{background:rgba(74,158,255,.1);color:var(--blue);border:1px solid rgba(74,158,255,.25);}
+.ch-num.pink{background:rgba(224,102,176,.1);color:var(--pink);border:1px solid rgba(224,102,176,.25);}
+.chapter h2{
+  font-family:'Instrument Serif',serif;font-weight:400;
+  font-size:clamp(20px,3vw,30px);margin:0;letter-spacing:-.02em;
+}
+
+/* ── SECTION ── */
+h3.sec{
+  font-family:'Manrope',sans-serif;font-weight:700;font-size:11.5px;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--text-dim);
+  margin:32px 0 12px;display:flex;align-items:center;gap:8px;
+}
+h3.sec .n{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-mute);}
+
+/* ── REAL WORLD SCENARIO BOX ── */
+.scenario{
+  background:linear-gradient(135deg,rgba(74,158,255,.06),rgba(127,119,221,.05));
+  border:1px solid rgba(74,158,255,.22);border-radius:10px;
+  padding:22px 24px;margin:14px 0 20px;
+}
+.scenario-label{
+  font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.18em;
+  text-transform:uppercase;color:var(--blue);margin-bottom:10px;display:flex;align-items:center;gap:8px;
+}
+.scenario-label::before{content:"◉";font-size:8px;}
+.scenario h4{font-size:15px;color:var(--text);margin:0 0 8px;font-weight:700;letter-spacing:-.01em;}
+.scenario p{margin:0 0 8px;color:var(--text-dim);font-size:13.5px;line-height:1.65;}
+.scenario p:last-child{margin-bottom:0;}
+.scenario strong{color:var(--text);}
+
+/* ── ANALOGY BOX ── */
+.analogy{
+  background:linear-gradient(135deg,rgba(127,119,221,.07),rgba(29,158,117,.05));
+  border:1px solid rgba(127,119,221,.22);border-radius:10px;
+  padding:20px 24px;margin:14px 0;
+}
+.analogy-label{
+  font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.18em;
+  text-transform:uppercase;color:var(--purple);margin-bottom:8px;display:flex;align-items:center;gap:6px;
+}
+.analogy-label::before{content:"💡";}
+.analogy p{margin:0 0 6px;color:var(--text-dim);font-size:13.5px;line-height:1.65;}
+.analogy p:last-child{margin-bottom:0;}
+.analogy strong{color:var(--text);}
+
+/* ── EXPLANATION BLOCK ── */
+.explain{
+  background:var(--surface);border:1px solid var(--border);border-radius:10px;
+  padding:20px 24px;margin:12px 0;
+}
+.explain h4{color:var(--text);font-size:14px;margin:0 0 10px;font-weight:700;}
+.explain p{color:var(--text-dim);font-size:13.5px;line-height:1.65;margin:0 0 10px;}
+.explain p:last-child{margin-bottom:0;}
+.explain ul,.explain ol{color:var(--text-dim);font-size:13.5px;line-height:1.7;margin:8px 0 0;padding-left:20px;}
+.explain li{margin-bottom:6px;}
+.explain strong{color:var(--text);}
+
+/* ── GRIDS ── */
+.grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(370px,1fr));gap:16px;margin:12px 0;}
+.grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin:12px 0;}
+.grid-4{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin:12px 0;}
+
+/* ── CARDS ── */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:18px 20px;}
+.card.teal{border-left:3px solid var(--teal);}
+.card.purple{border-left:3px solid var(--purple);}
+.card.coral{border-left:3px solid var(--coral);}
+.card.amber{border-left:3px solid var(--amber-2);}
+.card.blue{border-left:3px solid var(--blue);}
+.card.pink{border-left:3px solid var(--pink);}
+.card-icon{font-size:22px;margin-bottom:8px;}
+.card h4{
+  font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--text-dim);margin:0 0 8px;
+}
+.card p{margin:0 0 8px;color:var(--text-dim);font-size:13px;line-height:1.6;}
+.card p:last-child{margin-bottom:0;}
+.card ul{margin:6px 0 0;padding-left:16px;color:var(--text-dim);font-size:13px;line-height:1.65;}
+.card li{margin-bottom:4px;}
+.card strong{color:var(--text);}
+
+/* ── FLOW DIAGRAM ── */
+.flow{
+  background:var(--code-bg);border:1px solid var(--border);border-radius:9px;
+  padding:22px 26px;font-family:'JetBrains Mono',monospace;font-size:12.5px;
+  line-height:1.8;overflow-x:auto;margin:12px 0;white-space:pre;
+}
+.fg-teal{color:var(--teal-2);}
+.fg-purple{color:var(--purple);}
+.fg-coral{color:var(--coral);}
+.fg-amber{color:var(--amber-2);}
+.fg-blue{color:var(--blue);}
+.fg-pink{color:var(--pink);}
+.fg-dim{color:var(--text-mute);}
+.fg-text{color:var(--text-dim);}
+.fg-bright{color:var(--text);}
+
+/* ── CODE ── */
+pre{
+  background:var(--code-bg);border:1px solid var(--border);border-radius:8px;
+  padding:18px 20px;overflow-x:auto;margin:12px 0;
+  font-family:'JetBrains Mono',monospace;font-size:12.5px;line-height:1.7;
+}
+.lang{
+  display:block;font-size:9px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--text-mute);margin-bottom:10px;padding-bottom:8px;
+  border-bottom:1px solid var(--border-soft);
+}
+.k{color:var(--code-key);}
+.f{color:var(--code-fn);}
+.s{color:var(--code-str);}
+.n{color:var(--code-num);}
+.c{color:var(--code-com);}
+
+/* ── TABLE ── */
+.tbl-wrap{overflow-x:auto;margin:12px 0;}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+thead th{
+  background:var(--surface-2);color:var(--text-dim);
+  font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.09em;text-transform:uppercase;
+  padding:11px 14px;text-align:left;border-bottom:1px solid var(--border);border-top:1px solid var(--border);
+}
+tbody td{padding:11px 14px;border-bottom:1px solid var(--border-soft);color:var(--text-dim);vertical-align:top;line-height:1.55;}
+tbody tr:hover td{background:rgba(255,255,255,.02);}
+.tag{display:inline-block;padding:2px 8px;border-radius:3px;font-size:11px;font-family:'JetBrains Mono',monospace;}
+.tag.green{background:rgba(40,197,149,.12);color:var(--teal-2);}
+.tag.purple{background:rgba(127,119,221,.12);color:var(--purple);}
+.tag.red{background:rgba(216,90,48,.12);color:var(--coral);}
+.tag.amber{background:rgba(224,166,74,.12);color:var(--amber-2);}
+.tag.blue{background:rgba(74,158,255,.12);color:var(--blue);}
+
+/* ── CALLOUT ── */
+.callout{
+  display:flex;gap:12px;align-items:flex-start;
+  border-radius:8px;padding:14px 18px;margin:12px 0;font-size:13.5px;
+}
+.callout.info{background:rgba(74,158,255,.07);border:1px solid rgba(74,158,255,.2);}
+.callout.tip{background:rgba(29,158,117,.08);border:1px solid rgba(29,158,117,.2);}
+.callout.warn{background:rgba(216,90,48,.08);border:1px solid rgba(216,90,48,.2);}
+.callout.purple{background:rgba(127,119,221,.07);border:1px solid rgba(127,119,221,.2);}
+.callout .icon{font-size:16px;line-height:1;flex-shrink:0;padding-top:1px;}
+.callout p{margin:0;line-height:1.65;color:var(--text-dim);}
+.callout strong{color:var(--text);}
+
+/* ── BEFORE/AFTER ── */
+.ba{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0;}
+.ba-box{border-radius:8px;padding:16px 18px;}
+.ba-box.bad{background:rgba(216,90,48,.06);border:1px solid rgba(216,90,48,.2);}
+.ba-box.good{background:rgba(29,158,117,.06);border:1px solid rgba(29,158,117,.2);}
+.ba-label{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.15em;text-transform:uppercase;margin-bottom:10px;}
+.ba-box.bad .ba-label{color:var(--coral);}
+.ba-box.good .ba-label{color:var(--teal-2);}
+.ba-box p,.ba-box li{font-size:13px;line-height:1.6;color:var(--text-dim);margin:0 0 6px;}
+.ba-box ul{padding-left:16px;margin:0;}
+.ba-box .hl-bad{color:#e05555;}
+.ba-box .hl-good{color:var(--teal-2);}
+
+/* ── STEP TIMELINE ── */
+.timeline{margin:12px 0;}
+.tl-item{display:flex;gap:16px;position:relative;margin-bottom:4px;}
+.tl-item:not(:last-child) .tl-line{position:absolute;left:15px;top:32px;width:2px;height:100%;background:var(--border);}
+.tl-dot{
+  width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;flex-shrink:0;
+  background:var(--surface-2);border:2px solid var(--border);color:var(--text-mute);z-index:1;margin-top:2px;
+}
+.tl-dot.teal{background:rgba(29,158,117,.15);border-color:rgba(29,158,117,.4);color:var(--teal-2);}
+.tl-dot.purple{background:rgba(127,119,221,.15);border-color:rgba(127,119,221,.4);color:var(--purple);}
+.tl-dot.coral{background:rgba(216,90,48,.15);border-color:rgba(216,90,48,.4);color:var(--coral);}
+.tl-dot.amber{background:rgba(224,166,74,.15);border-color:rgba(224,166,74,.4);color:var(--amber-2);}
+.tl-dot.blue{background:rgba(74,158,255,.15);border-color:rgba(74,158,255,.4);color:var(--blue);}
+.tl-body{padding:4px 0 24px;}
+.tl-body strong{color:var(--text);font-size:14px;}
+.tl-body p{color:var(--text-dim);font-size:13px;line-height:1.6;margin:5px 0 0;}
+
+/* ── BIG QUOTE ── */
+.big-quote{
+  border-left:3px solid var(--purple);padding:12px 20px;margin:16px 0;
+  background:rgba(127,119,221,.05);border-radius:0 8px 8px 0;
+}
+.big-quote p{font-family:'Instrument Serif',serif;font-size:17px;font-style:italic;
+  color:var(--text-dim);margin:0;line-height:1.5;}
+
+/* ── DIAGRAM CARD ── */
+.diagram-card{
+  background:var(--surface);border:1px solid var(--border);border-radius:10px;
+  padding:26px;margin:14px 0;
+}
+.diagram-card .dc-title{
+  font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--text-mute);margin-bottom:16px;
+}
+
+/* ── PILL ── */
+.pill{
+  display:inline-block;padding:2px 10px;border-radius:20px;font-size:11px;
+  font-family:'JetBrains Mono',monospace;margin:2px;
+}
+.pill.teal{background:rgba(29,158,117,.15);color:var(--teal-2);border:1px solid rgba(29,158,117,.25);}
+.pill.purple{background:rgba(127,119,221,.15);color:var(--purple);border:1px solid rgba(127,119,221,.25);}
+.pill.coral{background:rgba(216,90,48,.15);color:var(--coral);border:1px solid rgba(216,90,48,.25);}
+.pill.amber{background:rgba(224,166,74,.15);color:var(--amber-2);border:1px solid rgba(224,166,74,.25);}
+.pill.blue{background:rgba(74,158,255,.15);color:var(--blue);border:1px solid rgba(74,158,255,.25);}
+
+/* ── COMPANY BADGE ── */
+.company-row{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0;}
+.co{
+  display:flex;align-items:center;gap:6px;
+  background:var(--surface-2);border:1px solid var(--border);
+  border-radius:5px;padding:5px 12px;font-size:12px;color:var(--text-dim);
+}
+.co .dot{width:7px;height:7px;border-radius:50%;}
+
+/* ── SUMMARY BOX ── */
+.summary-box{
+  background:linear-gradient(135deg,rgba(29,158,117,.07),rgba(74,158,255,.05));
+  border:1px solid rgba(29,158,117,.2);border-radius:10px;
+  padding:22px 26px;margin:20px 0;
+}
+.summary-box h4{color:var(--teal-2);font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.15em;text-transform:uppercase;margin:0 0 14px;}
+.summary-box ul{margin:0;padding-left:18px;color:var(--text-dim);font-size:13.5px;line-height:1.8;}
+.summary-box li{margin-bottom:4px;}
+.summary-box strong{color:var(--text);}
+
+footer{margin-top:64px;padding-top:24px;border-top:1px solid var(--border);}
+footer p{color:var(--text-mute);font-size:12px;text-align:center;}
+[id]{scroll-margin-top:24px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- ═══ HEADER ═══ -->
+<header class="top">
+  <div class="header-eyebrow">Complete Conceptual Guide · Not Just Code</div>
+  <h1>Data Pipelines,<br><em>Explained with Real Examples</em></h1>
+  <p class="header-desc">Every concept explained with a real-world scenario — where it's used, why it matters, what happens when you skip it, and how the pieces fit together. Built so you can remember the <em>thinking</em>, not just the code.</p>
+  <div class="header-pills">
+    <span class="hpill">12 real-world examples</span>
+    <span class="hpill">analogies for every concept</span>
+    <span class="hpill">when to use what</span>
+    <span class="hpill">what to remember</span>
+  </div>
+</header>
+
+<!-- ═══ TOC ═══ -->
+<div class="toc-bar">
+  <a href="#what" class="toc-btn">01 · What is a Pipeline, Really?</a>
+  <a href="#where" class="toc-btn">02 · Where Pipelines Are Used</a>
+  <a href="#ingest" class="toc-btn">03 · Ingestion</a>
+  <a href="#clean" class="toc-btn">04 · Data Cleaning</a>
+  <a href="#transform" class="toc-btn">05 · Transformation</a>
+  <a href="#feed" class="toc-btn">06 · Feeding to LLM</a>
+  <a href="#types" class="toc-btn">07 · Pipeline Types</a>
+  <a href="#mistakes" class="toc-btn">08 · Common Mistakes</a>
+  <a href="#remember" class="toc-btn">09 · What to Remember</a>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════
+     CH 1 — WHAT IS A PIPELINE
+═══════════════════════════════════════════════════════ -->
+<div id="what">
+<div class="chapter">
+  <span class="ch-num purple">Chapter 01</span>
+  <h2>What is a Pipeline, Really?</h2>
+</div>
+
+<div class="analogy">
+  <div class="analogy-label">The Core Analogy</div>
+  <p><strong>A data pipeline is a factory assembly line for information.</strong> Raw materials (messy, incomplete, unstructured data) enter one end. Each station on the line does one specific job — clean, reshape, enrich, format. What exits the other end is a finished product your LLM can actually use.</p>
+  <p>Skip a station and you ship a broken product. The LLM doesn't complain — it just gives you terrible answers and you won't know why.</p>
+</div>
+
+<h3 class="sec"><span class="n">1.1</span> Why Raw Data Can't Go Straight to an LLM</h3>
+
+<div class="explain">
+  <h4>The Problem with Raw Data</h4>
+  <p>Imagine you scraped 10,000 customer support tickets to train an LLM to answer questions. Without any cleaning, here's what you'd feed it:</p>
+  <ul>
+    <li>Ticket #4821: <em>"hi my refnd didnt work plz help asap!!!! 😤😤😤"</em> — typos, emoji, no context</li>
+    <li>Ticket #4822: <em>"&lt;div class='ticket'&gt;Hello &amp;amp; welcome&lt;/div&gt;"</em> — raw HTML tags</li>
+    <li>Ticket #4823: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; — 5 spaces, nothing else (null record)</li>
+    <li>Ticket #4824: <em>"CONFIDENTIAL — INTERNAL USE ONLY — Page 3 of 47 — CONFIDENTIAL"</em> — boilerplate repeated on every page</li>
+    <li>Ticket #4825: Duplicate of ticket #3901 word for word</li>
+  </ul>
+  <p>The LLM sees all of this as <strong>valid training signal</strong>. It learns that "😤😤😤" is normal language. It learns HTML tags are part of sentences. It learns boilerplate is meaningful. The result is a model that gives incoherent, unreliable answers.</p>
+  <p><strong>A pipeline prevents all of this.</strong> Each step removes one category of problem before it reaches the LLM.</p>
+</div>
+
+<h3 class="sec"><span class="n">1.2</span> The Mental Model — Five Questions to Ask</h3>
+
+<div class="grid-3">
+  <div class="card purple">
+    <div class="card-icon">📥</div>
+    <h4>Where does data come from?</h4>
+    <p>PDFs, databases, APIs, S3 buckets, web scrapes, spreadsheets. Each source needs its own loader that knows how to extract raw text from that format.</p>
+  </div>
+  <div class="card coral">
+    <div class="card-icon">🧹</div>
+    <h4>What's wrong with it?</h4>
+    <p>Every dataset has specific problems. Identify them first: nulls? HTML? duplicates? wrong encoding? Cleaning without knowing the problems wastes time.</p>
+  </div>
+  <div class="card teal">
+    <div class="card-icon">⚙️</div>
+    <h4>What shape does the LLM need?</h4>
+    <p>Fine-tuning needs JSONL. RAG needs chunks with metadata. Prompt injection needs a specific format. The pipeline's output depends on how the LLM consumes it.</p>
+  </div>
+  <div class="card amber">
+    <div class="card-icon">🔄</div>
+    <h4>How often does data change?</h4>
+    <p>Once-ever documents → batch pipeline. Daily updates → scheduled pipeline. Real-time events → streaming pipeline. The frequency decides the architecture.</p>
+  </div>
+  <div class="card blue">
+    <div class="card-icon">📊</div>
+    <h4>How do you know it worked?</h4>
+    <p>Track counts in vs out. Alert on sudden drops. Evaluate LLM quality before and after. A pipeline without monitoring is a time bomb.</p>
+  </div>
+  <div class="card pink">
+    <div class="card-icon">🔁</div>
+    <h4>What happens when it breaks?</h4>
+    <p>Which steps can be retried safely? What do you do with half-processed records? Every pipeline needs a plan for failures.</p>
+  </div>
+</div>
+
+<h3 class="sec"><span class="n">1.3</span> The Whole Flow at a Glance</h3>
+<div class="diagram-card">
+  <div class="dc-title">Universal Pipeline Structure — Works for Any LLM Use Case</div>
+<div class="flow"><span class="fg-dim">┌──────────┐    ┌──────────┐    ┌──────────┐    ┌──────────┐    ┌──────────┐</span>
+<span class="fg-dim">│</span>  <span class="fg-amber">SOURCE</span>   <span class="fg-dim">│───▶│</span>  <span class="fg-coral">INGEST</span>  <span class="fg-dim">│───▶│</span>  <span class="fg-coral">CLEAN</span>   <span class="fg-dim">│───▶│</span>  <span class="fg-purple">TRANSFORM</span><span class="fg-dim">│───▶│</span> <span class="fg-teal">DELIVER</span>  <span class="fg-dim">│</span>
+<span class="fg-dim">│</span>  <span class="fg-text">Raw data</span> <span class="fg-dim">│    │</span> <span class="fg-text">Extract</span>  <span class="fg-dim">│    │</span> <span class="fg-text">Fix, fix</span> <span class="fg-dim">│    │</span> <span class="fg-text">Reshape</span>  <span class="fg-dim">│    │</span> <span class="fg-text">to LLM</span>   <span class="fg-dim">│</span>
+<span class="fg-dim">└──────────┘    └──────────┘    └──────────┘    └──────────┘    └──────────┘</span>
+
+  <span class="fg-amber">Examples:</span>          <span class="fg-amber">Examples:</span>          <span class="fg-amber">Examples:</span>          <span class="fg-amber">Examples:</span>          <span class="fg-amber">Examples:</span>
+  <span class="fg-dim">PDF files</span>          <span class="fg-dim">pypdf</span>               <span class="fg-dim">Remove HTML</span>         <span class="fg-dim">Chunk text</span>          <span class="fg-dim">RAG index</span>
+  <span class="fg-dim">CSV exports</span>        <span class="fg-dim">pandas</span>              <span class="fg-dim">Fill nulls</span>           <span class="fg-dim">Add metadata</span>        <span class="fg-dim">Fine-tune</span>
+  <span class="fg-dim">REST APIs</span>          <span class="fg-dim">requests</span>            <span class="fg-dim">Deduplicate</span>          <span class="fg-dim">Embed vectors</span>       <span class="fg-dim">JSONL file</span>
+  <span class="fg-dim">Databases</span>          <span class="fg-dim">sqlalchemy</span>          <span class="fg-dim">Fix encoding</span>         <span class="fg-dim">Extract entities</span>    <span class="fg-dim">Prompt text</span>
+  <span class="fg-dim">S3 buckets</span>         <span class="fg-dim">boto3</span>               <span class="fg-dim">Remove dupes</span>         <span class="fg-dim">Format JSONL</span>        <span class="fg-dim">Vector DB</span></div>
+</div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════
+     CH 2 — WHERE PIPELINES ARE USED
+═══════════════════════════════════════════════════════ -->
+<div id="where">
+<div class="chapter">
+  <span class="ch-num teal">Chapter 02</span>
+  <h2>Where Pipelines Are Used — Real Examples</h2>
+</div>
+
+<div class="callout info">
+  <div class="icon">ℹ️</div>
+  <p>Every company using an LLM in production runs a data pipeline. The LLM itself is often the smallest part of the system. <strong>The pipeline is 70% of the engineering work.</strong> Here are 8 real scenarios with exactly how the pipeline works in each.</p>
+</div>
+
+<!-- EXAMPLE 1 -->
+<h3 class="sec"><span class="n">2.1</span> Example — Customer Support Bot (PayPal-style)</h3>
+<div class="scenario">
+  <div class="scenario-label">Real-World Scenario · FinTech Support</div>
+  <h4>🏦 Build an LLM that answers customer questions about refunds, disputes, and policies</h4>
+  <p><strong>The problem:</strong> You have 50,000 resolved support tickets, 200 internal policy PDFs, and an FAQ website. You want an LLM chatbot that answers "How long does a refund take?" accurately — not from its training data, but from your actual current policy.</p>
+  <p><strong>Why a pipeline is needed:</strong> The raw tickets contain agent names, internal ticket IDs, phone numbers, copy-paste boilerplate, HTML signatures, and duplicate conversations. The PDFs have headers/footers repeated on every page. None of this should reach the LLM.</p>
+</div>
+
+<div class="timeline">
+  <div class="tl-item">
+    <div class="tl-dot teal">1</div>
+    <div class="tl-line"></div>
+    <div class="tl-body">
+      <strong>Ingest — Load tickets from CSV, PDFs from S3</strong>
+      <p>Each ticket becomes one record. Each PDF page becomes text. You now have ~55,000 raw text items.</p>
+    </div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-dot coral">2</div>
+    <div class="tl-line"></div>
+    <div class="tl-body">
+      <strong>Clean — Remove everything that isn't the actual conversation</strong>
+      <p>Strip HTML email tags. Remove "From: agent@company.com" signatures. Delete "Page 4 of 12" headers. Remove tickets with fewer than 30 words. You now have ~38,000 usable items (31% were noise).</p>
+    </div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-dot purple">3</div>
+    <div class="tl-line"></div>
+    <div class="tl-body">
+      <strong>Transform — Classify each ticket by intent</strong>
+      <p>Label each: REFUND_STATUS, DISPUTE_OPEN, LOGIN_HELP, etc. This becomes metadata for filtered retrieval later — "only search refund tickets when the user asks about refunds."</p>
+    </div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-dot amber">4</div>
+    <div class="tl-line"></div>
+    <div class="tl-body">
+      <strong>Chunk — Split long policy PDFs into sections</strong>
+      <p>A 40-page refund policy PDF becomes 80 chunks of ~500 words each, each tagged with the section header as metadata.</p>
+    </div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-dot blue">5</div>
+    <div class="tl-body">
+      <strong>Deliver — Embed everything into a vector database (RAG)</strong>
+      <p>At query time: user asks "How long does a refund take?" → embed the question → find the 4 most similar policy chunks → inject into the LLM prompt → get a grounded, accurate answer with sources.</p>
+    </div>
+  </div>
+</div>
+
+<!-- EXAMPLE 2 -->
+<h3 class="sec"><span class="n">2.2</span> Example — Marketing Email Generator</h3>
+<div class="scenario">
+  <div class="scenario-label">Real-World Scenario · Marketing Tech</div>
+  <h4>📧 Fine-tune an LLM to write marketing emails in your company's exact voice</h4>
+  <p><strong>The problem:</strong> Your marketing team has 3 years of past email campaigns in a CRM. Subject lines, body text, CTAs — all hand-written by your best copywriters. You want an LLM that writes NEW emails in that exact style.</p>
+  <p><strong>Why a pipeline is needed:</strong> The raw CRM export has unsubscribed user emails mixed in, test campaigns with dummy text, bounced emails, emails in 12 different languages when you only want English, HTML formatting codes, and 400 near-identical "Happy Holidays!" emails that would bias the model.</p>
+</div>
+<div class="ba">
+  <div class="ba-box bad">
+    <div class="ba-label">❌ Raw CRM Export (unusable)</div>
+    <ul>
+      <li class="hl-bad">Subject: "TEST - do not send - TEST"</li>
+      <li class="hl-bad">Body: "&lt;p style='color:red'&gt;Click &amp;amp; Save!&lt;/p&gt;"</li>
+      <li class="hl-bad">Language: Spanish (you only want English)</li>
+      <li class="hl-bad">Open rate: 0% (bounced, never delivered)</li>
+      <li class="hl-bad">Duplicate: Same email sent 47 times to different lists</li>
+    </ul>
+  </div>
+  <div class="ba-box good">
+    <div class="ba-label">✅ After Pipeline (fine-tune ready)</div>
+    <ul>
+      <li class="hl-good">Subject: "Save 20% this weekend only"</li>
+      <li class="hl-good">Body: "Hi Sarah, we noticed you loved our summer sale..."</li>
+      <li class="hl-good">Language: English ✓</li>
+      <li class="hl-good">Open rate: 24% (high quality signal)</li>
+      <li class="hl-good">Deduplicated: 1 canonical version kept</li>
+    </ul>
+  </div>
+</div>
+<p style="color:var(--text-dim);font-size:13.5px;line-height:1.65;margin:8px 0;">The pipeline filters out test emails, strips HTML, detects language (dropping non-English), removes duplicates, and keeps only emails with open rates above 15% — using engagement as a <strong>quality proxy</strong>. What remains is a curated dataset of high-quality, English, on-brand emails that trains the LLM to write exactly like your best copywriter.</p>
+
+<!-- EXAMPLE 3 -->
+<h3 class="sec"><span class="n">2.3</span> Example — Internal Knowledge Search (Enterprise)</h3>
+<div class="scenario">
+  <div class="scenario-label">Real-World Scenario · Enterprise AI</div>
+  <h4>🏢 Let employees ask questions and get answers from internal documents</h4>
+  <p><strong>Used by:</strong> Notion AI, Confluence AI, Microsoft Copilot for enterprise. Any company with thousands of internal docs that no one can find.</p>
+  <p><strong>The pipeline challenge:</strong> Documents come from 6 different systems — SharePoint, Confluence, Google Drive, Slack (messages!), Jira tickets, and email threads. Each has a completely different format, permission model, and update frequency. The pipeline must handle all of them, respect access controls, and re-index documents automatically when they're updated.</p>
+</div>
+<div class="flow"><span class="fg-dim">SOURCES (update at different rates):</span>
+
+  <span class="fg-blue">SharePoint</span> (weekly) ──────────────────────────┐
+  <span class="fg-blue">Confluence</span> (daily)  ───────────────────────────┤
+  <span class="fg-blue">Google Drive</span> (real-time webhook) ─────────────┤
+  <span class="fg-blue">Slack messages</span> (hourly) ──────────────────────┤──▶ <span class="fg-coral">[Unified Ingestion Layer]</span>
+  <span class="fg-blue">Jira tickets</span> (daily) ──────────────────────────┤       │
+  <span class="fg-blue">Email threads</span> (weekly export) ─────────────────┘       │
+                                                           ▼
+                                              <span class="fg-coral">[Clean + Deduplicate]</span>
+                                                           │
+                                              <span class="fg-coral">[Permission tagging]</span>  ← who can see what
+                                                           │
+                                              <span class="fg-purple">[Chunk + Embed]</span>
+                                                           │
+                                              <span class="fg-teal">[Vector DB with ACL metadata]</span>
+                                                           │
+                                              <span class="fg-teal">Employee asks question</span>
+                                              <span class="fg-dim">→ filter by their permission level</span>
+                                              <span class="fg-dim">→ retrieve only docs they can access</span>
+                                              <span class="fg-dim">→ LLM answers with citations</span></div>
+
+<!-- EXAMPLE 4 -->
+<h3 class="sec"><span class="n">2.4</span> Example — Medical Record Summarizer</h3>
+<div class="scenario">
+  <div class="scenario-label">Real-World Scenario · Healthcare AI</div>
+  <h4>🏥 Summarize patient records for doctors before appointments</h4>
+  <p><strong>The pipeline challenge:</strong> Medical records come from different hospital systems in different formats — some HL7 FHIR JSON, some scanned PDFs (need OCR), some typed notes, some voice transcripts with disfluencies ("um, the patient, uh, presented with..."). All of them contain <strong>PII that must never reach a cloud LLM</strong>.</p>
+  <p><strong>Critical pipeline step:</strong> De-identification. Every name, date of birth, address, SSN, and insurance ID must be replaced with tokens before the text is sent anywhere. The pipeline runs a de-identification step after ingestion and before anything else. This is non-negotiable legally (HIPAA).</p>
+</div>
+
+<!-- EXAMPLE 5 -->
+<h3 class="sec"><span class="n">2.5</span> Example — Code Review Assistant</h3>
+<div class="scenario">
+  <div class="scenario-label">Real-World Scenario · Developer Tools</div>
+  <h4>💻 Build an LLM that reviews PRs in the style of your senior engineers</h4>
+  <p><strong>Used by:</strong> GitHub Copilot PR review, internal tools at Stripe, Shopify, etc.</p>
+  <p><strong>Data source:</strong> 2 years of GitHub PR history — every comment left by senior engineers on every PR. The goal is to fine-tune an LLM that reviews code like your best engineers do.</p>
+  <p><strong>Pipeline challenge:</strong> PR comments include "looks good 👍", "+1", "LGTM", "nit:", off-topic conversations, review comments that were later retracted, and comments referencing deleted code that no longer exists. The pipeline must filter to substantive, constructive review comments only, and pair them with the specific code diff they were written about — so the LLM learns the relationship between code patterns and feedback.</p>
+</div>
+
+<!-- EXAMPLE 6 -->
+<h3 class="sec"><span class="n">2.6</span> Example — E-commerce Product Q&amp;A</h3>
+<div class="scenario">
+  <div class="scenario-label">Real-World Scenario · E-commerce</div>
+  <h4>🛍️ Answer "Will this shirt shrink?" from product descriptions + customer reviews</h4>
+  <p><strong>Used by:</strong> Amazon's "Ask a question" AI, Shopify AI assistants.</p>
+  <p><strong>The pipeline:</strong> Product descriptions (from the catalog) + customer reviews (from the review system) + Q&amp;A history (from past customer questions) are combined, deduplicated, and indexed per product. When a shopper asks "Does this run small?", the RAG pipeline retrieves only reviews and Q&amp;As for that specific product ID (using metadata filtering), so the LLM answers from real buyer feedback — not general knowledge.</p>
+</div>
+
+<h3 class="sec"><span class="n">2.7</span> Where Pipelines Are Used — Summary</h3>
+<div class="tbl-wrap">
+<table>
+  <thead><tr><th>Industry</th><th>Use Case</th><th>Key Pipeline Challenge</th><th>LLM Task</th></tr></thead>
+  <tbody>
+    <tr><td><span class="tag blue">FinTech</span></td><td>Support chatbot</td><td>PII redaction, ticket deduplication</td><td>RAG — answer from policy docs</td></tr>
+    <tr><td><span class="tag green">Marketing</span></td><td>Email generation</td><td>Filter by quality signal (open rate)</td><td>Fine-tune for brand voice</td></tr>
+    <tr><td><span class="tag purple">Enterprise</span></td><td>Internal knowledge search</td><td>Multi-source, permission tagging</td><td>RAG with access control</td></tr>
+    <tr><td><span class="tag red">Healthcare</span></td><td>Record summarization</td><td>De-identification (HIPAA), OCR</td><td>Summarization on-premise</td></tr>
+    <tr><td><span class="tag blue">Dev Tools</span></td><td>Code review</td><td>Pair code diffs with comments</td><td>Fine-tune for review style</td></tr>
+    <tr><td><span class="tag amber">E-commerce</span></td><td>Product Q&amp;A</td><td>Per-product metadata filtering</td><td>RAG per product ID</td></tr>
+    <tr><td><span class="tag green">Legal</span></td><td>Contract analysis</td><td>Structure unstructured clauses</td><td>RAG for clause retrieval</td></tr>
+    <tr><td><span class="tag purple">Education</span></td><td>Personalized tutoring</td><td>Student history tracking</td><td>RAG with student context</td></tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════
+     CH 3 — INGESTION EXPLAINED
+═══════════════════════════════════════════════════════ -->
+<div id="ingest">
+<div class="chapter">
+  <span class="ch-num coral">Chapter 03</span>
+  <h2>Ingestion — Getting Data In</h2>
+</div>
+
+<div class="analogy">
+  <div class="analogy-label">Analogy</div>
+  <p><strong>Ingestion is like a receiving dock at a warehouse.</strong> Whatever arrives — pallets, loose boxes, envelopes — the receiving dock's job is to accept it and get it on a shelf in a usable state. It doesn't care what it is; it just unpacks it from whatever container it came in.</p>
+  <p>In data terms: whether the data is a PDF, a database row, a REST API response, or a Word document, ingestion extracts the raw text and puts it in a uniform format that the next steps can work with.</p>
+</div>
+
+<h3 class="sec"><span class="n">3.1</span> Why Different Sources Need Different Loaders</h3>
+<div class="explain">
+  <h4>Each format hides text differently</h4>
+  <p>A PDF stores text not as plain sentences but as positioned glyphs on a canvas — "P" at position (72, 120), "a" at (79, 120), "y" at (85, 120). A loader has to reconstruct the reading order. If the PDF was scanned (a photo of a document), there's no text at all — you need OCR (Optical Character Recognition) to detect characters in the image pixels.</p>
+  <p>A CSV stores each column in a cell. But which column is the "text you want"? The loader needs to know — is it the "description" column? The "body" column? Do you want to combine "title" and "body"? That's a decision you make in the ingestion step.</p>
+  <p>A REST API returns JSON. But the text you want might be nested three levels deep: <code>response.data[0].attributes.content.body.text</code>. The loader navigates that structure.</p>
+</div>
+
+<h3 class="sec"><span class="n">3.2</span> Real Example — Loading a Folder of PDFs (Policy Documents)</h3>
+<pre><span class="lang">python · scenario: PayPal has 200 policy PDFs in an S3 bucket</span><span class="k">import</span> pdfplumber, boto3, io
+
+<span class="c"># Step 1: List all PDFs in the S3 bucket</span>
+s3 = boto3.<span class="f">client</span>(<span class="s">"s3"</span>)
+bucket = <span class="s">"paypal-internal-policies"</span>
+objects = s3.<span class="f">list_objects_v2</span>(Bucket=bucket, Prefix=<span class="s">"policies/"</span>)
+
+<span class="c"># Step 2: For each PDF, extract text page by page</span>
+all_pages = []
+<span class="k">for</span> obj <span class="k">in</span> objects[<span class="s">"Contents"</span>]:
+    key = obj[<span class="s">"Key"</span>]
+    pdf_bytes = s3.<span class="f">get_object</span>(Bucket=bucket, Key=key)[<span class="s">"Body"</span>].<span class="f">read</span>()
+
+    <span class="k">with</span> pdfplumber.<span class="f">open</span>(io.<span class="f">BytesIO</span>(pdf_bytes)) <span class="k">as</span> pdf:
+        <span class="k">for</span> page_num, page <span class="k">in</span> <span class="f">enumerate</span>(pdf.pages, <span class="n">1</span>):
+            text = page.<span class="f">extract_text</span>() <span class="k">or</span> <span class="s">""</span>
+            all_pages.<span class="f">append</span>({
+                <span class="s">"text"</span>:    text,
+                <span class="s">"source"</span>:  key,           <span class="c"># "policies/refund-policy-2024.pdf"</span>
+                <span class="s">"page"</span>:    page_num,       <span class="c"># 4</span>
+                <span class="s">"doc_type"</span>:<span class="s">"policy"</span>,      <span class="c"># for metadata filtering later</span>
+            })
+
+<span class="c"># Result: list of {text, source, page, doc_type} dicts</span>
+<span class="c"># 200 PDFs × avg 15 pages = ~3,000 page records</span>
+<span class="f">print</span>(<span class="s">f"Loaded {len(all_pages)} pages from {len(objects['Contents'])} PDFs"</span>)</pre>
+
+<div class="callout tip">
+  <div class="icon">💡</div>
+  <p><strong>Why track source and page?</strong> So later, when the LLM answers "Refunds take 3-5 days," it can cite <em>policies/refund-policy-2024.pdf, page 4</em>. Without this metadata, the answer is unverifiable — users can't trust it.</p>
+</div>
+
+<h3 class="sec"><span class="n">3.3</span> Real Example — Loading from a SQL Database</h3>
+<pre><span class="lang">python · scenario: load support tickets from a production database</span><span class="k">import</span> pandas <span class="k">as</span> pd, sqlalchemy <span class="k">as</span> sa
+
+engine = sa.<span class="f">create_engine</span>(<span class="s">"postgresql://readonly_user:pass@db.paypal.internal/support"</span>)
+
+<span class="c"># Don't load everything — be surgical about what you need</span>
+query = <span class="s">"""
+    SELECT
+        t.id,
+        t.subject,
+        t.description,
+        t.resolution,          -- the answer the agent wrote
+        t.category,
+        t.created_at,
+        a.name AS agent_name   -- we'll REMOVE this later (PII)
+    FROM tickets t
+    JOIN agents a ON t.agent_id = a.id
+    WHERE t.status = 'resolved'       -- only resolved = has a good answer
+      AND t.language = 'en'           -- English only for this pipeline
+      AND t.created_at > '2023-01-01' -- recent data only
+      AND t.quality_score >= 4        -- agent-rated 4/5 or 5/5
+    LIMIT 50000
+"""</span>
+df = pd.<span class="f">read_sql</span>(query, engine)
+
+<span class="f">print</span>(<span class="s">f"Loaded {len(df)} high-quality English tickets"</span>)
+<span class="c"># Notice: we already filtered at the DB level — faster than loading all and filtering in Python</span></pre>
+
+<div class="callout info">
+  <div class="icon">ℹ️</div>
+  <p><strong>Key insight:</strong> Filter as early as possible. Every row you load costs memory and processing time. Using <code>WHERE quality_score >= 4</code> in SQL is 10x faster than loading all rows and filtering in pandas.</p>
+</div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════
+     CH 4 — DATA CLEANING EXPLAINED
+═══════════════════════════════════════════════════════ -->
+<div id="clean">
+<div class="chapter">
+  <span class="ch-num amber">Chapter 04</span>
+  <h2>Data Cleaning — What, Why &amp; How</h2>
+</div>
+
+<div class="analogy">
+  <div class="analogy-label">Analogy</div>
+  <p><strong>Cleaning data is like editing a manuscript before publishing.</strong> The author (your data source) wrote the first draft. It has typos, repeated sections, footnotes mid-sentence, inconsistent style, and a whole page that's just a legal disclaimer. The editor's job is to produce a clean version that communicates clearly — without changing what the author meant.</p>
+</div>
+
+<h3 class="sec"><span class="n">4.1</span> The 6 Types of Dirt — With Real Examples</h3>
+
+<div class="grid-2">
+  <div class="explain">
+    <h4>🗑️ Type 1: Text Noise</h4>
+    <p><strong>What it is:</strong> Characters, tags, or formatting codes that have nothing to do with the meaning of the text.</p>
+    <p><strong>Real example:</strong> A PDF exported from Word gives you: <code>"Hello\xa0World\u200b — \t\t see page 3 \n\n\n\n\n"</code></p>
+    <p><code>\xa0</code> is a non-breaking space. <code>\u200b</code> is an invisible zero-width space. <code>\t\t</code> are tabs. <code>\n\n\n\n\n</code> is 5 blank lines. None of these add meaning. To the LLM, they look like real characters and confuse tokenization.</p>
+    <p><strong>Fix:</strong> Normalize unicode, collapse whitespace, strip invisible chars.</p>
+  </div>
+  <div class="explain">
+    <h4>🏷️ Type 2: HTML / Markup Tags</h4>
+    <p><strong>What it is:</strong> Web or email systems store content as HTML. When you extract text without parsing the HTML, you get the tags too.</p>
+    <p><strong>Real example:</strong> A customer email stored in a CRM:</p>
+    <p><code>&lt;div style="font-size:14px"&gt;Hello &amp;amp; thank you for &lt;b&gt;helping&lt;/b&gt; me&lt;/div&gt;</code></p>
+    <p>Becomes: "Hello &amp; thank you for helping me" after HTML parsing. Without cleaning, the LLM sees <code>style="font-size:14px"</code> as content and tries to "understand" CSS.</p>
+    <p><strong>Fix:</strong> Use BeautifulSoup to parse HTML and extract plain text.</p>
+  </div>
+  <div class="explain">
+    <h4>📋 Type 3: Boilerplate / Repeated Text</h4>
+    <p><strong>What it is:</strong> Text that appears identically on every page (PDF headers/footers) or every record (email signatures, legal disclaimers).</p>
+    <p><strong>Real example:</strong> Every page of a 50-page policy PDF ends with: <em>"CONFIDENTIAL — PAYPAL INC. — Page X of 50 — FOR INTERNAL USE ONLY"</em>. That's 50 identical footer strings. If you chunk this PDF into 200 chunks, 50 chunks contain only this boilerplate.</p>
+    <p><strong>Impact:</strong> When a user asks about payment processing, the retrieval system finds these boilerplate chunks as "relevant" (they match on "PayPal") and wastes 25% of the context window on useless text.</p>
+    <p><strong>Fix:</strong> Detect lines that appear in >60% of pages and remove them.</p>
+  </div>
+  <div class="explain">
+    <h4>🔁 Type 4: Duplicates &amp; Near-Duplicates</h4>
+    <p><strong>What it is:</strong> The same document ingested twice, or very similar documents (like 40 "Happy Holidays" emails) that would over-represent one topic.</p>
+    <p><strong>Real example:</strong> Your company sends the same refund policy to every customer who disputes a charge. You have 8,000 copies of the same paragraph in your ticket database. If you fine-tune on this, the LLM becomes obsessed with refund policy language and applies it to unrelated questions.</p>
+    <p><strong>Fix:</strong> Hash exact duplicates. Use MinHash LSH for near-duplicates (80%+ similar = remove).</p>
+  </div>
+  <div class="explain">
+    <h4>🚫 Type 5: Too Short / Low Quality</h4>
+    <p><strong>What it is:</strong> Records that are technically valid but too thin to teach the LLM anything useful.</p>
+    <p><strong>Real examples:</strong> Support tickets where the agent wrote: "Escalated.", "Done.", "See above.", "OK ✓". These 1-word "resolutions" are noise — they have a question but no meaningful answer. Fine-tuning on these teaches the LLM that "Escalated." is a valid response to customer questions.</p>
+    <p><strong>Fix:</strong> Filter out records where answer word count &lt; 10 or resolution is a single word.</p>
+  </div>
+  <div class="explain">
+    <h4>🔐 Type 6: PII — Personal Information</h4>
+    <p><strong>What it is:</strong> Real names, emails, phone numbers, SSNs, account IDs, IP addresses — anything that identifies a real person.</p>
+    <p><strong>Why it matters:</strong> If you fine-tune an LLM on customer support tickets containing real customer emails and account numbers, the model can memorize and later reproduce them. This is a GDPR/CCPA/HIPAA violation and a security incident waiting to happen.</p>
+    <p><strong>Real example:</strong> Ticket: <em>"John Smith (john.smith@gmail.com, account #PP-8823) called about..."</em> → <em>"[PERSON] ([EMAIL], account #[ACCOUNT_ID]) called about..."</em></p>
+    <p><strong>Fix:</strong> Regex for emails/phones/SSNs + spaCy NER for names, or use Microsoft Presidio.</p>
+  </div>
+</div>
+
+<h3 class="sec"><span class="n">4.2</span> Cleaning a Real Support Ticket — Step by Step</h3>
+<pre><span class="lang">python · watch a single messy ticket get cleaned, step by step</span><span class="c"># The raw ticket from the database:</span>
+raw = <span class="s">"""From: John Smith &lt;jsmith@gmail.com&gt;
+To: support@paypal.com
+Date: Mon, 15 Jan 2024 09:23:11 -0800
+
+&lt;html&gt;&lt;body&gt;
+&lt;p&gt;Hi,&nbsp;&nbsp;my refnd of $200.00 from&lt;br&gt;transaction PP-88234-2024 hasn't
+arrived yet!!!!!!!!&lt;/p&gt;
+&lt;p&gt;Can&amp;nbsp;you help??&lt;/p&gt;
+&lt;/body&gt;&lt;/html&gt;
+
+--
+John Smith | Senior Manager | PayPal Enterprise Client
+Tel: +1-650-555-0192 | john.smith@paypal.com
+CONFIDENTIAL: This email may contain privileged information."""</span>
+
+<span class="k">import</span> re
+<span class="k">from</span> bs4 <span class="k">import</span> BeautifulSoup
+<span class="k">import</span> unicodedata
+
+<span class="c"># Step 1: Strip HTML tags → "Hi, my refnd of $200.00 from transaction PP-88234-2024..."</span>
+text = BeautifulSoup(raw, <span class="s">"html.parser"</span>).<span class="f">get_text</span>(separator=<span class="s">" "</span>)
+
+<span class="c"># Step 2: Remove email headers (From/To/Date lines)</span>
+text = re.<span class="f">sub</span>(<span class="s">r"^(From|To|Date|Subject):.*$"</span>, <span class="s">""</span>, text, flags=re.M)
+
+<span class="c"># Step 3: Remove email signature block (everything after "--")</span>
+text = re.<span class="f">sub</span>(<span class="s">r"\n--\n.*"</span>, <span class="s">""</span>, text, flags=re.S)
+
+<span class="c"># Step 4: Remove CONFIDENTIAL disclaimer</span>
+text = re.<span class="f">sub</span>(<span class="s">r"CONFIDENTIAL:.*"</span>, <span class="s">""</span>, text, flags=re.S)
+
+<span class="c"># Step 5: Normalize unicode (removes &nbsp; invisible chars)</span>
+text = unicodedata.<span class="f">normalize</span>(<span class="s">"NFKD"</span>, text).<span class="f">encode</span>(<span class="s">"ascii"</span>, <span class="s">"ignore"</span>).<span class="f">decode</span>()
+
+<span class="c"># Step 6: Redact PII</span>
+text = re.<span class="f">sub</span>(<span class="s">r"[\w\.-]+@[\w\.-]+\.\w+"</span>, <span class="s">"[EMAIL]"</span>, text)
+text = re.<span class="f">sub</span>(<span class="s">r"\+?1[-.\s]?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}"</span>, <span class="s">"[PHONE]"</span>, text)
+
+<span class="c"># Step 7: Collapse whitespace</span>
+text = re.<span class="f">sub</span>(<span class="s">r"\s+"</span>, <span class="s">" "</span>, text).<span class="f">strip</span>()
+
+<span class="f">print</span>(text)
+<span class="c"># Output: "Hi, my refnd of $200.00 from transaction PP-88234-2024 hasn't arrived yet!!</span>
+<span class="c">#          Can you help?"</span>
+<span class="c"># Clean, no HTML, no email headers, no signature, no PII, single space.</span></pre>
+
+<h3 class="sec"><span class="n">4.3</span> What Happens If You Skip Cleaning</h3>
+<div class="tbl-wrap">
+<table>
+  <thead><tr><th>Skipped Step</th><th>What the LLM Sees</th><th>What Goes Wrong</th></tr></thead>
+  <tbody>
+    <tr>
+      <td>Don't remove HTML</td>
+      <td><code>&lt;div style="font:14px"&gt;...</code></td>
+      <td>LLM learns CSS syntax is part of English. Occasionally outputs HTML tags in answers.</td>
+    </tr>
+    <tr>
+      <td>Don't remove duplicates</td>
+      <td>Same refund policy paragraph 500 times</td>
+      <td>LLM obsessively mentions refunds even when asked about unrelated topics (topic bias).</td>
+    </tr>
+    <tr>
+      <td>Don't filter short records</td>
+      <td>"Resolved.", "OK.", "Done."</td>
+      <td>Fine-tuned model gives 1-word answers to real customer questions.</td>
+    </tr>
+    <tr>
+      <td>Don't remove boilerplate</td>
+      <td>"Page 3 of 47" on every chunk</td>
+      <td>RAG retrieves boilerplate-heavy chunks as "relevant," wastes context on noise.</td>
+    </tr>
+    <tr>
+      <td>Don't redact PII</td>
+      <td>Real customer emails/SSNs</td>
+      <td>Model memorizes and can reproduce private data. GDPR violation.</td>
+    </tr>
+    <tr>
+      <td>Don't fix encoding</td>
+      <td><code>\xa0\u200b\ufeff</code> invisible chars</td>
+      <td>Tokenizer treats invisible chars as real tokens. Increases token count, hurts accuracy.</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════
+     CH 5 — TRANSFORMATION EXPLAINED
+═══════════════════════════════════════════════════════ -->
+<div id="transform">
+<div class="chapter">
+  <span class="ch-num purple">Chapter 05</span>
+  <h2>Transformation — Shaping for the LLM</h2>
+</div>
+
+<div class="analogy">
+  <div class="analogy-label">Analogy</div>
+  <p><strong>Transformation is like a chef preparing ingredients for a specific recipe.</strong> You have clean vegetables (cleaned text). But the recipe (the LLM's input format) calls for diced carrots, not whole ones. You cut them to the right size, season them appropriately, and plate them in the order the recipe specifies. The vegetables haven't changed — they've been shaped for the dish.</p>
+</div>
+
+<h3 class="sec"><span class="n">5.1</span> Chunking — The Most Important Transformation</h3>
+<div class="explain">
+  <h4>Why chunk at all?</h4>
+  <p>LLMs have a context window limit — they can only "see" a fixed amount of text at once. GPT-4o sees 128,000 tokens max. That sounds like a lot (~96,000 words) but you also need room for your prompt, the question, and the answer. And embedding a 40-page document as one vector is terrible — when someone asks about page 3, the entire 40-page embedding competes with page 3's specific content.</p>
+  <p><strong>Chunking splits your document into pieces that are:</strong></p>
+  <ul>
+    <li><strong>Small enough</strong> to retrieve precisely (the right section, not the whole book)</li>
+    <li><strong>Large enough</strong> to contain a complete thought (not half a sentence)</li>
+    <li><strong>Overlapping slightly</strong> so context at the boundary isn't lost</li>
+  </ul>
+</div>
+
+<h3 class="sec"><span class="n">5.2</span> Chunking Strategies — Which to Use When</h3>
+
+<div class="grid-2">
+  <div class="explain">
+    <h4>📏 Fixed-Size Chunking</h4>
+    <p><strong>How it works:</strong> Split every 1000 characters, overlap 200 characters. Simple.</p>
+    <p><strong>Real example:</strong> A 5,000-char policy paragraph becomes 5 chunks of 1000 chars each, with the last 200 chars of each chunk repeated as the first 200 chars of the next. The overlap prevents losing context at a cut point.</p>
+    <p><strong>Problem:</strong> Can cut mid-sentence. "The refund will be processed within 3-5 business / days depending on your bank." — the split happens mid-phrase.</p>
+    <p><strong>Use when:</strong> You need speed and simplicity. Good default for most text.</p>
+  </div>
+  <div class="explain">
+    <h4>📖 Recursive / Sentence-Aware Chunking</h4>
+    <p><strong>How it works:</strong> Tries to split at paragraph breaks first, then sentences, then words — never mid-word.</p>
+    <p><strong>Real example:</strong> Same 5,000-char paragraph is first split at <code>\n\n</code> (paragraph breaks). If any piece is still &gt;1000 chars, split again at <code>. </code> (sentence ends). Result: chunks that end at natural boundaries.</p>
+    <p><strong>Why better:</strong> Each chunk is a coherent thought. "The refund will be processed within 3-5 business days depending on your bank." stays together.</p>
+    <p><strong>Use when:</strong> General text documents (default choice for most RAG systems).</p>
+  </div>
+  <div class="explain">
+    <h4>📑 Section-Aware Chunking (Markdown/HTML)</h4>
+    <p><strong>How it works:</strong> Split at document headings (# H1, ## H2). Each section becomes one chunk, with the heading preserved as metadata.</p>
+    <p><strong>Real example:</strong> A policy doc with sections "Eligibility", "Process", "Timeline", "Exceptions" becomes 4 chunks. Each chunk has metadata <code>{"section": "Eligibility"}</code>. When a user asks about eligibility, the metadata filter immediately focuses retrieval on the right chunk.</p>
+    <p><strong>Use when:</strong> Well-structured docs (wikis, documentation, policy PDFs with clear headings).</p>
+  </div>
+  <div class="explain">
+    <h4>👨‍👧 Parent-Child Chunking</h4>
+    <p><strong>How it works:</strong> Create two levels — small "child" chunks (200 chars) for precise retrieval, and large "parent" chunks (1500 chars) that provide context. Retrieve by child, return the parent.</p>
+    <p><strong>Real example:</strong> You have a 3,000-word product manual. Small chunks retrieve precisely (matching exactly what the user asked). But returning just those 200 chars loses the surrounding context. So you return the 1500-char parent section — giving the LLM enough context to answer properly.</p>
+    <p><strong>Use when:</strong> You need both high retrieval precision AND sufficient context for answers. Best practice for production RAG.</p>
+  </div>
+</div>
+
+<h3 class="sec"><span class="n">5.3</span> Why Metadata Matters — A Concrete Example</h3>
+<div class="scenario">
+  <div class="scenario-label">Real Scenario · Metadata in Action</div>
+  <h4>🏷️ Without metadata, you can't filter. Without filtering, answers mix up topics.</h4>
+  <p><strong>Imagine:</strong> Your vector DB has 10,000 chunks from support tickets. 2,000 are about refunds. 3,000 are about login issues. 5,000 are about general account help. A user asks: <em>"How do I get a refund?"</em></p>
+  <p><strong>Without metadata:</strong> The RAG system searches all 10,000 chunks by semantic similarity. It returns 4 chunks that happen to be similar — maybe 2 refund chunks and 2 login chunks (login questions often contain words like "account" and "issue" which overlap semantically). The LLM's context is polluted with irrelevant info.</p>
+  <p><strong>With metadata:</strong> Each chunk was tagged with <code>{"intent": "REFUND"}</code> during transformation. The query filter is: <em>search only in chunks where intent = REFUND</em>. All 4 retrieved chunks are now relevant. Answer quality doubles.</p>
+</div>
+<pre><span class="lang">python · adding metadata that enables filtered retrieval</span><span class="c"># During transformation, classify and tag each chunk</span>
+<span class="k">from</span> openai <span class="k">import</span> OpenAI
+client = <span class="f">OpenAI</span>()
+
+<span class="k">def</span> <span class="f">classify_intent</span>(text: str) -> str:
+    <span class="c"># Use a cheap fast model just for classification</span>
+    r = client.chat.completions.<span class="f">create</span>(
+        model=<span class="s">"gpt-4o-mini"</span>, temperature=<span class="n">0</span>,
+        messages=[{<span class="s">"role"</span>:<span class="s">"user"</span>, <span class="s">"content"</span>:
+            <span class="s">f"Classify this support text as one of: REFUND|DISPUTE|LOGIN|ACCOUNT|OTHER\nText: {text[:300]}\nClass:"</span>}]
+    )
+    <span class="k">return</span> r.choices[<span class="n">0</span>].message.content.<span class="f">strip</span>()
+
+<span class="c"># Now each chunk has intent metadata attached</span>
+<span class="k">for</span> chunk <span class="k">in</span> chunks:
+    chunk.metadata[<span class="s">"intent"</span>]    = <span class="f">classify_intent</span>(chunk.page_content)
+    chunk.metadata[<span class="s">"date"</span>]      = <span class="s">"2024-01"</span>     <span class="c"># when was this written?</span>
+    chunk.metadata[<span class="s">"doc_type"</span>]  = <span class="s">"policy"</span>      <span class="c"># policy, ticket, faq</span>
+    chunk.metadata[<span class="s">"word_count"</span>] = <span class="f">len</span>(chunk.page_content.<span class="f">split</span>())
+
+<span class="c"># At query time — filter by intent</span>
+results = vectordb.<span class="f">similarity_search</span>(
+    query=<span class="s">"How do I get a refund?"</span>,
+    k=<span class="n">4</span>,
+    filter={<span class="s">"intent"</span>: <span class="s">"REFUND"</span>, <span class="s">"doc_type"</span>: <span class="s">"policy"</span>}
+    <span class="c"># Only searches 2,000 refund policy chunks, not all 10,000</span>
+)</pre>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════
+     CH 6 — FEEDING TO LLM EXPLAINED
+═══════════════════════════════════════════════════════ -->
+<div id="feed">
+<div class="chapter">
+  <span class="ch-num teal">Chapter 06</span>
+  <h2>Feeding to the LLM — The Three Ways</h2>
+</div>
+
+<div class="analogy">
+  <div class="analogy-label">Analogy</div>
+  <p><strong>There are three ways to "give knowledge" to a person before an exam:</strong></p>
+  <p><strong>Direct Injection</strong> = Hand them the notes right before the question. They read it fresh. (Good for small, specific, current info.)</p>
+  <p><strong>RAG</strong> = Give them a library card. When a question comes, they go look it up. (Good for large, dynamic, document-based knowledge.)</p>
+  <p><strong>Fine-tuning</strong> = Make them study for months until they memorize the material. (Good for style, behavior, and domain expertise — not facts.)</p>
+</div>
+
+<h3 class="sec"><span class="n">6.1</span> Method 1: Direct Injection — Stuffing the Prompt</h3>
+<div class="explain">
+  <h4>What it is &amp; when to use it</h4>
+  <p>You take your cleaned, transformed data and put it directly inside the prompt as text. The LLM reads it right now, answers based on it, then forgets it (next request starts fresh).</p>
+  <p><strong>Best for:</strong> Small datasets (&lt;100k tokens). A single document. User-uploaded files. Real-time data like stock prices or weather.</p>
+  <p><strong>Real example:</strong> A user uploads their own PDF contract and asks "Does this contract allow subletting?" You inject the whole PDF text into the prompt: <em>"Here is a contract: [contract text]. Does this allow subletting?"</em></p>
+  <p><strong>Limits:</strong> Context window. GPT-4o maxes at 128k tokens (~96k words). A 500-page book won't fit. Also costs more — you pay for every token you inject.</p>
+</div>
+<pre><span class="lang">python · direct injection example</span>context = <span class="s">"""
+REFUND POLICY (Updated Jan 2024):
+- Standard refunds: 3-5 business days
+- Dispute refunds: 10-15 business days  
+- Instant refunds: Available for eligible transactions
+- International refunds: 5-7 business days additional
+"""</span>
+
+prompt = <span class="s">f"""You are a PayPal support agent. Use ONLY the policy below.
+If the answer isn't in the policy, say "I don't have that information."
+
+POLICY:
+{context}
+
+CUSTOMER QUESTION: How long does an international dispute refund take?
+ANSWER:"""</span>
+
+<span class="c"># LLM will answer: "15-22 business days (10-15 for dispute + 5-7 additional for international)"</span>
+<span class="c"># Answer is grounded in the policy you injected. No hallucination.</span></pre>
+
+<h3 class="sec"><span class="n">6.2</span> Method 2: RAG — Retrieve Then Generate</h3>
+<div class="explain">
+  <h4>How it works step by step</h4>
+  <p>Your entire knowledge base is pre-indexed as vectors in a database. At query time, your question is also converted to a vector. The vector database finds the 4-5 most semantically similar text chunks. Those chunks are injected into the prompt. The LLM answers from those specific chunks.</p>
+  <p><strong>Why this is powerful:</strong> Your knowledge base can have 1 million documents. You never send all of them to the LLM — only the 4 most relevant. The pipeline's job was to pre-process all of them so they're ready.</p>
+</div>
+
+<div class="diagram-card">
+  <div class="dc-title">RAG Query Flow — What Happens in Real Time</div>
+<div class="flow"><span class="fg-text">User types: "What's the deadline to file a PayPal dispute?"</span>
+         │
+         ▼
+<span class="fg-teal">[1. Embed the question]</span>
+   <span class="fg-dim">"dispute deadline" → [0.12, -0.87, 0.43 ...] (1536-dim vector)</span>
+         │
+         ▼
+<span class="fg-teal">[2. Search vector DB]</span>
+   <span class="fg-dim">Compare against 50,000 pre-embedded chunks</span>
+   <span class="fg-dim">Find top 4 most similar:</span>
+   <span class="fg-amber">  Score 0.94:</span> <span class="fg-text">"Disputes must be filed within 180 days..."</span>
+   <span class="fg-amber">  Score 0.91:</span> <span class="fg-text">"The 180-day window starts from transaction date..."</span>
+   <span class="fg-amber">  Score 0.87:</span> <span class="fg-text">"Unauthorized transaction disputes: file within 60 days..."</span>
+   <span class="fg-amber">  Score 0.84:</span> <span class="fg-text">"After 180 days, disputes cannot be opened..."</span>
+         │
+         ▼
+<span class="fg-teal">[3. Build prompt with retrieved chunks]</span>
+   <span class="fg-dim">System: "Answer only from context below."</span>
+   <span class="fg-dim">Context: [all 4 chunks pasted here]</span>
+   <span class="fg-dim">Question: "What's the deadline to file a PayPal dispute?"</span>
+         │
+         ▼
+<span class="fg-purple">[4. LLM generates answer]</span>
+   <span class="fg-text">"You have 180 days from the transaction date to file a dispute.</span>
+   <span class="fg-text">For unauthorized transactions, file within 60 days."</span>
+   <span class="fg-text">Sources: disputes-policy.pdf p.3, p.7</span>
+
+   <span class="fg-teal">✓ Grounded in real policy  ✓ Cites sources  ✓ No hallucination</span></div>
+</div>
+
+<h3 class="sec"><span class="n">6.3</span> Method 3: Fine-Tuning — Training the Model</h3>
+<div class="explain">
+  <h4>What fine-tuning actually does (and doesn't do)</h4>
+  <p><strong>Common misconception:</strong> Fine-tuning injects knowledge into the model. <em>This is mostly wrong.</em></p>
+  <p><strong>What fine-tuning actually does:</strong> It teaches the model <em>how to respond</em> — the style, tone, format, and behavior. It learns patterns from your examples and applies them to new situations.</p>
+  <p><strong>Real example:</strong> You fine-tune on 5,000 PayPal support conversations. The model learns: always open with an apology for the inconvenience, always end with "Is there anything else I can help you with?", always give a numbered step-by-step when instructions are needed, never mention competitor companies. This is <em>behavioral</em> learning.</p>
+  <p><strong>What fine-tuning won't reliably do:</strong> Remember that a specific policy changed on March 15, 2024. Facts that weren't heavily repeated in training can be forgotten or hallucinated. Use RAG for facts, fine-tuning for style.</p>
+</div>
+
+<div class="tbl-wrap">
+<table>
+  <thead><tr><th></th><th>Direct Injection</th><th>RAG</th><th>Fine-Tuning</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Analogy</strong></td><td>Read notes before exam</td><td>Open-book exam</td><td>Study for months</td></tr>
+    <tr><td><strong>Best for</strong></td><td>Small, current, one-off data</td><td>Large doc bases, facts</td><td>Style, tone, behavior</td></tr>
+    <tr><td><strong>Updates</strong></td><td>Instant — change the prompt</td><td>Easy — re-index docs</td><td>Slow — retrain model</td></tr>
+    <tr><td><strong>Cost</strong></td><td>Tokens per request</td><td>Tokens + vector DB</td><td>Training $$ + inference</td></tr>
+    <tr><td><strong>Hallucination risk</strong></td><td>Low (if grounded)</td><td>Low (if well-retrieved)</td><td>Higher (model invents)</td></tr>
+    <tr><td><strong>Data needed</strong></td><td>None (just your text)</td><td>Your cleaned docs</td><td>100–10,000 examples</td></tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════
+     CH 7 — PIPELINE TYPES EXPLAINED
+═══════════════════════════════════════════════════════ -->
+<div id="types">
+<div class="chapter">
+  <span class="ch-num blue">Chapter 07</span>
+  <h2>Pipeline Types — Batch vs Stream vs On-Demand</h2>
+</div>
+
+<h3 class="sec"><span class="n">7.1</span> Batch Pipeline — The Nightly Job</h3>
+<div class="scenario">
+  <div class="scenario-label">Real Example · Batch Pipeline</div>
+  <h4>🌙 Nightly re-indexing of all policy documents</h4>
+  <p><strong>Scenario:</strong> PayPal's policy team updates 5-10 policy PDFs every week. You want the support chatbot to always have the latest information. Every night at 2am, a batch pipeline runs and re-processes all changed documents.</p>
+  <p><strong>How it works:</strong> The pipeline checks a hash of every PDF. If the hash changed since last run, it re-processes that file (re-cleans, re-chunks, re-embeds, re-indexes). Unchanged files are skipped. The process takes 20 minutes for all 200 PDFs, running while no one is using the system.</p>
+  <p><strong>Tools:</strong> cron job or Airflow DAG scheduled with <code>CronSchedule("0 2 * * *")</code> (2am every day).</p>
+  <p><strong>Why batch, not real-time?</strong> PDF changes aren't time-critical. A 24-hour lag between "policy updated" and "chatbot knows about it" is acceptable. Batch is simpler and cheaper than real-time.</p>
+</div>
+
+<h3 class="sec"><span class="n">7.2</span> Streaming Pipeline — Real-Time Events</h3>
+<div class="scenario">
+  <div class="scenario-label">Real Example · Streaming Pipeline</div>
+  <h4>⚡ New support ticket created → indexed within seconds → LLM can answer about it</h4>
+  <p><strong>Scenario:</strong> Your company has a product incident. 200 customers open support tickets in the next 10 minutes. Your support team wants an LLM that can detect the pattern ("all these tickets are about the payment page error") in real-time to auto-escalate.</p>
+  <p><strong>How it works:</strong> Every time a new ticket is created, it triggers a webhook → the pipeline picks it up from Kafka → cleans and embeds it → inserts into the vector DB → within 5 seconds, the ticket is searchable. A monitoring query runs every 30 seconds looking for sudden topic spikes.</p>
+  <p><strong>Tools:</strong> Apache Kafka (event stream), Flink or Spark Streaming (processing), Qdrant (vector DB with upsert support).</p>
+  <p><strong>Why streaming, not batch?</strong> A 24-hour delay means the incident escalation happens <em>after</em> hundreds more customers are frustrated. The value is in the real-time detection. The added complexity of streaming is worth it here.</p>
+</div>
+
+<h3 class="sec"><span class="n">7.3</span> On-Demand Pipeline — User-Triggered</h3>
+<div class="scenario">
+  <div class="scenario-label">Real Example · On-Demand Pipeline</div>
+  <h4>📄 User uploads a PDF → LLM can answer questions about it in 10 seconds</h4>
+  <p><strong>Scenario:</strong> You build a "chat with your document" feature. A user uploads their lease agreement. Within seconds, they can ask "Does my lease allow pets?" and get an accurate answer.</p>
+  <p><strong>How it works:</strong> Upload triggers a FastAPI endpoint → extract text from PDF (pdfplumber) → clean (remove headers, fix encoding) → chunk (split into 500-char pieces) → embed (OpenAI) → store in a temporary per-session vector index → answer questions → delete the index when the session ends.</p>
+  <p><strong>Why on-demand?</strong> There's no pre-existing knowledge base. The pipeline runs specifically for this user's document, and only this document. It takes 5-10 seconds for a typical 20-page PDF.</p>
+  <p><strong>Tools:</strong> FastAPI (endpoint), pdfplumber (extraction), OpenAI (embedding), ChromaDB in-memory (temporary index).</p>
+</div>
+
+<div class="tbl-wrap">
+<table>
+  <thead><tr><th>Type</th><th>When to Use</th><th>Latency</th><th>Real Example</th><th>Tools</th></tr></thead>
+  <tbody>
+    <tr><td><span class="tag green">Batch</span></td><td>Data changes daily or slower</td><td>Minutes-hours</td><td>Nightly policy doc re-index</td><td>cron, Airflow, Prefect</td></tr>
+    <tr><td><span class="tag blue">Streaming</span></td><td>Real-time events, alerts</td><td>Seconds</td><td>Live ticket pattern detection</td><td>Kafka, Flink, Kinesis</td></tr>
+    <tr><td><span class="tag purple">On-Demand</span></td><td>User uploads, one-off files</td><td>5-30 seconds</td><td>"Chat with your PDF"</td><td>FastAPI, Lambda</td></tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════
+     CH 8 — COMMON MISTAKES
+═══════════════════════════════════════════════════════ -->
+<div id="mistakes">
+<div class="chapter">
+  <span class="ch-num coral">Chapter 08</span>
+  <h2>Common Mistakes &amp; How to Fix Them</h2>
+</div>
+
+<div class="callout warn">
+  <div class="icon">⚠️</div>
+  <p>These are the mistakes almost everyone makes on their first LLM pipeline. Each one looks harmless but silently degrades your LLM's quality in ways that are hard to debug later.</p>
+</div>
+
+<div class="grid-2">
+  <div class="explain">
+    <h4>❌ Mistake 1: Cleaning Order Is Wrong</h4>
+    <p><strong>Wrong order:</strong> Deduplicate → Remove HTML → Normalize whitespace</p>
+    <p><strong>Problem:</strong> You deduplicate on raw text. Two tickets that are identical in content but differ only in HTML formatting (<code>&lt;b&gt;hello&lt;/b&gt;</code> vs <code>&lt;i&gt;hello&lt;/i&gt;</code>) are treated as different records. You keep both. Later, after HTML removal, they're identical — duplicates got through.</p>
+    <p><strong>Correct order:</strong></p>
+    <ol>
+      <li>Remove HTML first</li>
+      <li>Normalize whitespace/unicode</li>
+      <li>THEN deduplicate (on truly comparable text)</li>
+      <li>THEN filter by quality</li>
+    </ol>
+  </div>
+  <div class="explain">
+    <h4>❌ Mistake 2: Chunk Size Too Small</h4>
+    <p><strong>The mistake:</strong> Thinking smaller = more precise = better. Setting chunk size to 100 characters.</p>
+    <p><strong>What happens:</strong> A policy sentence like <em>"Refunds are issued within 3-5 business days provided the transaction was made with a linked bank account and the dispute was resolved in the buyer's favor."</em> gets split into:</p>
+    <ul>
+      <li>Chunk 1: "Refunds are issued within 3-5 business"</li>
+      <li>Chunk 2: "days provided the transaction was made with"</li>
+      <li>Chunk 3: "a linked bank account and the dispute was"</li>
+    </ul>
+    <p>None of these chunks contains the complete policy rule. The LLM gets partial context and gives incomplete answers.</p>
+    <p><strong>Fix:</strong> Start with 500-1000 characters. Measure answer quality. Adjust based on results, not intuition.</p>
+  </div>
+  <div class="explain">
+    <h4>❌ Mistake 3: No Metadata = No Filtering</h4>
+    <p><strong>The mistake:</strong> Indexing all documents without any metadata tags.</p>
+    <p><strong>What happens:</strong> You have 100,000 chunks from 10 different document categories. A user asks a refund question. The RAG system searches all 100,000 chunks. It finds chunks about refunds, but also finds chunks about "dispute resolution" and "chargeback processing" that are semantically similar but answer a different question.</p>
+    <p><strong>Fix:</strong> Tag every chunk with: source file, doc type, topic/category, date, and any domain-specific filters. This costs a few cents in LLM classification calls but saves enormous retrieval noise.</p>
+  </div>
+  <div class="explain">
+    <h4>❌ Mistake 4: Fine-tuning When You Need RAG</h4>
+    <p><strong>The mistake:</strong> Trying to "teach" the LLM specific facts by fine-tuning it on them.</p>
+    <p><strong>What happens:</strong> You fine-tune the model with "PayPal refunds take 3-5 days" in 500 training examples. The policy changes to 1-3 days. Now your model confidently states the wrong information — you have to re-train to fix it. Meanwhile, a RAG system would just need a 30-second re-index.</p>
+    <p><strong>Rule of thumb:</strong> If the information can change, use RAG. Fine-tune only for behavior/style that doesn't change (like tone, format, persona).</p>
+  </div>
+  <div class="explain">
+    <h4>❌ Mistake 5: Sending All Retrieved Chunks Regardless of Score</h4>
+    <p><strong>The mistake:</strong> Always returning top-K chunks even when the scores are low (the question doesn't match any document well).</p>
+    <p><strong>What happens:</strong> User asks "What's the weather like?" (completely off-topic). RAG returns 4 chunks about refunds (best match score: 0.31). LLM receives context about refunds and tries to answer the weather question using it — producing confused, irrelevant output.</p>
+    <p><strong>Fix:</strong> Set a minimum similarity threshold. If the best match score &lt; 0.7, don't retrieve at all — let the LLM answer from its own knowledge or say "I don't have information about that."</p>
+  </div>
+  <div class="explain">
+    <h4>❌ Mistake 6: Not Testing the Pipeline Output</h4>
+    <p><strong>The mistake:</strong> Writing the pipeline, running it once, assuming it worked because no errors were thrown.</p>
+    <p><strong>What happens:</strong> The pipeline ran silently and produced 50,000 chunks. But 30% of them are just boilerplate that wasn't caught. Another 10% are under 20 words (too short). Nobody noticed because there was no quality check step.</p>
+    <p><strong>Fix:</strong> After every pipeline run, print a sample of 10 random chunks and read them. Check word count distribution. Look at the 10 shortest and 10 longest chunks. Build a dashboard with: total chunks, avg word count, null rate, duplicate rate.</p>
+  </div>
+</div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════
+     CH 9 — WHAT TO REMEMBER
+═══════════════════════════════════════════════════════ -->
+<div id="remember">
+<div class="chapter">
+  <span class="ch-num pink">Chapter 09</span>
+  <h2>What to Remember — The Mental Checklists</h2>
+</div>
+
+<div class="big-quote">
+  <p>"The LLM is the last 10% of the system. The pipeline is the first 90%. Most LLM failures are pipeline failures."</p>
+</div>
+
+<h3 class="sec"><span class="n">9.1</span> Is This Document Everything You Need?</h3>
+<div class="explain">
+  <h4>What this guide covers (the fundamentals)</h4>
+  <p>Yes — for building real pipelines for LLM applications, this guide covers all the fundamental concepts. There are more advanced topics (like distributed streaming with Kafka, GPU-accelerated embedding, or multi-modal pipelines for images+text), but those build on these foundations.</p>
+  <p><strong>The 5 things that make or break any LLM pipeline:</strong></p>
+  <ol>
+    <li><strong>Clean before you chunk.</strong> Chunking dirty text just gives you 100 dirty pieces instead of 1.</li>
+    <li><strong>Metadata is not optional.</strong> Without filters, retrieval is a lottery.</li>
+    <li><strong>Track what enters and exits each step.</strong> A silent drop of 30% of records is a bug, not a feature.</li>
+    <li><strong>Use the right feeding method.</strong> RAG for facts. Fine-tuning for style. Direct injection for small/fresh data.</li>
+    <li><strong>Incremental updates or you'll rebuild forever.</strong> Hash every file. Only re-process what changed.</li>
+  </ol>
+</div>
+
+<h3 class="sec"><span class="n">9.2</span> The Complete Mental Checklist — Print &amp; Keep</h3>
+<div class="summary-box">
+  <h4>✅ Before You Build Any Pipeline — Ask These Questions</h4>
+  <ul>
+    <li><strong>Source:</strong> Where does data come from? What format is it in? How often does it update?</li>
+    <li><strong>Dirt:</strong> What specific problems does this data have? (Run a sample inspection before writing any cleaning code.)</li>
+    <li><strong>PII:</strong> Does the data contain names, emails, SSNs, or any identifying info? If yes — redact FIRST, before anything else.</li>
+    <li><strong>Quality signal:</strong> Can you filter by quality before processing? (open rates, resolution quality scores, word count minimums)</li>
+    <li><strong>Delivery method:</strong> RAG (large dynamic knowledge)? Fine-tune (style/behavior)? Direct inject (small/fresh)?</li>
+    <li><strong>Metadata:</strong> What filters will users need? Add those as metadata during transformation.</li>
+    <li><strong>Chunking:</strong> What's the right chunk size for this data? Smaller for retrieval precision, larger for context richness.</li>
+    <li><strong>Incremental:</strong> How do you avoid re-processing everything every time? Hash files, track what changed.</li>
+    <li><strong>Monitoring:</strong> What does a healthy run look like? How will you know if it breaks silently?</li>
+  </ul>
+</div>
+
+<h3 class="sec"><span class="n">9.3</span> The Decision Map — Which Technique for Which Problem</h3>
+<div class="tbl-wrap">
+<table>
+  <thead><tr><th>You Want To…</th><th>Use This</th><th>Why</th></tr></thead>
+  <tbody>
+    <tr><td>Answer questions from your company's docs</td><td><span class="tag green">RAG Pipeline</span></td><td>Docs can change; RAG updates by re-indexing, not retraining</td></tr>
+    <tr><td>Make LLM write in your brand voice</td><td><span class="tag purple">Fine-tune Pipeline</span></td><td>Style is behavioral learning, not fact retrieval</td></tr>
+    <tr><td>Let users chat with their own uploaded file</td><td><span class="tag blue">On-demand Pipeline</span></td><td>Per-session, temporary, user-specific</td></tr>
+    <tr><td>Detect patterns in real-time event stream</td><td><span class="tag amber">Streaming Pipeline</span></td><td>Batch latency unacceptable; need seconds not hours</td></tr>
+    <tr><td>Keep knowledge base up to date with weekly changes</td><td><span class="tag green">Batch Pipeline (nightly)</span></td><td>24h lag acceptable; much simpler than streaming</td></tr>
+    <tr><td>Answer about a single current record (e.g., "this order")</td><td><span class="tag blue">Direct Injection</span></td><td>Small, specific, always current — just put it in the prompt</td></tr>
+    <tr><td>LLM gives stale/wrong facts</td><td><span class="tag green">Add RAG or update index</span></td><td>LLMs don't know what changed; RAG always pulls current docs</td></tr>
+    <tr><td>LLM answers in wrong tone/format</td><td><span class="tag purple">Fine-tune on good examples</span></td><td>Tone is style, not knowledge — fine-tune teaches it</td></tr>
+    <tr><td>LLM retrieves irrelevant chunks</td><td><span class="tag amber">Add metadata filters</span></td><td>Vector similarity alone isn't enough; filters focus the search</td></tr>
+    <tr><td>Pipeline is too slow to re-run</td><td><span class="tag green">Add incremental hashing</span></td><td>Only process changed files; skip everything else</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h3 class="sec"><span class="n">9.4</span> The One-Page Summary — Everything That Matters</h3>
+<div class="grid-3">
+  <div class="card purple">
+    <div class="card-icon">🏭</div>
+    <h4>Pipeline = Assembly Line</h4>
+    <p>Source → Ingest → Clean → Transform → Deliver. Each stage does one job. If a stage breaks, everything downstream is wrong. Always know your counts at each stage.</p>
+  </div>
+  <div class="card coral">
+    <div class="card-icon">🧹</div>
+    <h4>Cleaning Order Matters</h4>
+    <p>Remove HTML → Normalize unicode → Remove boilerplate → Deduplicate → Filter short → Redact PII. Do it in this order every time. Deduplicating before HTML removal misses near-duplicates.</p>
+  </div>
+  <div class="card teal">
+    <div class="card-icon">🏷️</div>
+    <h4>Metadata = Retrieval Power</h4>
+    <p>Every chunk needs: source, type, topic, date. These let you filter searches by category. Without them, retrieval is a keyword lottery and answers mix topics.</p>
+  </div>
+  <div class="card amber">
+    <div class="card-icon">✂️</div>
+    <h4>Chunk at Sentence Boundaries</h4>
+    <p>1000 chars with 200 overlap is a good default. Never cut mid-sentence. Use recursive splitter by default. Use section-aware splitting for well-structured docs.</p>
+  </div>
+  <div class="card blue">
+    <div class="card-icon">🎯</div>
+    <h4>RAG for Facts, Fine-tune for Style</h4>
+    <p>If the info can change → RAG. If it's about behavior/tone/format → Fine-tune. Trying to teach facts via fine-tuning causes hallucinations when facts change.</p>
+  </div>
+  <div class="card pink">
+    <div class="card-icon">🔁</div>
+    <h4>Always Go Incremental</h4>
+    <p>Hash every file. Store what was processed. On each run, only process what changed. This turns a 4-hour nightly job into a 10-minute one and makes pipelines maintainable forever.</p>
+  </div>
+</div>
+
+<div class="callout tip">
+  <div class="icon">✅</div>
+  <p><strong>Is this guide everything you need for pipelines?</strong> Yes — for 90% of real-world LLM pipeline work. The remaining 10% is advanced infrastructure (GPU-scale embedding, distributed Kafka streaming, multi-modal pipelines) that you'd learn when you actually hit those scale limits. Start here. Build something. The gaps will reveal themselves naturally.</p>
+</div>
+
+</div>
+
+<footer>
+  <p>Data Pipelines Explained — Concepts, Examples &amp; Mental Models · 2025</p>
+</footer>
+
+</div><!-- .wrap -->
+
+<script>
+// Smooth scroll
+document.querySelectorAll('a.toc-btn').forEach(a => {
+  a.addEventListener('click', e => {
+    e.preventDefault();
+    const id = a.getAttribute('href').slice(1);
+    document.getElementById(id)?.scrollIntoView({behavior:'smooth'});
+  });
+});
+// Active TOC highlight
+const chapters = document.querySelectorAll('[id]');
+const btns = document.querySelectorAll('.toc-btn');
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if(entry.isIntersecting){
+      btns.forEach(b => b.classList.remove('active'));
+      const btn = document.querySelector(`.toc-btn[href="#${entry.target.id}"]`);
+      if(btn) btn.classList.add('active');
+    }
+  });
+}, {threshold:0.2});
+chapters.forEach(c => observer.observe(c));
+</script>
+</body>
+</html>
